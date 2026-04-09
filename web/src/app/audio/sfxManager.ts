@@ -9,6 +9,14 @@ type SoundId =
   | 'elephant'
   | 'pirate_gun'
   | 'pirate_galley'
+  | 'naval_battle'
+  | 'chariot'
+  | 'serpent_god'
+  | 'polar_bear'
+  | 'priest_spell'
+  | 'wizard_spell'
+  | 'blowgun'
+  | 'crocodile'
   | 'slaver_capture'
   | 'city_built'
   | 'city_captured'
@@ -39,6 +47,14 @@ const SOUND_SOURCES: Record<SoundId, string> = {
   elephant: '/assets/audio/sfx/elephant.wav',
   pirate_gun: '/assets/audio/sfx/infantry.wav',
   pirate_galley: '/assets/audio/sfx/navbttle.wav',
+  naval_battle: '/assets/audio/sfx/naval_battle.wav',
+  chariot: '/assets/audio/sfx/chariot.wav',
+  serpent_god: '/assets/audio/sfx/serpent_god.wav',
+  polar_bear: '/assets/audio/sfx/polar_bear.wav',
+  priest_spell: '/assets/audio/sfx/priest_spell.wav',
+  wizard_spell: '/assets/audio/sfx/wizard_spell.wav',
+  blowgun: '/assets/audio/sfx/blowgun.wav',
+  crocodile: '/assets/audio/sfx/crocodile.wav',
   slaver_capture: '/assets/audio/sfx/spysound.wav',
   city_built: '/assets/audio/sfx/bldcity.wav',
   city_captured: '/assets/audio/sfx/barracks.wav',
@@ -94,34 +110,64 @@ function isMeleeRange(unit: Pick<UnitView, 'range'>): boolean {
 }
 
 function classifyCombatSound(attacker: Pick<UnitView, 'factionId' | 'prototypeId' | 'chassisId' | 'movementClass' | 'role' | 'range'>): SoundId | null {
+  // ── Special summon/beast units (most specific) ──
+  if (attacker.chassisId === 'polar_bear_frame') {
+    return 'polar_bear';
+  }
+  if (attacker.chassisId === 'serpent_frame') {
+    return 'serpent_god';
+  }
+  if (attacker.chassisId === 'alligator_frame') {
+    return 'crocodile';
+  }
+  if (attacker.chassisId === 'chariot_frame') {
+    return 'chariot';
+  }
+
+  // ── Siege / existing special ──
   if (attacker.chassisId === 'catapult_frame' || attacker.prototypeId.includes('catapult')) {
     return 'catapult';
   }
-
   if (attacker.chassisId === 'elephant_frame' || attacker.prototypeId.includes('elephant')) {
     return 'elephant';
   }
 
+  // ── Magic / spellcaster units ──
+  if (attacker.prototypeId.endsWith('_druid_wizard')) {
+    return 'wizard_spell';
+  }
+  if (attacker.prototypeId.includes('blowgun')) {
+    return 'blowgun';
+  }
+  if (attacker.prototypeId.includes('_priest')) {
+    return 'priest_spell';
+  }
+
+  // ── Naval units ──
   if (isPirateNavalUnit(attacker)) {
     return 'pirate_galley';
   }
+  if (attacker.movementClass === 'naval') {
+    return 'naval_battle';
+  }
 
+  // ── Pirate land units ──
   if (isPirateBaseInfantry(attacker)) {
     return 'melee_infantry';
   }
-
   if (isPirateLandUnit(attacker)) {
     return 'pirate_gun';
   }
 
+  // ── Ranged (non-pirate) ──
   if (attacker.role === 'ranged' && attacker.factionId !== 'coral_people') {
     return 'ranged';
   }
 
+  // ── Melee fallbacks ──
   if (isMeleeRange(attacker) && ['cavalry', 'camel'].includes(attacker.movementClass ?? '')) {
     return 'melee_cavalry';
   }
-
   if (isMeleeRange(attacker) && attacker.movementClass === 'infantry') {
     return 'melee_infantry';
   }

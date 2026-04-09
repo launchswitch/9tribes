@@ -35,9 +35,9 @@ export interface BuildMvpScenarioOptions {
 }
 
 const MAP_SIZE_DIMENSIONS: Record<NonNullable<BuildMvpScenarioOptions['mapSize']>, { width: number; height: number }> = {
-  small: { width: 30, height: 22 },
-  medium: { width: 40, height: 30 },
-  large: { width: 50, height: 38 },
+  small: { width: 40, height: 30 },
+  medium: { width: 50, height: 38 },
+  large: { width: 60, height: 46 },
 };
 
 function getClimateBandStartSeparation(
@@ -50,7 +50,7 @@ function getClimateBandStartSeparation(
   }
 
   const areaPerFaction = (width * height) / factionCount;
-  return Math.max(4, Math.min(10, Math.round(Math.sqrt(areaPerFaction) * 0.72)));
+  return Math.max(6, Math.min(14, Math.round(Math.sqrt(areaPerFaction) * 0.72)));
 }
 
 function stampTerrainPatch(

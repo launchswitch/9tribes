@@ -17,7 +17,7 @@ import { getCitySiteBonuses } from './citySiteSystem.js';
 // Base city production income per turn
 const CITY_BASE_PRODUCTION = 2;
 // Base city supply income per turn
-const CITY_BASE_SUPPLY = 5;
+const CITY_BASE_SUPPLY = 3;
 // Captured city ramp: turns of zero output after capture
 const CAPTURE_RAMP_TURNS = 5;
 
