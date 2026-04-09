@@ -40,6 +40,7 @@ import {
   canProducePrototype,
   cancelCurrentProduction,
   completeProduction,
+  getNearestFactionVillageIds,
   getPrototypeCostType,
   getPrototypeQueueCost,
   queueUnit,
@@ -67,12 +68,24 @@ import type { AttackTargetView, ReachableHexView } from '../types/worldView';
 import { deserializeGameState, serializeGameState } from '../types/playState';
 import { updateFogState } from '../../../../src/systems/fogSystem.js';
 import { applyHealingForFaction } from '../../../../src/systems/healingSystem.js';
-import { applySupplyDeficitPenalties } from '../../../../src/systems/warExhaustionSystem.js';
+import {
+  addExhaustion,
+  applySupplyDeficitPenalties,
+  EXHAUSTION_CONFIG,
+} from '../../../../src/systems/warExhaustionSystem.js';
 import { performSacrifice } from '../../../../src/systems/sacrificeSystem.js';
 import { tryLearnFromKill } from '../../../../src/systems/learnByKillSystem.js';
 import { attemptNonCombatCapture } from '../../../../src/systems/captureSystem.js';
 import { createCitySiteBonuses, getSettlementOccupancyBlocker } from '../../../../src/systems/citySiteSystem.js';
 import { findRetreatHex } from '../../../../src/systems/signatureAbilitySystem.js';
+import {
+  captureCity,
+  degradeWalls,
+  getCapturingFaction,
+  isCityVulnerable,
+  repairWalls,
+} from '../../../../src/systems/siegeSystem.js';
+import { isCityEncircled, isEncirclementBroken } from '../../../../src/systems/territorySystem.js';
 import type { DifficultyLevel } from '../../../../src/systems/aiDifficulty.js';
 import type { MapGenerationMode } from '../../../../src/world/map/types.js';
 
@@ -126,6 +139,12 @@ type SessionFeedback = {
         to: { q: number; r: number };
       }
     | null;
+  lastSettlerVillageSpend:
+    | {
+        factionId: string;
+        villageIds: string[];
+      }
+    | null;
 };
 
 /** Pre-resolved combat data returned by resolveAttack() before state is mutated */
@@ -177,6 +196,7 @@ export class GameSession {
     lastLearnedDomain: null,
     lastResearchCompletion: null,
     hitAndRunRetreat: null,
+    lastSettlerVillageSpend: null,
     liveCombatEvents: [],
   };
 
@@ -234,6 +254,12 @@ export class GameSession {
       lastLearnedDomain: this.feedback.lastLearnedDomain ? { ...this.feedback.lastLearnedDomain } : null,
       lastResearchCompletion: this.feedback.lastResearchCompletion ? { ...this.feedback.lastResearchCompletion } : null,
       hitAndRunRetreat: this.feedback.hitAndRunRetreat ? { ...this.feedback.hitAndRunRetreat } : null,
+      lastSettlerVillageSpend: this.feedback.lastSettlerVillageSpend
+        ? {
+            factionId: this.feedback.lastSettlerVillageSpend.factionId,
+            villageIds: [...this.feedback.lastSettlerVillageSpend.villageIds],
+          }
+        : null,
     };
   }
 
@@ -273,6 +299,7 @@ export class GameSession {
         if (this.state.activeFactionId) {
           const activeFactionId = this.state.activeFactionId;
           this.resolveFactionEconomyAndProduction(activeFactionId);
+          this.resolveFactionSiege(activeFactionId);
           this.state = applySupplyDeficitPenalties(this.state, activeFactionId as never, this.registry);
           this.state = applyHealingForFaction(this.state, activeFactionId, this.registry);
         }
@@ -923,6 +950,7 @@ export class GameSession {
 
     this.feedback.lastMove = null;
     this.resolveFactionEconomyAndProduction(factionId);
+    this.resolveFactionSiege(factionId);
     this.state = applySupplyDeficitPenalties(this.state, factionId as never, this.registry);
     this.state = applyHealingForFaction(this.state, factionId as never, this.registry);
     this.state = this.refreshFogForAllFactions(advanceTurn(this.state));
@@ -1138,6 +1166,8 @@ export class GameSession {
 
   private resolveFactionEconomyAndProduction(factionId: string) {
     this.resolveFactionResearch(factionId);
+    const spentVillageIds: string[] = [];
+    this.feedback.lastSettlerVillageSpend = null;
 
     // Advance capture ramp timers before deriving income
     this.state = advanceCaptureTimers(this.state, factionId as never);
@@ -1193,10 +1223,16 @@ export class GameSession {
         const spentProduction = city.currentProduction?.costType === 'villages'
           ? 0
           : city.currentProduction?.cost ?? 0;
+        const spentVillageIdsForCity = city.currentProduction?.costType === 'villages'
+          ? getNearestFactionVillageIds(nextState, city.factionId, city.position, city.currentProduction.cost)
+          : [];
         const cities = new Map(nextState.cities);
         cities.set(cityId, updatedCity);
         nextState = { ...nextState, cities };
         nextState = completeProduction(nextState, cityId as never, this.registry);
+        if (spentVillageIdsForCity.length > 0) {
+          spentVillageIds.push(...spentVillageIdsForCity);
+        }
         updatedEconomy = {
           ...updatedEconomy,
           productionPool: Math.max(0, updatedEconomy.productionPool - spentProduction),
@@ -1215,6 +1251,80 @@ export class GameSession {
 
     nextState = evaluateAndSpawnVillage(nextState, factionId as never, this.registry);
     this.state = nextState;
+    if (spentVillageIds.length > 0) {
+      this.feedback.lastSettlerVillageSpend = {
+        factionId,
+        villageIds: [...new Set(spentVillageIds)],
+      };
+    }
+  }
+
+  private resolveFactionSiege(factionId: string) {
+    let nextState = this.state;
+    let siegeCities = new Map(nextState.cities);
+
+    for (const [cityId, city] of siegeCities) {
+      if (city.factionId !== factionId) {
+        continue;
+      }
+
+      if (city.besieged) {
+        if (isEncirclementBroken(city, nextState)) {
+          siegeCities.set(cityId, { ...city, besieged: false, turnsUnderSiege: 0 });
+          this.record('turn', `${city.name} siege broken.`);
+          continue;
+        }
+
+        const degradedCity = degradeWalls(city, city.factionId === 'coral_people');
+        const updatedSiegeCity = {
+          ...degradedCity,
+          turnsUnderSiege: city.turnsUnderSiege + 1,
+        };
+        siegeCities.set(cityId, updatedSiegeCity);
+
+        if (isCityVulnerable(updatedSiegeCity, nextState)) {
+          const capturingFaction = getCapturingFaction(updatedSiegeCity, nextState);
+          if (capturingFaction) {
+            nextState = captureCity(updatedSiegeCity, capturingFaction, nextState);
+            siegeCities = new Map(nextState.cities);
+            this.record('turn', `${city.name} captured by ${capturingFaction}.`);
+            continue;
+          }
+        }
+
+        const warExhaustion = nextState.warExhaustion.get(factionId as never);
+        if (warExhaustion) {
+          nextState = {
+            ...nextState,
+            warExhaustion: new Map(nextState.warExhaustion).set(
+              factionId as never,
+              addExhaustion(warExhaustion, EXHAUSTION_CONFIG.BESIEGED_CITY_PER_TURN),
+            ),
+          };
+        }
+
+        continue;
+      }
+
+      const repairedCity = repairWalls(city);
+      if (repairedCity.wallHP !== city.wallHP) {
+        siegeCities.set(cityId, repairedCity);
+      }
+
+      if (isCityEncircled(city, nextState)) {
+        siegeCities.set(cityId, {
+          ...(siegeCities.get(cityId) ?? city),
+          besieged: true,
+          turnsUnderSiege: 1,
+        });
+        this.record('turn', `${city.name} is now besieged.`);
+      }
+    }
+
+    this.state = {
+      ...nextState,
+      cities: siegeCities,
+    };
   }
 
   private resolveFactionResearch(factionId: string) {

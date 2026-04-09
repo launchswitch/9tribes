@@ -327,6 +327,12 @@ export class GameController {
         lastLearnedDomain: feedback.lastLearnedDomain ? { ...feedback.lastLearnedDomain } : null,
         lastResearchCompletion: feedback.lastResearchCompletion ? { ...feedback.lastResearchCompletion } : null,
         hitAndRunRetreat: feedback.hitAndRunRetreat ? { ...feedback.hitAndRunRetreat } : null,
+        lastSettlerVillageSpend: feedback.lastSettlerVillageSpend
+          ? {
+              factionId: feedback.lastSettlerVillageSpend.factionId,
+              villageIds: [...feedback.lastSettlerVillageSpend.villageIds],
+            }
+          : null,
         victory: {
           winnerFactionId: victory.winnerFactionId,
           victoryType: victory.victoryType,

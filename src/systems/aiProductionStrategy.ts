@@ -241,6 +241,12 @@ export function rankProductionPriorities(
         scoringContext,
         difficultyProfile,
       );
+      const armySizePressure = scoreArmySizePressure(
+        prototype,
+        totalFriendlyUnits,
+        targetArmySize,
+        difficultyProfile,
+      );
       const qualityLagScore = scoreArmyQualityLag(
         prototype,
         totalCost,
@@ -269,6 +275,7 @@ export function rankProductionPriorities(
         doctrineScore +
         supplyEfficiencyScore +
         underCapScore +
+        armySizePressure +
         qualityLagScore +
         forceProjectionScore -
         productionCostPenalty -
@@ -285,6 +292,7 @@ export function rankProductionPriorities(
         codifiedPivotScore,
         settlerScore,
         underCapScore,
+        armySizePressure,
         qualityLagScore,
       );
       return {
@@ -364,6 +372,23 @@ function scoreUnderCapPressure(
     + cheapSupplyBonus
     + cheapProductionBonus
   );
+}
+
+function scoreArmySizePressure(
+  prototype: NonNullable<GameState['prototypes'] extends Map<any, infer P> ? P : never>,
+  totalFriendlyUnits: number,
+  targetArmySize: number,
+  difficultyProfile: AiDifficultyProfile,
+): number {
+  if (!isMilitaryPrototype(prototype)) return 0;
+  const shortfall = Math.max(0, targetArmySize - totalFriendlyUnits);
+  if (shortfall <= 0) return 0;
+  // Scale pressure by shortfall — enough to compete with settler expansion score (~15-25)
+  // but decay as army approaches target so it doesn't over-militarize late game
+  const basePressure = shortfall * 5;
+  // Adaptive AI gets a stronger push; non-adaptive (easy) gets a gentler nudge
+  const multiplier = difficultyProfile.adaptiveAi ? 1.8 : 1.0;
+  return basePressure * multiplier;
 }
 
 function scoreArmyQualityLag(
@@ -571,6 +596,14 @@ function scorePostureFit(posture: FactionStrategy['posture'], tags: string[], ro
     if (tags.includes('siege')) return 3;
     if (role === 'melee') return 2;
   }
+  if (posture === 'exploration') {
+    // Exploration still needs military units for scouting safety and early contact
+    if (role === 'mounted') return 4;
+    if (role === 'melee') return 3;
+    if (role === 'ranged') return 3;
+    if (role === 'siege') return 1;
+    return 1;
+  }
   return 2;
 }
 
@@ -624,6 +657,7 @@ function buildProductionReason(
   codifiedPivotScore: number,
   settlerScore: number,
   underCapScore: number,
+  armySizePressure: number,
   qualityLagScore: number,
 ): string {
   if (settlerScore > 0) {
@@ -635,6 +669,7 @@ function buildProductionReason(
   if (hybridScore >= 3) parts.push('hybrid synergy payoff');
   if (codifiedPivotScore > 0) parts.push('recent codified domain pivot');
   if (underCapScore > 0) parts.push('under supply cap pressure');
+  if (armySizePressure > 0) parts.push('army below target size');
   if (qualityLagScore > 0) parts.push('closes army quality gap');
   if (projectedSupplyMargin < 0) {
     parts.push(`projects supply deficit ${Math.abs(projectedSupplyMargin).toFixed(2)}`);

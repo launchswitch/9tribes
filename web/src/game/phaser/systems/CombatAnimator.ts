@@ -1,23 +1,28 @@
 import Phaser from 'phaser';
 import type { UnitView } from '../../types/worldView';
+import {
+  buildCombatAnimationScript,
+  type CombatAnimationOutcome,
+} from './combatAnimationScript';
 import { getUnitTextureSpec, getUnitRearTextureSpec } from '../assets/keys';
 
-export interface CombatAnimData {
-  attackerDamage: number;
-  defenderDamage: number;
-  attackerDestroyed: boolean;
-  defenderDestroyed: boolean;
-  attackerRouted: boolean;
-  defenderRouted: boolean;
-  attackerFled: boolean;
-  defenderFled: boolean;
-}
+export type CombatAnimData = CombatAnimationOutcome;
 
 type ActiveAnimation = {
   tweens: Phaser.Tweens.Tween[];
   sprites: Phaser.GameObjects.GameObject[];
   unitIds: [string, string];
 };
+
+type HpBar = {
+  container: Phaser.GameObjects.Container;
+  track: Phaser.GameObjects.Rectangle;
+  fill: Phaser.GameObjects.Rectangle;
+  setRatio: (ratio: number) => void;
+};
+
+type Point = { x: number; y: number };
+type PositionTarget = Phaser.GameObjects.GameObject & { x: number; y: number };
 
 export class CombatAnimator {
   private overlayLayer: Phaser.GameObjects.Container;
@@ -61,6 +66,10 @@ export class CombatAnimator {
 
     const attPos = this.worldToScreen(attackerView.q, attackerView.r);
     const defPos = this.worldToScreen(defenderView.q, defenderView.r);
+    const engageRatio = attackerView.range > 1 ? 0.26 : 0.55;
+    const engageDx = defPos.x - attPos.x;
+    const engageDy = defPos.y - attPos.y;
+    const engageOffset = { x: engageDx * engageRatio, y: engageDy * engageRatio };
 
     this.overlayLayer.removeAll(true);
     this.overlayLayer.setAlpha(1);
@@ -69,301 +78,343 @@ export class CombatAnimator {
     const allSprites: Phaser.GameObjects.GameObject[] = [];
     const allTweens: Phaser.Tweens.Tween[] = [];
 
-    // Clone sprites
+    const script = buildCombatAnimationScript(data, attackerView, defenderView);
+
     const attSprite = this.cloneSprite(attackerView, attPos.x, attPos.y);
     const defSprite = this.cloneSprite(defenderView, defPos.x, defPos.y);
-    allSprites.push(attSprite, defSprite);
-
-    // Faction markers
     const attMarker = this.scene.add.ellipse(attPos.x, attPos.y - 8, 38, 22, this.getFactionColor(attackerView), 0.66);
     const defMarker = this.scene.add.ellipse(defPos.x, defPos.y - 8, 38, 22, this.getFactionColor(defenderView), 0.66);
-    allSprites.push(attMarker, defMarker);
-
-    // HP bars
     const attHpBar = this.createHpBar(attPos, attackerView.hp, attackerView.maxHp);
     const defHpBar = this.createHpBar(defPos, defenderView.hp, defenderView.maxHp);
-    allSprites.push(attHpBar.track, attHpBar.fill, defHpBar.track, defHpBar.fill);
 
-    // Animation constants (needed early for attacker damage text positioning)
-    const chargeRatio = 0.55;
-    const midX = attPos.x + (defPos.x - attPos.x) * chargeRatio;
-    const midY = attPos.y + (defPos.y - attPos.y) * chargeRatio;
+    const attSpriteStart = { x: attSprite.x, y: attSprite.y };
+    const defSpriteStart = { x: defSprite.x, y: defSprite.y };
+    const attMarkerStart = { x: attMarker.x, y: attMarker.y };
+    const defMarkerStart = { x: defMarker.x, y: defMarker.y };
+    const attHpBarStart = { x: attHpBar.container.x, y: attHpBar.container.y };
+    const defHpBarStart = { x: defHpBar.container.x, y: defHpBar.container.y };
 
-    // Damage text — attacker's placed at charged position since it hasn't retreated yet
-    const defDmgText = this.createDamageText(defPos, data.defenderDamage);
-    allSprites.push(defDmgText);
-    const attDmgText = data.attackerDamage > 0 ? this.createDamageText({ x: midX, y: midY }, data.attackerDamage) : null;
-    if (attDmgText) allSprites.push(attDmgText);
+    const attEngage = {
+      x: attSpriteStart.x + engageOffset.x,
+      y: attSpriteStart.y + engageOffset.y,
+    };
+    const attMarkerEngage = {
+      x: attMarkerStart.x + engageOffset.x,
+      y: attMarkerStart.y + engageOffset.y,
+    };
+    const attHpBarEngage = {
+      x: attHpBarStart.x + engageOffset.x,
+      y: attHpBarStart.y + engageOffset.y,
+    };
 
-    // Add ALL created sprites to the overlay layer so cleanup() can remove them.
+    allSprites.push(
+      attSprite,
+      defSprite,
+      attMarker,
+      defMarker,
+      attHpBar.container,
+      defHpBar.container,
+    );
+
     for (const obj of allSprites) {
       this.overlayLayer.add(obj);
     }
 
-    // Helper to create a tween and track it
     const addTween = (config: Phaser.Types.Tweens.TweenBuilderConfig) => {
       const tween = this.scene.tweens.add(config);
       allTweens.push(tween);
       return tween;
     };
+    const tweenTargetsTo = (
+      targets: Array<{ obj: PositionTarget; point: Point }>,
+      config: Omit<Phaser.Types.Tweens.TweenBuilderConfig, 'targets' | 'x' | 'y'>,
+    ) => {
+      for (const target of targets) {
+        addTween({
+          ...config,
+          targets: target.obj,
+          x: target.point.x,
+          y: target.point.y,
+        });
+      }
+    };
 
-    // === PHASE 1: Charge-in (0-400ms) ===
     addTween({
       targets: attSprite,
-      x: midX, y: midY - (attSprite.displayHeight * 0.15), // approximate yOffset
-      duration: 350,
+      x: attEngage.x,
+      y: attEngage.y,
+      duration: 320,
       ease: 'Quad.easeOut',
     });
     addTween({
       targets: attMarker,
-      x: midX, y: midY - 8,
-      duration: 350,
+      x: attMarkerEngage.x,
+      y: attMarkerEngage.y,
+      duration: 320,
       ease: 'Quad.easeOut',
     });
     addTween({
-      targets: [attHpBar.track, attHpBar.fill],
-      x: midX, y: midY + 4,
-      duration: 350,
+      targets: attHpBar.container,
+      x: attHpBarEngage.x,
+      y: attHpBarEngage.y,
+      duration: 320,
       ease: 'Quad.easeOut',
     });
 
-    // === PHASE 2: Clash / shake (350-700ms) ===
-    addTween({
-      targets: [attSprite, defSprite],
-      alpha: 0.4,
-      duration: 50,
-      yoyo: true,
-      repeat: 3,
-      delay: 350,
-    });
-    addTween({
-      targets: attSprite,
-      x: midX + 3, y: midY - 2 - (attSprite.displayHeight * 0.15),
-      duration: 60,
-      yoyo: true,
-      repeat: 5,
-      delay: 380,
-    });
-    addTween({
-      targets: defSprite,
-      x: defPos.x - 4, y: defPos.y + 2 - (defSprite.displayHeight * 0.15),
-      duration: 60,
-      yoyo: true,
-      repeat: 5,
-      delay: 400,
+    const exchangeStart = 360;
+    const exchangeEnd = 1480;
+    const beatWindow = Math.max(150, Math.floor((exchangeEnd - exchangeStart) / Math.max(1, script.beats.length)));
+    const exchangeVector = this.normalize({
+      x: defSpriteStart.x - attEngage.x,
+      y: defSpriteStart.y - attEngage.y,
     });
 
-    // === PHASE 3: Strike (defender damage) then Retaliation (attacker damage) ===
-    const defFinalHp = Math.max(0, defenderView.hp - data.defenderDamage);
-    const attFinalHp = Math.max(0, attackerView.hp - data.attackerDamage);
+    script.beats.forEach((beat, index) => {
+      const start = exchangeStart + index * beatWindow;
+      const impact = start + Math.floor(beatWindow * 0.45);
 
-    // 3a: Attacker's STRIKE — defender damage appears at clash moment
-    addTween({
-      targets: defDmgText,
-      alpha: 1,
-      y: defPos.y - 50,
-      duration: 800,
-      delay: 400,
-      onStart: () => { defDmgText.setVisible(true); },
-    });
+      const actorSprite = beat.actor === 'attacker' ? attSprite : defSprite;
+      const targetSprite = beat.actor === 'attacker' ? defSprite : attSprite;
+      const actorMarker = beat.actor === 'attacker' ? attMarker : defMarker;
+      const targetMarker = beat.actor === 'attacker' ? defMarker : attMarker;
+      const actorHpBar = beat.actor === 'attacker' ? attHpBar : defHpBar;
+      const targetHpBar = beat.actor === 'attacker' ? defHpBar : attHpBar;
+      const actorBase = beat.actor === 'attacker' ? attEngage : defSpriteStart;
+      const targetBase = beat.actor === 'attacker' ? defSpriteStart : attEngage;
+      const actorMarkerBase = beat.actor === 'attacker' ? attMarkerEngage : defMarkerStart;
+      const targetMarkerBase = beat.actor === 'attacker' ? defMarkerStart : attMarkerEngage;
+      const actorHpBarBase = beat.actor === 'attacker' ? attHpBarEngage : defHpBarStart;
+      const targetHpBarBase = beat.actor === 'attacker' ? defHpBarStart : attHpBarEngage;
+      const direction = beat.actor === 'attacker'
+        ? exchangeVector
+        : { x: -exchangeVector.x, y: -exchangeVector.y };
+      const lungeDistance = 9 + beat.intensity * 10;
+      const recoilDistance = beat.kind === 'glance' ? 2.5 : 4 + beat.intensity * 5;
+      const actorPeak = {
+        x: actorBase.x + direction.x * lungeDistance,
+        y: actorBase.y + direction.y * lungeDistance,
+      };
+      const actorMarkerPeak = {
+        x: actorMarkerBase.x + direction.x * lungeDistance,
+        y: actorMarkerBase.y + direction.y * lungeDistance,
+      };
+      const actorHpBarPeak = {
+        x: actorHpBarBase.x + direction.x * lungeDistance,
+        y: actorHpBarBase.y + direction.y * lungeDistance,
+      };
+      const targetPeak = {
+        x: targetBase.x + direction.x * recoilDistance,
+        y: targetBase.y + direction.y * recoilDistance,
+      };
+      const targetMarkerPeak = {
+        x: targetMarkerBase.x + direction.x * recoilDistance,
+        y: targetMarkerBase.y + direction.y * recoilDistance,
+      };
+      const targetHpBarPeak = {
+        x: targetHpBarBase.x + direction.x * recoilDistance,
+        y: targetHpBarBase.y + direction.y * recoilDistance,
+      };
 
-    // 3b: Defender's RETALIATION — attacker damage appears clearly after strike
-    if (attDmgText) {
-      // Small counter-shake on attacker to visualise retaliation landing
+      tweenTargetsTo(
+        [
+          { obj: actorSprite as PositionTarget, point: actorPeak },
+          { obj: actorMarker as PositionTarget, point: actorMarkerPeak },
+          { obj: actorHpBar.container as PositionTarget, point: actorHpBarPeak },
+        ],
+        {
+          duration: Math.floor(beatWindow * 0.28),
+          ease: 'Quad.easeOut',
+          yoyo: true,
+          hold: Math.max(18, Math.floor(beatWindow * 0.1)),
+          delay: start,
+        },
+      );
+
+      tweenTargetsTo(
+        [
+          { obj: targetSprite as PositionTarget, point: targetPeak },
+          { obj: targetMarker as PositionTarget, point: targetMarkerPeak },
+          { obj: targetHpBar.container as PositionTarget, point: targetHpBarPeak },
+        ],
+        {
+          duration: Math.floor(beatWindow * 0.18),
+          ease: 'Quad.easeOut',
+          yoyo: true,
+          repeat: beat.kind === 'glance' ? 0 : 1,
+          delay: impact,
+        },
+      );
+
       addTween({
-        targets: attSprite,
-        x: midX - 3, y: midY + 2 - (attSprite.displayHeight * 0.15),
-        duration: 50,
+        targets: [actorSprite, targetSprite],
+        alpha: beat.kind === 'glance' ? 0.82 : 0.48,
+        duration: 48,
         yoyo: true,
-        repeat: 2,
-        delay: 680,
+        repeat: beat.kind === 'glance' ? 0 : 1,
+        delay: impact,
       });
+
+      const impactPoint = {
+        x: targetBase.x - direction.x * 8,
+        y: targetBase.y - direction.y * 8,
+      };
+      const flash = this.createImpactFlash(impactPoint, beat.intensity, beat.kind === 'glance');
+      allSprites.push(flash);
+      this.overlayLayer.add(flash);
       addTween({
-        targets: attDmgText,
-        alpha: 1,
-        y: midY - 50,
-        duration: 800,
-        delay: 720,
-        onStart: () => { attDmgText.setVisible(true); },
+        targets: flash,
+        alpha: beat.kind === 'glance' ? 0.35 : 0.6,
+        scale: beat.kind === 'glance' ? 1.05 : 1.18,
+        duration: 70,
+        yoyo: true,
+        delay: impact,
       });
-    }
 
-    // === PHASE 4: HP bars drain — staggered to match strike → retaliation ===
-    const defFinalRatio = defenderView.maxHp > 0 ? defFinalHp / defenderView.maxHp : 0;
-    const attFinalRatio = attackerView.maxHp > 0 ? attFinalHp / attackerView.maxHp : 0;
-
-    // Defender HP drains first (strike damage)
-    addTween({
-      targets: defHpBar.fill,
-      scaleX: Math.max(0.06, defFinalRatio),
-      duration: 500,
-      delay: 450,
-      onUpdate: () => {
-        const ratio = defHpBar.fill.scaleX;
-        (defHpBar.fill as Phaser.GameObjects.Rectangle).setFillStyle(
-          ratio < 0.35 ? 0xe05b3f : 0x8fd694, 0.95,
+      if (beat.kind === 'hit' && beat.damage > 0) {
+        const damageText = this.createDamageText(
+          {
+            x: impactPoint.x,
+            y: impactPoint.y - 8,
+          },
+          beat.damage,
         );
-      },
-    });
-    // Attacker HP drains second (retaliation damage)
-    addTween({
-      targets: attHpBar.fill,
-      scaleX: Math.max(0.06, attFinalRatio),
-      duration: 500,
-      delay: 770,
-      onUpdate: () => {
-        const ratio = attHpBar.fill.scaleX;
-        (attHpBar.fill as Phaser.GameObjects.Rectangle).setFillStyle(
-          ratio < 0.35 ? 0xe05b3f : 0x8fd694, 0.95,
-        );
-      },
+        allSprites.push(damageText);
+        this.overlayLayer.add(damageText);
+        addTween({
+          targets: damageText,
+          alpha: 1,
+          y: damageText.y - (28 + beat.intensity * 10),
+          duration: Math.floor(beatWindow * 0.8),
+          ease: 'Sine.easeOut',
+          delay: impact,
+          onStart: () => {
+            damageText.setVisible(true);
+          },
+        });
+
+        const targetMaxHp = beat.actor === 'attacker' ? defenderView.maxHp : attackerView.maxHp;
+        const nextRatio = beat.actor === 'attacker'
+          ? beat.defenderHpAfter / Math.max(1, targetMaxHp)
+          : beat.attackerHpAfter / Math.max(1, targetMaxHp);
+
+        addTween({
+          targets: targetHpBar.fill,
+          scaleX: Math.max(0.06, nextRatio),
+          duration: Math.floor(beatWindow * 0.42),
+          ease: 'Quad.easeOut',
+          delay: impact,
+          onUpdate: () => {
+            targetHpBar.setRatio(targetHpBar.fill.scaleX);
+          },
+        });
+      }
     });
 
-    // === PHASE 5: Outcome (1200-1800ms) ===
-    // Distinguish DESTROYED (unit removed from map) from ROUTED/FLED (survives but broken)
-    // Previously these were conflated, making routed units look like they were killed/absorbed
     const defenderDead = data.defenderDestroyed;
     const defenderRan = !defenderDead && (data.defenderRouted || data.defenderFled);
     const attackerDead = data.attackerDestroyed;
     const attackerRan = !attackerDead && (data.attackerRouted || data.attackerFled);
 
     if (defenderDead && !attackerDead) {
-      // Defender KILLED: fade out defender completely, attacker advances into defender's hex
       addTween({
-        targets: [defSprite, defMarker, defHpBar.track, defHpBar.fill, defDmgText],
+        targets: [defSprite, defMarker, defHpBar.container],
         alpha: 0,
-        y: defPos.y + 12,
-        duration: 400,
+        y: `+=12`,
+        duration: 360,
         ease: 'Sine.easeIn',
-        delay: 1200,
+        delay: 1500,
       });
-      addTween({
-        targets: attSprite,
-        x: defPos.x, y: defPos.y - (attSprite.displayHeight * 0.15),
-        duration: 500,
-        ease: 'Quad.easeOut',
-        delay: 1300,
-      });
-      addTween({
-        targets: attMarker,
-        x: defPos.x, y: defPos.y - 8,
-        duration: 500,
-        ease: 'Quad.easeOut',
-        delay: 1300,
-      });
-      addTween({
-        targets: [attHpBar.track, attHpBar.fill],
-        x: defPos.x, y: defPos.y + 4,
-        duration: 500,
-        ease: 'Quad.easeOut',
-        delay: 1300,
-      });
-      if (attDmgText) {
-        addTween({ targets: attDmgText, x: defPos.x, duration: 500, delay: 1300 });
-      }
+      tweenTargetsTo(
+        [
+          { obj: attSprite as PositionTarget, point: defSpriteStart },
+          { obj: attMarker as PositionTarget, point: defMarkerStart },
+          { obj: attHpBar.container as PositionTarget, point: defHpBarStart },
+        ],
+        {
+          duration: 420,
+          ease: 'Quad.easeOut',
+          delay: 1540,
+        },
+      );
     } else if (defenderRan && !attackerDead) {
-      // Defender ROUTED/FLED (survives with HP): defender falls back faded, attacker partial advance only
+      const pursuitRatio = 0.35;
+      const pursuit = {
+        x: attSpriteStart.x + engageDx * pursuitRatio,
+        y: attSpriteStart.y + engageDy * pursuitRatio,
+      };
+      const pursuitMarker = {
+        x: attMarkerStart.x + engageDx * pursuitRatio,
+        y: attMarkerStart.y + engageDy * pursuitRatio,
+      };
+      const pursuitHpBar = {
+        x: attHpBarStart.x + engageDx * pursuitRatio,
+        y: attHpBarStart.y + engageDy * pursuitRatio,
+      };
       addTween({
-        targets: [defSprite, defMarker, defHpBar.track, defHpBar.fill],
+        targets: [defSprite, defMarker, defHpBar.container],
         alpha: 0.2,
-        y: defPos.y + 18,
-        duration: 500,
+        y: `+=18`,
+        duration: 420,
         ease: 'Sine.easeIn',
-        delay: 1200,
+        delay: 1500,
       });
-      if (defDmgText) {
-        addTween({ targets: defDmgText, alpha: 0, duration: 300, delay: 1200 });
-      }
-      // Attacker moves partway toward defender (pursuit) but does NOT take the hex
-      const pursuitX = attPos.x + (defPos.x - attPos.x) * 0.35;
-      const pursuitY = attPos.y + (defPos.y - attPos.y) * 0.35;
-      addTween({
-        targets: attSprite,
-        x: pursuitX, y: pursuitY - (attSprite.displayHeight * 0.15),
-        duration: 400,
-        ease: 'Quad.easeOut',
-        delay: 1250,
-      });
-      addTween({
-        targets: attMarker,
-        x: pursuitX, y: pursuitY - 8,
-        duration: 400,
-        ease: 'Quad.easeOut',
-        delay: 1250,
-      });
-      addTween({
-        targets: [attHpBar.track, attHpBar.fill],
-        x: pursuitX, y: pursuitY + 4,
-        duration: 400,
-        ease: 'Quad.easeOut',
-        delay: 1250,
-      });
-      if (attDmgText) {
-        addTween({ targets: attDmgText, x: pursuitX, duration: 400, delay: 1250 });
-      }
+      tweenTargetsTo(
+        [
+          { obj: attSprite as PositionTarget, point: pursuit },
+          { obj: attMarker as PositionTarget, point: pursuitMarker },
+          { obj: attHpBar.container as PositionTarget, point: pursuitHpBar },
+        ],
+        {
+          duration: 360,
+          ease: 'Quad.easeOut',
+          delay: 1540,
+        },
+      );
     } else if (attackerDead && !defenderDead) {
-      // Attacker KILLED: fade out attacker completely, defender stays
       addTween({
-        targets: [attSprite, attMarker, attHpBar.track, attHpBar.fill],
+        targets: [attSprite, attMarker, attHpBar.container],
         alpha: 0,
-        y: attPos.y + 12,
-        duration: 400,
+        y: `+=12`,
+        duration: 360,
         ease: 'Sine.easeIn',
-        delay: 1200,
+        delay: 1500,
       });
-      if (attDmgText) {
-        addTween({ targets: attDmgText, alpha: 0, duration: 300, delay: 1200 });
-      }
     } else if (attackerRan && !defenderDead) {
-      // Attacker ROUTED/FLED (survives with HP): attacker falls back faded
       addTween({
-        targets: [attSprite, attMarker, attHpBar.track, attHpBar.fill],
+        targets: [attSprite, attMarker, attHpBar.container],
         alpha: 0.2,
-        y: attPos.y + 18,
-        duration: 500,
+        y: `+=18`,
+        duration: 420,
         ease: 'Sine.easeIn',
-        delay: 1200,
+        delay: 1500,
       });
-      if (attDmgText) {
-        addTween({ targets: attDmgText, alpha: 0, duration: 300, delay: 1200 });
-      }
     } else if (defenderDead || attackerDead) {
-      // Both destroyed
-      addTween({ targets: allSprites, alpha: 0, duration: 400, delay: 1200 });
+      addTween({
+        targets: [attSprite, defSprite, attMarker, defMarker, attHpBar.container, defHpBar.container],
+        alpha: 0,
+        duration: 360,
+        delay: 1500,
+      });
     } else {
-      // Both survive: attacker retreats
-      addTween({
-        targets: attSprite,
-        x: attPos.x, y: attPos.y - (attSprite.displayHeight * 0.15),
-        duration: 450,
-        ease: 'Quad.easeIn',
-        delay: 1200,
-      });
-      addTween({
-        targets: attMarker,
-        x: attPos.x, y: attPos.y - 8,
-        duration: 450,
-        ease: 'Quad.easeIn',
-        delay: 1200,
-      });
-      addTween({
-        targets: [attHpBar.track, attHpBar.fill],
-        x: attPos.x, y: attPos.y + 4,
-        duration: 450,
-        ease: 'Quad.easeIn',
-        delay: 1200,
-      });
-      if (attDmgText) {
-        addTween({ targets: attDmgText, x: attPos.x, duration: 450, delay: 1200 });
-      }
+      tweenTargetsTo(
+        [
+          { obj: attSprite as PositionTarget, point: attSpriteStart },
+          { obj: attMarker as PositionTarget, point: attMarkerStart },
+          { obj: attHpBar.container as PositionTarget, point: attHpBarStart },
+        ],
+        {
+          duration: 380,
+          ease: 'Quad.easeIn',
+          delay: 1500,
+        },
+      );
     }
 
-    // === PHASE 6: Cleanup (1800-2000ms) ===
-    const cleanupTween = addTween({
+    addTween({
       targets: this.overlayLayer,
       alpha: 0,
-      duration: 200,
-      delay: 1800,
+      duration: 180,
+      delay: 1820,
       onComplete: () => {
         this.cleanup();
         this.active = null;
@@ -374,7 +425,6 @@ export class CombatAnimator {
     this.active = { tweens: allTweens, sprites: allSprites, unitIds: [attackerView.id, defenderView.id] };
   }
 
-  /** Instant mode: render the final outcome frame for ~150ms, then cleanup. */
   private playInstant(
     data: CombatAnimData,
     attackerView: UnitView,
@@ -391,89 +441,90 @@ export class CombatAnimator {
     this.overlayLayer.setVisible(true);
 
     const allSprites: Phaser.GameObjects.GameObject[] = [];
+    const script = buildCombatAnimationScript(data, attackerView, defenderView);
 
-    // Final HP values
-    const defFinalHp = Math.max(0, defenderView.hp - data.defenderDamage);
-    const attFinalHp = Math.max(0, attackerView.hp - data.attackerDamage);
-    const defFinalRatio = defenderView.maxHp > 0 ? defFinalHp / defenderView.maxHp : 0;
-    const attFinalRatio = attackerView.maxHp > 0 ? attFinalHp / attackerView.maxHp : 0;
-
-    // Outcome classification
     const defenderDead = data.defenderDestroyed;
     const defenderRan = !defenderDead && (data.defenderRouted || data.defenderFled);
     const attackerDead = data.attackerDestroyed;
     const attackerRan = !attackerDead && (data.attackerRouted || data.attackerFled);
 
-    // Determine final positions based on outcome
-    let attFinalX = attPos.x;
-    let attFinalY = attPos.y - (48 * 0.15); // approximate yOffset
-    let defFinalX = defPos.x;
-    let defFinalY = defPos.y - (48 * 0.15);
+    let attFinal = this.cloneSprite(attackerView, attPos.x, attPos.y);
+    let defFinal = this.cloneSprite(defenderView, defPos.x, defPos.y);
+    let attMarkerPos = { x: attPos.x, y: attPos.y - 8 };
+    let defMarkerPos = { x: defPos.x, y: defPos.y - 8 };
+    let attHpBarPos = attPos;
+    let defHpBarPos = defPos;
     let attAlpha = 1;
     let defAlpha = 1;
-    let defMarkerAlpha = 1;
     let attMarkerAlpha = 1;
+    let defMarkerAlpha = 1;
 
     if (defenderDead && !attackerDead) {
-      // Defender killed — attacker advances into hex
-      attFinalX = defPos.x; attFinalY = defPos.y - (48 * 0.15);
-      defAlpha = 0; defMarkerAlpha = 0;
+      attFinal = this.cloneSprite(attackerView, defPos.x, defPos.y);
+      attMarkerPos = { x: defPos.x, y: defPos.y - 8 };
+      attHpBarPos = defPos;
+      defAlpha = 0;
+      defMarkerAlpha = 0;
     } else if (defenderRan && !attackerDead) {
-      // Defender routed/fled — partial pursuit
-      attFinalX = attPos.x + (defPos.x - attPos.x) * 0.35;
-      attFinalY = attPos.y + (defPos.y - attPos.y) * 0.35 - (48 * 0.15);
-      defAlpha = 0.2; defMarkerAlpha = 0.2;
-      defFinalY = defPos.y + 18 - (48 * 0.15);
+      const pursuitRatio = 0.35;
+      const pursuePos = {
+        x: attPos.x + (defPos.x - attPos.x) * pursuitRatio,
+        y: attPos.y + (defPos.y - attPos.y) * pursuitRatio,
+      };
+      attFinal = this.cloneSprite(attackerView, pursuePos.x, pursuePos.y);
+      attMarkerPos = { x: pursuePos.x, y: pursuePos.y - 8 };
+      attHpBarPos = pursuePos;
+      defFinal = this.cloneSprite(defenderView, defPos.x, defPos.y + 18);
+      defMarkerPos = { x: defPos.x, y: defPos.y + 10 };
+      defHpBarPos = { x: defPos.x, y: defPos.y + 18 };
+      defAlpha = 0.2;
+      defMarkerAlpha = 0.2;
     } else if (attackerDead && !defenderDead) {
-      // Attacker killed
-      attAlpha = 0; attMarkerAlpha = 0;
-      attFinalY = attPos.y + 12 - (48 * 0.15);
+      attFinal = this.cloneSprite(attackerView, attPos.x, attPos.y + 12);
+      attMarkerPos = { x: attPos.x, y: attPos.y + 4 };
+      attHpBarPos = { x: attPos.x, y: attPos.y + 12 };
+      attAlpha = 0;
+      attMarkerAlpha = 0;
     } else if (attackerRan && !defenderDead) {
-      // Attacker routed/fled
-      attAlpha = 0.2; attMarkerAlpha = 0.2;
-      attFinalY = attPos.y + 18 - (48 * 0.15);
+      attFinal = this.cloneSprite(attackerView, attPos.x, attPos.y + 18);
+      attMarkerPos = { x: attPos.x, y: attPos.y + 10 };
+      attHpBarPos = { x: attPos.x, y: attPos.y + 18 };
+      attAlpha = 0.2;
+      attMarkerAlpha = 0.2;
     } else if (defenderDead || attackerDead) {
-      // Both destroyed
-      attAlpha = 0; defAlpha = 0; attMarkerAlpha = 0; defMarkerAlpha = 0;
-    }
-    // Both survive: positions stay at origin (attacker retreats implicitly)
-
-    // Create sprites at final positions
-    const attSprite = this.cloneSprite(attackerView, attFinalX, attFinalY).setAlpha(attAlpha);
-    const defSprite = this.cloneSprite(defenderView, defFinalX, defFinalY).setAlpha(defAlpha);
-    allSprites.push(attSprite, defSprite);
-
-    // Faction markers at final positions
-    const attMarker = this.scene.add.ellipse(attFinalX, attFinalY - 8, 38, 22, this.getFactionColor(attackerView), 0.66 * attMarkerAlpha).setVisible(attMarkerAlpha > 0);
-    const defMarker = this.scene.add.ellipse(defFinalX, defFinalY - 8, 38, 22, this.getFactionColor(defenderView), 0.66 * defMarkerAlpha).setVisible(defMarkerAlpha > 0);
-    allSprites.push(attMarker, defMarker);
-
-    // HP bars at final values
-    const attHpBarPos = { x: attFinalX, y: attFinalY + 4 + (48 * 0.15) };
-    const defHpBarPos = { x: defFinalX, y: defFinalY + 4 + (48 * 0.15) };
-    const attHpBar = this.createHpBar(attHpBarPos, attFinalHp, attackerView.maxHp);
-    const defHpBar = this.createHpBar(defHpBarPos, defFinalHp, defenderView.maxHp);
-    // Overwrite fill to exact final ratio with correct color
-    const attColor = attFinalRatio < 0.35 ? 0xe05b3f : 0x8fd694;
-    const defColor = defFinalRatio < 0.35 ? 0xe05b3f : 0x8fd694;
-    (attHpBar.fill as Phaser.GameObjects.Rectangle).setScale(Math.max(0.06, attFinalRatio), 1).setFillStyle(attColor, 0.95);
-    (defHpBar.fill as Phaser.GameObjects.Rectangle).setScale(Math.max(0.06, defFinalRatio), 1).setFillStyle(defColor, 0.95);
-    allSprites.push(attHpBar.track, attHpBar.fill, defHpBar.track, defHpBar.fill);
-
-    // Damage text at floated position
-    const defDmgText = this.createDamageText({ x: defPos.x, y: defPos.y - 50 }, data.defenderDamage).setAlpha(1).setVisible(true);
-    allSprites.push(defDmgText);
-    if (data.attackerDamage > 0) {
-      const attDmgText = this.createDamageText({ x: attPos.x, y: attPos.y - 50 }, data.attackerDamage).setAlpha(1).setVisible(true);
-      allSprites.push(attDmgText);
+      attAlpha = 0;
+      defAlpha = 0;
+      attMarkerAlpha = 0;
+      defMarkerAlpha = 0;
     }
 
-    // Parent everything to overlay layer
+    attFinal.setAlpha(attAlpha);
+    defFinal.setAlpha(defAlpha);
+    const attMarker = this.scene.add.ellipse(attMarkerPos.x, attMarkerPos.y, 38, 22, this.getFactionColor(attackerView), 0.66 * attMarkerAlpha).setVisible(attMarkerAlpha > 0);
+    const defMarker = this.scene.add.ellipse(defMarkerPos.x, defMarkerPos.y, 38, 22, this.getFactionColor(defenderView), 0.66 * defMarkerAlpha).setVisible(defMarkerAlpha > 0);
+    const attHpBar = this.createHpBar(attHpBarPos, script.attackerEndHp, attackerView.maxHp);
+    const defHpBar = this.createHpBar(defHpBarPos, script.defenderEndHp, defenderView.maxHp);
+    attHpBar.setRatio(script.attackerEndHp / Math.max(1, attackerView.maxHp));
+    defHpBar.setRatio(script.defenderEndHp / Math.max(1, defenderView.maxHp));
+
+    allSprites.push(attFinal, defFinal, attMarker, defMarker, attHpBar.container, defHpBar.container);
+
+    script.beats
+      .filter((beat) => beat.kind === 'hit' && beat.damage > 0)
+      .slice(-3)
+      .forEach((beat, index) => {
+        const targetPos = beat.actor === 'attacker' ? defPos : attPos;
+        const damageText = this.createDamageText(
+          { x: targetPos.x + index * 12 - 12, y: targetPos.y - 44 - index * 10 },
+          beat.damage,
+        ).setAlpha(1).setVisible(true);
+        allSprites.push(damageText);
+      });
+
     for (const obj of allSprites) {
       this.overlayLayer.add(obj);
     }
 
-    // Show for 150ms then cleanup
     this.active = { tweens: [], sprites: allSprites, unitIds: [attackerView.id, defenderView.id] };
 
     this.scene.time.delayedCall(150, () => {
@@ -519,42 +570,68 @@ export class CombatAnimator {
       .setDisplaySize(texture.displayWidth, texture.displayHeight)
       .setAlpha(unit.acted ? 0.58 : 1);
 
-    // Horizontal flip for left-facing directions
-    // Front sprite base: faces right/southeast; Rear sprite base: faces left/northwest
     if (dir === 1 || dir === 2 || dir === 5) {
-      // NE (rear), E (front), SW (front) — flip to face rightward
       sprite.setFlipX(true);
     } else if (dir === 6) {
-      // West — rear sprite faces left by default; keep it
       sprite.setFlipX(false);
     }
 
     return sprite;
   }
 
-  private createHpBar(
-    pos: { x: number; y: number },
-    hp: number,
-    maxHp: number,
-  ): { track: Phaser.GameObjects.Rectangle; fill: Phaser.GameObjects.Rectangle } {
-    const ratio = maxHp > 0 ? hp / maxHp : 0;
-    const track = this.scene.add.rectangle(pos.x, pos.y + 4, 28, 4, 0x261d15, 0.8).setOrigin(0.5, 0.5);
-    const fill = this.scene.add.rectangle(pos.x - 14, pos.y + 4, Math.max(3, 28 * ratio), 4, ratio < 0.35 ? 0xe05b3f : 0x8fd694, 0.95)
-      .setOrigin(0, 0.5);
-    return { track, fill };
+  private createHpBar(pos: Point, hp: number, maxHp: number): HpBar {
+    const width = 28;
+    const container = this.scene.add.container(pos.x, pos.y + 8);
+    const track = this.scene.add.rectangle(0, 0, width, 4, 0x261d15, 0.8).setOrigin(0.5, 0.5);
+    const fill = this.scene.add.rectangle(-width / 2, 0, width, 4, 0x8fd694, 0.95).setOrigin(0, 0.5);
+    container.add([track, fill]);
+
+    const setRatio = (ratio: number) => {
+      const clampedRatio = Math.max(0, Math.min(1, ratio));
+      fill.setScale(Math.max(0.06, clampedRatio), 1);
+      fill.setFillStyle(clampedRatio < 0.35 ? 0xe05b3f : 0x8fd694, 0.95);
+    };
+
+    setRatio(maxHp > 0 ? hp / maxHp : 0);
+
+    return {
+      container,
+      track,
+      fill,
+      setRatio,
+    };
   }
 
-  private createDamageText(
-    pos: { x: number; y: number },
-    damage: number,
-  ): Phaser.GameObjects.Text {
-    return this.scene.add.text(pos.x, pos.y + 10, `-${damage}`, {
+  private createDamageText(pos: Point, damage: number): Phaser.GameObjects.Text {
+    return this.scene.add.text(pos.x, pos.y, `-${damage}`, {
       fontFamily: 'Inter, sans-serif',
       fontSize: '20px',
       color: '#e05b3f',
       stroke: '#000000',
       strokeThickness: 3,
     }).setOrigin(0.5, 0.5).setVisible(false).setAlpha(0);
+  }
+
+  private createImpactFlash(pos: Point, intensity: number, isGlance: boolean): Phaser.GameObjects.Ellipse {
+    return this.scene.add.ellipse(
+      pos.x,
+      pos.y,
+      16 + intensity * 14,
+      10 + intensity * 8,
+      isGlance ? 0xc9d6e1 : 0xf5d784,
+      0,
+    );
+  }
+
+  private normalize(vector: Point): Point {
+    const length = Math.hypot(vector.x, vector.y);
+    if (length === 0) {
+      return { x: 1, y: 0 };
+    }
+    return {
+      x: vector.x / length,
+      y: vector.y / length,
+    };
   }
 
   private getFactionColor(_unit: UnitView): number {

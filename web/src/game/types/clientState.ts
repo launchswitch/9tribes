@@ -222,6 +222,12 @@ export type PlayFeedbackState = {
         to: { q: number; r: number };
       }
     | null;
+  lastSettlerVillageSpend:
+    | {
+        factionId: string;
+        villageIds: string[];
+      }
+    | null;
   victory:
     | {
         winnerFactionId: string | null;

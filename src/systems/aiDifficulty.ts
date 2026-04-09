@@ -150,7 +150,7 @@ const NORMAL_PROFILE: AiDifficultyProfile = {
     codifiedPivotDuration: 3,
     supplyEfficiencyWeight: 0.22,
     forceProjectionWeight: 0.95,
-    underCapUtilizationFloor: 0.8,
+    underCapUtilizationFloor: 0.5,
     underCapTargetUtilization: 0.9,
     underCapPressureWeight: 12,
     underCapArmyShortfallWeight: 1.2,

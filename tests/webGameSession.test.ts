@@ -6,6 +6,36 @@ import { createCuratedPlaytestPayload } from '../web/src/game/fixtures/curatedPl
 import { serializeGameState } from '../web/src/game/types/playState';
 import { buildResearchInspectorViewModel } from '../web/src/game/view-model/worldViewModel';
 import { assemblePrototype } from '../src/design/assemblePrototype';
+import type { GameState } from '../src/game/types';
+
+function trimStateToFactions(state: GameState, factionIds: string[]) {
+  const factionSet = new Set(factionIds);
+  const unitEntries = Array.from(state.units.entries()).filter(([, unit]) => factionSet.has(unit.factionId));
+  const cityEntries = Array.from(state.cities.entries()).filter(([, city]) => factionSet.has(city.factionId));
+  const villageEntries = Array.from(state.villages.entries()).filter(([, village]) => factionSet.has(village.factionId));
+
+  state.factions = new Map(
+    Array.from(state.factions.entries())
+      .filter(([id]) => factionSet.has(id))
+      .map(([id, faction]) => [
+        id,
+        {
+          ...faction,
+          unitIds: faction.unitIds.filter((unitId) => unitEntries.some(([id]) => id === unitId)),
+          cityIds: faction.cityIds.filter((cityId) => cityEntries.some(([id]) => id === cityId)),
+          villageIds: faction.villageIds.filter((villageId) => villageEntries.some(([id]) => id === villageId)),
+        },
+      ]),
+  );
+  state.units = new Map(unitEntries);
+  state.cities = new Map(cityEntries);
+  state.villages = new Map(villageEntries);
+  state.economy = new Map(Array.from(state.economy.entries()).filter(([id]) => factionSet.has(id)));
+  state.research = new Map(Array.from(state.research.entries()).filter(([id]) => factionSet.has(id)));
+  state.warExhaustion = new Map(Array.from(state.warExhaustion.entries()).filter(([id]) => factionSet.has(id)));
+  state.factionStrategies = new Map(Array.from((state.factionStrategies ?? new Map()).entries()).filter(([id]) => factionSet.has(id)));
+  state.fogStates = new Map(Array.from((state.fogStates ?? new Map()).entries()).filter(([id]) => factionSet.has(id)));
+}
 
 describe('GameSession', () => {
   it('returns legal moves and applies movement', () => {
@@ -37,6 +67,88 @@ describe('GameSession', () => {
     session.dispatch({ type: 'end_turn' });
 
     expect(session.getState().activeFactionId).not.toBe(before);
+  });
+
+  it('starts a siege in live play when a player surrounds an enemy city and ends the turn', () => {
+    const registry = loadRulesRegistry();
+    const state = buildMvpScenario(42, { registry, mapMode: 'fixed' });
+    trimStateToFactions(state, ['steppe_clan', 'hill_clan']);
+
+    const attackerFactionId = 'steppe_clan' as never;
+    const defenderFactionId = 'hill_clan' as never;
+    const attackerFaction = state.factions.get(attackerFactionId)!;
+    const defenderFaction = state.factions.get(defenderFactionId)!;
+    const defenderCityId = defenderFaction.cityIds[0];
+    const defenderCity = state.cities.get(defenderCityId)!;
+    const siegeCenter = { q: 8, r: 6 };
+
+    state.cities.set(defenderCityId, {
+      ...defenderCity,
+      position: siegeCenter,
+      besieged: false,
+      turnsUnderSiege: 0,
+    });
+
+    const baseUnits = attackerFaction.unitIds.map((unitId) => state.units.get(unitId)!);
+    const siegeUnits = [
+      {
+        ...baseUnits[0],
+        position: { q: 9, r: 6 },
+        status: 'ready' as const,
+        attacksRemaining: 1,
+        movesRemaining: baseUnits[0].maxMoves,
+      },
+      {
+        ...baseUnits[1],
+        position: { q: 9, r: 5 },
+        status: 'ready' as const,
+        attacksRemaining: 1,
+        movesRemaining: baseUnits[1].maxMoves,
+      },
+      {
+        ...baseUnits[0],
+        id: 'live_siege_attacker_3' as never,
+        position: { q: 8, r: 5 },
+        status: 'ready' as const,
+        attacksRemaining: 1,
+        movesRemaining: baseUnits[0].maxMoves,
+      },
+      {
+        ...baseUnits[1],
+        id: 'live_siege_attacker_4' as never,
+        position: { q: 7, r: 6 },
+        status: 'ready' as const,
+        attacksRemaining: 1,
+        movesRemaining: baseUnits[1].maxMoves,
+      },
+    ];
+
+    state.units = new Map(siegeUnits.map((unit) => [unit.id, unit]));
+    state.factions.set(attackerFactionId, {
+      ...attackerFaction,
+      unitIds: siegeUnits.map((unit) => unit.id),
+    });
+    state.factions.set(defenderFactionId, {
+      ...defenderFaction,
+      unitIds: [],
+      cityIds: [defenderCityId],
+    });
+    state.activeFactionId = attackerFactionId;
+
+    const session = new GameSession(
+      { type: 'serialized', payload: serializeGameState(state) },
+      registry,
+      { humanControlledFactionIds: [attackerFactionId] },
+    );
+
+    expect(session.getState().cities.get(defenderCityId)?.besieged).toBe(false);
+
+    session.dispatch({ type: 'end_turn' });
+
+    const besiegedCity = session.getState().cities.get(defenderCityId);
+    expect(session.getState().activeFactionId).toBe(attackerFactionId);
+    expect(besiegedCity?.besieged).toBe(true);
+    expect(besiegedCity?.turnsUnderSiege).toBe(1);
   });
 
   it('supports multi-step movement plans in play mode', () => {

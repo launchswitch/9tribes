@@ -37,6 +37,7 @@ type AudioSnapshot = {
   lastLearnedDomainKey: string | null;
   lastResearchCompletionKey: string | null;
   hitAndRunRetreatKey: string | null;
+  suppressedVillageLossIds: Set<string>;
   playerCityCount: number;
   playerFactionId: string | null;
   cityOwners: Map<string, string>;
@@ -203,6 +204,9 @@ function buildAudioSnapshot(state: ClientState): AudioSnapshot | null {
   const cityOwners = new Map(state.world.cities.map((city) => [city.id, city.factionId]));
   const unitOwners = new Map(state.world.units.map((unit) => [unit.id, unit.factionId]));
   const villages = new Map(state.world.villages.map((village) => [village.id, { factionId: village.factionId, name: village.name }]));
+  const suppressedVillageLossIds = state.playFeedback.lastSettlerVillageSpend?.factionId === playerFactionId
+    ? new Set(state.playFeedback.lastSettlerVillageSpend.villageIds)
+    : new Set<string>();
   const playerCityCount = playerFactionId
     ? state.world.cities.filter((city) => city.factionId === playerFactionId).length
     : 0;
@@ -227,6 +231,7 @@ function buildAudioSnapshot(state: ClientState): AudioSnapshot | null {
     hitAndRunRetreatKey: state.playFeedback.hitAndRunRetreat
       ? `${state.playFeedback.hitAndRunRetreat.unitId}:${state.playFeedback.hitAndRunRetreat.to.q},${state.playFeedback.hitAndRunRetreat.to.r}`
       : null,
+    suppressedVillageLossIds,
     playerCityCount,
     playerFactionId,
     cityOwners,
@@ -249,7 +254,7 @@ export function getDestroyedPlayerVillages(prevState: ClientState | null, nextSt
     if (village.factionId !== prev.playerFactionId) {
       continue;
     }
-    if (!next.villages.has(villageId)) {
+    if (!next.villages.has(villageId) && !next.suppressedVillageLossIds.has(villageId)) {
       destroyed.push(village.name);
     }
   }
