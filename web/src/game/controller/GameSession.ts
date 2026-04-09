@@ -72,6 +72,7 @@ import { performSacrifice } from '../../../../src/systems/sacrificeSystem.js';
 import { tryLearnFromKill } from '../../../../src/systems/learnByKillSystem.js';
 import { attemptNonCombatCapture } from '../../../../src/systems/captureSystem.js';
 import { createCitySiteBonuses, getSettlementOccupancyBlocker } from '../../../../src/systems/citySiteSystem.js';
+import { findRetreatHex } from '../../../../src/systems/signatureAbilitySystem.js';
 import type { DifficultyLevel } from '../../../../src/systems/aiDifficulty.js';
 import type { MapGenerationMode } from '../../../../src/world/map/types.js';
 
@@ -117,6 +118,12 @@ type SessionFeedback = {
         nodeId: string;
         nodeName: string;
         tier: number;
+      }
+    | null;
+  hitAndRunRetreat:
+    | {
+        unitId: string;
+        to: { q: number; r: number };
       }
     | null;
 };
@@ -169,6 +176,7 @@ export class GameSession {
     lastSacrifice: null,
     lastLearnedDomain: null,
     lastResearchCompletion: null,
+    hitAndRunRetreat: null,
     liveCombatEvents: [],
   };
 
@@ -225,6 +233,7 @@ export class GameSession {
       lastSacrifice: this.feedback.lastSacrifice ? { ...this.feedback.lastSacrifice } : null,
       lastLearnedDomain: this.feedback.lastLearnedDomain ? { ...this.feedback.lastLearnedDomain } : null,
       lastResearchCompletion: this.feedback.lastResearchCompletion ? { ...this.feedback.lastResearchCompletion } : null,
+      hitAndRunRetreat: this.feedback.hitAndRunRetreat ? { ...this.feedback.hitAndRunRetreat } : null,
     };
   }
 
@@ -679,6 +688,32 @@ export class GameSession {
       movesRemaining: 0,
       status: 'spent' as const,
     } as Unit;
+
+    // Hit and Run: if attacker survives and has the capability, auto-retreat 1 hex
+    const attackerPrototype = this.state.prototypes.get(attacker.prototypeId);
+    if (nextAttacker.hp > 0 && attackerPrototype) {
+      const attackerFaction = this.state.factions.get(attacker.factionId);
+      const attackerDoctrine = attackerFaction
+        ? resolveCapabilityDoctrine(this.state.research.get(attacker.factionId), attackerFaction)
+        : undefined;
+      const hitAndRunEligible =
+        attackerDoctrine?.universalHitAndRunEnabled === true
+        || (attackerDoctrine?.hitAndRunEnabled === true
+            && attackerPrototype.tags?.includes('cavalry') === true
+            && attackerPrototype.tags?.includes('skirmish') === true);
+      if (hitAndRunEligible) {
+        const retreatHex = findRetreatHex(nextAttacker, this.state);
+        if (retreatHex) {
+          nextAttacker = {
+            ...nextAttacker,
+            position: retreatHex,
+            status: 'ready',
+            movesRemaining: Math.max(0, nextAttacker.movesRemaining - 1),
+          };
+          this.feedback.hitAndRunRetreat = { unitId: attackerId, to: retreatHex };
+        }
+      }
+    }
 
     // Learn-by-kill: check BEFORE promotion so chance is based on pre-combat veterancy
     if (result.defenderDestroyed && !result.attackerDestroyed && nextAttacker.hp > 0) {

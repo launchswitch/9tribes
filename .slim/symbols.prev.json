@@ -5339,13 +5339,31 @@
           "isDefault": false
         }
       ]
+    },
+    "web/src/app/audio/musicManager.ts": {
+      "exports": [
+        {
+          "name": "syncMusicForMode",
+          "kind": "function",
+          "line": 142,
+          "signature": "export function syncMusicForMode(mode: string | null) {",
+          "isDefault": false
+        },
+        {
+          "name": "playMenuUiSound",
+          "kind": "function",
+          "line": 151,
+          "signature": "export function playMenuUiSound() {",
+          "isDefault": false
+        }
+      ]
     }
   },
   "_metadata": {
     "version": "2.0.0",
-    "last_run": "2026-04-08T16:17:00.503471Z",
+    "last_run": "2026-04-08T20:37:43.978734Z",
     "root": "C:\\Users\\fosbo\\war-civ-v2",
-    "file_count": 110
+    "file_count": 111
   },
   "_file_hashes": {
     "artifacts/balance-optimization/20260330-222337/best_candidates.json": "afc0678ce1b811a5ae3ed7acdb76140a",
@@ -5486,6 +5504,7 @@
     "web/package-lock.json": "4812429f12b44e14aff1860f642beac5",
     "web/package.json": "6a5db7b26a4019b153b97a46fb986ef3",
     "web/public/replays/mvp-seed-42.json": "303790883e50da8cb29253fb717f3dea",
+    "web/src/app/audio/musicManager.ts": "88dd92c368b894a478ea75a8af186130",
     "web/src/app/savegames.ts": "0975f72b61190948bf1111c25f592cf3",
     "web/src/data/emergent-rules.json": "c0fe701fe1196f6bcd722f6bfc338af0",
     "web/src/data/pair-synergies.json": "2afe2d5d501e178ae2e48e95bada97cb",

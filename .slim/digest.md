@@ -227,3 +227,13 @@ No significant changes detected.
 - `web/src/app/audio/musicManager.ts` — 2 exports: syncMusicForMode, playMenuUiSound
 
 ### Dependency Changes
+
+---
+
+## Digest — 2026-04-09T01:38:07.947831Z
+
+### New Files
+- `web/src/app/audio/sfxManager.ts` — 3 exports: playCombatSoundForPendingCombat, getDestroyedPlayerVillages, playSessionDeltaSounds
+
+### Dependency Changes
+- `web/src/app/audio/sfxManager.ts` imports: web/src/game/types/clientState.ts (ClientState), web/src/game/controller/GameSession.ts (PendingCombat), web/src/game/types/worldView.ts (UnitView)

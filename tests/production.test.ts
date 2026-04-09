@@ -10,6 +10,7 @@ import {
   getUnitCost,
   UNIT_COSTS,
 } from '../src/systems/productionSystem';
+import { calculatePrototypeCost, getDomainIdsByTags } from '../src/systems/knowledgeSystem';
 import { initializeFogForFaction } from '../src/systems/fogSystem';
 import type { City } from '../src/features/cities/types';
 
@@ -34,6 +35,32 @@ describe('unit costs', () => {
 
   it('has unit cost entries for the expanded chassis roster', () => {
     expect(Object.keys(UNIT_COSTS).length).toBe(8);
+  });
+
+  it('keeps prototype costs finite once domain mastery is fully integrated', () => {
+    const state = buildMvpScenario(42, { registry });
+    const factionId = 'steppe_clan' as never;
+    const faction = state.factions.get(factionId)!;
+    const cavalryPrototype = Array.from(state.prototypes.values()).find(
+      (prototype) => prototype.factionId === factionId && prototype.chassisId === 'cavalry_frame',
+    );
+
+    expect(cavalryPrototype).toBeTruthy();
+
+    const domains = getDomainIdsByTags(cavalryPrototype!.tags ?? []);
+    const masteredFaction = {
+      ...faction,
+      prototypeMastery: Object.fromEntries(domains.map((domainId) => [domainId, 3])),
+    };
+
+    const cost = calculatePrototypeCost(
+      getUnitCost(cavalryPrototype!.chassisId),
+      masteredFaction,
+      domains,
+    );
+
+    expect(Number.isFinite(cost)).toBe(true);
+    expect(cost).toBe(getUnitCost(cavalryPrototype!.chassisId));
   });
 });
 

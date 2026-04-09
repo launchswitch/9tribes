@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import type { ClientState } from '../game/types/clientState';
 import { getCombatSummary, getIntentSummary } from '../game/view-model/worldViewModel';
+import abilityDomains from '../data/ability-domains.json';
 
 type ContextInspectorProps = {
   state: ClientState;
@@ -22,6 +23,11 @@ function formatDomainName(domainId: string): string {
     .split('_')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+}
+
+function getDomainDescription(domainId: string): string | undefined {
+  const domain = (abilityDomains.domains as Record<string, { baseEffect?: { description?: string } }>)[domainId];
+  return domain?.baseEffect?.description;
 }
 
 export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProduction, onCancelCityProduction, onRemoveFromQueue, onSetTargetingMode, onDeselect, onCloseCityProduction }: ContextInspectorProps) {
@@ -204,12 +210,15 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                   <>
                     <div className="meta-row">
                       <span>Learned Abilities</span>
-                      <div className="ci-domain-list">
-                        {selectedUnit.learnedAbilities.map((domainId) => (
-                          <span key={domainId} className="ci-knowledge__pip">{formatDomainName(domainId)}</span>
-                        ))}
-                      </div>
                     </div>
+                    {selectedUnit.learnedAbilities.map((domainId) => (
+                      <div key={domainId} className="ci-learned-ability">
+                        <span className="ci-knowledge__pip">{formatDomainName(domainId)}</span>
+                        {getDomainDescription(domainId) && (
+                          <p className="ci-learned-ability__desc">{getDomainDescription(domainId)}</p>
+                        )}
+                      </div>
+                    ))}
                     <p className="ci-knowledge__hint">
                       Return this unit to your Home City and Sacrifice it to codify this domain for your faction.
                     </p>

@@ -23,7 +23,7 @@ import { DebugOverlay } from '../ui/DebugOverlay';
 import { ReportsOverlay } from '../ui/ReportsOverlay';
 import { KnowledgeGainedModalProvider, useLearnDetector, useKnowledgeModal } from '../ui/KnowledgeGainedModal';
 import { CombatLogPanel } from '../ui/CombatLogPanel';
-import { playCombatSoundForPendingCombat, playSessionDeltaSounds } from './audio/sfxManager';
+import { getDestroyedPlayerVillages, playCombatSoundForPendingCombat, playSessionDeltaSounds } from './audio/sfxManager';
 
 const params = new URLSearchParams(window.location.search);
 const USE_V2_LAYOUT = params.get('layout') !== 'legacy';
@@ -83,6 +83,7 @@ function KnowledgeGainedShellContent({
 }: ShellContentProps) {
   const { showKnowledgeGained } = useKnowledgeModal();
   const [combatLocked, setCombatLocked] = useState(false);
+  const [pendingVillageDestroyedAlert, setPendingVillageDestroyedAlert] = useState<string[] | null>(null);
   const previousStateRef = useRef<ClientState | null>(null);
 
   // Stable callbacks for panel open/close (avoid re-triggering auto-open effects)
@@ -93,14 +94,31 @@ function KnowledgeGainedShellContent({
   useLearnDetector(
     state.world.units,
     state.world.factions,
-    state.activeFactionId,
+    state.playFeedback?.playerFactionId ?? null,
     showKnowledgeGained,
   );
 
   useEffect(() => {
+    const destroyedVillages = getDestroyedPlayerVillages(previousStateRef.current, state);
+    if (destroyedVillages.length > 0) {
+      setPendingVillageDestroyedAlert(destroyedVillages);
+    }
     playSessionDeltaSounds(previousStateRef.current, state);
     previousStateRef.current = state;
   }, [state]);
+
+  useEffect(() => {
+    if (combatLocked || !pendingVillageDestroyedAlert || pendingVillageDestroyedAlert.length === 0) {
+      return;
+    }
+
+    const villageSummary = pendingVillageDestroyedAlert.join(', ');
+    const message = pendingVillageDestroyedAlert.length === 1
+      ? `A village has been destroyed: ${villageSummary}.`
+      : `Villages have been destroyed: ${villageSummary}.`;
+    window.alert(message);
+    setPendingVillageDestroyedAlert(null);
+  }, [combatLocked, pendingVillageDestroyedAlert]);
 
   // Register combat-pending callback to bridge React -> Phaser animation
   useEffect(() => {

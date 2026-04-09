@@ -326,6 +326,7 @@ export class GameController {
         lastSacrifice: feedback.lastSacrifice ? { ...feedback.lastSacrifice } : null,
         lastLearnedDomain: feedback.lastLearnedDomain ? { ...feedback.lastLearnedDomain } : null,
         lastResearchCompletion: feedback.lastResearchCompletion ? { ...feedback.lastResearchCompletion } : null,
+        hitAndRunRetreat: feedback.hitAndRunRetreat ? { ...feedback.hitAndRunRetreat } : null,
         victory: {
           winnerFactionId: victory.winnerFactionId,
           victoryType: victory.victoryType,

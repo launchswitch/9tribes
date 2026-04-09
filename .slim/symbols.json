@@ -3116,24 +3116,6 @@
         }
       ]
     },
-    "web/src/game/phaser/systems/CombatAnimator.ts": {
-      "exports": [
-        {
-          "name": "CombatAnimData",
-          "kind": "interface",
-          "line": 5,
-          "signature": "export interface CombatAnimData {",
-          "isDefault": false
-        },
-        {
-          "name": "CombatAnimator",
-          "kind": "class",
-          "line": 22,
-          "signature": "export class CombatAnimator {",
-          "isDefault": false
-        }
-      ]
-    },
     "src/world/map/types.ts": {
       "exports": [
         {
@@ -3524,28 +3506,6 @@
           "kind": "function",
           "line": 3,
           "signature": "export function usesNormalAiBehavior(difficulty?: DifficultyLevel): boolean {",
-          "isDefault": false
-        }
-      ]
-    },
-    "web/src/game/phaser/scenes/BootScene.ts": {
-      "exports": [
-        {
-          "name": "BootScene",
-          "kind": "class",
-          "line": 5,
-          "signature": "export class BootScene extends Phaser.Scene {",
-          "isDefault": false
-        }
-      ]
-    },
-    "web/src/game/phaser/assets/assetManifest.ts": {
-      "exports": [
-        {
-          "name": "assetManifest",
-          "kind": "const",
-          "line": 6,
-          "signature": "export const assetManifest",
           "isDefault": false
         }
       ]
@@ -4598,17 +4558,6 @@
         }
       ]
     },
-    "web/src/game/phaser/scenes/MapScene.ts": {
-      "exports": [
-        {
-          "name": "MapScene",
-          "kind": "class",
-          "line": 16,
-          "signature": "export class MapScene extends Phaser.Scene {",
-          "isDefault": false
-        }
-      ]
-    },
     "src/systems/warEcologySimulation.ts": {
       "exports": [
         {
@@ -4837,31 +4786,6 @@
           "kind": "function",
           "line": 132,
           "signature": "export function formatSettlementOccupancyBlocker( blocker: SettlementOccupancyBlocker, ): string | undefined {",
-          "isDefault": false
-        }
-      ]
-    },
-    "web/src/game/controller/GameSession.ts": {
-      "exports": [
-        {
-          "name": "PendingCombat",
-          "kind": "interface",
-          "line": 107,
-          "signature": "export interface PendingCombat {",
-          "isDefault": false
-        },
-        {
-          "name": "SessionSaveSnapshot",
-          "kind": "type",
-          "line": 122,
-          "signature": "export type SessionSaveSnapshot = {",
-          "isDefault": false
-        },
-        {
-          "name": "GameSession",
-          "kind": "class",
-          "line": 134,
-          "signature": "export class GameSession {",
           "isDefault": false
         }
       ]
@@ -5181,136 +5105,6 @@
         }
       ]
     },
-    "web/src/game/types/clientState.ts": {
-      "exports": [
-        {
-          "name": "ClientMode",
-          "kind": "type",
-          "line": 4,
-          "signature": "export type ClientMode = 'play' | 'replay';",
-          "isDefault": false
-        },
-        {
-          "name": "ClientSelection",
-          "kind": "type",
-          "line": 6,
-          "signature": "export type ClientSelection =",
-          "isDefault": false
-        },
-        {
-          "name": "CameraState",
-          "kind": "type",
-          "line": 13,
-          "signature": "export type CameraState = {",
-          "isDefault": false
-        },
-        {
-          "name": "HudViewModel",
-          "kind": "type",
-          "line": 17,
-          "signature": "export type HudViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "SettlementSiteTraitViewModel",
-          "kind": "type",
-          "line": 57,
-          "signature": "export type SettlementSiteTraitViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "SettlementBonusSummaryViewModel",
-          "kind": "type",
-          "line": 65,
-          "signature": "export type SettlementBonusSummaryViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "SettlementPreviewViewModel",
-          "kind": "type",
-          "line": 72,
-          "signature": "export type SettlementPreviewViewModel = SettlementBonusSummaryViewModel & {",
-          "isDefault": false
-        },
-        {
-          "name": "CityInspectorViewModel",
-          "kind": "type",
-          "line": 81,
-          "signature": "export type CityInspectorViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "DebugViewModel",
-          "kind": "type",
-          "line": 158,
-          "signature": "export type DebugViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "ClientActionState",
-          "kind": "type",
-          "line": 162,
-          "signature": "export type ClientActionState = {",
-          "isDefault": false
-        },
-        {
-          "name": "PlayFeedbackState",
-          "kind": "type",
-          "line": 174,
-          "signature": "export type PlayFeedbackState = {",
-          "isDefault": false
-        },
-        {
-          "name": "ResearchNodeViewState",
-          "kind": "type",
-          "line": 202,
-          "signature": "export type ResearchNodeViewState =",
-          "isDefault": false
-        },
-        {
-          "name": "ResearchNodeViewModel",
-          "kind": "type",
-          "line": 209,
-          "signature": "export type ResearchNodeViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "CapabilityPipViewModel",
-          "kind": "type",
-          "line": 231,
-          "signature": "export type CapabilityPipViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "ResearchRateBreakdown",
-          "kind": "type",
-          "line": 242,
-          "signature": "export type ResearchRateBreakdown = {",
-          "isDefault": false
-        },
-        {
-          "name": "ResearchInspectorViewModel",
-          "kind": "type",
-          "line": 248,
-          "signature": "export type ResearchInspectorViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "ClientState",
-          "kind": "type",
-          "line": 262,
-          "signature": "export type ClientState = {",
-          "isDefault": false
-        },
-        {
-          "name": "GameAction",
-          "kind": "type",
-          "line": 281,
-          "signature": "export type GameAction =",
-          "isDefault": false
-        }
-      ]
-    },
     "src/systems/sacrificeSystem.ts": {
       "exports": [
         {
@@ -5329,13 +5123,56 @@
         }
       ]
     },
-    "web/src/game/controller/GameController.ts": {
+    "web/src/game/phaser/scenes/MapScene.ts": {
       "exports": [
         {
-          "name": "GameController",
+          "name": "MapScene",
+          "kind": "class",
+          "line": 16,
+          "signature": "export class MapScene extends Phaser.Scene {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/app/audio/sfxManager.ts": {
+      "exports": [
+        {
+          "name": "playCombatSoundForPendingCombat",
+          "kind": "function",
+          "line": 187,
+          "signature": "export function playCombatSoundForPendingCombat(_pending: PendingCombat, attacker: UnitView) {",
+          "isDefault": false
+        },
+        {
+          "name": "getDestroyedPlayerVillages",
+          "kind": "function",
+          "line": 233,
+          "signature": "export function getDestroyedPlayerVillages(prevState: ClientState | null, nextState: ClientState): string[] {",
+          "isDefault": false
+        },
+        {
+          "name": "playSessionDeltaSounds",
+          "kind": "function",
+          "line": 254,
+          "signature": "export function playSessionDeltaSounds(prevState: ClientState | null, nextState: ClientState) {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/phaser/systems/CombatAnimator.ts": {
+      "exports": [
+        {
+          "name": "CombatAnimData",
+          "kind": "interface",
+          "line": 5,
+          "signature": "export interface CombatAnimData {",
+          "isDefault": false
+        },
+        {
+          "name": "CombatAnimator",
           "kind": "class",
           "line": 22,
-          "signature": "export class GameController {",
+          "signature": "export class CombatAnimator {",
           "isDefault": false
         }
       ]
@@ -5357,13 +5194,201 @@
           "isDefault": false
         }
       ]
+    },
+    "web/src/game/phaser/scenes/BootScene.ts": {
+      "exports": [
+        {
+          "name": "BootScene",
+          "kind": "class",
+          "line": 5,
+          "signature": "export class BootScene extends Phaser.Scene {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/controller/GameController.ts": {
+      "exports": [
+        {
+          "name": "GameController",
+          "kind": "class",
+          "line": 23,
+          "signature": "export class GameController {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/types/clientState.ts": {
+      "exports": [
+        {
+          "name": "ClientMode",
+          "kind": "type",
+          "line": 5,
+          "signature": "export type ClientMode = 'play' | 'replay';",
+          "isDefault": false
+        },
+        {
+          "name": "ClientSelection",
+          "kind": "type",
+          "line": 7,
+          "signature": "export type ClientSelection =",
+          "isDefault": false
+        },
+        {
+          "name": "CameraState",
+          "kind": "type",
+          "line": 14,
+          "signature": "export type CameraState = {",
+          "isDefault": false
+        },
+        {
+          "name": "HudViewModel",
+          "kind": "type",
+          "line": 18,
+          "signature": "export type HudViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "SettlementSiteTraitViewModel",
+          "kind": "type",
+          "line": 58,
+          "signature": "export type SettlementSiteTraitViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "SettlementBonusSummaryViewModel",
+          "kind": "type",
+          "line": 66,
+          "signature": "export type SettlementBonusSummaryViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "SettlementPreviewViewModel",
+          "kind": "type",
+          "line": 73,
+          "signature": "export type SettlementPreviewViewModel = SettlementBonusSummaryViewModel & {",
+          "isDefault": false
+        },
+        {
+          "name": "CityInspectorViewModel",
+          "kind": "type",
+          "line": 82,
+          "signature": "export type CityInspectorViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "DebugViewModel",
+          "kind": "type",
+          "line": 165,
+          "signature": "export type DebugViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "ClientActionState",
+          "kind": "type",
+          "line": 169,
+          "signature": "export type ClientActionState = {",
+          "isDefault": false
+        },
+        {
+          "name": "PlayFeedbackState",
+          "kind": "type",
+          "line": 181,
+          "signature": "export type PlayFeedbackState = {",
+          "isDefault": false
+        },
+        {
+          "name": "ResearchNodeViewState",
+          "kind": "type",
+          "line": 229,
+          "signature": "export type ResearchNodeViewState =",
+          "isDefault": false
+        },
+        {
+          "name": "ResearchNodeViewModel",
+          "kind": "type",
+          "line": 236,
+          "signature": "export type ResearchNodeViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "CapabilityPipViewModel",
+          "kind": "type",
+          "line": 258,
+          "signature": "export type CapabilityPipViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "ResearchRateBreakdown",
+          "kind": "type",
+          "line": 269,
+          "signature": "export type ResearchRateBreakdown = {",
+          "isDefault": false
+        },
+        {
+          "name": "ResearchInspectorViewModel",
+          "kind": "type",
+          "line": 275,
+          "signature": "export type ResearchInspectorViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "ClientState",
+          "kind": "type",
+          "line": 289,
+          "signature": "export type ClientState = {",
+          "isDefault": false
+        },
+        {
+          "name": "GameAction",
+          "kind": "type",
+          "line": 309,
+          "signature": "export type GameAction =",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/phaser/assets/assetManifest.ts": {
+      "exports": [
+        {
+          "name": "assetManifest",
+          "kind": "const",
+          "line": 6,
+          "signature": "export const assetManifest",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/controller/GameSession.ts": {
+      "exports": [
+        {
+          "name": "PendingCombat",
+          "kind": "interface",
+          "line": 125,
+          "signature": "export interface PendingCombat {",
+          "isDefault": false
+        },
+        {
+          "name": "SessionSaveSnapshot",
+          "kind": "type",
+          "line": 140,
+          "signature": "export type SessionSaveSnapshot = {",
+          "isDefault": false
+        },
+        {
+          "name": "GameSession",
+          "kind": "class",
+          "line": 152,
+          "signature": "export class GameSession {",
+          "isDefault": false
+        }
+      ]
     }
   },
   "_metadata": {
     "version": "2.0.0",
-    "last_run": "2026-04-08T20:37:43.978734Z",
+    "last_run": "2026-04-09T01:38:07.947831Z",
     "root": "C:\\Users\\fosbo\\war-civ-v2",
-    "file_count": 111
+    "file_count": 112
   },
   "_file_hashes": {
     "artifacts/balance-optimization/20260330-222337/best_candidates.json": "afc0678ce1b811a5ae3ed7acdb76140a",
@@ -5504,21 +5529,22 @@
     "web/package-lock.json": "4812429f12b44e14aff1860f642beac5",
     "web/package.json": "6a5db7b26a4019b153b97a46fb986ef3",
     "web/public/replays/mvp-seed-42.json": "303790883e50da8cb29253fb717f3dea",
-    "web/src/app/audio/musicManager.ts": "88dd92c368b894a478ea75a8af186130",
+    "web/src/app/audio/musicManager.ts": "dc7e5b5f43ef070a6ea779ecfa7a2362",
+    "web/src/app/audio/sfxManager.ts": "a08d0a29eb3321bc0743c8b1b9ff8d9a",
     "web/src/app/savegames.ts": "0975f72b61190948bf1111c25f592cf3",
     "web/src/data/emergent-rules.json": "c0fe701fe1196f6bcd722f6bfc338af0",
     "web/src/data/pair-synergies.json": "2afe2d5d501e178ae2e48e95bada97cb",
-    "web/src/game/controller/GameController.ts": "bf880d0dbf671fed2e1267da600970fb",
-    "web/src/game/controller/GameSession.ts": "7f90b6aec5e220b713c19e0bb080d4c3",
+    "web/src/game/controller/GameController.ts": "35c7657359943ea1bc21582112d21c69",
+    "web/src/game/controller/GameSession.ts": "d3e81ab39cd775e42d1e8a3059794787",
     "web/src/game/fixtures/curatedPlaytest.ts": "b0a07dc2df87a731c4f6a0b7738d8c25",
-    "web/src/game/phaser/assets/assetManifest.ts": "d71fbeece1857d4d599f6249ed73b3a0",
+    "web/src/game/phaser/assets/assetManifest.ts": "89cdb6b69b34efdadc83f641a6912576",
     "web/src/game/phaser/assets/freelandSpec.ts": "89d80fe5ac50367b05ce3873e6ec11b3",
     "web/src/game/phaser/assets/keys.ts": "383d248676799db181fa3b3792db4022",
     "web/src/game/phaser/createGame.ts": "0e766e12ae8573b16b98f4c2be7b8e7b",
-    "web/src/game/phaser/scenes/BootScene.ts": "cf1a09764e7a46ff8359b928d9ea4784",
-    "web/src/game/phaser/scenes/MapScene.ts": "3051e10d873da43777f1adb9f6d81b96",
+    "web/src/game/phaser/scenes/BootScene.ts": "592bf1528ffb863312d45358e7b3689e",
+    "web/src/game/phaser/scenes/MapScene.ts": "eedee084f5e27f5c00bfc4a2f74fcb15",
     "web/src/game/phaser/systems/BorderRenderer.ts": "dcc11bede231fe475650ed2ea5c153fc",
-    "web/src/game/phaser/systems/CombatAnimator.ts": "b68870d8d12d9bd8740a2848c0b8fc1b",
+    "web/src/game/phaser/systems/CombatAnimator.ts": "a16e83be755219f5410ad48cb88847cf",
     "web/src/game/phaser/systems/FogRenderer.ts": "476f6c1b9094d5a9f53c0904cc157961",
     "web/src/game/phaser/systems/ImprovementRenderer.ts": "805e1dbbc61dbb81f7e773c5414d9908",
     "web/src/game/phaser/systems/PathRenderer.ts": "dcad19fe35cd3e2a8b5c210f1703ed19",
@@ -5528,7 +5554,7 @@
     "web/src/game/phaser/systems/TerrainGeometry.ts": "20683c4b41a8cebacce5ac8bfe9d2df4",
     "web/src/game/phaser/systems/TileLayerRenderer.ts": "97d364f120cd1543def97aef61fbadc0",
     "web/src/game/phaser/systems/UnitRenderer.ts": "ec7b2b11835b518dceef6c908a04fd5d",
-    "web/src/game/types/clientState.ts": "ac33c9ba82659200245e957b867ba114",
+    "web/src/game/types/clientState.ts": "08c806a336cb07308760c7364c45441c",
     "web/src/game/types/playState.ts": "c88e7a8c385914c07df09d9ce4a9ce3c",
     "web/src/game/types/replay.ts": "c69ac336af611bafaefb160a4b6b73bf",
     "web/src/game/types/worldView.ts": "1f90097550e2a6d1126b77e15a1fbaf6",

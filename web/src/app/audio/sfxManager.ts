@@ -18,6 +18,7 @@ type SoundId =
   | 'blowgun'
   | 'crocodile'
   | 'slaver_capture'
+  | 'village_destroyed'
   | 'city_built'
   | 'city_captured'
   | 'sacrifice'
@@ -26,7 +27,8 @@ type SoundId =
   | 'victory'
   | 'defeat'
   | 'research_tier'
-  | 'ranged';
+  | 'ranged'
+  | 'hit_and_run';
 
 type AudioSnapshot = {
   moveCount: number;
@@ -34,9 +36,12 @@ type AudioSnapshot = {
   lastSacrificeKey: string | null;
   lastLearnedDomainKey: string | null;
   lastResearchCompletionKey: string | null;
+  hitAndRunRetreatKey: string | null;
   playerCityCount: number;
+  playerFactionId: string | null;
   cityOwners: Map<string, string>;
   unitOwners: Map<string, string>;
+  villages: Map<string, { factionId: string; name: string }>;
   playerWon: boolean;
 };
 
@@ -56,6 +61,7 @@ const SOUND_SOURCES: Record<SoundId, string> = {
   blowgun: '/assets/audio/sfx/blowgun.wav',
   crocodile: '/assets/audio/sfx/crocodile.wav',
   slaver_capture: '/assets/audio/sfx/spysound.wav',
+  village_destroyed: '/assets/audio/sfx/drumcn.wav',
   city_built: '/assets/audio/sfx/bldcity.wav',
   city_captured: '/assets/audio/sfx/barracks.wav',
   sacrifice: '/assets/audio/sfx/drumbn.wav',
@@ -65,6 +71,7 @@ const SOUND_SOURCES: Record<SoundId, string> = {
   defeat: '/assets/audio/sfx/guillotn.wav',
   research_tier: '/assets/audio/sfx/druman.wav',
   ranged: '/assets/audio/sfx/archers_4s.wav',
+  hit_and_run: '/assets/audio/sfx/feedbkxx.wav',
 };
 
 const SOUND_VOLUMES: Partial<Record<SoundId, number>> = {
@@ -74,6 +81,7 @@ const SOUND_VOLUMES: Partial<Record<SoundId, number>> = {
   defeat: 0.7,
   city_built: 0.7,
   city_captured: 0.7,
+  village_destroyed: 0.7,
   sacrifice: 0.7,
   learned_domain: 0.7,
 };
@@ -133,14 +141,14 @@ function classifyCombatSound(attacker: Pick<UnitView, 'factionId' | 'prototypeId
   }
 
   // ── Magic / spellcaster units ──
-  if (attacker.prototypeId.endsWith('_druid_wizard')) {
+  if (attacker.prototypeId === 'druid_wizard') {
     return 'wizard_spell';
-  }
-  if (attacker.prototypeId.includes('blowgun')) {
-    return 'blowgun';
   }
   if (attacker.prototypeId.includes('_priest')) {
     return 'priest_spell';
+  }
+  if (attacker.prototypeId === 'blowgun_skirmishers') {
+    return 'blowgun';
   }
 
   // ── Naval units ──
@@ -157,6 +165,10 @@ function classifyCombatSound(attacker: Pick<UnitView, 'factionId' | 'prototypeId
   }
   if (isPirateLandUnit(attacker)) {
     return 'pirate_gun';
+  }
+
+  if (attacker.factionId === 'steppe_clan' && attacker.chassisId === 'cavalry_frame') {
+    return 'ranged';
   }
 
   // ── Ranged (non-pirate) ──
@@ -190,6 +202,7 @@ function buildAudioSnapshot(state: ClientState): AudioSnapshot | null {
   const playerFactionId = state.playFeedback.playerFactionId;
   const cityOwners = new Map(state.world.cities.map((city) => [city.id, city.factionId]));
   const unitOwners = new Map(state.world.units.map((unit) => [unit.id, unit.factionId]));
+  const villages = new Map(state.world.villages.map((village) => [village.id, { factionId: village.factionId, name: village.name }]));
   const playerCityCount = playerFactionId
     ? state.world.cities.filter((city) => city.factionId === playerFactionId).length
     : 0;
@@ -211,11 +224,37 @@ function buildAudioSnapshot(state: ClientState): AudioSnapshot | null {
     lastResearchCompletionKey: state.playFeedback.lastResearchCompletion
       ? `${state.playFeedback.lastResearchCompletion.nodeId}:${state.playFeedback.lastResearchCompletion.tier}`
       : null,
+    hitAndRunRetreatKey: state.playFeedback.hitAndRunRetreat
+      ? `${state.playFeedback.hitAndRunRetreat.unitId}:${state.playFeedback.hitAndRunRetreat.to.q},${state.playFeedback.hitAndRunRetreat.to.r}`
+      : null,
     playerCityCount,
+    playerFactionId,
     cityOwners,
     unitOwners,
+    villages,
     playerWon,
   };
+}
+
+export function getDestroyedPlayerVillages(prevState: ClientState | null, nextState: ClientState): string[] {
+  const prev = prevState ? buildAudioSnapshot(prevState) : null;
+  const next = buildAudioSnapshot(nextState);
+
+  if (!prev || !next || !prev.playerFactionId) {
+    return [];
+  }
+
+  const destroyed: string[] = [];
+  for (const [villageId, village] of prev.villages.entries()) {
+    if (village.factionId !== prev.playerFactionId) {
+      continue;
+    }
+    if (!next.villages.has(villageId)) {
+      destroyed.push(village.name);
+    }
+  }
+
+  return destroyed;
 }
 
 export function playSessionDeltaSounds(prevState: ClientState | null, nextState: ClientState) {
@@ -242,6 +281,10 @@ export function playSessionDeltaSounds(prevState: ClientState | null, nextState:
     playSound('research_tier');
   }
 
+  if (next.hitAndRunRetreatKey && next.hitAndRunRetreatKey !== prev.hitAndRunRetreatKey) {
+    playSound('hit_and_run');
+  }
+
   if ([...next.cityOwners.keys()].some((cityId) => !prev.cityOwners.has(cityId))) {
     playSound('city_built');
   }
@@ -258,6 +301,10 @@ export function playSessionDeltaSounds(prevState: ClientState | null, nextState:
     return previousOwner !== undefined && previousOwner !== factionId;
   })) {
     playSound('slaver_capture');
+  }
+
+  if (getDestroyedPlayerVillages(prevState, nextState).length > 0) {
+    playSound('village_destroyed');
   }
 
   if (prev.playerCityCount > 0 && next.playerCityCount === 0) {

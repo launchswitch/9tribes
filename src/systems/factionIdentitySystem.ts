@@ -42,7 +42,7 @@ export function getMovementCostModifier(
   const passive = faction?.identityProfile.passiveTrait;
 
   if (passive === 'river_assault' && isWaterTerrain(targetTerrainId)) {
-    return -1;
+    return -2;
   }
 
   if (passive === 'greedy' && (targetTerrainId === 'coast' || targetTerrainId === 'ocean')) {

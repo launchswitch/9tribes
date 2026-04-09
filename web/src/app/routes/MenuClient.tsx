@@ -121,7 +121,6 @@ export function MenuClient() {
           <section className="menu-title">
             <div className="menu-title__scrim" />
             <div className="menu-title__actions">
-              <p className="menu-kicker">Procedural Tribal Strategy</p>
               <button
                 className="menu-primary menu-primary--hero"
                 type="button"
@@ -141,7 +140,6 @@ export function MenuClient() {
             <div className="menu-copy">
               <p className="menu-kicker">Choose Mode</p>
               <h2>Begin a New Campaign</h2>
-              <p>Single player is ready now. Multiplayer and save loading stay visible so the flow can grow without rework.</p>
             </div>
 
             <div className="menu-option-stack">
@@ -184,7 +182,6 @@ export function MenuClient() {
             <div className="menu-copy">
               <p className="menu-kicker">World Setup</p>
               <h2>Set the opening conditions</h2>
-              <p>The menu launches the climate-band generator directly and passes your settings into the fresh session bootstrap.</p>
             </div>
 
             <div className="menu-config-grid">
@@ -249,7 +246,6 @@ export function MenuClient() {
             <div className="menu-copy">
               <p className="menu-kicker">Select Tribe</p>
               <h2>Choose your people</h2>
-              <p>All nine factions still spawn in the world. This choice sets the human-controlled tribe and the faction color used at launch.</p>
             </div>
 
             <div className="tribe-layout">

@@ -216,6 +216,12 @@ export type PlayFeedbackState = {
         tier: number;
       }
     | null;
+  hitAndRunRetreat:
+    | {
+        unitId: string;
+        to: { q: number; r: number };
+      }
+    | null;
   victory:
     | {
         winnerFactionId: string | null;

@@ -1,15 +1,19 @@
 import { buildMvpScenario } from '../game/buildMvpScenario.js';
 import { getMvpFactionConfigs } from '../game/scenarios/mvp.js';
 import type { RulesRegistry } from '../data/registry/types.js';
+import type { Prototype } from '../features/prototypes/types.js';
 import type { FactionId } from '../types.js';
 import type { MapGenerationMode } from '../world/map/types.js';
 import type { BalanceOverrides } from '../balance/types.js';
+import type { DifficultyLevel } from './aiDifficulty.js';
 import { getBattleCount, getKillCount } from './historySystem.js';
 import {
   assertSettlementOwnershipConsistency,
   getFactionCityCount,
   getFactionVillageCount,
 } from './factionOwnershipSystem.js';
+import { calculatePrototypeCost, getDomainIdsByTags } from './knowledgeSystem.js';
+import { getAvailableProductionPrototypes, getCityProductionYield, getPrototypeCostType, getUnitCost } from './productionSystem.js';
 import {
   createSimulationTrace,
   getVictoryStatus,
@@ -50,6 +54,14 @@ export interface UnitComposition {
   byRole: Record<string, number>;
 }
 
+export interface FactionProductionStallMarker {
+  cityId: string;
+  currentProductionItemId: string | null;
+  currentProductionCost: number | null;
+  costType: 'production' | 'villages' | null;
+  estimatedTurnsQueued: number | null;
+}
+
 export interface FactionSeedMetrics {
   factionId: string;
   livingUnits: number;
@@ -60,7 +72,17 @@ export interface FactionSeedMetrics {
   unlockedRecipes: number;
   routedUnits: number;
   signatureUnits: number;
+  signatureCapableUnits: number;
+  hybridUnits: number;
   homeTerrainUnits: number;
+  supplyIncome: number;
+  supplyDemand: number;
+  supplyUtilizationRatio: number;
+  highestAvailableProductionCost: number;
+  highestFieldedProductionCost: number;
+  averageFieldedProductionCost: number;
+  unitsByPrototypeId: Record<string, number>;
+  stalledProduction: FactionProductionStallMarker[];
   unitComposition: UnitComposition;
 }
 
@@ -91,7 +113,17 @@ export interface FactionBatchMetrics {
   avgUnlockedRecipes: number;
   avgRoutedUnits: number;
   avgSignatureUnits: number;
+  avgSignatureCapableUnits: number;
+  avgHybridUnits: number;
   avgHomeTerrainUnits: number;
+  avgSupplyIncome: number;
+  avgSupplyDemand: number;
+  avgSupplyUtilizationRatio: number;
+  avgHighestAvailableProductionCost: number;
+  avgHighestFieldedProductionCost: number;
+  avgAverageFieldedProductionCost: number;
+  avgUnitsByPrototypeId: Record<string, number>;
+  avgStalledProductionCount: number;
   avgUnitComposition: UnitComposition;
 }
 
@@ -210,7 +242,107 @@ function countSignatureUnits(state: ReturnType<typeof buildMvpScenario>, faction
   }, 0);
 }
 
-function getFactionMetrics(state: ReturnType<typeof buildMvpScenario>, factionId: FactionId): FactionSeedMetrics {
+function countSignatureLikePrototype(factionId: FactionId, prototype: Prototype): number {
+  const tags = new Set(prototype.tags ?? []);
+  switch (factionId) {
+    case 'jungle_clan' as FactionId:
+      return tags.has('poison') ? 1 : 0;
+    case 'druid_circle' as FactionId:
+      return tags.has('druid') ? 1 : 0;
+    case 'steppe_clan' as FactionId:
+      return tags.has('warlord') ? 1 : 0;
+    case 'hill_clan' as FactionId:
+      return tags.has('fortress') ? 1 : 0;
+    case 'coral_people' as FactionId:
+      return tags.has('transport') ? 1 : 0;
+    case 'desert_nomads' as FactionId:
+      return tags.has('camel') ? 1 : 0;
+    case 'savannah_lions' as FactionId:
+      return tags.has('elephant') ? 1 : 0;
+    case 'plains_riders' as FactionId:
+      return tags.has('river') || tags.has('amphibious') ? 1 : 0;
+    case 'frost_wardens' as FactionId:
+      return tags.has('cold') || tags.has('endurance') ? 1 : 0;
+    default:
+      return 0;
+  }
+}
+
+function isSignatureCapableUnit(factionId: FactionId, prototype: Prototype, registry: RulesRegistry): boolean {
+  const tags = new Set(prototype.tags ?? []);
+  const ability = registry.getSignatureAbility(factionId);
+
+  if (ability?.stampedeBonus && (prototype.chassisId === 'elephant_frame' || tags.has('elephant'))) return true;
+  if (ability?.hitAndRun && prototype.derivedStats.role === 'mounted') return true;
+  if (ability?.tidalAssaultBonus && (tags.has('naval') || tags.has('transport'))) return true;
+  if (ability?.venomDamagePerTurn && tags.has('poison')) return true;
+  if (ability?.forestHealRate && (tags.has('druid') || tags.has('healing'))) return true;
+  if (ability?.bulwarkDefenseBonus && tags.has('fortress')) return true;
+  if (ability?.desertSwarmAttackBonus && (tags.has('camel') || tags.has('desert'))) return true;
+  if (ability?.swiftChargeBonus && (prototype.derivedStats.role === 'mounted' || tags.has('river') || tags.has('amphibious'))) return true;
+  if (ability?.wallDefenseMultiplier && tags.has('transport')) return true;
+  if (ability?.greedyBonus && tags.has('capture')) return true;
+  if (ability?.summon && tags.has('cold')) return true;
+
+  return countSignatureLikePrototype(factionId, prototype) > 0;
+}
+
+function getPrototypeProductionCost(
+  prototype: Prototype,
+  faction: NonNullable<ReturnType<typeof buildMvpScenario>['factions'] extends Map<any, infer F> ? F : never>,
+): number {
+  if (getPrototypeCostType(prototype) === 'villages') {
+    return prototype.sourceRecipeId === 'settler' ? 0 : getUnitCost(prototype.chassisId);
+  }
+
+  return calculatePrototypeCost(getUnitCost(prototype.chassisId), faction, getDomainIdsByTags(prototype.tags ?? []));
+}
+
+function averageRecordCounts(records: Record<string, number>[]): Record<string, number> {
+  const totals: Record<string, number> = {};
+  const count = records.length || 1;
+
+  for (const record of records) {
+    for (const [key, value] of Object.entries(record)) {
+      totals[key] = (totals[key] ?? 0) + value / count;
+    }
+  }
+
+  for (const key of Object.keys(totals)) {
+    totals[key] = roundMetric(totals[key] * 10) / 10;
+  }
+
+  return totals;
+}
+
+function getStalledProductionMetrics(
+  state: ReturnType<typeof buildMvpScenario>,
+  factionId: FactionId,
+): FactionProductionStallMarker[] {
+  return Array.from(state.cities.values())
+    .filter((city) => city.factionId === factionId && city.currentProduction)
+    .map((city) => {
+      const estimatedTurnsQueued =
+        city.currentProduction?.costType === 'production'
+          ? roundMetric(city.currentProduction.progress / Math.max(1, getCityProductionYield(city)))
+          : null;
+
+      return {
+        cityId: city.id,
+        currentProductionItemId: city.currentProduction?.item.id ?? null,
+        currentProductionCost: city.currentProduction?.cost ?? null,
+        costType: city.currentProduction?.costType ?? 'production',
+        estimatedTurnsQueued,
+      };
+    })
+    .sort((left, right) => left.cityId.localeCompare(right.cityId));
+}
+
+function getFactionMetrics(
+  state: ReturnType<typeof buildMvpScenario>,
+  factionId: FactionId,
+  registry: RulesRegistry,
+): FactionSeedMetrics {
   const faction = state.factions.get(factionId);
   if (!faction) {
     return {
@@ -223,7 +355,17 @@ function getFactionMetrics(state: ReturnType<typeof buildMvpScenario>, factionId
       unlockedRecipes: 0,
       routedUnits: 0,
       signatureUnits: 0,
+      signatureCapableUnits: 0,
+      hybridUnits: 0,
       homeTerrainUnits: 0,
+      supplyIncome: 0,
+      supplyDemand: 0,
+      supplyUtilizationRatio: 0,
+      highestAvailableProductionCost: 0,
+      highestFieldedProductionCost: 0,
+      averageFieldedProductionCost: 0,
+      unitsByPrototypeId: {},
+      stalledProduction: [],
       unitComposition: { byChassis: {}, byRole: {} },
     };
   }
@@ -239,6 +381,20 @@ function getFactionMetrics(state: ReturnType<typeof buildMvpScenario>, factionId
     const terrain = state.map?.tiles.get(`${unit.position.q},${unit.position.r}`)?.terrain;
     return terrain === faction.identityProfile.homeBiome;
   }).length;
+  const economy = state.economy.get(factionId) ?? { supplyIncome: 0, supplyDemand: 0 };
+  const supplyUtilizationRatio = economy.supplyIncome > 0
+    ? roundMetric(economy.supplyDemand / economy.supplyIncome)
+    : 0;
+  const unitsByPrototypeId = livingUnits.reduce<Record<string, number>>((acc, unit) => {
+    acc[unit.prototypeId] = (acc[unit.prototypeId] ?? 0) + 1;
+    return acc;
+  }, {});
+  const fieldedPrototypeCosts = livingUnits
+    .map((unit) => state.prototypes.get(unit.prototypeId))
+    .filter((prototype): prototype is Prototype => Boolean(prototype))
+    .map((prototype) => getPrototypeProductionCost(prototype, faction));
+  const availablePrototypeCosts = getAvailableProductionPrototypes(state, factionId, registry)
+    .map((prototype) => getPrototypeProductionCost(prototype, faction));
 
   const unitComposition = collectUnitComposition(state, livingUnits);
 
@@ -252,7 +408,25 @@ function getFactionMetrics(state: ReturnType<typeof buildMvpScenario>, factionId
     unlockedRecipes: faction.capabilities?.unlockedRecipeIds.length ?? 0,
     routedUnits,
     signatureUnits: countSignatureUnits(state, factionId),
+    signatureCapableUnits: livingUnits.reduce((sum, unit) => {
+      const prototype = state.prototypes.get(unit.prototypeId);
+      return prototype && isSignatureCapableUnit(factionId, prototype, registry) ? sum + 1 : sum;
+    }, 0),
+    hybridUnits: livingUnits.reduce((sum, unit) => {
+      const prototype = state.prototypes.get(unit.prototypeId);
+      return prototype?.sourceRecipeId ? sum + 1 : sum;
+    }, 0),
     homeTerrainUnits,
+    supplyIncome: roundMetric(economy.supplyIncome),
+    supplyDemand: roundMetric(economy.supplyDemand),
+    supplyUtilizationRatio,
+    highestAvailableProductionCost: availablePrototypeCosts.length > 0 ? Math.max(...availablePrototypeCosts) : 0,
+    highestFieldedProductionCost: fieldedPrototypeCosts.length > 0 ? Math.max(...fieldedPrototypeCosts) : 0,
+    averageFieldedProductionCost: fieldedPrototypeCosts.length > 0
+      ? roundMetric(fieldedPrototypeCosts.reduce((sum, cost) => sum + cost, 0) / fieldedPrototypeCosts.length)
+      : 0,
+    unitsByPrototypeId,
+    stalledProduction: getStalledProductionMetrics(state, factionId),
     unitComposition,
   };
 }
@@ -301,19 +475,20 @@ export function collectSeedBalanceMetrics(
   registry: RulesRegistry,
   maxTurns = DEFAULT_HARNESS_TURNS,
   mapMode: MapGenerationMode = 'fixed',
-  balanceOverrides?: BalanceOverrides
+  balanceOverrides?: BalanceOverrides,
+  difficulty?: DifficultyLevel,
 ): SeedBalanceMetrics {
   const factionConfigs = getMvpFactionConfigs(balanceOverrides);
   const initialState = buildMvpScenario(seed, { mapMode, registry, balanceOverrides });
   const trace = createSimulationTrace();
-  const finalState = runWarEcologySimulation(initialState, registry, maxTurns, trace);
+  const finalState = runWarEcologySimulation(initialState, registry, maxTurns, trace, difficulty);
   assertSettlementOwnershipConsistency(finalState);
   const livingUnits = Array.from(finalState.units.values()).filter((unit) => unit.hp > 0);
   const routedUnits = livingUnits.filter((unit) => unit.routed).length;
   const factions = Object.fromEntries(
     factionConfigs.map((config) => {
       const factionId = config.id as FactionId;
-      return [config.id, getFactionMetrics(finalState, factionId)];
+      return [config.id, getFactionMetrics(finalState, factionId, registry)];
     })
   );
 
@@ -365,10 +540,13 @@ export function runBalanceHarness(
   seeds: readonly number[] = SMOKE_HARNESS_SEEDS,
   maxTurns = DEFAULT_HARNESS_TURNS,
   mapMode: MapGenerationMode = 'fixed',
-  balanceOverrides?: BalanceOverrides
+  balanceOverrides?: BalanceOverrides,
+  difficulty?: DifficultyLevel,
 ): BatchBalanceSummary {
   const factionConfigs = getMvpFactionConfigs(balanceOverrides);
-  const runs = seeds.map((seed) => collectSeedBalanceMetrics(seed, registry, maxTurns, mapMode, balanceOverrides));
+  const runs = seeds.map((seed) =>
+    collectSeedBalanceMetrics(seed, registry, maxTurns, mapMode, balanceOverrides, difficulty),
+  );
   const factionIds = factionConfigs.map((config) => config.id);
 
   const factions = Object.fromEntries(
@@ -389,7 +567,29 @@ export function runBalanceHarness(
           avgUnlockedRecipes: roundMetric(factionRuns.reduce((sum, run) => sum + run.unlockedRecipes, 0) / runs.length),
           avgRoutedUnits: roundMetric(factionRuns.reduce((sum, run) => sum + run.routedUnits, 0) / runs.length),
           avgSignatureUnits: roundMetric(factionRuns.reduce((sum, run) => sum + run.signatureUnits, 0) / runs.length),
+          avgSignatureCapableUnits: roundMetric(
+            factionRuns.reduce((sum, run) => sum + run.signatureCapableUnits, 0) / runs.length,
+          ),
+          avgHybridUnits: roundMetric(factionRuns.reduce((sum, run) => sum + run.hybridUnits, 0) / runs.length),
           avgHomeTerrainUnits: roundMetric(factionRuns.reduce((sum, run) => sum + run.homeTerrainUnits, 0) / runs.length),
+          avgSupplyIncome: roundMetric(factionRuns.reduce((sum, run) => sum + run.supplyIncome, 0) / runs.length),
+          avgSupplyDemand: roundMetric(factionRuns.reduce((sum, run) => sum + run.supplyDemand, 0) / runs.length),
+          avgSupplyUtilizationRatio: roundMetric(
+            factionRuns.reduce((sum, run) => sum + run.supplyUtilizationRatio, 0) / runs.length,
+          ),
+          avgHighestAvailableProductionCost: roundMetric(
+            factionRuns.reduce((sum, run) => sum + run.highestAvailableProductionCost, 0) / runs.length,
+          ),
+          avgHighestFieldedProductionCost: roundMetric(
+            factionRuns.reduce((sum, run) => sum + run.highestFieldedProductionCost, 0) / runs.length,
+          ),
+          avgAverageFieldedProductionCost: roundMetric(
+            factionRuns.reduce((sum, run) => sum + run.averageFieldedProductionCost, 0) / runs.length,
+          ),
+          avgUnitsByPrototypeId: averageRecordCounts(factionRuns.map((run) => run.unitsByPrototypeId)),
+          avgStalledProductionCount: roundMetric(
+            factionRuns.reduce((sum, run) => sum + run.stalledProduction.length, 0) / runs.length,
+          ),
           avgUnitComposition: averageUnitComposition(factionRuns.map((run) => run.unitComposition)),
         } satisfies FactionBatchMetrics,
       ];
@@ -435,7 +635,8 @@ export function runStratifiedBalanceHarness(
   registry: RulesRegistry,
   maxTurns = DEFAULT_HARNESS_TURNS,
   mapMode: MapGenerationMode = 'fixed',
-  balanceOverrides?: BalanceOverrides
+  balanceOverrides?: BalanceOverrides,
+  difficulty?: DifficultyLevel,
 ): BatchBalanceSummary {
-  return runBalanceHarness(registry, STRATIFIED_HARNESS_SEEDS, maxTurns, mapMode, balanceOverrides);
+  return runBalanceHarness(registry, STRATIFIED_HARNESS_SEEDS, maxTurns, mapMode, balanceOverrides, difficulty);
 }

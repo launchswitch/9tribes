@@ -2772,6 +2772,23 @@ select {
   color: var(--muted);
 }
 
+.ci-learned-ability {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 8px;
+  margin-top: 4px;
+  border-radius: 6px;
+  background: rgba(100, 80, 60, 0.1);
+}
+
+.ci-learned-ability__desc {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
 .ci-action-btn--active:hover {
   opacity: 0.9;
   background: var(--accent);

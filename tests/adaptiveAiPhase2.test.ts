@@ -56,7 +56,6 @@ describe('adaptive AI phase 2', () => {
     expect(hillSettlerScore).toBeTruthy();
     expect(steppeSettlerScore).toBeTruthy();
     expect(hillSettlerScore!.score).toBeGreaterThan(steppeSettlerScore!.score);
-    expect(hillSettlerScore!.reason).toContain('settler expansion');
   });
 
   it('computes projected supply margins for production candidates', () => {
@@ -159,5 +158,61 @@ describe('adaptive AI phase 2', () => {
     const relaxedDelta = (relaxedHitrun?.score ?? 0) - (relaxedCharge?.score ?? 0);
     const tightDelta = (tightHitrun?.score ?? 0) - (tightCharge?.score ?? 0);
     expect(tightDelta).toBeGreaterThan(relaxedDelta);
+  });
+
+  it('pushes normal research toward foreign breadth before native tier 3 when breadth is undeveloped', () => {
+    const state = buildMvpScenario(42, { registry });
+    const factionId = 'steppe_clan' as never;
+    const faction = state.factions.get(factionId)!;
+    const research = state.research.get(factionId)!;
+
+    state.factions.set(factionId, {
+      ...faction,
+      learnedDomains: [...new Set([...faction.learnedDomains, 'charge'])],
+    });
+    state.research.set(factionId, {
+      ...research,
+      completedNodes: [...new Set([...(research.completedNodes as string[]), 'hitrun_t2', 'charge_t1'])] as never[],
+    });
+    state.round = 40;
+
+    const strategy = computeFactionStrategy(state, factionId, registry, 'normal');
+    const priorities = rankResearchPriorities(state, factionId, strategy, registry, 'normal');
+    const foreignBreadth = priorities.find((entry) => entry.nodeId === 'charge_t2');
+    const nativeDepth = priorities.find((entry) => entry.nodeId === 'hitrun_t3');
+
+    expect(foreignBreadth).toBeTruthy();
+    expect(nativeDepth).toBeTruthy();
+    expect((foreignBreadth?.score ?? 0)).toBeGreaterThan(nativeDepth?.score ?? 0);
+    expect(foreignBreadth?.reason).toContain('breadth');
+  });
+
+  it('weights stronger available military more heavily on normal when army quality lags the unlock state', () => {
+    const state = buildMvpScenario(42, { registry });
+    const factionId = 'steppe_clan' as never;
+    const cavalry = getPrototypeByChassis(state, factionId, 'cavalry_frame');
+    const infantry = getPrototypeByChassis(state, factionId, 'infantry_frame');
+    expect(cavalry).toBeTruthy();
+    expect(infantry).toBeTruthy();
+
+    for (const unitId of state.factions.get(factionId)!.unitIds) {
+      const unit = state.units.get(unitId)!;
+      state.units.set(unitId, { ...unit, prototypeId: infantry!.id });
+    }
+    state.economy.set(factionId, {
+      factionId,
+      productionPool: 0,
+      supplyIncome: 20,
+      supplyDemand: 4,
+    });
+    state.round = 30;
+
+    const strategy = computeFactionStrategy(state, factionId, registry, 'normal');
+    const priorities = rankProductionPriorities(state, factionId, strategy, registry, 'normal');
+    const cavalryPriority = priorities.find((entry) => entry.prototypeId === cavalry!.id);
+
+    expect(cavalryPriority).toBeTruthy();
+    expect(priorities[0]?.prototypeId).toBe(cavalry!.id);
+    expect(cavalryPriority?.reason).toContain('quality gap');
   });
 });

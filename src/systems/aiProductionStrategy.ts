@@ -33,9 +33,53 @@ interface ProductionScoringContext {
   supplyIncome: number;
   currentSupplyDemand: number;
   currentSupplyDeficit: number;
+  supplyUtilizationRatio: number;
+  totalFriendlyUnits: number;
+  visibleEnemyPressure: number;
+  highestAvailableMilitaryCost: number;
+  highestFieldedMilitaryCost: number;
+  averageFieldedMilitaryCost: number;
+  targetArmySize: number;
 }
 
 const NORMAL_DOMAIN_PIVOT_DURATION = 3;
+
+function isMilitaryPrototype(
+  prototype: Pick<Prototype, 'derivedStats' | 'tags'>,
+): boolean {
+  const tags = prototype.tags ?? [];
+  return prototype.derivedStats.role !== 'support'
+    && !tags.includes('transport')
+    && !tags.includes('naval')
+    && !tags.includes('settler');
+}
+
+function getSupplyUtilizationRatio(economy: { supplyIncome: number; supplyDemand: number }): number {
+  if (economy.supplyIncome <= 0) {
+    return economy.supplyDemand > 0 ? 1 : 0;
+  }
+  return Number((economy.supplyDemand / economy.supplyIncome).toFixed(3));
+}
+
+function getTargetArmySize(
+  state: GameState,
+  factionId: FactionId,
+): number {
+  const faction = state.factions.get(factionId);
+  const cities = faction?.cityIds.length ?? 0;
+  const villages = faction?.villageIds.length ?? 0;
+  return Math.max(4, cities * 3 + Math.floor(villages / 2));
+}
+
+function getProductionCostForPrototype(
+  prototype: Pick<Prototype, 'chassisId' | 'tags' | 'sourceRecipeId'>,
+  faction: NonNullable<GameState['factions'] extends Map<any, infer F> ? F : never>,
+): number {
+  if (getPrototypeCostType(prototype) === 'villages') {
+    return prototype.sourceRecipeId === 'settler' ? 0 : getPrototypeQueueCost(prototype);
+  }
+  return calculatePrototypeCost(getUnitCost(prototype.chassisId), faction, getDomainIdsByTags(prototype.tags ?? []));
+}
 
 export function getSupplyMargin(economy: { supplyIncome: number; supplyDemand: number }): number {
   return Number((economy.supplyIncome - economy.supplyDemand).toFixed(2));
@@ -107,20 +151,35 @@ export function rankProductionPriorities(
   const enemyUnits = getVisibleEnemyUnits(state, factionId).map((entry) => entry.unit);
   const currentRoles = new Map<string, number>();
   let totalFriendlyUnits = 0;
+  const fieldedMilitaryCosts: number[] = [];
   for (const unit of state.units.values()) {
     if (unit.factionId !== factionId || unit.hp <= 0) continue;
     const prototype = state.prototypes.get(unit.prototypeId);
     if (!prototype) continue;
     totalFriendlyUnits += 1;
     currentRoles.set(prototype.derivedStats.role, (currentRoles.get(prototype.derivedStats.role) ?? 0) + 1);
+    if (isMilitaryPrototype(prototype)) {
+      fieldedMilitaryCosts.push(getProductionCostForPrototype(prototype, faction));
+    }
   }
 
   const factionEconomy = state.economy.get(factionId) ?? { factionId, productionPool: 0, supplyIncome: 0, supplyDemand: 0 };
   const currentSupplyDeficit = getSupplyDeficit(factionEconomy);
+  const supplyUtilizationRatio = getSupplyUtilizationRatio(factionEconomy);
+  const targetArmySize = getTargetArmySize(state, factionId);
   const scoringContext: ProductionScoringContext = {
     supplyIncome: factionEconomy.supplyIncome,
     currentSupplyDemand: factionEconomy.supplyDemand,
     currentSupplyDeficit,
+    supplyUtilizationRatio,
+    totalFriendlyUnits,
+    visibleEnemyPressure: enemyUnits.length,
+    highestAvailableMilitaryCost: 0,
+    highestFieldedMilitaryCost: fieldedMilitaryCosts.length > 0 ? Math.max(...fieldedMilitaryCosts) : 0,
+    averageFieldedMilitaryCost: fieldedMilitaryCosts.length > 0
+      ? Number((fieldedMilitaryCosts.reduce((sum, cost) => sum + cost, 0) / fieldedMilitaryCosts.length).toFixed(3))
+      : 0,
+    targetArmySize,
   };
 
   const availablePrototypes = getAvailableProductionPrototypes(state, factionId, registry)
@@ -133,6 +192,12 @@ export function rankProductionPriorities(
       }
       return canPaySettlerVillageCost(state, factionId, SETTLER_VILLAGE_COST);
     });
+  const availableMilitaryCosts = availablePrototypes
+    .filter((prototype) => isMilitaryPrototype(prototype))
+    .map((prototype) => getProductionCostForPrototype(prototype, faction));
+  scoringContext.highestAvailableMilitaryCost = availableMilitaryCosts.length > 0
+    ? Math.max(...availableMilitaryCosts)
+    : 0;
   if (usesNormalAiBehavior(difficulty) && state.round <= 10) {
     return rankRushProductionPriorities(state, factionId, strategy, registry, availablePrototypes);
   }
@@ -168,6 +233,19 @@ export function rankProductionPriorities(
       const productionCostPenalty = totalCost * 0.18;
       const supplyEfficiencyScore = scoreSupplyEfficiency(prototype, registry) * 0.22;
       const forceProjectionScore = scoreForceProjectionValue(prototype, strategy) * 0.95;
+      const underCapScore = scoreUnderCapPressure(
+        prototype,
+        totalCost,
+        economic.supplyCost,
+        scoringContext,
+        difficulty,
+      );
+      const qualityLagScore = scoreArmyQualityLag(
+        prototype,
+        totalCost,
+        scoringContext,
+        difficulty,
+      );
       const doctrineScore = scoreProductionCandidate(
         strategy.personality,
         { supplyDeficit: currentSupplyDeficit },
@@ -189,6 +267,8 @@ export function rankProductionPriorities(
         settlerScore +
         doctrineScore +
         supplyEfficiencyScore +
+        underCapScore +
+        qualityLagScore +
         forceProjectionScore -
         productionCostPenalty -
         supplyCostPenalty -
@@ -203,6 +283,8 @@ export function rankProductionPriorities(
         projectedSupplyMargin,
         codifiedPivotScore,
         settlerScore,
+        underCapScore,
+        qualityLagScore,
       );
       return {
         prototypeId: prototype.id,
@@ -252,6 +334,48 @@ export function chooseStrategicProduction(
   };
 }
 
+function scoreUnderCapPressure(
+  prototype: NonNullable<GameState['prototypes'] extends Map<any, infer P> ? P : never>,
+  totalCost: number,
+  supplyCost: number,
+  context: ProductionScoringContext,
+  difficulty?: DifficultyLevel,
+): number {
+  if (!usesNormalAiBehavior(difficulty)) return 0;
+  if (!isMilitaryPrototype(prototype)) return 0;
+  if (context.supplyUtilizationRatio >= 0.8) return 0;
+
+  const armyShortfall = Math.max(0, context.targetArmySize - context.totalFriendlyUnits);
+  const unusedSupplyPressure = Math.max(0, 0.9 - context.supplyUtilizationRatio);
+  const cheapSupplyBonus = Math.max(0, 3 - supplyCost) * 1.4;
+  const cheapProductionBonus = Math.max(0, 42 - totalCost) * 0.08;
+
+  return unusedSupplyPressure * 12 + Math.min(6, armyShortfall * 1.2) + cheapSupplyBonus + cheapProductionBonus;
+}
+
+function scoreArmyQualityLag(
+  prototype: NonNullable<GameState['prototypes'] extends Map<any, infer P> ? P : never>,
+  totalCost: number,
+  context: ProductionScoringContext,
+  difficulty?: DifficultyLevel,
+): number {
+  if (!usesNormalAiBehavior(difficulty)) return 0;
+  if (!isMilitaryPrototype(prototype)) return 0;
+
+  const highestLag = Math.max(0, context.highestAvailableMilitaryCost - context.highestFieldedMilitaryCost);
+  const averageLag = Math.max(0, totalCost - context.averageFieldedMilitaryCost);
+  if (highestLag <= 0 && averageLag <= 0) return 0;
+
+  let score = 0;
+  if (context.highestAvailableMilitaryCost > 0 && totalCost >= context.highestAvailableMilitaryCost - 1) {
+    score += highestLag * 0.55;
+  }
+  if (averageLag > 0) {
+    score += averageLag * 0.35;
+  }
+  return score;
+}
+
 function rankRushProductionPriorities(
   state: GameState,
   factionId: FactionId,
@@ -286,11 +410,7 @@ function rankRushProductionPriorities(
 function isRushMilitaryPrototype(
   prototype: NonNullable<GameState['prototypes'] extends Map<any, infer P> ? P : never>,
 ): boolean {
-  const tags = prototype.tags ?? [];
-  return prototype.derivedStats.role !== 'support'
-    && !tags.includes('transport')
-    && !tags.includes('naval')
-    && !tags.includes('settler');
+  return isMilitaryPrototype(prototype);
 }
 
 function scoreSettlerExpansionValue(
@@ -311,6 +431,14 @@ function scoreSettlerExpansionValue(
   if (villageCount < SETTLER_VILLAGE_COST) {
     return Number.NEGATIVE_INFINITY;
   }
+  const economy = state.economy.get(factionId) ?? { supplyIncome: 0, supplyDemand: 0 };
+  const supplyUtilizationRatio = getSupplyUtilizationRatio(economy);
+  const visibleEnemyPressure = getVisibleEnemyUnits(state, factionId).length;
+  const totalFriendlyUnits = Array.from(state.units.values()).filter(
+    (unit) => unit.factionId === factionId && unit.hp > 0,
+  ).length;
+  const targetArmySize = getTargetArmySize(state, factionId);
+  const reserveThreshold = Math.max(3, (state.factions.get(factionId)?.cityIds.length ?? 0) * 2);
 
   const postureBonus =
     strategy.posture === 'defensive' ? 10
@@ -320,11 +448,20 @@ function scoreSettlerExpansionValue(
     : strategy.posture === 'offensive' ? -8
     : -4;
 
+  const armyShortfallPenalty = Math.max(0, targetArmySize - totalFriendlyUnits) * 3;
+  const lowUtilizationPenalty = supplyUtilizationRatio < 0.75 ? (0.75 - supplyUtilizationRatio) * 18 : 0;
+  const pressurePenalty = visibleEnemyPressure > 0 ? 12 + visibleEnemyPressure * 1.5 : 0;
+  const reservePenalty = totalFriendlyUnits < reserveThreshold ? (reserveThreshold - totalFriendlyUnits) * 2.5 : 0;
+
   return (
     strategy.personality.scalars.defenseBias * 14 +
     strategy.personality.scalars.caution * 8 +
     Math.max(0, villageCount - SETTLER_VILLAGE_COST) * 1.5 +
     postureBonus -
+    armyShortfallPenalty -
+    lowUtilizationPenalty -
+    pressurePenalty -
+    reservePenalty -
     strategy.personality.scalars.aggression * 12 -
     strategy.personality.scalars.siegeBias * 4
   );
@@ -445,6 +582,8 @@ function buildProductionReason(
   projectedSupplyMargin: number,
   codifiedPivotScore: number,
   settlerScore: number,
+  underCapScore: number,
+  qualityLagScore: number,
 ): string {
   if (settlerScore > 0) {
     return `${posture} settler expansion, village-funded growth, score ${settlerScore.toFixed(1)}`;
@@ -454,6 +593,8 @@ function buildProductionReason(
   if (enemyCounterPressure > 1) parts.push('counters enemy composition');
   if (hybridScore >= 3) parts.push('hybrid synergy payoff');
   if (codifiedPivotScore > 0) parts.push('recent codified domain pivot');
+  if (underCapScore > 0) parts.push('under supply cap pressure');
+  if (qualityLagScore > 0) parts.push('closes army quality gap');
   if (projectedSupplyMargin < 0) {
     parts.push(`projects supply deficit ${Math.abs(projectedSupplyMargin).toFixed(2)}`);
   } else {

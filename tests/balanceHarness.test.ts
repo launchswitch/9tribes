@@ -187,6 +187,19 @@ describe('balance harness', () => {
     expect(sample.mapMode).toBe('randomClimateBands');
   });
 
+  it('reports army-quality and stall telemetry for normal-difficulty harness runs', () => {
+    const metrics = collectSeedBalanceMetrics(11, registry, 5, 'fixed', undefined, 'normal');
+    const steppe = metrics.factions.steppe_clan;
+
+    expect(steppe.highestAvailableProductionCost).toBeGreaterThanOrEqual(steppe.highestFieldedProductionCost);
+    expect(steppe.averageFieldedProductionCost).toBeGreaterThanOrEqual(0);
+    expect(steppe.supplyIncome).toBeGreaterThanOrEqual(0);
+    expect(steppe.supplyDemand).toBeGreaterThanOrEqual(0);
+    expect(steppe.supplyUtilizationRatio).toBeGreaterThanOrEqual(0);
+    expect(steppe.unitsByPrototypeId).toBeTruthy();
+    expect(Array.isArray(steppe.stalledProduction)).toBe(true);
+  });
+
   it('keeps seed 11 steppe materially healthier than the all-cavalry replacement', () => {
     const baselineMetrics = collectSeedBalanceMetrics(11, registry, 10);
     const variantTrace = createSimulationTrace();

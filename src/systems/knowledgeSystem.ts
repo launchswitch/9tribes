@@ -30,6 +30,7 @@ const PROTOTYPE_COST_MODIFIERS: Record<number, number> = {
   0: 2.0,  // First build - cultural shock
   1: 1.5,  // Second build - rough idea
   2: 1.2,  // Third build - starting to institutionalize
+  3: 1.0,  // Fourth+ build - fully integrated
 };
 
 const MAX_MASTERY_INDEX = 3; // 3+ builds = 1.0x cost

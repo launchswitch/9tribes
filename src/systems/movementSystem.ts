@@ -163,7 +163,13 @@ export function previewMove(
     totalCost = Math.min(totalCost, 1 + zocCost);
   }
 
-  totalCost = Math.max(1, totalCost);
+  // Only River People naval movement through rivers is allowed to drop below 1.
+  const minimumMoveCost = isNavalUnit
+    && targetTerrainId === 'river'
+    && faction?.identityProfile.passiveTrait === 'river_assault'
+    ? 0.5
+    : 1;
+  totalCost = Math.max(minimumMoveCost, totalCost);
   
   return {
     totalCost,

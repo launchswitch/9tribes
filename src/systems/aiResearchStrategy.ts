@@ -322,7 +322,64 @@ function scoreNormalTier3DepthFocus(
   if (!usesNormalAiBehavior(difficulty)) return 0;
   if (candidate.tier !== 3) return 0;
   if (!domainsWithProgress.has(candidate.domainId)) return 0;
-  return 6;
+  return 3;
+}
+
+function scoreNormalBreadthPivot(
+  candidate: CandidateNode,
+  faction: { nativeDomain: string; learnedDomains: string[] },
+  progression: ReturnType<typeof getDomainProgression>,
+  domainsWithProgress: Set<string>,
+  difficulty?: DifficultyLevel,
+): number {
+  if (!usesNormalAiBehavior(difficulty)) return 0;
+
+  const nativeT2Secured = progression.t2Domains.includes(faction.nativeDomain);
+  const nonNativeT2Count = progression.t2Domains.filter((domainId) => domainId !== faction.nativeDomain).length;
+  const activeBreadthCount = Array.from(domainsWithProgress).filter((domainId) => domainId !== faction.nativeDomain).length;
+  const isForeign = candidate.domainId !== faction.nativeDomain;
+  const isNewBreadthTier2 = candidate.tier === 2 && isForeign && !progression.t2Domains.includes(candidate.domainId);
+  const isNativeTier3 = candidate.tier === 3 && candidate.domainId === faction.nativeDomain;
+
+  let score = 0;
+  if (nativeT2Secured && isNewBreadthTier2) {
+    score += nonNativeT2Count === 0 ? 7 : 4;
+    if (activeBreadthCount === 0) {
+      score += 2;
+    }
+  }
+
+  if (isNativeTier3 && nativeT2Secured && nonNativeT2Count === 0 && activeBreadthCount === 0) {
+    score -= 5;
+  }
+
+  return score;
+}
+
+function scoreNormalHybridBreadth(
+  candidate: CandidateNode,
+  strategy: FactionStrategy,
+  progression: ReturnType<typeof getDomainProgression>,
+  difficulty?: DifficultyLevel,
+): number {
+  if (!usesNormalAiBehavior(difficulty)) return 0;
+  if (candidate.tier !== 2) return 0;
+  if (!strategy.hybridGoal.desiredDomainIds.includes(candidate.domainId)) return 0;
+
+  const alreadyDeveloped = progression.t2Domains.includes(candidate.domainId);
+  return alreadyDeveloped ? 0 : 4.5;
+}
+
+function scoreNormalEmergentBreadth(
+  candidate: CandidateNode,
+  progression: ReturnType<typeof getDomainProgression>,
+  difficulty?: DifficultyLevel,
+): number {
+  if (!usesNormalAiBehavior(difficulty)) return 0;
+  if (candidate.tier !== 2) return 0;
+  if (progression.emergentEligibleDomains.includes(candidate.domainId)) return 0;
+  if (progression.t2Domains.length >= 2) return 0;
+  return 2.5;
 }
 
 function getRuleDomainGroups(rule: EmergentRuleConfig): string[][] {
@@ -480,6 +537,9 @@ function buildResearchReason(
     doctrinePackage: number;
     logistics: number;
     depthFocus: number;
+    breadthPivot: number;
+    hybridBreadth: number;
+    emergentBreadth: number;
     tripleStack: number;
   },
 ): string {
@@ -496,6 +556,9 @@ function buildResearchReason(
   if (scores.doctrinePackage > 0) parts.push('doctrine package');
   if (scores.logistics > 0) parts.push('logistics fit');
   if (scores.depthFocus > 0) parts.push('normal depth-first tier 3 push');
+  if (scores.breadthPivot > 0) parts.push('normal breadth pivot');
+  if (scores.hybridBreadth > 0) parts.push('normal hybrid breadth');
+  if (scores.emergentBreadth > 0) parts.push('normal emergent breadth');
   if (scores.tripleStack > 0) parts.push('normal triple-stack reach');
   return parts.join(', ');
 }
@@ -553,6 +616,15 @@ export function rankResearchPriorities(
       );
       const logisticsScore = scoreLogisticsFit(state, factionId, strategy, candidate);
       const depthFocusScore = scoreNormalTier3DepthFocus(candidate, domainsWithProgress, difficulty);
+      const breadthPivotScore = scoreNormalBreadthPivot(
+        candidate,
+        faction,
+        progression,
+        domainsWithProgress,
+        difficulty,
+      );
+      const hybridBreadthScore = scoreNormalHybridBreadth(candidate, strategy, progression, difficulty);
+      const emergentBreadthScore = scoreNormalEmergentBreadth(candidate, progression, difficulty);
       const tripleStackScore = scoreNormalTripleStackFocus(candidate, tripleStackOpportunities, difficulty);
 
       const score =
@@ -568,6 +640,9 @@ export function rankResearchPriorities(
         doctrinePackageScore +
         logisticsScore +
         depthFocusScore +
+        breadthPivotScore +
+        hybridBreadthScore +
+        emergentBreadthScore +
         tripleStackScore;
 
       return {
@@ -585,6 +660,9 @@ export function rankResearchPriorities(
           doctrinePackage: doctrinePackageScore,
           logistics: logisticsScore,
           depthFocus: depthFocusScore,
+          breadthPivot: breadthPivotScore,
+          hybridBreadth: hybridBreadthScore,
+          emergentBreadth: emergentBreadthScore,
           tripleStack: tripleStackScore,
         }),
       };
