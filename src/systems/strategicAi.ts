@@ -1074,7 +1074,7 @@ function applyDifficultyCoordinator(
   if (
     difficultyProfile.strategy.multiAxisEnabled
     && difficultyProfile.strategy.multiAxisGroupCount > 1
-    && hunterCount >= 4
+    && hunterCount >= 6
   ) {
     const secondTargetCity = getSecondNearestEnemyCity(state, factionId, homeCity.position, targetCity.id);
     if (secondTargetCity) {
