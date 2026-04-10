@@ -151,7 +151,7 @@
       "mobility": 3
     },
     "startingUnits": [
-      { "chassisId": "infantry_frame", "componentIds": ["basic_spear", "simple_armor"], "positionOffset": { "q": 0, "r": -1 } },
+      { "chassisId": "ranged_frame", "componentIds": ["basic_bow", "simple_armor"], "positionOffset": { "q": 0, "r": -1 } },
       { "chassisId": "camel_frame", "componentIds": ["basic_spear", "simple_armor"], "positionOffset": { "q": -1, "r": 0 } }
     ],
     "uniqueMechanic": "camel_warriors",

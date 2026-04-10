@@ -1149,7 +1149,7 @@ function getSpriteKeyForUnit(factionId: string, prototypeName: string, chassisId
     },
     desert_nomads: {
       camel_frame: 'desert_camel',
-      infantry_frame: 'desert_spearman',
+      ranged_frame: 'desert_archer',
     },
     savannah_lions: {
       infantry_frame: 'savannah_spearman',
