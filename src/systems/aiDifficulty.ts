@@ -68,6 +68,8 @@ export interface AiDifficultyProfile {
     learnLoopIdleHomeRadius: number;
     learnLoopMinFieldForce: number;
     learnLoopMaxReturnShare: number;
+    strategicFogCheat: boolean;
+    memoryDecayTurns: number;
   };
 }
 
@@ -139,6 +141,8 @@ const EASY_PROFILE: AiDifficultyProfile = {
     learnLoopIdleHomeRadius: 4,
     learnLoopMinFieldForce: 3,
     learnLoopMaxReturnShare: 0.4,
+    strategicFogCheat: false,
+    memoryDecayTurns: 10,
   },
 };
 
@@ -210,6 +214,8 @@ const NORMAL_PROFILE: AiDifficultyProfile = {
     learnLoopIdleHomeRadius: 4,
     learnLoopMinFieldForce: 3,
     learnLoopMaxReturnShare: 0.4,
+    strategicFogCheat: false,
+    memoryDecayTurns: 10,
   },
 };
 
@@ -281,6 +287,8 @@ const HARD_PROFILE: AiDifficultyProfile = {
     learnLoopIdleHomeRadius: 5,
     learnLoopMinFieldForce: 4,
     learnLoopMaxReturnShare: 0.33,
+    strategicFogCheat: true,
+    memoryDecayTurns: Infinity,
   },
 };
 
