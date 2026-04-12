@@ -1,10 +1,12 @@
 # TP-002: AI Aggression Analysis — Medium Difficulty
 
-## Issue Summary
+## Problem Statement
 
 **Symptom:** On Medium difficulty, at round 27 with zero city pressure, AI spearmen refuse to leave their territory to attack weaker archer units at range. The AI should be more aggressive and willing to take risks on Normal.
 
 **Expectation:** AI on Normal should pursue and engage skirmisher/archer units that are poking from a safe distance, rather than passively waiting.
+
+---
 
 ## Context
 
@@ -13,54 +15,58 @@
 - AI has spearmen (melee), player has archers (ranged) kiting from range
 - Spearmen won't cross territory boundary to engage
 
+---
+
 ## Relevant Files
 
-### AI Decision Logic
-- `src/systems/aiPersonality.ts` — aggression scalars, commit/retreat thresholds, `shouldCommitAttack()`
-- `src/systems/aiTactics.ts` — attack scoring, `scoreAttackCandidate()`, `shouldEngageTarget()`
-- `src/systems/aiDifficulty.ts` — Normal difficulty profile values
-
-### Effectiveness Tables
-- `src/data/roleEffectiveness.ts` — role-vs-role modifiers (melee vs ranged currently 0)
-- `src/data/weaponEffectiveness.ts` — weapon-vs-movement-class modifiers
-
-### Key Parameters to Investigate
-
-**From `aiDifficulty.ts` NORMAL_PROFILE.personality:**
-```typescript
-aggressionFloor: 0.7,
-siegeBiasFloor: 0.5,
-raidBiasFloor: 0.4,
-commitAdvantageOffset: 0,      // ← currently 0, no boost to attack threshold
-retreatThresholdOffset: 0,     // ← currently 0, no reduction to retreat threshold
-antiSkirmishResponseWeight: 1,
+```
+src/systems/aiPersonality.ts     # aggression scalars, commit/retreat thresholds
+src/systems/aiTactics.ts         # attack scoring, shouldEngageTarget()
+src/systems/aiDifficulty.ts      # Normal difficulty profile values
+src/data/roleEffectiveness.ts    # melee vs ranged currently neutral (0)
+src/data/weaponEffectiveness.ts  # spear vs ranged effectiveness
 ```
 
-**Thresholds from DEFAULT_BASELINE:**
-```typescript
-commitAdvantage: 1.15,
-retreatThreshold: 0.8,
-```
+---
 
-**Role effectiveness for melee vs ranged:**
-- `roleEffectiveness(melee → ranged)` = 0 (no entry in table)
-- `reverseRoleEffectiveness(ranged → melee)` = -0.25 (penalizes engagement)
+## Step 1: Trace Attack Decision Flow
 
-## Analysis Tasks
+- [ ] Read `shouldEngageTarget()` in `aiTactics.ts` — understand entry point
+- [ ] Read `shouldCommitAttack()` in `aiPersonality.ts` — understand threshold check
+- [ ] Read `scoreAttackCandidate()` in `aiTactics.ts` — understand score composition
+- [ ] Read `computeRetreatRisk()` in `aiTactics.ts` — understand retreat decision
+- [ ] Document the decision tree: what conditions must be met for spearman to attack archer at range
 
-1. **Trace the attack decision flow** — follow `shouldEngageTarget()` → `shouldCommitAttack()` → attack score calculation
-2. **Identify blockers** — why doesn't the attack advantage exceed the commit threshold (1.15)?
-3. **Check movement assignment** — are spearmen assigned to 'defender' role, which may prevent offensive pursuit?
-4. **Examine distance penalty** — is the AI penalized for moving to attack ranged units?
-5. **Review antiSkirmishResponseWeight** — does this trigger and what does it do?
+---
 
-## Expected Output
+## Step 2: Analyze Blocking Factors
 
-Provide concrete tuning recommendations:
-1. Which parameters to adjust
-2. What values to try
-3. Trade-offs (will it make AI recklessly attack cities too?)
-4. Any code changes needed beyond parameter tuning
+- [ ] Calculate base attack score for spearman vs archer (role + weapon effectiveness)
+- [ ] Check `commitAdvantage` threshold — is it 1.15 by default?
+- [ ] Check `commitAdvantageOffset` for Normal — is it 0?
+- [ ] Identify if `reverseRoleEffectiveness(ranged→melee) = -0.25` is suppressing engagement
+- [ ] Check if defender assignment is preventing offensive pursuit
+- [ ] Check distance penalty contribution to attack score
+
+---
+
+## Step 3: Review Anti-Skirmisher Response
+
+- [ ] Read `antiSkirmishResponseWeight` usage in `applyStateModifiers()` (aiPersonality.ts)
+- [ ] Check if this weight is being applied when archers are visible
+- [ ] Document what the response does (assignmentWeights, productionWeights)
+
+---
+
+## Step 4: Recommend Tuning Changes
+
+- [ ] Identify which parameters to adjust (prefer minimal changes)
+- [ ] Propose specific value changes with justification
+- [ ] Analyze trade-offs: will changes make AI recklessly attack cities?
+- [ ] Consider alternative approaches (e.g., role effectiveness table changes)
+- [ ] Write final recommendations to ANALYSIS.md in this folder
+
+---
 
 ## Constraints
 
