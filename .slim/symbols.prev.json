@@ -5503,52 +5503,6 @@
         }
       ]
     },
-    "src/systems/unitActivationSystem.ts": {
-      "exports": [
-        {
-          "name": "UnitActivationCombatMode",
-          "kind": "type",
-          "line": 92,
-          "signature": "export type UnitActivationCombatMode = 'apply' | 'preview';",
-          "isDefault": false
-        },
-        {
-          "name": "UnitActivationOptions",
-          "kind": "interface",
-          "line": 94,
-          "signature": "export interface UnitActivationOptions {",
-          "isDefault": false
-        },
-        {
-          "name": "UnitActivationResult",
-          "kind": "interface",
-          "line": 100,
-          "signature": "export interface UnitActivationResult {",
-          "isDefault": false
-        },
-        {
-          "name": "maybeExpirePreparedAbility",
-          "kind": "function",
-          "line": 281,
-          "signature": "export function maybeExpirePreparedAbility(unit: Unit, round: number, state: GameState): Unit {",
-          "isDefault": false
-        },
-        {
-          "name": "activateUnit",
-          "kind": "function",
-          "line": 1166,
-          "signature": "export function activateUnit( state: GameState, unitId: UnitId, registry: RulesRegistry, options: UnitActivationOptions = {",
-          "isDefault": false
-        },
-        {
-          "name": "activateAiUnit",
-          "kind": "function",
-          "line": 2225,
-          "signature": "export function activateAiUnit( state: GameState, unitId: UnitId, registry: RulesRegistry, options: UnitActivationOptions = {",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/game/controller/GameSession.ts": {
       "exports": [
         {
@@ -5579,218 +5533,264 @@
         {
           "name": "getSynergyEngine",
           "kind": "function",
-          "line": 166,
+          "line": 165,
           "signature": "export function getSynergyEngine(): SynergyEngine {",
           "isDefault": false
         },
         {
           "name": "calculateSynergyAttackBonus",
           "kind": "function",
-          "line": 177,
+          "line": 176,
           "signature": "export function calculateSynergyAttackBonus(result: CombatResult): number {",
           "isDefault": false
         },
         {
           "name": "calculateSynergyDefenseBonus",
           "kind": "function",
-          "line": 194,
+          "line": 193,
           "signature": "export function calculateSynergyDefenseBonus(result: CombatResult): number {",
           "isDefault": false
         },
         {
           "name": "TurnSnapshot",
           "kind": "interface",
-          "line": 216,
+          "line": 215,
           "signature": "export interface TurnSnapshot {",
           "isDefault": false
         },
         {
           "name": "TraceLogEvent",
           "kind": "interface",
-          "line": 260,
+          "line": 259,
           "signature": "export interface TraceLogEvent {",
           "isDefault": false
         },
         {
           "name": "TraceCombatEvent",
           "kind": "interface",
-          "line": 265,
+          "line": 264,
           "signature": "export interface TraceCombatEvent {",
           "isDefault": false
         },
         {
           "name": "TraceCombatBreakdown",
           "kind": "interface",
-          "line": 289,
+          "line": 288,
           "signature": "export interface TraceCombatBreakdown {",
           "isDefault": false
         },
         {
           "name": "TraceCombatUnitBreakdown",
           "kind": "interface",
-          "line": 298,
+          "line": 297,
           "signature": "export interface TraceCombatUnitBreakdown {",
           "isDefault": false
         },
         {
           "name": "TraceCombatModifiers",
           "kind": "interface",
-          "line": 311,
+          "line": 310,
           "signature": "export interface TraceCombatModifiers {",
           "isDefault": false
         },
         {
           "name": "TraceCombatMoraleBreakdown",
           "kind": "interface",
-          "line": 335,
+          "line": 334,
           "signature": "export interface TraceCombatMoraleBreakdown {",
           "isDefault": false
         },
         {
           "name": "TraceCombatOutcomeBreakdown",
           "kind": "interface",
-          "line": 344,
+          "line": 343,
           "signature": "export interface TraceCombatOutcomeBreakdown {",
           "isDefault": false
         },
         {
           "name": "TraceCombatEffect",
           "kind": "interface",
-          "line": 353,
+          "line": 352,
           "signature": "export interface TraceCombatEffect {",
           "isDefault": false
         },
         {
           "name": "TraceSiegeEvent",
           "kind": "interface",
-          "line": 359,
+          "line": 358,
           "signature": "export interface TraceSiegeEvent {",
           "isDefault": false
         },
         {
           "name": "TraceAiIntentEvent",
           "kind": "interface",
-          "line": 371,
+          "line": 370,
           "signature": "export interface TraceAiIntentEvent {",
           "isDefault": false
         },
         {
           "name": "TraceFactionStrategyEvent",
           "kind": "interface",
-          "line": 383,
+          "line": 382,
           "signature": "export interface TraceFactionStrategyEvent {",
           "isDefault": false
         },
         {
           "name": "TraceAbilityLearnedEvent",
           "kind": "interface",
-          "line": 396,
+          "line": 395,
           "signature": "export interface TraceAbilityLearnedEvent {",
           "isDefault": false
         },
         {
           "name": "TraceUnitSacrificedEvent",
           "kind": "interface",
-          "line": 404,
+          "line": 403,
           "signature": "export interface TraceUnitSacrificedEvent {",
           "isDefault": false
         },
         {
           "name": "SimulationTrace",
           "kind": "interface",
-          "line": 411,
+          "line": 410,
           "signature": "export interface SimulationTrace {",
           "isDefault": false
         },
         {
           "name": "UnitActivationCombatMode",
           "kind": "type",
-          "line": 424,
+          "line": 423,
           "signature": "export type UnitActivationCombatMode = 'apply' | 'preview';",
           "isDefault": false
         },
         {
           "name": "UnitActivationOptions",
           "kind": "interface",
-          "line": 426,
+          "line": 425,
           "signature": "export interface UnitActivationOptions {",
           "isDefault": false
         },
         {
           "name": "UnitActivationResult",
           "kind": "interface",
-          "line": 432,
+          "line": 431,
           "signature": "export interface UnitActivationResult {",
           "isDefault": false
         },
         {
           "name": "VictoryType",
           "kind": "type",
-          "line": 437,
+          "line": 436,
           "signature": "export type VictoryType = 'elimination' | 'domination' | 'unresolved';",
           "isDefault": false
         },
         {
           "name": "VictoryStatus",
           "kind": "interface",
-          "line": 439,
+          "line": 438,
           "signature": "export interface VictoryStatus {",
           "isDefault": false
         },
         {
           "name": "createSimulationTrace",
           "kind": "function",
-          "line": 487,
+          "line": 486,
           "signature": "export function createSimulationTrace(recordSnapshots: boolean = false): SimulationTrace {",
           "isDefault": false
         },
         {
           "name": "log",
           "kind": "function",
-          "line": 575,
+          "line": 574,
           "signature": "export function log(trace: SimulationTrace | undefined, line: string): void {",
           "isDefault": false
         },
         {
           "name": "recordCombatEvent",
           "kind": "function",
-          "line": 585,
+          "line": 584,
           "signature": "export function recordCombatEvent(trace: SimulationTrace | undefined, event: TraceCombatEvent): void {",
           "isDefault": false
         },
         {
           "name": "recordAiIntent",
           "kind": "function",
-          "line": 593,
+          "line": 592,
           "signature": "export function recordAiIntent(trace: SimulationTrace | undefined, event: TraceAiIntentEvent): void {",
           "isDefault": false
         },
         {
           "name": "getVictoryStatus",
           "kind": "function",
-          "line": 874,
+          "line": 873,
           "signature": "export function getVictoryStatus(state: GameState): VictoryStatus {",
           "isDefault": false
         },
         {
           "name": "processFactionPhases",
           "kind": "function",
-          "line": 1322,
+          "line": 1321,
           "signature": "export function processFactionPhases( state: GameState, factionId: FactionId, registry: RulesRegistry, trace?: SimulationTrace, difficulty?: DifficultyLevel, ): GameState {",
           "isDefault": false
         },
         {
           "name": "runWarEcologySimulation",
           "kind": "function",
-          "line": 1781,
+          "line": 1780,
           "signature": "export function runWarEcologySimulation( initialState: GameState, registry: RulesRegistry, maxTurns: number, trace?: SimulationTrace, difficulty?: DifficultyLevel, ): GameState {",
           "isDefault": false
         },
         {
           "name": "summarizeFaction",
           "kind": "function",
-          "line": 1887,
+          "line": 1886,
           "signature": "export function summarizeFaction(state: GameState, factionId: FactionId): string {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/unitActivationSystem.ts": {
+      "exports": [
+        {
+          "name": "UnitActivationCombatMode",
+          "kind": "type",
+          "line": 76,
+          "signature": "export type UnitActivationCombatMode = 'apply' | 'preview';",
+          "isDefault": false
+        },
+        {
+          "name": "UnitActivationOptions",
+          "kind": "interface",
+          "line": 78,
+          "signature": "export interface UnitActivationOptions {",
+          "isDefault": false
+        },
+        {
+          "name": "UnitActivationResult",
+          "kind": "interface",
+          "line": 84,
+          "signature": "export interface UnitActivationResult {",
+          "isDefault": false
+        },
+        {
+          "name": "maybeExpirePreparedAbility",
+          "kind": "function",
+          "line": 154,
+          "signature": "export function maybeExpirePreparedAbility(unit: Unit, round: number, state: GameState): Unit {",
+          "isDefault": false
+        },
+        {
+          "name": "activateUnit",
+          "kind": "function",
+          "line": 1039,
+          "signature": "export function activateUnit( state: GameState, unitId: UnitId, registry: RulesRegistry, options: UnitActivationOptions = {",
+          "isDefault": false
+        },
+        {
+          "name": "activateAiUnit",
+          "kind": "function",
+          "line": 1410,
+          "signature": "export function activateAiUnit( state: GameState, unitId: UnitId, registry: RulesRegistry, options: UnitActivationOptions = {",
           "isDefault": false
         }
       ]
@@ -5798,7 +5798,7 @@
   },
   "_metadata": {
     "version": "2.0.0",
-    "last_run": "2026-04-09T13:13:25.063796Z",
+    "last_run": "2026-04-09T14:11:27.482818Z",
     "root": "C:\\Users\\fosbo\\war-civ-v2",
     "file_count": 117
   },
@@ -5900,11 +5900,11 @@
     "src/systems/territorySystem.ts": "08415e36eb57a192a632d548c51e8a6a",
     "src/systems/transportSystem.ts": "b1c671d9ff9d3d93e8f585d3d565e497",
     "src/systems/turnSystem.ts": "c0bfd1048170b297caa5e3e64480b86d",
-    "src/systems/unitActivationSystem.ts": "e03b6b88dc633f670645f391e8b9b72d",
+    "src/systems/unitActivationSystem.ts": "4aceb3a34972467f8a5672d4351cb02f",
     "src/systems/veterancySystem.ts": "c207c7e1b5f33055f7133ef977115cca",
     "src/systems/villageCaptureSystem.ts": "6331a9dea332c97054f1e5d0fe72c1ea",
     "src/systems/villageSystem.ts": "4559174814564aefda8998d04ce8dcc7",
-    "src/systems/warEcologySimulation.ts": "58b0230cbb7c0b594c4ed0649840f714",
+    "src/systems/warEcologySimulation.ts": "16652c64f604d13d2bf52eb52d6f3f35",
     "src/systems/warExhaustionSystem.ts": "84f220123be54689b992051379617f4c",
     "src/systems/xpSystem.ts": "ae4b3242599abd87b889f5abe60acf61",
     "src/systems/zocSystem.ts": "7959195e664b50d7549ceafa9576bfac",

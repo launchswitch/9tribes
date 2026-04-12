@@ -1137,6 +1137,7 @@ function getSpriteKeyForUnit(factionId: string, prototypeName: string, chassisId
     },
     steppe_clan: {
       infantry_frame: 'steppe_spear_infantry',
+      ranged_frame: 'steppe_raiders',
       cavalry_frame: 'steppe_horse_archer',
     },
     hill_clan: {

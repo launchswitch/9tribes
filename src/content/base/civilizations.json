@@ -70,7 +70,7 @@
     },
     "startingUnits": [
       { "chassisId": "infantry_frame", "componentIds": ["basic_spear", "simple_armor"], "positionOffset": { "q": -1, "r": 0 } },
-      { "chassisId": "cavalry_frame", "componentIds": ["basic_bow", "skirmish_drill"], "positionOffset": { "q": 0, "r": -1 } }
+      { "chassisId": "ranged_frame", "componentIds": ["basic_bow", "skirmish_drill"], "positionOffset": { "q": 0, "r": -1 } }
     ],
     "uniqueMechanic": "horse_archers",
     "homeBiome": "plains",

@@ -305,3 +305,17 @@ No significant changes detected.
 ### Dependency Changes
 
 No significant changes detected.
+
+---
+
+## Digest — 2026-04-11T21:58:06.782269Z
+
+### New Files
+- `src/systems/synergyRuntime.ts` — 3 exports: getSynergyEngine, calculateSynergyAttackBonus, calculateSynergyDefenseBonus
+
+### Modified Files
+- `src/systems/combatActionSystem.ts` — +2 exports (CombatActionPreviewDetails, CombatActionResolution); -2 exports (CombatActionPreviewOverrides, createCombatActionPreview)
+
+### Dependency Changes
+- `src/systems/synergyRuntime.ts` imports: src/systems/synergyEffects.ts (SynergyCombatResult), src/content/base/pair-synergies.json (pairSynergiesData), src/content/base/ability-domains.json (abilityDomainsData), src/content/base/emergent-rules.json (emergentRulesData)
+- `src/systems/combatActionSystem.ts` — 60 dependencies

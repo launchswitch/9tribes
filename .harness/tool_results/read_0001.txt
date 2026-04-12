@@ -1,0 +1,1286 @@
+1	import { buildMvpScenario } from '../../../../src/game/buildMvpScenario.js';
+2	import type { GameState, Unit, UnitId } from '../../../../src/game/types.js';
+3	import type { HexCoord } from '../../../../src/types.js';
+4	import { createCityId, createImprovementId } from '../../../../src/core/ids.js';
+5	import { hexDistance, hexToKey } from '../../../../src/core/grid.js';
+6	import { getMvpScenarioConfig } from '../../../../src/game/scenarios/mvp.js';
+7	import { loadRulesRegistry } from '../../../../src/data/loader/loadRulesRegistry.js';
+8	import type { RulesRegistry } from '../../../../src/data/registry/types.js';
+9	import { applyCombatAction, previewCombatAction, type CombatActionPreview } from '../../../../src/systems/combatActionSystem.js';
+10	import { getValidMoves, moveUnit, previewMove, canMoveTo } from '../../../../src/systems/movementSystem.js';
+11	import { findPath } from '../../../../src/systems/pathfinder.js';
+12	import { resolveCapabilityDoctrine } from '../../../../src/systems/capabilityDoctrine.js';
+13	import { canUseAmbush, canUseBrace, getTerrainAt, hasAdjacentEnemy, prepareAbility } from '../../../../src/systems/abilitySystem.js';
+14	import { computeFactionStrategy } from '../../../../src/systems/strategicAi.js';
+15	import {
+16	  canPaySettlerVillageCost,
+17	  canProducePrototype,
+18	  cancelCurrentProduction,
+19	  getPrototypeCostType,
+20	  getPrototypeQueueCost,
+21	  queueUnit,
+22	  removeFromQueue,
+23	} from '../../../../src/systems/productionSystem.js';
+24	import { syncFactionSettlementIds } from '../../../../src/systems/factionOwnershipSystem.js';
+25	import { advanceTurn } from '../../../../src/systems/turnSystem.js';
+26	import { activateAiUnit } from '../../../../src/systems/unitActivationSystem.js';
+27	import {
+28	  startResearch,
+29	} from '../../../../src/systems/researchSystem.js';
+30	import { unlockHybridRecipes } from '../../../../src/systems/hybridSystem.js';
+31	import type { CombatResult } from '../../../../src/systems/combatSystem.js';
+32	import type { GameAction } from '../types/clientState';
+33	import type { ReplayCombatEvent } from '../types/replay';
+34	import type { PlayStateSource, SerializedGameState } from '../types/playState';
+35	import type { AttackTargetView, ReachableHexView } from '../types/worldView';
+36	import { deserializeGameState, serializeGameState } from '../types/playState';
+37	import { updateFogState } from '../../../../src/systems/fogSystem.js';
+38	import { isCityEncircled, isEncirclementBroken } from '../../../../src/systems/territorySystem.js';
+39	import { runFactionPhase } from '../../../../src/systems/factionPhaseSystem.js';
+40	import { performSacrifice } from '../../../../src/systems/sacrificeSystem.js';
+41	import { createCitySiteBonuses, getSettlementOccupancyBlocker } from '../../../../src/systems/citySiteSystem.js';
+42	import { boardTransport, canBoardTransport, disembarkUnit, getUnitTransport } from '../../../../src/systems/transportSystem.js';
+43	import type { DifficultyLevel } from '../../../../src/systems/aiDifficulty.js';
+44	import type { MapGenerationMode } from '../../../../src/world/map/types.js';
+45	
+46	type SessionEvent = {
+47	  sequence: number;
+48	  round: number;
+49	  kind: 'move' | 'turn' | 'combat';
+50	  message: string;
+51	};
+52	
+53	type SessionFeedback = {
+54	  eventSequence: number;
+55	  moveCount: number;
+56	  endTurnCount: number;
+57	  lastActiveFactionId: string | null;
+58	  liveCombatEvents: ReplayCombatEvent[];
+59	  lastMove:
+60	    | {
+61	        unitId: string;
+62	        destination: { q: number; r: number };
+63	      }
+64	    | null;
+65	  lastTurnChange:
+66	    | {
+67	        factionId: string;
+68	      }
+69	    | null;
+70	  lastSacrifice:
+71	    | {
+72	        unitId: string;
+73	        unitName: string;
+74	        domains: string[];
+75	      }
+76	    | null;
+77	  lastLearnedDomain:
+78	    | {
+79	        unitId: string;
+80	        domainId: string;
+81	      }
+82	    | null;
+83	  lastResearchCompletion:
+84	    | {
+85	        nodeId: string;
+86	        nodeName: string;
+87	        tier: number;
+88	      }
+89	    | null;
+90	  hitAndRunRetreat:
+91	    | {
+92	        unitId: string;
+93	        to: { q: number; r: number };
+94	      }
+95	    | null;
+96	  lastSettlerVillageSpend:
+97	    | {
+98	        factionId: string;
+99	        villageIds: string[];
+100	      }
+101	  | null;
+102	};
+103	
+104	type AiTurnContext = {
+105	  factionId: string;
+106	  unitIds: string[];
+107	  index: number;
+108	  fortsBuiltThisTurn: Set<string>;
+109	};
+110	
+111	/** Pre-resolved combat data returned by resolveAttack() before state is mutated */
+112	export interface PendingCombat {
+113	  attackerId: UnitId;
+114	  defenderId: UnitId;
+115	  preview: CombatActionPreview;
+116	  result: CombatResult;
+117	  combatEvent: ReplayCombatEvent;
+118	}
+119	
+120	interface GameSessionOptions {
+121	  humanControlledFactionIds?: string[];
+122	  difficulty?: DifficultyLevel;
+123	  mapMode?: MapGenerationMode;
+124	  mapSize?: 'small' | 'medium' | 'large';
+125	  selectedFactions?: string[];
+126	}
+127	
+128	export type SessionSaveSnapshot = {
+129	  payload: SerializedGameState;
+130	  preview: {
+131	    round: number;
+132	    turnNumber: number;
+133	    activeFactionId: string | null;
+134	    activeFactionName: string;
+135	    playerFactionId: string | null;
+136	    playerFactionName: string | null;
+137	  };
+138	};
+139	
+140	export class GameSession {
+141	  private state: GameState;
+142	  private readonly registry: RulesRegistry;
+143	  private readonly maxTurns: number;
+144	  private readonly humanControlledFactionIds: Set<string>;
+145	  private readonly difficulty: DifficultyLevel;
+146	  private readonly mapMode?: MapGenerationMode;
+147	  private readonly mapSize?: 'small' | 'medium' | 'large';
+148	  private readonly selectedFactions?: string[];
+149	  private readonly events: SessionEvent[] = [];
+150	  private readonly feedback: SessionFeedback = {
+151	    eventSequence: 0,
+152	    moveCount: 0,
+153	    endTurnCount: 0,
+154	    lastActiveFactionId: null,
+155	    lastMove: null,
+156	    lastTurnChange: null,
+157	    lastSacrifice: null,
+158	    lastLearnedDomain: null,
+159	    lastResearchCompletion: null,
+160	    hitAndRunRetreat: null,
+161	    lastSettlerVillageSpend: null,
+162	    liveCombatEvents: [],
+163	  };
+164	
+165	  /** Holds a pre-resolved combat waiting for animation to complete before applying */
+166	  private _pendingCombat: PendingCombat | null = null;
+167	
+168	  /** Queue of AI-vs-AI (or AI-vs-player) combats resolved during AI turn processing */
+169	  private _aiCombatQueue: PendingCombat[] = [];
+170	  private _aiTurnContext: AiTurnContext | null = null;
+171	
+172	  constructor(
+173	    source: PlayStateSource = { type: 'fresh' },
+174	    registry = loadRulesRegistry(),
+175	    options: GameSessionOptions = {},
+176	  ) {
+177	    this.registry = registry;
+178	    this.maxTurns = getMvpScenarioConfig().roundsToWin;
+179	    this.difficulty = options.difficulty ?? 'easy';
+180	    this.mapMode = options.mapMode;
+181	    this.mapSize = options.mapSize;
+182	    this.selectedFactions = options.selectedFactions;
+183	    this.humanControlledFactionIds = new Set(options.humanControlledFactionIds ?? []);
+184	    this.state = this.bootstrap(source);
+185	    if (this.humanControlledFactionIds.size === 0) {
+186	      this.state.factions.forEach((_faction, factionId) => this.humanControlledFactionIds.add(factionId));
+187	    }
+188	    this.feedback.lastActiveFactionId = this.state.activeFactionId;
+189	    this.runAiUntilHumanTurn();
+190	  }
+191	
+192	  getState() {
+193	    return this.state;
+194	  }
+195	
+196	  getRegistry() {
+197	    return this.registry;
+198	  }
+199	
+200	  getMaxTurns() {
+201	    return this.maxTurns;
+202	  }
+203	
+204	  getEvents() {
+205	    return [...this.events];
+206	  }
+207	
+208	  getFeedback() {
+209	    return {
+210	      ...this.feedback,
+211	      lastMove: this.feedback.lastMove ? {
+212	        ...this.feedback.lastMove,
+213	        destination: { ...this.feedback.lastMove.destination },
+214	      } : null,
+215	      lastTurnChange: this.feedback.lastTurnChange ? { ...this.feedback.lastTurnChange } : null,
+216	      lastSacrifice: this.feedback.lastSacrifice ? { ...this.feedback.lastSacrifice } : null,
+217	      lastLearnedDomain: this.feedback.lastLearnedDomain ? { ...this.feedback.lastLearnedDomain } : null,
+218	      lastResearchCompletion: this.feedback.lastResearchCompletion ? { ...this.feedback.lastResearchCompletion } : null,
+219	      hitAndRunRetreat: this.feedback.hitAndRunRetreat ? { ...this.feedback.hitAndRunRetreat } : null,
+220	      lastSettlerVillageSpend: this.feedback.lastSettlerVillageSpend
+221	        ? {
+222	            factionId: this.feedback.lastSettlerVillageSpend.factionId,
+223	            villageIds: [...this.feedback.lastSettlerVillageSpend.villageIds],
+224	          }
+225	        : null,
+226	    };
+227	  }
+228	
+229	  getPrimaryHumanFactionId(): string | null {
+230	    return Array.from(this.humanControlledFactionIds)[0] ?? null;
+231	  }
+232	
+233	  getSaveSnapshot(): SessionSaveSnapshot {
+234	    const playerFactionId = Array.from(this.humanControlledFactionIds)[0] ?? null;
+235	    const playerFaction = playerFactionId ? this.state.factions.get(playerFactionId as never) : null;
+236	    const activeFaction = this.state.activeFactionId
+237	      ? this.state.factions.get(this.state.activeFactionId as never)
+238	      : null;
+239	
+240	    return {
+241	      payload: serializeGameState(this.state),
+242	      preview: {
+243	        round: this.state.round,
+244	        turnNumber: this.state.turnNumber,
+245	        activeFactionId: this.state.activeFactionId,
+246	        activeFactionName: activeFaction?.name ?? 'No active faction',
+247	        playerFactionId,
+248	        playerFactionName: playerFaction?.name ?? null,
+249	      },
+250	    };
+251	  }
+252	
+253	  dispatch(action: GameAction) {
+254	    switch (action.type) {
+255	      case 'move_unit':
+256	        this.applyMove(action.unitId as UnitId, action.destination);
+257	        return;
+258	      case 'queue_move':
+259	        this.applyQueueMove(action.unitId, action.destination);
+260	        return;
+261	      case 'cancel_queue':
+262	        this.applyCancelQueue(action.unitId);
+263	        return;
+264	      case 'attack_unit':
+265	        this._pendingCombat = this.resolveAttack(action.attackerId as UnitId, action.defenderId as UnitId);
+266	        return;
+267	      case 'prepare_ability':
+268	        this.applyPrepareAbility(action.unitId, action.ability);
+269	        return;
+270	      case 'board_transport':
+271	        this.applyBoardTransport(action.unitId, action.transportId);
+272	        return;
+273	      case 'disembark_unit':
+274	        this.applyDisembarkUnit(action.unitId, action.transportId, action.destination);
+275	        return;
+276	      case 'end_turn':
+277	        if (this.state.activeFactionId) {
+278	          const activeFactionId = this.state.activeFactionId;
+279	          this.state = runFactionPhase(this.state, activeFactionId as never, this.registry, {
+280	            difficulty: this.difficulty,
+281	          });
+282	        }
+283	        this.feedback.lastMove = null;
+284	        this.state = this.refreshFogForAllFactions(advanceTurn(this.state));
+285	        // Execute pending move queues for human factions after MP refresh
+286	        this.state = this.executeMoveQueues(this.state);
+287	        this.feedback.endTurnCount += 1;
+288	        this.feedback.lastActiveFactionId = this.state.activeFactionId;
+289	        this.feedback.lastTurnChange = this.state.activeFactionId
+290	          ? { factionId: this.state.activeFactionId }
+291	          : null;
+292	        this.record('turn', `Turn passed to ${this.getActiveFactionName()}.`);
+293	        this.runAiUntilHumanTurn();
+294	        return;
+295	      case 'set_city_production':
+296	        this.setCityProduction(action.cityId, action.prototypeId);
+297	        return;
+298	      case 'cancel_city_production':
+299	        this.cancelCityProduction(action.cityId);
+300	        return;
+301	      case 'remove_from_queue':
+302	        this.removeFromQueue(action.cityId, action.queueIndex);
+303	        return;
+304	      case 'start_research':
+305	        this.applyStartResearch(action.nodeId);
+306	        return;
+307	      case 'cancel_research':
+308	        this.applyCancelResearch();
+309	        return;
+310	      case 'sacrifice_unit':
+311	        this.applySacrifice(action.unitId);
+312	        return;
+313	      case 'build_fort':
+314	        this.applyBuildFort(action.unitId);
+315	        return;
+316	      case 'build_city':
+317	        this.applyBuildCity(action.unitId);
+318	        return;
+319	      default:
+320	        return;
+321	    }
+322	  }
+323	
+324	  getLegalMoves(unitId: string) {
+325	    const unit = this.state.units.get(unitId as UnitId);
+326	    if (!unit || unit.hp <= 0 || unit.factionId !== this.state.activeFactionId || !this.state.map) {
+327	      return [];
+328	    }
+329	
+330	    return this.buildReachableMoves(unit.id);
+331	  }
+332	
+333	  getAttackTargets(unitId: string): AttackTargetView[] {
+334	    const unit = this.state.units.get(unitId as UnitId);
+335	    if (!unit || unit.hp <= 0 || unit.factionId !== this.state.activeFactionId || unit.attacksRemaining <= 0 || unit.movesRemaining <= 0) {
+336	      return [];
+337	    }
+338	
+339	    const prototype = this.state.prototypes.get(unit.prototypeId as never);
+340	    const attackRange = prototype?.derivedStats.range ?? 1;
+341	    const chassis = prototype ? this.registry.getChassis(prototype.chassisId) : null;
+342	    const isNavalUnit = chassis?.movementClass === 'naval';
+343	
+344	    // Check amphibious assault doctrine
+345	    const faction = this.state.factions.get(unit.factionId);
+346	    const research = this.state.research.get(unit.factionId);
+347	    const doctrine = research
+348	      ? resolveCapabilityDoctrine(research, faction)
+349	      : undefined;
+350	    const canAmphibiousAssault = isNavalUnit && doctrine?.amphibiousAssaultEnabled === true;
+351	
+352	    return Array.from(this.state.units.values())
+353	      .filter((candidate) => candidate.hp > 0 && candidate.factionId !== unit.factionId)
+354	      .filter((candidate) => hexDistance(unit.position, candidate.position) <= attackRange)
+355	      .filter((candidate) => {
+356	        // Naval units can normally only attack targets on water
+357	        // With amphibious assault, they can attack land units adjacent to water
+358	        if (isNavalUnit && !canAmphibiousAssault) {
+359	          const candidateTile = this.state.map?.tiles.get(hexToKey(candidate.position));
+360	          const candidateTerrain = candidateTile?.terrain ?? '';
+361	          return candidateTerrain === 'coast' || candidateTerrain === 'river';
+362	        }
+363	        return true;
+364	      })
+365	      .map((candidate) => ({
+366	        key: `${candidate.position.q},${candidate.position.r}`,
+367	        q: candidate.position.q,
+368	        r: candidate.position.r,
+369	        unitId: candidate.id,
+370	        distance: hexDistance(unit.position, candidate.position),
+371	      }))
+372	      .sort((left, right) => left.distance - right.distance || left.q - right.q || left.r - right.r);
+373	  }
+374	
+375	  private bootstrap(source: PlayStateSource) {
+376	    let state = source.type === 'serialized'
+377	      ? deserializeGameState(source.payload)
+378	      : buildMvpScenario(source.seed ?? 42, {
+379	          registry: this.registry,
+380	          mapMode: source.mapMode ?? this.mapMode,
+381	          mapSize: source.mapSize ?? this.mapSize,
+382	          selectedFactionIds: source.selectedFactionIds ?? this.selectedFactions,
+383	          settlerStartFactionIds: Array.from(this.humanControlledFactionIds),
+384	        });
+385	
+386	    state = state.activeFactionId ? state : advanceTurn(state);
+387	
+388	    return this.refreshFogForAllFactions(state);
+389	  }
+390	
+391	  private applyMove(unitId: UnitId, destination: { q: number; r: number }) {
+392	    const unit = this.state.units.get(unitId);
+393	    if (!unit || !this.state.map) {
+394	      return;
+395	    }
+396	
+397	    if (unit.factionId !== this.state.activeFactionId) {
+398	      return;
+399	    }
+400	
+401	    // Direct move overrides any existing queue
+402	    if (unit.moveQueueDestination) {
+403	      this.state = this.clearMoveQueueOnUnit(this.state, unitId);
+404	    }
+405	
+406	    const plan = this.buildReachableMoves(unitId).find((entry) => entry.key === `${destination.q},${destination.r}`);
+407	    if (!plan) {
+408	      return;
+409	    }
+410	
+411	    let nextState = this.state;
+412	    for (const step of plan.path.slice(1)) {
+413	      nextState = moveUnit(nextState, unitId, step, nextState.map!, this.registry);
+414	    }
+415	
+416	    this.state = this.refreshFogForAllFactions(nextState);
+417	    const movedUnit = this.state.units.get(unitId);
+418	    if (movedUnit) {
+419	      this.feedback.moveCount += 1;
+420	      this.feedback.lastMove = {
+421	        unitId,
+422	        destination,
+423	      };
+424	      this.feedback.lastTurnChange = null;
+425	      this.record('move', `${this.getPrototypeName(movedUnit.prototypeId)} moved to ${destination.q},${destination.r}.`);
+426	    }
+427	  }
+428	
+429	  // ---------------------------------------------------------------------------
+430	  // Move Queue: multi-turn pathing
+431	  // ---------------------------------------------------------------------------
+432	
+433	  private applyQueueMove(unitId: string, destination: { q: number; r: number }) {
+434	    const unit = this.state.units.get(unitId as UnitId);
+435	    if (!unit || !this.state.map) return;
+436	    if (unit.factionId !== this.state.activeFactionId) return;
+437	    if (unit.hp <= 0 || unit.status !== 'ready') return;
+438	
+439	    const pathResult = findPath(this.state, unitId as UnitId, destination, this.state.map, this.registry);
+440	    if (!pathResult) return; // Unreachable
+441	
+442	    const newUnits = new Map(this.state.units);
+443	    newUnits.set(unitId as UnitId, {
+444	      ...unit,
+445	      moveQueueDestination: { q: destination.q, r: destination.r },
+446	    });
+447	    this.state = { ...this.state, units: newUnits };
+448	    this.record('turn', `${this.getPrototypeName(unit.prototypeId)} queued movement to ${destination.q},${destination.r}.`);
+449	  }
+450	
+451	  private applyCancelQueue(unitId: string) {
+452	    const unit = this.state.units.get(unitId as UnitId);
+453	    if (!unit?.moveQueueDestination) return;
+454	
+455	    const newUnits = new Map(this.state.units);
+456	    newUnits.set(unitId as UnitId, { ...unit, moveQueueDestination: undefined });
+457	    this.state = { ...this.state, units: newUnits };
+458	    this.record('turn', `${this.getPrototypeName(unit.prototypeId)} move queue cancelled.`);
+459	  }
+460	
+461	  /** Execute move queues for all units of the active (human) faction. */
+462	  private executeMoveQueues(state: GameState): GameState {
+463	    if (!state.activeFactionId || !state.map) return state;
+464	    if (!this.isHumanControlledFaction(state.activeFactionId)) return state;
+465	
+466	    const factionId = state.activeFactionId;
+467	    let currentState = state;
+468	
+469	    const queuedUnitIds: UnitId[] = [];
+470	    for (const [uid, unit] of currentState.units) {
+471	      if (unit.factionId === factionId && unit.moveQueueDestination && unit.hp > 0 && unit.status === 'ready') {
+472	        queuedUnitIds.push(uid as UnitId);
+473	      }
+474	    }
+475	
+476	    for (const uid of queuedUnitIds) {
+477	      const unit = currentState.units.get(uid);
+478	      if (!unit?.moveQueueDestination) continue;
+479	
+480	      const result = this.executeQueuedMovesForUnit(currentState, uid, unit.moveQueueDestination);
+481	      currentState = result.state;
+482	      currentState = this.refreshFogForAllFactions(currentState);
+483	    }
+484	
+485	    return currentState;
+486	  }
+487	
+488	  private executeQueuedMovesForUnit(
+489	    state: GameState,
+490	    unitId: UnitId,
+491	    destination: HexCoord,
+492	  ): { state: GameState; arrived: boolean; blocked: boolean; stoppedByZoC: boolean } {
+493	    if (!state.map) return { state, arrived: false, blocked: false, stoppedByZoC: false };
+494	
+495	    const unit = state.units.get(unitId);
+496	    if (!unit || unit.movesRemaining <= 0) {
+497	      return { state, arrived: false, blocked: false, stoppedByZoC: false };
+498	    }
+499	
+500	    const pathResult = findPath(state, unitId, destination, state.map, this.registry);
+501	    if (!pathResult || pathResult.path.length < 2) {
+502	      return this.clearQueueAndReturn(state, unitId, !!pathResult);
+503	    }
+504	
+505	    let currentState = state;
+506	    const fullPath = pathResult.path;
+507	
+508	    for (let i = 1; i < fullPath.length; i++) {
+509	      const step = fullPath[i];
+510	      const unitBeforeMove = currentState.units.get(unitId);
+511	      if (!unitBeforeMove || unitBeforeMove.movesRemaining <= 0) break;
+512	
+513	      if (!canMoveTo(currentState, unitId, step, currentState.map!, this.registry)) {
+514	        return this.clearQueueAndReturn(currentState, unitId, false);
+515	      }
+516	
+517	      currentState = moveUnit(currentState, unitId, step, currentState.map!, this.registry);
+518	
+519	      const movedUnit = currentState.units.get(unitId);
+520	      if (!movedUnit) {
+521	        return { state: currentState, arrived: false, blocked: true, stoppedByZoC: false };
+522	      }
+523	
+524	      if (movedUnit.enteredZoCThisActivation || movedUnit.movesRemaining <= 0) {
+525	        const atDest = movedUnit.position.q === destination.q && movedUnit.position.r === destination.r;
+526	        if (atDest) {
+527	          return this.clearQueueAndReturn(currentState, unitId, true);
+528	        }
+529	        return { state: currentState, arrived: false, blocked: false, stoppedByZoC: true };
+530	      }
+531	    }
+532	
+533	    const finalUnit = currentState.units.get(unitId);
+534	    if (finalUnit && finalUnit.position.q === destination.q && finalUnit.position.r === destination.r) {
+535	      return this.clearQueueAndReturn(currentState, unitId, true);
+536	    }
+537	
+538	    return { state: currentState, arrived: false, blocked: false, stoppedByZoC: false };
+539	  }
+540	
+541	  private clearQueueAndReturn(
+542	    state: GameState,
+543	    unitId: UnitId,
+544	    arrived: boolean,
+545	  ): { state: GameState; arrived: boolean; blocked: boolean; stoppedByZoC: boolean } {
+546	    const unit = state.units.get(unitId);
+547	    if (!unit?.moveQueueDestination) {
+548	      return { state, arrived, blocked: !arrived, stoppedByZoC: false };
+549	    }
+550	    const newUnits = new Map(state.units);
+551	    newUnits.set(unitId, { ...unit, moveQueueDestination: undefined });
+552	    return { state: { ...state, units: newUnits }, arrived, blocked: !arrived, stoppedByZoC: false };
+553	  }
+554	
+555	  // ---------------------------------------------------------------------------
+556	
+557	  /** Clear move queue on a specific unit if one exists. Returns updated state. */
+558	  private clearMoveQueueOnUnit(state: GameState, unitId: UnitId): GameState {
+559	    const unit = state.units.get(unitId);
+560	    if (!unit?.moveQueueDestination) return state;
+561	    const newUnits = new Map(state.units);
+562	    newUnits.set(unitId, { ...unit, moveQueueDestination: undefined });
+563	    return { ...state, units: newUnits };
+564	  }
+565	
+566	  // ---------------------------------------------------------------------------
+567	
+568	  private buildReachableMoves(unitId: UnitId): ReachableHexView[] {
+569	    const unit = this.state.units.get(unitId);
+570	    const map = this.state.map;
+571	    if (!unit || !map) {
+572	      return [];
+573	    }
+574	
+575	    type FrontierNode = {
+576	      state: GameState;
+577	      path: Array<{ q: number; r: number }>;
+578	    };
+579	
+580	    const start = { q: unit.position.q, r: unit.position.r };
+581	    const frontier: FrontierNode[] = [{ state: this.state, path: [start] }];
+582	    const bestRemainingByKey = new Map<string, number>([[`${start.q},${start.r}`, unit.movesRemaining]]);
+583	    const movesByKey = new Map<string, ReachableHexView>();
+584	
+585	    while (frontier.length > 0) {
+586	      frontier.sort((left, right) => {
+587	        const leftUnit = left.state.units.get(unitId)!;
+588	        const rightUnit = right.state.units.get(unitId)!;
+589	        return rightUnit.movesRemaining - leftUnit.movesRemaining;
+590	      });
+591	
+592	      const current = frontier.shift()!;
+593	      for (const hex of getValidMoves(current.state, unitId, map, this.registry)) {
+594	        if (current.path.some((step) => step.q === hex.q && step.r === hex.r)) {
+595	          continue;
+596	        }
+597	
+598	        const preview = previewMove(current.state, unitId, hex, map, this.registry);
+599	        if (!preview) {
+600	          continue;
+601	        }
+602	
+603	        const nextState = moveUnit(current.state, unitId, hex, map, this.registry);
+604	        const movedUnit = nextState.units.get(unitId);
+605	        if (!movedUnit) {
+606	          continue;
+607	        }
+608	
+609	        const key = `${hex.q},${hex.r}`;
+610	        const path = [...current.path, { q: hex.q, r: hex.r }];
+611	        const candidate: ReachableHexView = {
+612	          key,
+613	          q: hex.q,
+614	          r: hex.r,
+615	          cost: unit.movesRemaining - movedUnit.movesRemaining,
+616	          movesRemainingAfterMove: movedUnit.movesRemaining,
+617	          path,
+618	        };
+619	
+620	        const previous = movesByKey.get(key);
+621	        if (
+622	          !previous
+623	          || candidate.movesRemainingAfterMove > previous.movesRemainingAfterMove
+624	          || (
+625	            candidate.movesRemainingAfterMove === previous.movesRemainingAfterMove
+626	            && candidate.path.length < previous.path.length
+627	          )
+628	        ) {
+629	          movesByKey.set(key, candidate);
+630	        }
+631	
+632	        const bestRemaining = bestRemainingByKey.get(key) ?? -1;
+633	        if (movedUnit.movesRemaining <= bestRemaining) {
+634	          continue;
+635	        }
+636	
+637	        bestRemainingByKey.set(key, movedUnit.movesRemaining);
+638	        frontier.push({ state: nextState, path });
+639	      }
+640	    }
+641	
+642	    movesByKey.delete(`${start.q},${start.r}`);
+643	    return [...movesByKey.values()].sort((left, right) => left.cost - right.cost || left.path.length - right.path.length);
+644	  }
+645	
+646	  /**
+647	   * Phase 1: Resolve combat mathematically but do NOT mutate game state.
+648	   * Returns PendingCombat data for the animator to use, or null if illegal.
+649	   */
+650	  resolveAttack(attackerId: UnitId, defenderId: UnitId): PendingCombat | null {
+651	    const preview = previewCombatAction(this.state, this.registry, attackerId, defenderId);
+652	    if (!preview) {
+653	      return null;
+654	    }
+655	
+656	    return this.buildPendingCombat(preview);
+657	  }
+658	
+659	  private buildPendingCombat(preview: CombatActionPreview): PendingCombat {
+660	    const combatEvent: ReplayCombatEvent = {
+661	      round: preview.round,
+662	      attackerUnitId: preview.attackerId,
+663	      defenderUnitId: preview.defenderId,
+664	      attackerFactionId: preview.attackerFactionId,
+665	      defenderFactionId: preview.defenderFactionId,
+666	      attackerPrototypeName: preview.attackerPrototypeName,
+667	      defenderPrototypeName: preview.defenderPrototypeName,
+668	      attackerDamage: preview.result.attackerDamage,
+669	      defenderDamage: preview.result.defenderDamage,
+670	      attackerDestroyed: preview.result.attackerDestroyed,
+671	      defenderDestroyed: preview.result.defenderDestroyed,
+672	      attackerRouted: preview.result.attackerRouted,
+673	      defenderRouted: preview.result.defenderRouted,
+674	      attackerFled: preview.result.attackerFled,
+675	      defenderFled: preview.result.defenderFled,
+676	      summary: `${preview.attackerPrototypeName} attacked ${preview.defenderPrototypeName}`,
+677	      breakdown: {
+678	        modifiers: {
+679	          flankingBonus: preview.result.flankingBonus,
+680	          stealthAmbushBonus: preview.attackerWasStealthed ? 0.5 : 0,
+681	          rearAttackBonus: preview.result.rearAttackBonus,
+682	          finalAttackStrength: preview.result.attackStrength,
+683	          finalDefenseStrength: preview.result.defenseStrength,
+684	        },
+685	        outcome: {
+686	          attackerDamage: preview.result.attackerDamage,
+687	          defenderDamage: preview.result.defenderDamage,
+688	        },
+689	        triggeredEffects: preview.triggeredEffects,
+690	      },
+691	    };
+692	
+693	    return {
+694	      attackerId: preview.attackerId,
+695	      defenderId: preview.defenderId,
+696	      preview,
+697	      result: preview.result,
+698	      combatEvent,
+699	    };
+700	  }
+701	
+702	  /**
+703	   * Phase 2: Actually apply a pre-resolved combat result to game state.
+704	   * Called after animation completes (human) or immediately (AI).
+705	   */
+706	  applyResolvedCombat(pending: PendingCombat): void {
+707	    const { preview, combatEvent } = pending;
+708	    const applied = applyCombatAction(this.state, this.registry, preview);
+709	    this.state = this.refreshFogForAllFactions(applied.state);
+710	    this.feedback.lastMove = null;
+711	    this.feedback.lastTurnChange = null;
+712	    this.feedback.hitAndRunRetreat = applied.feedback.hitAndRunRetreat;
+713	    if (applied.feedback.lastLearnedDomain) {
+714	      this.feedback.lastLearnedDomain = applied.feedback.lastLearnedDomain;
+715	      this.record('turn', `${applied.feedback.lastLearnedDomain.domainId} ability learned from ${preview.defenderFactionId}!`);
+716	    }
+717	
+718	    const finalCombatEvent: ReplayCombatEvent = {
+719	      ...combatEvent,
+720	      breakdown: {
+721	        ...combatEvent.breakdown,
+722	        triggeredEffects: applied.feedback.resolution.triggeredEffects,
+723	      },
+724	    };
+725	
+726	    // Keep last 20 events, newest first
+727	    this.feedback.liveCombatEvents = [finalCombatEvent, ...this.feedback.liveCombatEvents].slice(0, 20);
+728	
+729	    this.record(
+730	      'combat',
+731	      `${finalCombatEvent.attackerPrototypeName} attacked ${finalCombatEvent.defenderPrototypeName}: dealt ${preview.result.defenderDamage}, took ${preview.result.attackerDamage}.`,
+732	    );
+733	  }
+734	
+735	  getPendingCombat(): PendingCombat | null {
+736	    return this._pendingCombat;
+737	  }
+738	
+739	  clearPendingCombat(): void {
+740	    this._pendingCombat = null;
+741	  }
+742	
+743	  dequeueAiCombat(): PendingCombat | null {
+744	    if (this._aiCombatQueue.length === 0) {
+745	      this.runAiUntilHumanTurn();
+746	    }
+747	
+748	    const next = this._aiCombatQueue.shift() ?? null;
+749	    if (next) {
+750	      this._pendingCombat = next;
+751	    }
+752	    return next;
+753	  }
+754	
+755	  getAiCombatQueueLength(): number {
+756	    return this._aiCombatQueue.length;
+757	  }
+758	
+759	  private refreshFogForAllFactions(state: GameState) {
+760	    let nextState = state;
+761	    for (const fid of nextState.factions.keys()) {
+762	      nextState = updateFogState(nextState, fid);
+763	    }
+764	    return nextState;
+765	  }
+766	
+767	  private getPrototypeName(prototypeId: string) {
+768	    return this.state.prototypes.get(prototypeId as never)?.name ?? prototypeId;
+769	  }
+770	
+771	  private getActiveFactionName() {
+772	    const activeFactionId = this.state.activeFactionId;
+773	    if (!activeFactionId) {
+774	      return 'no faction';
+775	    }
+776	
+777	    return this.state.factions.get(activeFactionId)?.name ?? activeFactionId;
+778	  }
+779	
+780	  private isHumanControlledFaction(factionId: string | null) {
+781	    return factionId !== null && this.humanControlledFactionIds.has(factionId);
+782	  }
+783	
+784	  /** Check if a combat involves any human-controlled faction */
+785	  isCombatInvolvesHuman(attackerFactionId: string, defenderFactionId: string): boolean {
+786	    return this.isHumanControlledFaction(attackerFactionId) || this.isHumanControlledFaction(defenderFactionId);
+787	  }
+788	
+789	  private runAiUntilHumanTurn() {
+790	    let safety = 0;
+791	    while (this.state.activeFactionId && !this.isHumanControlledFaction(this.state.activeFactionId)) {
+792	      if (safety >= 32) {
+793	        this.record('turn', 'AI turn loop stopped early due to safety guard.');
+794	        break;
+795	      }
+796	
+797	      if (!this.processAiTurnUntilBoundary(this.state.activeFactionId)) {
+798	        break;
+799	      }
+800	      safety += 1;
+801	    }
+802	  }
+803	
+804	  private processAiTurnUntilBoundary(factionId: string) {
+805	    if (this.state.activeFactionId !== factionId) {
+806	      return false;
+807	    }
+808	
+809	    if (!this._aiTurnContext || this._aiTurnContext.factionId !== factionId) {
+810	      const strategy = computeFactionStrategy(this.state, factionId as never, this.registry, this.difficulty);
+811	      this.state = {
+812	        ...this.state,
+813	        factionStrategies: new Map(this.state.factionStrategies).set(factionId as never, strategy),
+814	      };
+815	      this._aiTurnContext = {
+816	        factionId,
+817	        unitIds: this.getAiUnitIds(factionId),
+818	        index: 0,
+819	        fortsBuiltThisTurn: new Set<string>(),
+820	      };
+821	    }
+822	
+823	    while (this._aiTurnContext && this._aiTurnContext.index < this._aiTurnContext.unitIds.length) {
+824	      const unitId = this._aiTurnContext.unitIds[this._aiTurnContext.index] as UnitId;
+825	      this._aiTurnContext.index += 1;
+826	
+827	      const unit = this.state.units.get(unitId as never);
+828	      if (!unit || unit.hp <= 0 || unit.factionId !== factionId || unit.status !== 'ready') {
+829	        continue;
+830	      }
+831	
+832	      const activation = activateAiUnit(this.state, unitId, this.registry, {
+833	        combatMode: 'preview',
+834	        fortsBuiltThisRound: this._aiTurnContext.fortsBuiltThisTurn as Set<never>,
+835	      });
+836	      this.state = activation.state;
+837	
+838	      if (activation.pendingCombat) {
+839	        this._aiCombatQueue.push(this.buildPendingCombat(activation.pendingCombat));
+840	        return false;
+841	      }
+842	    }
+843	
+844	    this._aiTurnContext = null;
+845	    this.feedback.lastMove = null;
+846	    this.state = runFactionPhase(this.state, factionId as never, this.registry, {
+847	      difficulty: this.difficulty,
+848	    });
+849	    this.state = this.refreshFogForAllFactions(advanceTurn(this.state));
+850	    // Update siege state for all cities after turn advance
+851	    this.state = this.updateSiegeState(this.state);
+852	    // If control passed back to a human faction, resolve queued moves on turn start.
+853	    this.state = this.executeMoveQueues(this.state);
+854	    this.feedback.lastActiveFactionId = this.state.activeFactionId;
+855	    this.feedback.lastTurnChange = this.state.activeFactionId
+856	      ? { factionId: this.state.activeFactionId }
+857	      : null;
+858	    this.record('turn', `Turn passed to ${this.getActiveFactionName()}.`);
+859	    return true;
+860	  }
+861	
+862	  private setCityProduction(cityId: string, prototypeId: string) {
+863	    const city = this.state.cities.get(cityId as never);
+864	    if (!city || city.factionId !== this.state.activeFactionId || !this.isHumanControlledFaction(city.factionId) || city.besieged) {
+865	      return;
+866	    }
+867	
+868	    this.state = unlockHybridRecipes(this.state, city.factionId, this.registry);
+869	
+870	    const prototype = this.state.prototypes.get(prototypeId as never);
+871	    if (!prototype || !canProducePrototype(this.state, city.factionId, prototype.id, this.registry)) {
+872	      return;
+873	    }
+874	
+875	    const costType = getPrototypeCostType(prototype);
+876	    if (costType === 'villages' && !canPaySettlerVillageCost(this.state, city.factionId)) {
+877	      return;
+878	    }
+879	    const updatedCity = queueUnit(
+880	      city,
+881	      prototype.id,
+882	      prototype.chassisId,
+883	      costType === 'villages' ? getPrototypeQueueCost(prototype) : this.getPrototypeCost(prototype.id),
+884	      costType,
+885	    );
+886	    const nextCities = new Map(this.state.cities);
+887	    nextCities.set(city.id, updatedCity);
+888	    this.state = { ...this.state, cities: nextCities };
+889	    this.record('turn', `${city.name} began training ${prototype.name}.`);
+890	  }
+891	
+892	  private cancelCityProduction(cityId: string) {
+893	    const city = this.state.cities.get(cityId as never);
+894	    if (!city || city.factionId !== this.state.activeFactionId || !this.isHumanControlledFaction(city.factionId) || city.besieged) return;
+895	    if (!city.currentProduction) return;
+896	
+897	    const { city: updatedCity } = cancelCurrentProduction(city);
+898	    const nextCities = new Map(this.state.cities);
+899	    nextCities.set(city.id, updatedCity);
+900	    this.state = { ...this.state, cities: nextCities };
+901	    this.record('turn', `${city.name} cancelled production.`);
+902	  }
+903	
+904	  private removeFromQueue(cityId: string, queueIndex: number) {
+905	    const city = this.state.cities.get(cityId as never);
+906	    if (!city || city.factionId !== this.state.activeFactionId || !this.isHumanControlledFaction(city.factionId)) return;
+907	
+908	    const updatedCity = removeFromQueue(city, queueIndex);
+909	    const nextCities = new Map(this.state.cities);
+910	    nextCities.set(city.id, updatedCity);
+911	    this.state = { ...this.state, cities: nextCities };
+912	  }
+913	
+914	  private applyStartResearch(nodeId: string) {
+915	    const factionId = this.state.activeFactionId;
+916	    if (!factionId || !this.isHumanControlledFaction(factionId)) return;
+917	
+918	    const research = this.state.research.get(factionId as never);
+919	    const faction = this.state.factions.get(factionId as never);
+920	    if (!research || !faction) return;
+921	
+922	    // Extract domain from nodeId (e.g. "charge_t2" -> "charge")
+923	    const domainId = nodeId.split('_t')[0];
+924	    const nodeDef = this.registry.getResearchNode(domainId, nodeId);
+925	    if (!nodeDef) return;
+926	
+927	    if (!faction.learnedDomains?.includes(domainId)) return;
+928	
+929	    const updated = startResearch(
+930	      research,
+931	      nodeId as never,
+932	      nodeDef.prerequisites,
+933	      faction.learnedDomains,
+934	    );
+935	    const nextResearch = new Map(this.state.research);
+936	    nextResearch.set(factionId as never, updated);
+937	    this.state = { ...this.state, research: nextResearch };
+938	    this.record('turn', `Research started: ${nodeDef.name}.`);
+939	  }
+940	
+941	  private applyCancelResearch() {
+942	    const factionId = this.state.activeFactionId;
+943	    if (!factionId || !this.isHumanControlledFaction(factionId)) return;
+944	
+945	    const research = this.state.research.get(factionId as never);
+946	    if (!research || !research.activeNodeId) return;
+947	
+948	    const domainId = research.activeNodeId.split('_t')[0];
+949	    const nodeDef = this.registry.getResearchNode(domainId, research.activeNodeId);
+950	    const nodeName = nodeDef?.name ?? research.activeNodeId;
+951	
+952	    const updated = { ...research, activeNodeId: null };
+953	    const nextResearch = new Map(this.state.research);
+954	    nextResearch.set(factionId as never, updated);
+955	    this.state = { ...this.state, research: nextResearch };
+956	    this.record('turn', `Research cancelled: ${nodeName}.`);
+957	  }
+958	
+959	  private applySacrifice(unitId: string) {
+960	    const unit = this.state.units.get(unitId as UnitId);
+961	    if (!unit || !this.state.activeFactionId) return;
+962	
+963	    const faction = this.state.factions.get(unit.factionId);
+964	    if (!faction || unit.factionId !== this.state.activeFactionId) return;
+965	
+966	    const learnedAbilities = unit.learnedAbilities ?? [];
+967	    if (learnedAbilities.length === 0) return;
+968	
+969	    const unitName = this.getPrototypeName(unit.prototypeId);
+970	    const domains = learnedAbilities.map((a) => a.domainId);
+971	
+972	    this.state = performSacrifice(unitId as UnitId, unit.factionId, this.state, this.registry);
+973	    this.state = unlockHybridRecipes(this.state, unit.factionId, this.registry);
+974	    this.feedback.lastSacrifice = { unitId, unitName, domains };
+975	    this.feedback.lastMove = null;
+976	    this.feedback.lastTurnChange = null;
+977	    this.record(
+978	      'turn',
+979	      `${unitName} sacrificed - unlocked domains: ${domains.join(', ')}.`,
+980	    );
+981	  }
+982	
+983	  private applyBuildFort(unitId: string) {
+984	    const unit = this.state.units.get(unitId as UnitId);
+985	    if (!unit || !this.state.activeFactionId || unit.factionId !== this.state.activeFactionId) {
+986	      return;
+987	    }
+988	
+989	    const faction = this.state.factions.get(unit.factionId);
+990	    if (!faction || faction.id !== 'hill_clan') {
+991	      return;
+992	    }
+993	
+994	    const fortEligibility = this.getFortBuildEligibility(unit);
+995	    if (!fortEligibility.canBuild) {
+996	      return;
+997	    }
+998	
+999	    this.state = this.buildFortAtUnit(unit, fortEligibility.defenseBonus);
+1000	    this.feedback.lastMove = null;
+1001	    this.feedback.lastTurnChange = null;
+1002	    this.record('turn', `${this.getPrototypeName(unit.prototypeId)} built a field fort at ${unit.position.q},${unit.position.r}.`);
+1003	  }
+1004	
+1005	  private applyBuildCity(unitId: string) {
+1006	    const unit = this.state.units.get(unitId as UnitId);
+1007	    if (!unit || !this.state.activeFactionId || unit.factionId !== this.state.activeFactionId || !this.state.map) {
+1008	      return;
+1009	    }
+1010	
+1011	    const faction = this.state.factions.get(unit.factionId);
+1012	    const prototype = this.state.prototypes.get(unit.prototypeId as never);
+1013	    if (!faction || !prototype || !this.isHumanControlledFaction(unit.factionId)) {
+1014	      return;
+1015	    }
+1016	    if (!prototype.tags?.includes('settler') || unit.status !== 'ready' || unit.movesRemaining !== unit.maxMoves) {
+1017	      return;
+1018	    }
+1019	
+1020	    if (getSettlementOccupancyBlocker(this.state, unit.position)) {
+1021	      return;
+1022	    }
+1023	
+1024	    const cityId = createCityId();
+1025	    const cityName = faction.homeCityId ? `${faction.name} Settlement` : `${faction.name} Capital`;
+1026	    const cities = new Map(this.state.cities);
+1027	    cities.set(cityId, {
+1028	      id: cityId,
+1029	      factionId: unit.factionId,
+1030	      position: { ...unit.position },
+1031	      name: cityName,
+1032	      productionQueue: [],
+1033	      productionProgress: 0,
+1034	      territoryRadius: 2,
+1035	      wallHP: 100,
+1036	      maxWallHP: 100,
+1037	      besieged: false,
+1038	      turnsUnderSiege: 0,
+1039	      isCapital: !faction.homeCityId,
+1040	      siteBonuses: createCitySiteBonuses(this.state.map, unit.position, 2),
+1041	    });
+1042	
+1043	    const units = new Map(this.state.units);
+1044	    units.delete(unitId as UnitId);
+1045	    const factions = new Map(this.state.factions);
+1046	    factions.set(unit.factionId, {
+1047	      ...faction,
+1048	      unitIds: faction.unitIds.filter((id) => id !== unitId),
+1049	      cityIds: [...new Set([...faction.cityIds, cityId])],
+1050	      homeCityId: faction.homeCityId ?? cityId,
+1051	    });
+1052	
+1053	    this.state = syncFactionSettlementIds({
+1054	      ...this.state,
+1055	      cities,
+1056	      units,
+1057	      factions,
+1058	    }, unit.factionId);
+1059	    this.state = this.refreshFogForAllFactions(this.state);
+1060	    this.feedback.lastMove = null;
+1061	    this.feedback.lastTurnChange = null;
+1062	    this.record('turn', `${faction.name} founded ${cityName} at ${unit.position.q},${unit.position.r}.`);
+1063	  }
+1064	
+1065	  private applyPrepareAbility(unitId: string, ability: 'brace' | 'ambush') {
+1066	    const unit = this.state.units.get(unitId as UnitId);
+1067	    if (!unit || !this.state.activeFactionId || unit.factionId !== this.state.activeFactionId) {
+1068	      return;
+1069	    }
+1070	
+1071	    const faction = this.state.factions.get(unit.factionId);
+1072	    const prototype = this.state.prototypes.get(unit.prototypeId as never);
+1073	    if (!faction || !prototype || !this.isHumanControlledFaction(unit.factionId) || unit.status !== 'ready' || unit.hp <= 0) {
+1074	      return;
+1075	    }
+1076	
+1077	    const doctrine = resolveCapabilityDoctrine(this.state.research.get(unit.factionId), faction);
+1078	    const canPrepare = ability === 'brace'
+1079	      ? (canUseBrace(prototype) || doctrine.fortressTranscendenceEnabled) && hasAdjacentEnemy(this.state, unit)
+1080	      : canUseAmbush(prototype, getTerrainAt(this.state, unit.position)) && !hasAdjacentEnemy(this.state, unit);
+1081	    if (!canPrepare) {
+1082	      return;
+1083	    }
+1084	
+1085	    const units = new Map(this.state.units);
+1086	    units.set(unit.id, prepareAbility(unit, ability, this.state.round));
+1087	    this.state = { ...this.state, units };
+1088	    this.feedback.lastMove = null;
+1089	    this.feedback.lastTurnChange = null;
+1090	    this.record('turn', `${this.getPrototypeName(unit.prototypeId)} prepared ${ability}.`);
+1091	  }
+1092	
+1093	  private applyBoardTransport(unitId: string, transportId: string) {
+1094	    const unit = this.state.units.get(unitId as UnitId);
+1095	    const transport = this.state.units.get(transportId as UnitId);
+1096	    if (!unit || !transport || !this.state.activeFactionId || unit.factionId !== this.state.activeFactionId || transport.factionId !== this.state.activeFactionId) {
+1097	      return;
+1098	    }
+1099	
+1100	    if (!canBoardTransport(this.state, unit.id, transport.id, this.registry, this.state.transportMap)) {
+1101	      return;
+1102	    }
+1103	
+1104	    const result = boardTransport(this.state, unit.id, transport.id, this.state.transportMap);
+1105	    this.state = {
+1106	      ...result.state,
+1107	      transportMap: result.transportMap,
+1108	    };
+1109	    this.feedback.lastMove = null;
+1110	    this.feedback.lastTurnChange = null;
+1111	    this.record('turn', `${this.getPrototypeName(unit.prototypeId)} boarded ${this.getPrototypeName(transport.prototypeId)}.`);
+1112	  }
+1113	
+1114	  private applyDisembarkUnit(unitId: string, transportId: string, destination: { q: number; r: number }) {
+1115	    const unit = this.state.units.get(unitId as UnitId);
+1116	    if (!unit || !this.state.activeFactionId || unit.factionId !== this.state.activeFactionId) {
+1117	      return;
+1118	    }
+1119	
+1120	    const transportState = getUnitTransport(unit.id, this.state.transportMap);
+1121	    if (!transportState || transportState.transportId !== transportId) {
+1122	      return;
+1123	    }
+1124	
+1125	    const result = disembarkUnit(
+1126	      this.state,
+1127	      transportId as UnitId,
+1128	      unit.id,
+1129	      destination,
+1130	      this.registry,
+1131	      this.state.transportMap,
+1132	    );
+1133	    this.state = {
+1134	      ...result.state,
+1135	      transportMap: result.transportMap,
+1136	    };
+1137	    this.feedback.lastMove = null;
+1138	    this.feedback.lastTurnChange = null;
+1139	    this.record('turn', `${this.getPrototypeName(unit.prototypeId)} disembarked to ${destination.q},${destination.r}.`);
+1140	  }
+1141	
+1142	  private getPrototypeCost(prototypeId: string) {
+1143	    const prototype = this.state.prototypes.get(prototypeId as never);
+1144	    if (!prototype) {
+1145	      return 10;
+1146	    }
+1147	
+1148	    switch (prototype.chassisId) {
+1149	      case 'infantry_frame':
+1150	        return 8;
+1151	      case 'heavy_infantry_frame':
+1152	        return 11;
+1153	      case 'ranged_frame':
+1154	        return 10;
+1155	      case 'cavalry_frame':
+1156	        return 14;
+1157	      case 'naval_frame':
+1158	        return 12;
+1159	      case 'camel_frame':
+1160	        return 10;
+1161	      case 'elephant_frame':
+1162	        return 14;
+1163	      default:
+1164	        return 10;
+1165	    }
+1166	  }
+1167	
+1168	  private getAiUnitIds(factionId: string) {
+1169	    return Array.from(this.state.units.values())
+1170	      .filter((unit) => unit.factionId === factionId && unit.hp > 0)
+1171	      .sort((left, right) => {
+1172	        if (left.status !== right.status) {
+1173	          return left.status === 'ready' ? -1 : 1;
+1174	        }
+1175	
+1176	        return left.id.localeCompare(right.id);
+1177	      })
+1178	      .map((unit) => unit.id);
+1179	  }
+1180	
+1181	  private getImprovementAtHex(position: { q: number; r: number }) {
+1182	    for (const improvement of this.state.improvements.values()) {
+1183	      if (improvement.position.q === position.q && improvement.position.r === position.r) {
+1184	        return improvement;
+1185	      }
+1186	    }
+1187	
+1188	    return null;
+1189	  }
+1190	
+1191	  private updateSiegeState(state: GameState): GameState {
+1192	    const cities = new Map(state.cities);
+1193	    let changed = false;
+1194	    for (const [cityId, city] of cities) {
+1195	      const encircled = isCityEncircled(city, state);
+1196	      if (encircled && !city.besieged) {
+1197	        cities.set(cityId, { ...city, besieged: true, turnsUnderSiege: 0 });
+1198	        changed = true;
+1199	      } else if (!encircled && city.besieged) {
+1200	        cities.set(cityId, { ...city, besieged: false, turnsUnderSiege: 0 });
+1201	        changed = true;
+1202	      } else if (city.besieged) {
+1203	        cities.set(cityId, { ...city, turnsUnderSiege: (city.turnsUnderSiege ?? 0) + 1 });
+1204	        changed = true;
+1205	      }
+1206	    }
+1207	    return changed ? { ...state, cities } : state;
+1208	  }
+1209	
+1210	  private isFortificationHex(position: { q: number; r: number }) {
+1211	    return this.getImprovementAtHex(position)?.type === 'fortification';
+1212	  }
+1213	
+1214	  private getFortBuildEligibility(unit: Unit) {
+1215	    const faction = this.state.factions.get(unit.factionId);
+1216	    const research = this.state.research.get(unit.factionId as never);
+1217	    const doctrine = faction ? resolveCapabilityDoctrine(research, faction) : undefined;
+1218	    if (!faction || faction.id !== 'hill_clan' || !doctrine?.canBuildFieldForts) {
+1219	      return { canBuild: false as const, defenseBonus: 0 };
+1220	    }
+1221	
+1222	    if (unit.hp <= 0 || unit.status !== 'ready' || unit.movesRemaining !== unit.maxMoves) {
+1223	      return { canBuild: false as const, defenseBonus: 0 };
+1224	    }
+1225	
+1226	    const prototype = this.state.prototypes.get(unit.prototypeId as never);
+1227	    if (!prototype) {
+1228	      return { canBuild: false as const, defenseBonus: 0 };
+1229	    }
+1230	
+1231	    const movementClass = this.registry.getChassis(prototype.chassisId)?.movementClass;
+1232	    const role = prototype.derivedStats.role;
+1233	    if (!(movementClass === 'infantry' || role === 'ranged')) {
+1234	      return { canBuild: false as const, defenseBonus: 0 };
+1235	    }
+1236	
+1237	    if (this.getImprovementAtHex(unit.position)) {
+1238	      return { canBuild: false as const, defenseBonus: 0 };
+1239	    }
+1240	
+1241	    const fieldFort = this.registry.getImprovement('field_fort');
+1242	    return {
+1243	      canBuild: true as const,
+1244	      defenseBonus: fieldFort?.defenseBonus ?? 1,
+1245	    };
+1246	  }
+1247	
+1248	  private buildFortAtUnit(unit: Unit, defenseBonus: number) {
+1249	    const fortId = createImprovementId();
+1250	    const improvements = new Map(this.state.improvements);
+1251	    improvements.set(fortId, {
+1252	      id: fortId,
+1253	      type: 'fortification',
+1254	      position: { ...unit.position },
+1255	      ownerFactionId: unit.factionId,
+1256	      defenseBonus,
+1257	    });
+1258	
+1259	    const units = new Map(this.state.units);
+1260	    units.set(unit.id, {
+1261	      ...unit,
+1262	      movesRemaining: 0,
+1263	      attacksRemaining: 0,
+1264	      status: 'fortified' as const,
+1265	    });
+1266	
+1267	    return {
+1268	      ...this.state,
+1269	      improvements,
+1270	      units,
+1271	    };
+1272	  }
+1273	
+1274	  private record(kind: SessionEvent['kind'], message: string) {
+1275	    this.feedback.eventSequence += 1;
+1276	    this.events.unshift({
+1277	      sequence: this.feedback.eventSequence,
+1278	      round: this.state.round,
+1279	      kind,
+1280	      message,
+1281	    });
+1282	    if (this.events.length > 16) {
+1283	      this.events.length = 16;
+1284	    }
+1285	  }
+1286	}

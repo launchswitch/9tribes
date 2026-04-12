@@ -252,9 +252,9 @@ const NORMAL_PROFILE: AiDifficultyProfile = {
     raidBiasFloor: 0.4,
     focusFireLimitBonus: 0,
     squadSizeBonus: 0,
-    commitAdvantageOffset: 0,
-    retreatThresholdOffset: 0,
-    antiSkirmishResponseWeight: 1,
+    commitAdvantageOffset: -0.05,
+    retreatThresholdOffset: 0.05,
+    antiSkirmishResponseWeight: 1.8,
   },
   strategy: {
     focusTargetLimit: 3,

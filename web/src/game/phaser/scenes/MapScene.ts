@@ -241,22 +241,6 @@ export class MapScene extends Phaser.Scene {
       return;
     }
 
-    // Left-click beyond reachable range → queue multi-turn move (on visible/explored terrain)
-    if (state.mode === 'play' && selectedUnitId) {
-      const legalMove = state.actions.legalMoves.find((hex) => hex.key === key);
-      if (!legalMove) {
-        const clickedHex = state.world.map.hexes.find((h) => h.key === key);
-        if (clickedHex && (clickedHex.visibility === 'visible' || clickedHex.visibility === 'explored')) {
-          this.controller.dispatch({
-            type: 'queue_move',
-            unitId: selectedUnitId,
-            destination: { q, r },
-          });
-          return;
-        }
-      }
-    }
-
     // Clicking empty terrain deselects — collapses the sidebar
     this.controller.dispatch({ type: 'select_hex', q: -1, r: -1 });
   }
@@ -478,8 +462,24 @@ export class MapScene extends Phaser.Scene {
     defenderView: UnitView,
     onComplete: () => void,
     skipAnimation = false,
+    aiInitiated = false,
   ): void {
-    this.combatAnimator.playCombat(data, attackerView, defenderView, onComplete, skipAnimation);
+    if (aiInitiated && !skipAnimation) {
+      // Pan camera to combat midpoint so the player can see AI-initiated attacks
+      const attPos = this.worldToScreen(attackerView.q, attackerView.r);
+      const defPos = this.worldToScreen(defenderView.q, defenderView.r);
+      const targetX = (attPos.x + defPos.x) / 2;
+      const targetY = (attPos.y + defPos.y) / 2;
+
+      this.cameras.main.pan(targetX, targetY, 350, 'Sine.easeInOut', true);
+
+      const camera = this.cameras.main;
+      camera.once('camerapancomplete', () => {
+        this.combatAnimator.playCombat(data, attackerView, defenderView, onComplete, skipAnimation);
+      });
+    } else {
+      this.combatAnimator.playCombat(data, attackerView, defenderView, onComplete, skipAnimation);
+    }
   }
 
   isCombatAnimating(): boolean {
@@ -487,6 +487,7 @@ export class MapScene extends Phaser.Scene {
   }
 
   cancelCombatAnimation(): void {
+    this.cameras.main.stopImmediate();
     this.combatAnimator.cancel();
   }
 }

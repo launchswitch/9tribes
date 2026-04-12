@@ -35,6 +35,7 @@ import type { PlayStateSource, SerializedGameState } from '../types/playState';
 import type { AttackTargetView, ReachableHexView } from '../types/worldView';
 import { deserializeGameState, serializeGameState } from '../types/playState';
 import { updateFogState } from '../../../../src/systems/fogSystem.js';
+import { isCityEncircled, isEncirclementBroken } from '../../../../src/systems/territorySystem.js';
 import { runFactionPhase } from '../../../../src/systems/factionPhaseSystem.js';
 import { performSacrifice } from '../../../../src/systems/sacrificeSystem.js';
 import { createCitySiteBonuses, getSettlementOccupancyBlocker } from '../../../../src/systems/citySiteSystem.js';
@@ -331,7 +332,7 @@ export class GameSession {
 
   getAttackTargets(unitId: string): AttackTargetView[] {
     const unit = this.state.units.get(unitId as UnitId);
-    if (!unit || unit.hp <= 0 || unit.factionId !== this.state.activeFactionId || unit.attacksRemaining <= 0) {
+    if (!unit || unit.hp <= 0 || unit.factionId !== this.state.activeFactionId || unit.attacksRemaining <= 0 || unit.movesRemaining <= 0) {
       return [];
     }
 
@@ -846,6 +847,8 @@ export class GameSession {
       difficulty: this.difficulty,
     });
     this.state = this.refreshFogForAllFactions(advanceTurn(this.state));
+    // Update siege state for all cities after turn advance
+    this.state = this.updateSiegeState(this.state);
     // If control passed back to a human faction, resolve queued moves on turn start.
     this.state = this.executeMoveQueues(this.state);
     this.feedback.lastActiveFactionId = this.state.activeFactionId;
@@ -1183,6 +1186,25 @@ export class GameSession {
     }
 
     return null;
+  }
+
+  private updateSiegeState(state: GameState): GameState {
+    const cities = new Map(state.cities);
+    let changed = false;
+    for (const [cityId, city] of cities) {
+      const encircled = isCityEncircled(city, state);
+      if (encircled && !city.besieged) {
+        cities.set(cityId, { ...city, besieged: true, turnsUnderSiege: 0 });
+        changed = true;
+      } else if (!encircled && city.besieged) {
+        cities.set(cityId, { ...city, besieged: false, turnsUnderSiege: 0 });
+        changed = true;
+      } else if (city.besieged) {
+        cities.set(cityId, { ...city, turnsUnderSiege: (city.turnsUnderSiege ?? 0) + 1 });
+        changed = true;
+      }
+    }
+    return changed ? { ...state, cities } : state;
   }
 
   private isFortificationHex(position: { q: number; r: number }) {

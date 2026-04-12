@@ -144,6 +144,9 @@ function KnowledgeGainedShellContent({
         playCombatSoundForPendingCombat(pending, attacker);
       }
 
+      // Pan camera to show AI-initiated combat (player isn't already looking at it)
+      const aiInitiated = !isInstant && !attacker.isActiveFaction;
+
       setCombatLocked(true);
       scene.startCombatAnimation(
         {
@@ -163,6 +166,7 @@ function KnowledgeGainedShellContent({
           setCombatLocked(false);
         },
         isInstant, // instant mode for AI-vs-AI, full animation otherwise
+        aiInitiated, // pan camera to show AI-initiated combat
       );
     });
 

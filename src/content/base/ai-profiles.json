@@ -127,8 +127,8 @@
       "preferredTerrains": ["forest", "jungle", "hill"],
       "avoidedTerrains": ["desert", "ocean"],
       "desiredRoleRatios": { "melee": 0.35, "ranged": 0.25, "support": 0.15, "mounted": 0.05, "siege": 0.05 },
-      "commitAdvantage": 1.2,
-      "retreatThreshold": 0.95,
+      "commitAdvantage": 1.05,
+      "retreatThreshold": 0.85,
       "focusFireLimit": 2,
       "squadSize": 3
     },

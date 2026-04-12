@@ -1,0 +1,1298 @@
+1	import civilizationsData from '../../../../src/content/base/civilizations.json';
+2	import { hexDistance, hexToKey } from '../../../../src/core/grid.js';
+3	import type { RulesRegistry } from '../../../../src/data/registry/types.js';
+4	import type { GameState, Unit } from '../../../../src/game/types.js';
+5	import type { CitySiteBonuses } from '../../../../src/features/cities/types.js';
+6	import {
+7	  evaluateCitySiteBonuses,
+8	  formatSettlementOccupancyBlocker,
+9	  getCitySiteBonuses,
+10	  getSettlementOccupancyBlocker,
+11	} from '../../../../src/systems/citySiteSystem.js';
+12	import { canUseAmbush, canUseBrace, getTerrainAt, hasAdjacentEnemy } from '../../../../src/systems/abilitySystem.js';
+13	import { resolveCapabilityDoctrine } from '../../../../src/systems/capabilityDoctrine.js';
+14	import { deriveResourceIncome, getCaptureRampMultiplier, getSupplyDeficit } from '../../../../src/systems/economySystem.js';
+15	import { getValidMoves } from '../../../../src/systems/movementSystem.js';
+16	import {
+17	  getDomainTier,
+18	} from '../../../../src/systems/researchSystem.js';
+19	import { getDomainProgression } from '../../../../src/systems/domainProgression.js';
+20	import { getHexOwner } from '../../../../src/systems/territorySystem.js';
+21	import { canBoardTransport, getUnitTransport, getValidDisembarkHexes } from '../../../../src/systems/transportSystem.js';
+22	import { calculateProductionPenalty, calculateMoralePenalty } from '../../../../src/systems/warExhaustionSystem.js';
+23	import { getVillageSpawnReadinessWithRegistry } from '../../../../src/systems/villageSystem.js';
+24	import { getFactionCityIds } from '../../../../src/systems/factionOwnershipSystem.js';
+25	import {
+26	  canPaySettlerVillageCost,
+27	  getAvailableProductionPrototypes,
+28	  getPrototypeCostType,
+29	  getPrototypeQueueCost,
+30	  SETTLER_VILLAGE_COST,
+31	} from '../../../../src/systems/productionSystem.js';
+32	import type {
+33	  CityInspectorViewModel,
+34	  ClientMode,
+35	  ClientSelection,
+36	  DebugViewModel,
+37	  HudViewModel,
+38	  ResearchInspectorViewModel,
+39	  ResearchNodeViewState,
+40	  ResearchNodeViewModel,
+41	  SettlementBonusSummaryViewModel,
+42	  SettlementPreviewViewModel,
+43	} from '../types/clientState';
+44	import type { ReplayAiIntentEvent, ReplayBundle, ReplayCombatEvent, ReplayFactionSummary, ReplayTurn } from '../types/replay';
+45	import type {
+46	  AttackTargetView,
+47	  BorderEdgeView,
+48	  BorderSide,
+49	  FactionView,
+50	  HexCoord,
+51	  PathPreviewNodeView,
+52	  ReachableHexView,
+53	  WorldViewModel,
+54	} from '../types/worldView';
+55	
+56	type ReplayWorldSource = {
+57	  kind: 'replay';
+58	  replay: ReplayBundle;
+59	  turnIndex: number;
+60	  selectedUnitId: string | null;
+61	  reachableHexes: ReachableHexView[];
+62	  attackHexes: AttackTargetView[];
+63	  pathPreview: PathPreviewNodeView[];
+64	  queuedPath: PathPreviewNodeView[];
+65	};
+66	
+67	type PlayWorldSource = {
+68	  kind: 'play';
+69	  state: GameState;
+70	  registry: RulesRegistry;
+71	  reachableHexes: ReachableHexView[];
+72	  attackHexes: AttackTargetView[];
+73	  pathPreview: PathPreviewNodeView[];
+74	  queuedPath: PathPreviewNodeView[];
+75	  lastMove: { unitId: string; destination: HexCoord } | null;
+76	};
+77	
+78	type WorldViewSource = ReplayWorldSource | PlayWorldSource;
+79	
+80	type CivilizationPalette = Record<string, {
+81	  color?: string;
+82	}>;
+83	
+84	const CIVILIZATIONS = civilizationsData as CivilizationPalette;
+85	const BORDER_DIRECTIONS: Array<{ side: BorderSide; dq: number; dr: number }> = [
+86	  { side: 'north', dq: 0, dr: -1 },
+87	  { side: 'east', dq: 1, dr: 0 },
+88	  { side: 'south', dq: 0, dr: 1 },
+89	  { side: 'west', dq: -1, dr: 0 },
+90	];
+91	
+92	// Derive CAPTURE_RAMP_TURNS from getCaptureRampMultiplier behavior
+93	// The function returns 0 during the ramp period, then positive values after
+94	function deriveCaptureRampTurns(): number {
+95	  for (let turns = 0; turns < 50; turns++) {
+96	    if (getCaptureRampMultiplier(turns) > 0) {
+97	      return turns; // This equals CAPTURE_RAMP_TURNS + 1
+98	    }
+99	  }
+100	  return 6; // fallback: CAPTURE_RAMP_TURNS + 1
+101	}
+102	const CAPTURE_RAMP_TURNS = deriveCaptureRampTurns() - 1;
+103	
+104	type SelectionInfo = {
+105	  title: string;
+106	  description: string;
+107	  meta: Array<{ label: string; value: string }>;
+108	  city: CityInspectorViewModel | null;
+109	};
+110	
+111	export function buildWorldViewModel(source: WorldViewSource): WorldViewModel {
+112	  return source.kind === 'replay'
+113	    ? buildReplayWorldViewModel(source)
+114	    : buildPlayWorldViewModel(source);
+115	}
+116	
+117	export function buildHudViewModel(
+118	  source: ReplayBundle | GameState,
+119	  turnIndex: number,
+120	  mode: ClientMode,
+121	  selected: ClientSelection,
+122	  hoveredKey: string | null,
+123	  world: WorldViewModel,
+124	  registry?: RulesRegistry,
+125	  liveCombatEvents?: ReplayCombatEvent[],
+126	): HudViewModel {
+127	  return mode === 'replay'
+128	    ? buildReplayHudViewModel(source as ReplayBundle, turnIndex, selected, hoveredKey, world)
+129	    : buildPlayHudViewModel(source as GameState, selected, hoveredKey, world, registry, liveCombatEvents);
+130	}
+131	
+132	export function buildDebugViewModel(
+133	  turn: ReplayTurn | null,
+134	  events: Array<{ round: number; message: string }> = [],
+135	): DebugViewModel {
+136	  return {
+137	    turnEvents: turn ? turn.events.slice(0, 10) : events.slice(0, 10),
+138	  };
+139	}
+140	
+141	export function getCombatSummary(event: ReplayCombatEvent) {
+142	  const effects = event.breakdown.triggeredEffects.map((effect) => effect.label).join(', ');
+143	  return `${event.attackerPrototypeName} vs ${event.defenderPrototypeName} · ${effects || 'no triggers'}`;
+144	}
+145	
+146	export function getIntentSummary(intent: ReplayAiIntentEvent, factions: ReplayFactionSummary[]) {
+147	  const faction = factions.find((entry) => entry.id === intent.factionId);
+148	  return `${faction?.name ?? intent.factionId}: ${intent.intent} · ${intent.reason}`;
+149	}
+150	
+151	function buildReplayWorldViewModel(source: ReplayWorldSource): WorldViewModel {
+152	  const turn = source.replay.turns[source.turnIndex] ?? source.replay.turns[0];
+153	  const board = turn.snapshotEnd;
+154	  const factions = buildReplayFactions(source.replay);
+155	  const ownership = new Map<string, string>();
+156	
+157	  for (const city of board.cities) {
+158	    ownership.set(`${city.q},${city.r}`, city.factionId);
+159	  }
+160	  for (const village of board.villages) {
+161	    ownership.set(`${village.q},${village.r}`, village.factionId);
+162	  }
+163	
+164	  const hexes = source.replay.map.hexes.map((hex) => ({
+165	    key: hex.key,
+166	    q: hex.q,
+167	    r: hex.r,
+168	    terrain: hex.terrain,
+169	    visibility: 'visible' as const,
+170	    ownerFactionId: ownership.get(hex.key) ?? null,
+171	  }));
+172	
+173	  return {
+174	    activeFactionId: board.factions[0]?.id ?? null,
+175	    map: {
+176	      width: source.replay.map.width,
+177	      height: source.replay.map.height,
+178	      hexes,
+179	    },
+180	    factions,
+181	    units: board.units.map((unit) => {
+182	      const chassisId = inferChassisId(unit.prototypeName);
+183	      return {
+184	        id: unit.id,
+185	        factionId: unit.factionId,
+186	        q: unit.q,
+187	        r: unit.r,
+188	        hp: unit.hp,
+189	        maxHp: unit.maxHp,
+190	        attack: unit.attack ?? 0,
+191	        defense: unit.defense ?? 0,
+192	        effectiveDefense: unit.defense ?? 0,
+193	        range: unit.range ?? 1,
+194	        movesRemaining: 0,
+195	        movesMax: 0,
+196	        acted: false,
+197	        canAct: unit.id === source.selectedUnitId && source.reachableHexes.length > 0,
+198	        isActiveFaction: unit.factionId === (board.factions[0]?.id ?? null),
+199	        status: 'inactive' as const,
+200	        prototypeId: unit.prototypeId,
+201	        prototypeName: unit.prototypeName,
+202	        chassisId,
+203	        role: chassisId,
+204	        spriteKey: getSpriteKeyForUnit(unit.factionId, unit.prototypeName, chassisId, undefined),
+205	        facing: unit.facing ?? 0,
+206	        visible: true,
+207	      };
+208	    }),
+209	    cities: board.cities.map((city) => ({
+210	      id: city.id,
+211	      name: city.name,
+212	      factionId: city.factionId,
+213	      q: city.q,
+214	      r: city.r,
+215	      visible: true,
+216	      remembered: true,
+217	      besieged: city.besieged,
+218	      wallHp: city.wallHp,
+219	      maxWallHp: city.maxWallHp,
+220	      turnsSinceCapture: city.turnsSinceCapture,
+221	    })),
+222	    villages: board.villages.map((village) => ({
+223	      id: village.id,
+224	      name: village.name,
+225	      factionId: village.factionId,
+226	      q: village.q,
+227	      r: village.r,
+228	      visible: true,
+229	      remembered: true,
+230	    })),
+231	    improvements: [],
+232	    overlays: {
+233	      borders: buildBorderEdges(hexes, factions),
+234	      reachableHexes: source.reachableHexes,
+235	      attackHexes: source.attackHexes,
+236	      pathPreview: source.pathPreview,
+237	      queuedPath: source.queuedPath,
+238	      lastMove: null,
+239	    },
+240	    visibility: {
+241	      mode: 'full',
+242	      activeFactionId: board.factions[0]?.id ?? null,
+243	    },
+244	  };
+245	}
+246	
+247	function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
+248	  const { state } = source;
+249	  if (!state.map) {
+250	    throw new Error('Cannot build play-mode world view without a map.');
+251	  }
+252	
+253	  const factions = buildPlayFactions(state);
+254	  const hexVisibility = buildHexVisibilityMap(state);
+255	  const hexes = Array.from(state.map.tiles.values()).map((tile) => {
+256	    const key = hexToKey(tile.position);
+257	    return {
+258	      key,
+259	      q: tile.position.q,
+260	      r: tile.position.r,
+261	      terrain: tile.terrain,
+262	      visibility: hexVisibility.get(key) ?? 'hidden' as const,
+263	      ownerFactionId: getHexOwner(tile.position, state) ?? null,
+264	    };
+265	  });
+266	
+267	  const moveCounts = new Map<string, number>();
+268	  const attackCounts = new Map<string, number>();
+269	  for (const unit of state.units.values()) {
+270	    moveCounts.set(
+271	      unit.id,
+272	      unit.factionId === state.activeFactionId && unit.status === 'ready'
+273	        ? getPlayableMoves(state, unit, source.registry).length
+274	        : 0,
+275	    );
+276	    attackCounts.set(
+277	      unit.id,
+278	      unit.factionId === state.activeFactionId && unit.status === 'ready'
+279	        ? getAttackableEnemies(state, unit).length
+280	        : 0,
+281	    );
+282	  }
+283	
+284	  return {
+285	    activeFactionId: state.activeFactionId,
+286	    map: {
+287	      width: state.map.width,
+288	      height: state.map.height,
+289	      hexes,
+290	    },
+291	    factions,
+292	    units: Array.from(state.units.values()).map((unit) => {
+293	      const prototype = state.prototypes.get(unit.prototypeId as never);
+294	      const chassisId = prototype?.chassisId ?? inferChassisId(prototype?.name ?? unit.prototypeId);
+295	      const canAct = unit.factionId === state.activeFactionId
+296	        && unit.status === 'ready'
+297	        && unit.hp > 0
+298	        && ((moveCounts.get(unit.id) ?? 0) > 0 || (attackCounts.get(unit.id) ?? 0) > 0);
+299	      const faction = state.factions.get(unit.factionId);
+300	      const factionDoctrine = faction
+301	        ? resolveCapabilityDoctrine(state.research.get(unit.factionId as never), faction)
+302	        : undefined;
+303	      const unitTransport = getUnitTransport(unit.id, state.transportMap);
+304	      const boardableTransportIds = unit.factionId === state.activeFactionId && unit.hp > 0
+305	        ? Array.from(state.units.values())
+306	          .filter((candidate) => candidate.factionId === unit.factionId && candidate.id !== unit.id)
+307	          .filter((candidate) => canBoardTransport(state, unit.id, candidate.id, source.registry, state.transportMap))
+308	          .map((candidate) => candidate.id)
+309	        : [];
+310	      const validDisembarkHexes = unitTransport
+311	        ? getValidDisembarkHexes(state, unitTransport.transportId, source.registry, state.transportMap)
+312	        : [];
+313	      const canBrace = !!prototype
+314	        && canAct
+315	        && (canUseBrace(prototype) || factionDoctrine?.fortressTranscendenceEnabled === true)
+316	        && hasAdjacentEnemy(state, unit);
+317	      const canAmbush = !!prototype
+318	        && canAct
+319	        && canUseAmbush(prototype, getTerrainAt(state, unit.position))
+320	        && !hasAdjacentEnemy(state, unit);
+321	      const baseDefense = prototype?.derivedStats.defense ?? 0;
+322	      // Compute effective defense including terrain, improvements, cities, villages
+323	      const tile = state.map?.tiles.get(`${unit.position.q},${unit.position.r}`);
+324	      const terrainDef = tile ? source.registry.getTerrain(tile.terrain) : undefined;
+325	      const terrainMod = terrainDef?.defenseModifier ?? 0;
+326	      let improvementBonus = 0;
+327	      for (const [, improvement] of state.improvements) {
+328	        if (improvement.position.q === unit.position.q && improvement.position.r === unit.position.r) {
+329	          improvementBonus = improvement.defenseBonus ?? 0;
+330	          break;
+331	        }
+332	      }
+333	      if (improvementBonus === 0) {
+334	        for (const [, city] of state.cities) {
+335	          if (city.position.q === unit.position.q && city.position.r === unit.position.r) {
+336	            improvementBonus = 1; // +100% in cities
+337	            break;
+338	          }
+339	        }
+340	      }
+341	      if (improvementBonus === 0) {
+342	        for (const [, village] of state.villages) {
+343	          if (village.position.q === unit.position.q && village.position.r === unit.position.r) {
+344	            improvementBonus = 0.5; // +50% in villages
+345	            break;
+346	          }
+347	        }
+348	      }
+349	      const effectiveDefense = Math.max(1, Math.round(baseDefense * (1 + terrainMod + improvementBonus)));
+350	      return {
+351	        id: unit.id,
+352	        factionId: unit.factionId,
+353	        q: unit.position.q,
+354	        r: unit.position.r,
+355	        hp: unit.hp,
+356	        maxHp: unit.maxHp,
+357	        attack: prototype?.derivedStats.attack ?? 0,
+358	        defense: baseDefense,
+359	        effectiveDefense,
+360	        range: prototype?.derivedStats.range ?? 1,
+361	        movesRemaining: unit.movesRemaining,
+362	        movesMax: unit.maxMoves,
+363	        acted: unit.factionId === state.activeFactionId ? !canAct : false,
+364	        canAct,
+365	        isActiveFaction: unit.factionId === state.activeFactionId,
+366	        status: unit.factionId === state.activeFactionId
+367	          ? (unit.status === 'fortified' ? 'fortified' as const : canAct ? 'ready' as const : 'spent' as const)
+368	          : 'inactive' as const,
+369	        prototypeId: unit.prototypeId,
+370	        prototypeName: prototype?.name ?? unit.prototypeId,
+371	        chassisId,
+372	        movementClass: thisChassisMovementClass(prototype?.chassisId, source.registry),
+373	        role: prototype?.derivedStats.role,
+374	        spriteKey: getSpriteKeyForUnit(unit.factionId, prototype?.name ?? unit.prototypeId, chassisId, prototype?.sourceRecipeId),
+375	        facing: unit.facing ?? 0,
+376	        visible: (hexVisibility.get(hexToKey(unit.position)) ?? 'hidden') !== 'hidden',
+377	        veteranLevel: unit.veteranLevel,
+378	        xp: unit.xp,
+379	        nativeDomain: faction?.nativeDomain,
+380	        learnedAbilities: unit.learnedAbilities?.map((a) => a.domainId),
+381	        isStealthed: unit.isStealthed,
+382	        poisoned: (unit.poisoned || (unit.poisonStacks ?? 0) > 0) || undefined,
+383	        routed: unit.routed || undefined,
+384	        preparedAbility: unit.preparedAbility,
+385	        isSettler: prototype?.tags?.includes('settler') || undefined,
+386	        canBrace: canBrace || undefined,
+387	        canAmbush: canAmbush || undefined,
+388	        isEmbarked: unitTransport !== undefined || undefined,
+389	        transportId: unitTransport?.transportId ?? null,
+390	        boardableTransportIds: boardableTransportIds.length > 0 ? boardableTransportIds : undefined,
+391	        validDisembarkHexes: validDisembarkHexes.length > 0 ? validDisembarkHexes : undefined,
+392	      };
+393	    }),
+394	    cities: Array.from(state.cities.values()).map((city) => ({
+395	      id: city.id,
+396	      name: city.name,
+397	      factionId: city.factionId,
+398	      q: city.position.q,
+399	      r: city.position.r,
+400	      visible: (hexVisibility.get(hexToKey(city.position)) ?? 'hidden') !== 'hidden',
+401	      remembered: true,
+402	      besieged: city.besieged,
+403	      wallHp: city.wallHP,
+404	      maxWallHp: city.maxWallHP,
+405	      turnsSinceCapture: city.turnsSinceCapture,
+406	    })),
+407	    villages: Array.from(state.villages.values()).map((village) => ({
+408	      id: village.id,
+409	      name: village.name,
+410	      factionId: village.factionId,
+411	      q: village.position.q,
+412	      r: village.position.r,
+413	      visible: (hexVisibility.get(hexToKey(village.position)) ?? 'hidden') !== 'hidden',
+414	      remembered: true,
+415	    })),
+416	    improvements: Array.from(state.improvements.values()).map((improvement) => ({
+417	      id: improvement.id,
+418	      type: improvement.type,
+419	      q: improvement.position.q,
+420	      r: improvement.position.r,
+421	      ownerFactionId: improvement.ownerFactionId,
+422	    })),
+423	    overlays: {
+424	      borders: buildBorderEdges(hexes, factions),
+425	      reachableHexes: source.reachableHexes,
+426	      attackHexes: source.attackHexes,
+427	      pathPreview: source.pathPreview,
+428	      queuedPath: source.queuedPath,
+429	      lastMove: source.lastMove,
+430	    },
+431	    visibility: {
+432	      mode: 'fogged',
+433	      activeFactionId: state.activeFactionId,
+434	    },
+435	  };
+436	}
+437	
+438	function thisChassisMovementClass(chassisId: string | undefined, registry: RulesRegistry): string | undefined {
+439	  return chassisId ? registry.getChassis(chassisId)?.movementClass : undefined;
+440	}
+441	
+442	function buildReplayHudViewModel(
+443	  replay: ReplayBundle,
+444	  turnIndex: number,
+445	  selected: ClientSelection,
+446	  hoveredKey: string | null,
+447	  world: WorldViewModel,
+448	): HudViewModel {
+449	  const turn = replay.turns[turnIndex] ?? replay.turns[0];
+450	  const board = turn.snapshotEnd;
+451	  const selectionInfo = describeReplaySelection(replay, turnIndex, selected, world);
+452	  const hoverTerrain = hoveredKey
+453	    ? replay.map.hexes.find((hex) => hex.key === hoveredKey)?.terrain ?? 'map'
+454	    : 'map';
+455	
+456	  return {
+457	    title: 'Replay Renderer',
+458	    subtitle: `Seed ${replay.seed} · round ${turn.round} of ${replay.maxTurns} · hover ${hoverTerrain}`,
+459	    victoryLabel: describeVictory(replay),
+460	    activeFactionName: world.factions.find((faction) => faction.id === world.activeFactionId)?.name ?? 'All factions',
+461	    phaseLabel: 'Replay',
+462	    selectedTitle: selectionInfo.title,
+463	    selectedDescription: selectionInfo.description,
+464	    selectedMeta: selectionInfo.meta,
+465	    selectedCity: null,
+466	    factionSummaries: board.factions.map((factionState) => {
+467	      const faction = replay.factions.find((entry) => entry.id === factionState.id);
+468	      return {
+469	        id: factionState.id,
+470	        name: faction?.name ?? factionState.id,
+471	        color: faction?.color ?? '#c8b68e',
+472	        livingUnits: factionState.livingUnits,
+473	        cities: factionState.cities,
+474	        villages: factionState.villages,
+475	        signatureUnit: faction?.signatureUnit ?? 'Unknown signature',
+476	      };
+477	    }),
+478	    recentCombat: turn.combatEvents.slice(0, 4),
+479	    recentSieges: turn.siegeEvents.slice(0, 4),
+480	    recentIntents: turn.aiIntentEvents.slice(0, 6),
+481	    researchChip: null,
+482	    settlementPreview: null,
+483	    supply: null,
+484	    exhaustion: null,
+485	  };
+486	}
+487	
+488	function buildPlayHudViewModel(
+489	  state: GameState,
+490	  selected: ClientSelection,
+491	  hoveredKey: string | null,
+492	  world: WorldViewModel,
+493	  registry?: RulesRegistry,
+494	  liveCombatEvents?: ReplayCombatEvent[],
+495	): HudViewModel {
+496	  const activeFaction = state.activeFactionId ? state.factions.get(state.activeFactionId) : null;
+497	  const selectionInfo = describePlaySelection(state, selected, hoveredKey, world, registry);
+498	
+499	  return {
+500	    title: 'Live Session',
+501	    subtitle: `Seed ${state.seed} · round ${state.round} · turn ${state.turnNumber}`,
+502	    victoryLabel: 'In progress',
+503	    activeFactionName: activeFaction?.name ?? 'No active faction',
+504	    phaseLabel: 'Command',
+505	    selectedTitle: selectionInfo.title,
+506	    selectedDescription: selectionInfo.description,
+507	    selectedMeta: selectionInfo.meta,
+508	    selectedCity: selectionInfo.city,
+509	    factionSummaries: Array.from(state.factions.values()).map((faction) => ({
+510	      id: faction.id,
+511	      name: faction.name,
+512	      color: CIVILIZATIONS[faction.id]?.color ?? '#c8b68e',
+513	      livingUnits: Array.from(state.units.values()).filter((unit) => unit.factionId === faction.id && unit.hp > 0).length,
+514	      cities: Array.from(state.cities.values()).filter((city) => city.factionId === faction.id).length,
+515	      villages: Array.from(state.villages.values()).filter((village) => village.factionId === faction.id).length,
+516	      signatureUnit: faction.identityProfile.signatureUnit,
+517	    })),
+518	    recentCombat: (liveCombatEvents ?? []).filter(
+519	      (e) => e.attackerFactionId === state.activeFactionId || e.defenderFactionId === state.activeFactionId,
+520	    ),
+521	    recentSieges: [],
+522	    recentIntents: [],
+523	    researchChip: registry
+524	      ? buildResearchChip(state, registry)
+525	      : null,
+526	    settlementPreview: buildSettlementPreview(state, selected, hoveredKey, world),
+527	    supply: registry && state.activeFactionId
+528	      ? (() => {
+529	          const economy = deriveResourceIncome(state, state.activeFactionId, registry);
+530	          return {
+531	            income: economy.supplyIncome,
+532	            used: economy.supplyDemand,
+533	            deficit: getSupplyDeficit(economy),
+534	          };
+535	        })()
+536	      : null,
+537	    exhaustion: state.activeFactionId
+538	      ? (() => {
+539	          const ex = state.warExhaustion.get(state.activeFactionId);
+540	          return ex
+541	            ? {
+542	                points: ex.exhaustionPoints,
+543	                productionPenalty: calculateProductionPenalty(ex.exhaustionPoints),
+544	                moralePenalty: calculateMoralePenalty(ex.exhaustionPoints),
+545	              }
+546	            : { points: 0, productionPenalty: 0, moralePenalty: 0 };
+547	        })()
+548	      : null,
+549	  };
+550	}
+551	
+552	function buildResearchChip(
+553	  state: GameState,
+554	  registry: RulesRegistry,
+555	): { activeNodeName: string | null; progress: number | null; totalCompleted: number } | null {
+556	  const factionId = state.activeFactionId;
+557	  if (!factionId) return null;
+558	  const research = state.research.get(factionId as never);
+559	  const faction = state.factions.get(factionId as never);
+560	  if (!research || !faction) return null;
+561	
+562	  // Find the active node across all domains
+563	  let activeNodeName: string | null = null;
+564	  let activeNodeCost = 0;
+565	  const activeProgress = research.activeNodeId
+566	    ? (research.progressByNodeId[research.activeNodeId as never] ?? 0)
+567	    : null;
+568	
+569	  if (research.activeNodeId) {
+570	    const domainId = research.activeNodeId.split('_t')[0];
+571	    const domain = registry.getResearchDomain(domainId);
+572	    if (domain) {
+573	      activeNodeName = domain.nodes[research.activeNodeId]?.name ?? research.activeNodeId;
+574	      activeNodeCost = domain.nodes[research.activeNodeId]?.xpCost ?? 0;
+575	    }
+576	  }
+577	
+578	  return {
+579	    activeNodeName,
+580	    progress: activeProgress !== null && activeNodeCost > 0 ? activeProgress / activeNodeCost : null,
+581	    totalCompleted: research.completedNodes.length,
+582	  };
+583	}
+584	
+585	function buildSettlementPreview(
+586	  state: GameState,
+587	  selected: ClientSelection,
+588	  hoveredKey: string | null,
+589	  world: WorldViewModel,
+590	): SettlementPreviewViewModel | null {
+591	  if (!state.map || selected?.type !== 'unit') {
+592	    return null;
+593	  }
+594	
+595	  const unit = state.units.get(selected.unitId as never);
+596	  const prototype = unit ? state.prototypes.get(unit.prototypeId as never) : null;
+597	  if (!unit || !prototype?.tags?.includes('settler')) {
+598	    return null;
+599	  }
+600	
+601	  const currentKey = hexToKey(unit.position);
+602	  const reachableKeys = new Set(world.overlays.reachableHexes.map((entry) => entry.key));
+603	  const previewKey = hoveredKey && (hoveredKey === currentKey || reachableKeys.has(hoveredKey))
+604	    ? hoveredKey
+605	    : currentKey;
+606	  const previewTile = state.map.tiles.get(previewKey);
+607	  if (!previewTile) {
+608	    return null;
+609	  }
+610	
+611	  const position = { q: previewTile.position.q, r: previewTile.position.r };
+612	  const bonuses = evaluateCitySiteBonuses(state.map, position, 2);
+613	  const requiresMove = previewKey !== currentKey;
+614	  const blocker = getSettlementOccupancyBlocker(state, position);
+615	  const unitCanFoundNow = unit.factionId === state.activeFactionId
+616	    && unit.status === 'ready'
+617	    && unit.movesRemaining === unit.maxMoves;
+618	  const canFoundNow = !requiresMove && unitCanFoundNow && !blocker;
+619	
+620	  let blockedReason: string | undefined;
+621	  if (requiresMove) {
+622	    blockedReason = 'Move the settler here to found a city.';
+623	  } else if (blocker) {
+624	    blockedReason = formatSettlementOccupancyBlocker(blocker);
+625	  } else if (unit.factionId !== state.activeFactionId) {
+626	    blockedReason = 'Only the active faction can found a city.';
+627	  } else if (unit.status !== 'ready' || unit.movesRemaining !== unit.maxMoves) {
+628	    blockedReason = 'Settlers need full moves to found a city.';
+629	  }
+630	
+631	  return {
+632	    q: position.q,
+633	    r: position.r,
+634	    terrain: previewTile.terrain,
+635	    canFoundNow,
+636	    requiresMove,
+637	    blockedReason,
+638	    ...buildSettlementBonusSummary(bonuses),
+639	  };
+640	}
+641	
+642	function buildSettlementBonusSummary(bonuses: CitySiteBonuses): SettlementBonusSummaryViewModel {
+643	  return {
+644	    productionBonus: bonuses.productionBonus,
+645	    supplyBonus: bonuses.supplyBonus,
+646	    villageCooldownReduction: bonuses.villageCooldownReduction,
+647	    traits: bonuses.traits.map((trait) => ({ ...trait })),
+648	  };
+649	}
+650	
+651	function describeReplaySelection(
+652	  replay: ReplayBundle,
+653	  turnIndex: number,
+654	  selected: ClientSelection,
+655	  world: WorldViewModel,
+656	) {
+657	  const turn = replay.turns[turnIndex] ?? replay.turns[0];
+658	  if (!selected) {
+659	    return {
+660	      title: 'No selection',
+661	      description: 'Click a tile, unit, city, or village to inspect the replay snapshot.',
+662	      meta: [
+663	        { label: 'Units', value: String(turn.snapshotEnd.units.length) },
+664	        { label: 'Cities', value: String(turn.snapshotEnd.cities.length) },
+665	      ],
+666	    };
+667	  }
+668	
+669	  return describeSelectionFromWorld(selected, world, {
+670	    emptyTitle: 'No selection',
+671	    emptyDescription: 'Click a tile, unit, city, or village to inspect the replay snapshot.',
+672	  });
+673	}
+674	
+675	function describePlaySelection(
+676	  state: GameState,
+677	  selected: ClientSelection,
+678	  hoveredKey: string | null,
+679	  world: WorldViewModel,
+680	  registry?: RulesRegistry,
+681	) {
+682	  if (!selected && hoveredKey) {
+683	    const hoveredHex = world.map.hexes.find((hex) => hex.key === hoveredKey);
+684	    return {
+685	      title: hoveredHex ? `Tile ${hoveredHex.key}` : 'No selection',
+686	      description: hoveredHex ? `Terrain: ${hoveredHex.terrain}.` : 'Select a unit or tile to issue movement orders.',
+687	      meta: hoveredHex ? [
+688	        { label: 'Owner', value: hoveredHex.ownerFactionId ?? 'Neutral' },
+689	        { label: 'Visibility', value: hoveredHex.visibility },
+690	      ] : [],
+691	      city: null,
+692	    };
+693	  }
+694	
+695	  const activeFactionName = state.activeFactionId
+696	    ? state.factions.get(state.activeFactionId)?.name ?? 'Unknown'
+697	    : 'Unknown';
+698	
+699	  return describeSelectionFromWorld(selected, world, {
+700	    emptyTitle: 'No selection',
+701	    emptyDescription: `Active faction: ${activeFactionName}. Select a friendly unit to show legal moves.`,
+702	    state,
+703	    registry,
+704	  });
+705	}
+706	
+707	function describeSelectionFromWorld(
+708	  selected: ClientSelection,
+709	  world: WorldViewModel,
+710	  empty: { emptyTitle: string; emptyDescription: string; state?: GameState; registry?: RulesRegistry },
+711	): SelectionInfo {
+712	  if (!selected) {
+713	    return {
+714	      title: empty.emptyTitle,
+715	      description: empty.emptyDescription,
+716	      meta: [] as Array<{ label: string; value: string }>,
+717	      city: null,
+718	    };
+719	  }
+720	
+721	  if (selected.type === 'hex') {
+722	    const hex = world.map.hexes.find((entry) => entry.key === selected.key);
+723	    return {
+724	      title: `Tile ${selected.key}`,
+725	      description: `Terrain: ${hex?.terrain ?? 'unknown'}.`,
+726	      meta: [
+727	        { label: 'Coordinate', value: `${selected.q}, ${selected.r}` },
+728	        { label: 'Owner', value: hex?.ownerFactionId ?? 'Neutral' },
+729	        { label: 'Visibility', value: hex?.visibility ?? 'unknown' },
+730	      ],
+731	      city: null,
+732	    };
+733	  }
+734	
+735	  if (selected.type === 'unit') {
+736	    const unit = world.units.find((entry) => entry.id === selected.unitId);
+737	    const faction = unit ? world.factions.find((entry) => entry.id === unit.factionId) : null;
+738	    return {
+739	      title: unit?.prototypeName ?? 'Unit',
+740	      description: `${faction?.name ?? 'Unknown faction'} field unit.`,
+741	      meta: [
+742	        { label: 'Position', value: unit ? `${unit.q}, ${unit.r}` : 'n/a' },
+743	        { label: 'Health', value: unit ? `${unit.hp}/${unit.maxHp}` : 'n/a' },
+744	        { label: 'Moves', value: unit ? `${unit.movesRemaining}/${unit.movesMax}` : 'n/a' },
+745	        { label: 'Acted', value: unit?.acted ? 'Yes' : 'No' },
+746	        ...(unit?.veteranLevel
+747	          ? [{ label: 'Veterancy', value: `${unit.veteranLevel}${unit.xp != null ? ` (${unit.xp} XP)` : ''}` }]
+748	          : []),
+749	      ],
+750	      city: null,
+751	    };
+752	  }
+753	
+754	  if (selected.type === 'city') {
+755	    const city = world.cities.find((entry) => entry.id === selected.cityId);
+756	    const faction = city ? world.factions.find((entry) => entry.id === city.factionId) : null;
+757	    const cityInspector = empty.state && empty.registry
+758	      ? buildCityInspectorViewModel(empty.state, selected.cityId, empty.registry)
+759	      : null;
+760	    return {
+761	      title: city?.name ?? 'City',
+762	      description: `${faction?.name ?? 'Unknown faction'} settlement.`,
+763	      meta: [
+764	        { label: 'Position', value: city ? `${city.q}, ${city.r}` : 'n/a' },
+765	        { label: 'Walls', value: city ? `${city.wallHp ?? 0}/${city.maxWallHp ?? 0}` : 'n/a' },
+766	        { label: 'Besieged', value: city?.besieged ? 'Yes' : 'No' },
+767	      ],
+768	      city: cityInspector,
+769	    };
+770	  }
+771	
+772	  const village = world.villages.find((entry) => entry.id === selected.villageId);
+773	  const faction = village ? world.factions.find((entry) => entry.id === village.factionId) : null;
+774	  return {
+775	    title: village?.name ?? 'Village',
+776	    description: `${faction?.name ?? 'Unknown faction'} village outpost.`,
+777	    meta: [
+778	      { label: 'Position', value: village ? `${village.q}, ${village.r}` : 'n/a' },
+779	    ],
+780	    city: null,
+781	  };
+782	}
+783	
+784	function buildCityInspectorViewModel(state: GameState, cityId: string, registry: RulesRegistry): CityInspectorViewModel | null {
+785	  const city = state.cities.get(cityId as never);
+786	  if (!city) {
+787	    return null;
+788	  }
+789	
+790	  const faction = state.factions.get(city.factionId);
+791	  const economy = deriveResourceIncome(state, city.factionId, registry);
+792	  const exhaustion = state.warExhaustion.get(city.factionId);
+793	  const isFriendly = city.factionId === state.activeFactionId;
+794	  const canManageProduction = isFriendly && !city.besieged;
+795	  const cityCount = Math.max(1, getFactionCityIds(state, city.factionId).length);
+796	  const perTurnIncome = Number((economy.productionPool / cityCount).toFixed(2));
+797	  const readiness = getVillageSpawnReadinessWithRegistry(state, city.id as never, registry);
+798	  const currentItem = city.currentProduction
+799	    ? state.prototypes.get(city.currentProduction.item.id as never)
+800	    : null;
+801	  const currentCostType = city.currentProduction?.costType ?? city.currentProduction?.item.costType ?? 'production';
+802	  const currentVillageCount = faction?.villageIds.length ?? 0;
+803	  const currentProgress = city.currentProduction
+804	    ? currentCostType === 'villages'
+805	      ? Math.min(city.currentProduction.cost, currentVillageCount)
+806	      : Number(city.currentProduction.progress.toFixed(2))
+807	    : 0;
+808	  const currentRemaining = city.currentProduction
+809	    ? currentCostType === 'villages'
+810	      ? Math.max(0, city.currentProduction.cost - currentVillageCount)
+811	      : Number(Math.max(0, city.currentProduction.cost - city.currentProduction.progress).toFixed(2))
+812	    : 0;
+813	
+814	  return {
+815	    cityId: city.id,
+816	    cityName: city.name,
+817	    factionId: city.factionId,
+818	    factionName: faction?.name ?? city.factionId,
+819	    isFriendly,
+820	    isActiveFaction: city.factionId === state.activeFactionId,
+821	    canManageProduction,
+822	    production: {
+823	      status: city.currentProduction ? 'producing' : 'idle',
+824	      current: city.currentProduction ? {
+825	        id: city.currentProduction.item.id,
+826	        name: currentItem?.name ?? city.currentProduction.item.id,
+827	        type: city.currentProduction.item.type,
+828	        cost: city.currentProduction.cost,
+829	        costType: currentCostType,
+830	        costLabel: currentCostType === 'villages'
+831	          ? `${city.currentProduction.cost} villages`
+832	          : `${city.currentProduction.cost} production`,
+833	        progress: currentProgress,
+834	        remaining: currentRemaining,
+835	        turnsRemaining: currentCostType === 'villages'
+836	          ? null
+837	          : perTurnIncome > 0
+838	            ? Math.ceil(Math.max(0, city.currentProduction.cost - city.currentProduction.progress) / perTurnIncome)
+839	            : null,
+840	      } : null,
+841	      queue: city.productionQueue.map((item) => {
+842	        const prototype = state.prototypes.get(item.id as never);
+843	        const costType = item.costType ?? 'production';
+844	        return {
+845	          id: item.id,
+846	          name: prototype?.name ?? item.id,
+847	          type: item.type,
+848	          cost: item.cost,
+849	          costType,
+850	          costLabel: costType === 'villages' ? `${item.cost} villages` : `${item.cost} production`,
+851	        };
+852	      }),
+853	      perTurnIncome,
+854	    },
+855	    productionOptions: (!faction ? [] : getAvailableProductionPrototypes(state, city.factionId, registry))
+856	      .map((prototype) => {
+857	        const costType = getPrototypeCostType(prototype);
+858	        const cost = getPrototypeQueueCost(prototype);
+859	        const villageCount = faction?.villageIds.length ?? 0;
+860	        const disabledReason = !canManageProduction
+861	          ? city.besieged
+862	            ? 'Cannot change production while besieged.'
+863	            : 'Only the active friendly city can change production.'
+864	          : costType === 'villages' && !canPaySettlerVillageCost(state, city.factionId, SETTLER_VILLAGE_COST)
+865	            ? `Requires ${SETTLER_VILLAGE_COST} villages (${villageCount} available).`
+866	            : undefined;
+867	        return {
+868	          prototypeId: prototype.id,
+869	          name: prototype.name,
+870	          cost,
+871	          costType,
+872	          costLabel: costType === 'villages' ? `${cost} villages` : `${cost} production`,
+873	          chassisId: prototype.chassisId,
+874	          attack: prototype.derivedStats.attack,
+875	          defense: prototype.derivedStats.defense,
+876	          hp: prototype.derivedStats.hp,
+877	          moves: prototype.derivedStats.moves,
+878	          range: prototype.derivedStats.range,
+879	          disabled: disabledReason !== undefined,
+880	          disabledReason,
+881	        };
+882	      }),
+883	    supply: {
+884	      income: economy.supplyIncome,
+885	      used: economy.supplyDemand,
+886	      demand: economy.supplyDemand,
+887	      balance: Number((economy.supplyIncome - economy.supplyDemand).toFixed(2)),
+888	      deficit: getSupplyDeficit(economy),
+889	    },
+890	    turnsUntilNextVillage: readiness.roundsUntilCooldownReady,
+891	    exhaustion: {
+892	      points: exhaustion?.exhaustionPoints ?? 0,
+893	      productionPenalty: calculateProductionPenalty(exhaustion?.exhaustionPoints ?? 0),
+894	      moralePenalty: calculateMoralePenalty(exhaustion?.exhaustionPoints ?? 0),
+895	    },
+896	    villageReadiness: {
+897	      eligible: readiness.eligible,
+898	      latestVillageRound: readiness.latestVillageRound ?? 0,
+899	      checklist: [
+900	        {
+901	          key: 'city',
+902	          label: 'City can host villages',
+903	          met: readiness.cityExists,
+904	        },
+905	        {
+906	          key: 'cooldown',
+907	          label: 'Village cooldown ready',
+908	          met: readiness.cooldownMet,
+909	          detail: readiness.cooldownMet ? undefined : `${readiness.roundsUntilCooldownReady} round(s) remaining`,
+910	        },
+911	        {
+912	          key: 'hex',
+913	          label: 'Valid spawn hex available',
+914	          met: readiness.validSpawnHex,
+915	        },
+916	      ],
+917	    },
+918	    siteBonuses: buildSettlementBonusSummary(getCitySiteBonuses(city, state.map)),
+919	    walls: {
+920	      wallHp: city.wallHP,
+921	      maxWallHp: city.maxWallHP,
+922	      besieged: city.besieged,
+923	    },
+924	    captureRamp: (() => {
+925	      if (city.turnsSinceCapture === undefined) {
+926	        return undefined;
+927	      }
+928	      const rampMultiplier = getCaptureRampMultiplier(city.turnsSinceCapture);
+929	      if (rampMultiplier >= 1) {
+930	        return undefined; // No ramp in effect
+931	      }
+932	      // turnsUntilOutput: turns until production starts (> 0 means still at 0%)
+933	      const turnsUntilOutput = rampMultiplier <= 0
+934	        ? CAPTURE_RAMP_TURNS - city.turnsSinceCapture + 1
+935	        : 0;
+936	      // turnsUntilFull: turns until 100% output
+937	      const turnsUntilFull = rampMultiplier < 1
+938	        ? CAPTURE_RAMP_TURNS * 2 - city.turnsSinceCapture
+939	        : 0;
+940	      return {
+941	        turnsSinceCapture: city.turnsSinceCapture,
+942	        rampMultiplier,
+943	        turnsUntilOutput: Math.max(0, turnsUntilOutput),
+944	        turnsUntilFull: Math.max(0, turnsUntilFull),
+945	      };
+946	    })(),
+947	  };
+948	}
+949	
+950	function describeVictory(replay: ReplayBundle) {
+951	  const winner = replay.victory.winnerFactionId
+952	    ? replay.factions.find((faction) => faction.id === replay.victory.winnerFactionId)?.name ?? replay.victory.winnerFactionId
+953	    : 'Unresolved';
+954	
+955	  if (
+956	    replay.victory.victoryType === 'domination'
+957	    && replay.victory.controlledCities !== null
+958	    && replay.victory.dominationThreshold !== null
+959	  ) {
+960	    return `${winner} ${replay.victory.controlledCities}/${replay.victory.dominationThreshold}`;
+961	  }
+962	
+963	  return `${winner} · ${replay.victory.victoryType}`;
+964	}
+965	
+966	function buildReplayFactions(replay: ReplayBundle): FactionView[] {
+967	  return replay.factions.map((faction) => ({
+968	    id: faction.id,
+969	    name: faction.name,
+970	    color: faction.color,
+971	    nativeDomain: faction.nativeDomain,
+972	    signatureUnit: faction.signatureUnit,
+973	    economyAngle: faction.economyAngle,
+974	  }));
+975	}
+976	
+977	function buildPlayFactions(state: GameState): FactionView[] {
+978	  return Array.from(state.factions.values()).map((faction) => ({
+979	    id: faction.id,
+980	    name: faction.name,
+981	    color: CIVILIZATIONS[faction.id]?.color ?? '#c8b68e',
+982	    nativeDomain: faction.nativeDomain,
+983	    signatureUnit: faction.identityProfile.signatureUnit,
+984	    economyAngle: faction.identityProfile.economyAngle,
+985	    homeCityId: faction.homeCityId,
+986	    learnedDomains: faction.learnedDomains ?? [],
+987	  }));
+988	}
+989	
+990	function buildHexVisibilityMap(state: GameState): Map<string, 'visible' | 'explored' | 'hidden'> {
+991	  const map = new Map<string, 'visible' | 'explored' | 'hidden'>();
+992	  if (!state.activeFactionId || !state.fogState) {
+993	    return map;
+994	  }
+995	
+996	  const fog = state.fogState.get(state.activeFactionId);
+997	  if (!fog) {
+998	    return map;
+999	  }
+1000	
+1001	  for (const [key, level] of fog.hexVisibility) {
+1002	    map.set(key, level);
+1003	  }
+1004	
+1005	  return map;
+1006	}
+1007	
+1008	function buildBorderEdges(
+1009	  hexes: Array<{ key: string; q: number; r: number; ownerFactionId: string | null; visibility: 'visible' | 'explored' | 'hidden' }>,
+1010	  factions: FactionView[],
+1011	): BorderEdgeView[] {
+1012	  const factionColors = new Map(factions.map((faction) => [faction.id, faction.color]));
+1013	  const hexMap = new Map(hexes.map((hex) => [hex.key, hex]));
+1014	  const edges: BorderEdgeView[] = [];
+1015	
+1016	  for (const hex of hexes) {
+1017	    if (!hex.ownerFactionId || hex.visibility === 'hidden') {
+1018	      continue;
+1019	    }
+1020	
+1021	    for (const direction of BORDER_DIRECTIONS) {
+1022	      const neighbor = hexMap.get(`${hex.q + direction.dq},${hex.r + direction.dr}`);
+1023	      if (neighbor?.ownerFactionId === hex.ownerFactionId) {
+1024	        continue;
+1025	      }
+1026	
+1027	      edges.push({
+1028	        id: `${hex.key}:${direction.side}`,
+1029	        q: hex.q,
+1030	        r: hex.r,
+1031	        side: direction.side,
+1032	        factionId: hex.ownerFactionId,
+1033	        color: factionColors.get(hex.ownerFactionId) ?? '#f7e7bf',
+1034	      });
+1035	    }
+1036	  }
+1037	
+1038	  return edges;
+1039	}
+1040	
+1041	function getPlayableMoves(state: GameState, unit: Unit, registry: RulesRegistry) {
+1042	  if (!state.map) {
+1043	    return [];
+1044	  }
+1045	
+1046	  return getValidMoves(state, unit.id, state.map, registry);
+1047	}
+1048	
+1049	function getAttackableEnemies(state: GameState, unit: Unit) {
+1050	  if (unit.attacksRemaining <= 0) {
+1051	    return [];
+1052	  }
+1053	
+1054	  const prototype = state.prototypes.get(unit.prototypeId as never);
+1055	  const attackRange = prototype?.derivedStats.range ?? 1;
+1056	  return Array.from(state.units.values()).filter((candidate) =>
+1057	    candidate.hp > 0
+1058	    && candidate.factionId !== unit.factionId
+1059	    && hexDistance(unit.position, candidate.position) <= attackRange
+1060	  );
+1061	}
+1062	
+1063	function inferChassisId(name: string) {
+1064	  const lowered = name.toLowerCase();
+1065	  if (lowered.includes('camel')) return 'camel';
+1066	  if (lowered.includes('elephant')) return 'elephant';
+1067	  if (lowered.includes('naval') || lowered.includes('marine') || lowered.includes('river')) return 'naval';
+1068	  if (lowered.includes('cavalry') || lowered.includes('horse')) return 'cavalry';
+1069	  if (lowered.includes('ranged') || lowered.includes('archer') || lowered.includes('bow')) return 'ranged';
+1070	  return 'infantry';
+1071	}
+1072	
+1073	function normalizeSpriteKey(chassisId: string) {
+1074	  if (chassisId.includes('camel')) return 'camel';
+1075	  if (chassisId.includes('elephant')) return 'elephant';
+1076	  if (chassisId.includes('naval')) return 'naval';
+1077	  if (chassisId.includes('cavalry')) return 'cavalry';
+1078	  if (chassisId.includes('ranged')) return 'ranged';
+1079	  return 'infantry';
+1080	}
+1081	
+1082	function getSpriteKeyForUnit(factionId: string, prototypeName: string, chassisId: string, sourceRecipeId?: string): string {
+1083	  if (sourceRecipeId === 'settler' || prototypeName.toLowerCase() === 'settler') {
+1084	    return 'settler';
+1085	  }
+1086	
+1087	  // Hybrid units (identified by sourceRecipeId from hybrid-recipes.json)
+1088	  if (sourceRecipeId) {
+1089	    const map: Record<string, string> = {
+1090	      // Jungle
+1091	      'blowgun_skirmishers': 'jungle_blowgun',
+1092	      'serpent_priest': 'jungle_priest',
+1093	      // Druid
+1094	      'healing_druids': 'druid_healer',
+1095	      'druid_wizard': 'druid_wizard',
+1096	      // Steppe
+1097	      'steppe_raiders': 'steppe_raiders',
+1098	      'steppe_priest': 'steppe_priestess',
+1099	      // Hill
+1100	      'fortress_archer': 'hill_fortress_archer',
+1101	      'catapult': 'hill_catapult',
+1102	      // Pirate
+1103	      'slaver': 'pirate_slaver',
+1104	      'slave_galley': 'pirate_slaver_ship',
+1105	      // Desert
+1106	      'camel_lancers': 'desert_camel_lancers',
+1107	      'desert_immortals': 'desert_immortal',
+1108	      // Savannah
+1109	      'war_elephants': 'savannah_elephant',
+1110	      'war_chariot': 'savannah_chariot',
+1111	      // River
+1112	      'river_raiders': 'river_raiders',
+1113	      'river_priest': 'river_priestess',
+1114	      // Frost
+1115	      'ice_defenders': 'frost_ice_defenders',
+1116	      'polar_priest': 'frost_priest',
+1117	    };
+1118	    if (map[sourceRecipeId]) return map[sourceRecipeId];
+1119	  }
+1120	
+1121	  // Summon/signature units (identified by special chassis IDs)
+1122	  if (chassisId === 'serpent_frame') return 'jungle_serpent';
+1123	  if (chassisId === 'warlord_frame') return 'steppe_warlord';
+1124	  if (chassisId === 'galley_frame') return 'pirate_galley';
+1125	  if (chassisId === 'polar_bear_frame') return 'frost_polar_bear';
+1126	  if (chassisId === 'alligator_frame') return 'river_crocodile';
+1127	
+1128	  // Starting units by faction
+1129	  const startingMap: Record<string, Record<string, string>> = {
+1130	    jungle_clan: {
+1131	      infantry_frame: 'jungle_spearman',
+1132	      ranged_frame: 'jungle_archer',
+1133	    },
+1134	    druid_circle: {
+1135	      infantry_frame: 'druid_spear_infantry',
+1136	      ranged_frame: 'druid_archer',
+1137	    },
+1138	    steppe_clan: {
+1139	      infantry_frame: 'steppe_spear_infantry',
+1140	      cavalry_frame: 'steppe_horse_archer',
+1141	    },
+1142	    hill_clan: {
+1143	      infantry_frame: 'hill_spear_infantry',
+1144	      ranged_frame: 'hill_archer',
+1145	    },
+1146	    coral_people: {
+1147	      infantry_frame: 'pirate_infantry',
+1148	      ranged_frame: 'pirate_ranged',
+1149	    },
+1150	    desert_nomads: {
+1151	      camel_frame: 'desert_camel',
+1152	      ranged_frame: 'desert_archer',
+1153	    },
+1154	    savannah_lions: {
+1155	      infantry_frame: 'savannah_spearman',
+1156	      ranged_frame: 'savannah_javelin',
+1157	    },
+1158	    plains_riders: {
+1159	      infantry_frame: 'river_spearman',
+1160	      naval_frame: 'river_canoe',
+1161	    },
+1162	    frost_wardens: {
+1163	      infantry_frame: 'frost_spearman',
+1164	      ranged_frame: 'frost_archer',
+1165	    },
+1166	  };
+1167	
+1168	  const factionUnits = startingMap[factionId];
+1169	  if (factionUnits) {
+1170	    const sprite = factionUnits[chassisId];
+1171	    if (sprite) return sprite;
+1172	  }
+1173	
+1174	  // Ultimate fallback (should never hit if all units are mapped)
+1175	  return normalizeSpriteKey(chassisId);
+1176	}
+1177	
+1178	export function buildResearchInspectorViewModel(
+1179	  state: GameState,
+1180	  registry: RulesRegistry,
+1181	): ResearchInspectorViewModel | null {
+1182	  const factionId = state.activeFactionId;
+1183	  if (!factionId) return null;
+1184	  const faction = state.factions.get(factionId as never);
+1185	  if (!faction) return null;
+1186	
+1187	  const research = state.research.get(factionId as never);
+1188	  if (!research) return null;
+1189	
+1190	  const nativeDomain = faction.nativeDomain ?? '';
+1191	  const learnedDomains = faction.learnedDomains ?? [nativeDomain];
+1192	  const allDomains = registry.getAllResearchDomains();
+1193	  const progression = getDomainProgression(faction, research);
+1194	
+1195	  // Build node VMs across all research domains
+1196	  const nodes: ResearchNodeViewModel[] = [];
+1197	  for (const domainDef of allDomains) {
+1198	    const domainId = domainDef.id;
+1199	    const isNative = domainId === nativeDomain;
+1200	    const isUnlocked = learnedDomains.includes(domainId);
+1201	
+1202	    for (const nodeDef of Object.values(domainDef.nodes)) {
+1203	      const isCompleted = research.completedNodes.includes(nodeDef.id as never);
+1204	      const isActive = research.activeNodeId === nodeDef.id;
+1205	      const progress = research.progressByNodeId[nodeDef.id as never] ?? 0;
+1206	
+1207	      const prereqsMet = (nodeDef.prerequisites ?? []).every((prereqId) =>
+1208	        research.completedNodes.includes(prereqId as never),
+1209	      );
+1210	
+1211	      let nodeState: ResearchNodeViewState;
+1212	      if (!isUnlocked) nodeState = 'locked';
+1213	      else if (isCompleted) nodeState = 'completed';
+1214	      else if (isActive) nodeState = 'active';
+1215	      else if (!prereqsMet) nodeState = 'locked';
+1216	      else nodeState = 'available';
+1217	
+1218	      const estimatedTurns =
+1219	        nodeState === 'active' && research.researchPerTurn > 0
+1220	          ? Math.ceil(Math.max(0, nodeDef.xpCost - progress) / research.researchPerTurn)
+1221	          : null;
+1222	
+1223	      nodes.push({
+1224	        nodeId: nodeDef.id,
+1225	        name: nodeDef.name,
+1226	        tier: nodeDef.tier ?? 1,
+1227	        xpCost: nodeDef.xpCost,
+1228	        discountedXpCost: null,
+1229	        currentProgress: progress,
+1230	        state: nodeState,
+1231	        prerequisites: nodeDef.prerequisites ?? [],
+1232	        prerequisiteNames: [],
+1233	        unlocks: [],
+1234	        qualitativeEffect: nodeDef.qualitativeEffect?.description ?? null,
+1235	        estimatedTurns,
+1236	        domain: domainId,
+1237	        isNative,
+1238	        isLocked: !isUnlocked,
+1239	      });
+1240	    }
+1241	  }
+1242	
+1243	  // Build domain pips for all 10 research domains
+1244	  const capabilitiesVms = allDomains.map((domainDef) => {
+1245	    const domainId = domainDef.id;
+1246	    const tier = getDomainTier(faction, domainId, research.completedNodes);
+1247	    return {
+1248	      domainId,
+1249	      domainName: domainDef.name,
+1250	      description: domainDef.name,
+1251	      level: tier,
+1252	      hasResearchTrack: true,
+1253	      codified: learnedDomains.includes(domainId),
+1254	      t1Ready: tier >= 1,
+1255	      t2Ready: tier >= 2,
+1256	    };
+1257	  });
+1258	
+1259	  // Find active node info across domains
+1260	  let activeNodeName: string | null = null;
+1261	  let activeNodeCost: number | null = null;
+1262	  let activeNodeProgress: number | null = null;
+1263	
+1264	  if (research.activeNodeId) {
+1265	    const domainId = research.activeNodeId.split('_t')[0];
+1266	    const domain = registry.getResearchDomain(domainId);
+1267	    if (domain?.nodes[research.activeNodeId]) {
+1268	      activeNodeName = domain.nodes[research.activeNodeId].name;
+1269	      activeNodeCost = domain.nodes[research.activeNodeId].xpCost;
+1270	      activeNodeProgress = research.progressByNodeId[research.activeNodeId as never] ?? 0;
+1271	    }
+1272	  }
+1273	
+1274	  // Simplified rate breakdown — flat base rate only
+1275	  const totalRate = research.researchPerTurn;
+1276	
+1277	  return {
+1278	    factionId,
+1279	    activeNodeId: research.activeNodeId,
+1280	    activeNodeName,
+1281	    activeNodeProgress,
+1282	    activeNodeXpCost: activeNodeCost,
+1283	    completedCount: research.completedNodes.length,
+1284	    totalNodes: nodes.length,
+1285	    nodes,
+1286	    capabilities: capabilitiesVms,
+1287	    rateBreakdown: {
+1288	      base: research.researchPerTurn,
+1289	      detail: progression.canBuildLateTier
+1290	        ? `${learnedDomains.length} domains unlocked · late-tier production available`
+1291	        : progression.canBuildMidTier
+1292	          ? `${learnedDomains.length} domains unlocked · mid-tier production available`
+1293	          : `${learnedDomains.length} domain unlocked · base production only`,
+1294	      total: totalRate,
+1295	    },
+1296	    hasKnowledgeDiscount: false,
+1297	  };
+1298	}
