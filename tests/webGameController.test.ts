@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import replay from '../web/public/replays/mvp-seed-42.json';
 import { GameController } from '../web/src/game/controller/GameController';
 import { GameSession } from '../web/src/game/controller/GameSession';

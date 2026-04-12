@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { buildMvpScenario } from '../src/game/buildMvpScenario';
 import { computeFactionStrategy } from '../src/systems/strategicAi';
 import { loadRulesRegistry } from '../src/data/loader/loadRulesRegistry';

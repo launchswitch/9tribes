@@ -168,7 +168,7 @@ export function canCompleteCurrentProduction(
   }
 
   return canPaySettlerVillageCost(state, city.factionId, city.currentProduction.cost)
-    && findSpawnHex(state, city.position, registry) !== null;
+    && findSpawnHex(state, city.position, registry, prototype) !== null;
 }
 
 /**
@@ -200,7 +200,7 @@ export function completeProduction(
   }
 
   // Find spawn position (adjacent empty hex)
-  const spawnHex = findSpawnHex(state, city.position, registry);
+  const spawnHex = findSpawnHex(state, city.position, registry, prototype);
   if (!spawnHex) return state; // No room to spawn
 
   // Create the unit
@@ -306,7 +306,12 @@ export function completeProduction(
 /**
  * Find an empty adjacent hex to spawn a unit.
  */
-function findSpawnHex(state: GameState, position: { q: number; r: number }, registry: RulesRegistry): { q: number; r: number } | null {
+function findSpawnHex(
+  state: GameState,
+  position: { q: number; r: number },
+  registry: RulesRegistry,
+  prototype?: Pick<Prototype, 'chassisId' | 'tags'> | null,
+): { q: number; r: number } | null {
   const neighbors = getNeighbors(position);
   for (const hex of neighbors) {
     // Check if hex is on the map
@@ -317,6 +322,18 @@ function findSpawnHex(state: GameState, position: { q: number; r: number }, regi
     // Check terrain passability
     const terrainDef = registry.getTerrain(tile.terrain);
     if (terrainDef && terrainDef.passable === false) continue;
+
+    // Filter by unit terrain compatibility (mirrors movementSystem.ts:76-94)
+    if (prototype) {
+      const chassis = registry.getChassis(prototype.chassisId);
+      const isNavalUnit = chassis?.movementClass === 'naval';
+      const isAmphibious = prototype?.tags?.includes('amphibious') ?? false;
+      const tid = tile.terrain;
+      const isWater = tid === 'coast' || tid === 'river' || tid === 'ocean';
+      const isDeepWater = tid === 'coast' || tid === 'ocean';
+      if (isDeepWater && !isNavalUnit) continue;
+      if (isNavalUnit && !isWater && !isAmphibious) continue;
+    }
 
     // Check if occupied by unit
     if (isHexOccupied(state, hex)) continue;

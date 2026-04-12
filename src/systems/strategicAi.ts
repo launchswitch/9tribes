@@ -277,7 +277,10 @@ function assessThreatenedCities(
         } else {
           if (!difficultyProfile.strategy.strategicFogCheat && !isUnitVisibleTo(state, factionId, unit)) continue;
           const dist = hexDistance(city.position, unit.position);
-          if (dist > THREAT_RADIUS) continue;
+          const prototype = state.prototypes.get(unit.prototypeId);
+          const effectiveRange = prototype?.derivedStats.range ?? 1;
+          const detectionRadius = Math.max(THREAT_RADIUS, effectiveRange);
+          if (dist > detectionRadius) continue;
           nearbyEnemyUnits += 1;
           if (dist < nearestEnemyDistance) {
             nearestEnemyDistance = dist;
@@ -477,8 +480,9 @@ function determinePosture(
     scoreByPosture.set('exploration', (scoreByPosture.get('exploration') ?? 0) + 2.5);
   }
   if (enemyUnitCount === 0) {
-    scoreByPosture.set('offensive', (scoreByPosture.get('offensive') ?? 0) - 2);
-    scoreByPosture.set('siege', (scoreByPosture.get('siege') ?? 0) - 2);
+    const penalty = difficultyProfile.strategy.noEnemySeenOffensivePenalty;
+    scoreByPosture.set('offensive', (scoreByPosture.get('offensive') ?? 0) + penalty);
+    scoreByPosture.set('siege', (scoreByPosture.get('siege') ?? 0) + penalty);
   }
   if (round >= difficultyProfile.strategy.postureExplorationDeadline) {
     scoreByPosture.set('exploration', Number.NEGATIVE_INFINITY);
@@ -685,23 +689,39 @@ function getFriendlyCityAnchors(state: GameState, factionId: FactionId): HexCoor
 }
 
 /**
- * Find a waypoint toward the nearest unexplored territory.
- * Returns the nearest hex that is 'hidden' for this faction.
+ * Find a waypoint toward unexplored territory, biased toward the map center.
+ * The center bias acts as a proxy for moving toward likely enemy positions,
+ * since factions are placed roughly equidistant from the center.
  */
-function findExplorationWaypoint(state: GameState, factionId: FactionId, origin: HexCoord): HexCoord | null {
+function findDirectedExplorationWaypoint(
+  state: GameState,
+  factionId: FactionId,
+  origin: HexCoord,
+  difficultyProfile: AiDifficultyProfile,
+): HexCoord | null {
   const exploredKeys = getExploredHexKeys(state, factionId);
   const tiles = state.map?.tiles;
   if (!tiles) return null;
 
+  const centerQ = Math.floor((state.map?.width ?? 20) / 2);
+  const centerR = Math.floor((state.map?.height ?? 20) / 2);
+  const effectiveBias = Math.max(
+    0,
+    difficultyProfile.strategy.explorationCenterBias
+      - state.round * difficultyProfile.strategy.explorationCenterBiasDecayPerRound,
+  );
+
   let best: HexCoord | null = null;
-  let bestDist = Infinity;
+  let bestScore = Infinity;
 
   for (const [key, tile] of tiles) {
     if (exploredKeys.has(key)) continue;
     const hex = keyToHex(key);
-    const dist = hexDistance(origin, hex);
-    if (dist < bestDist) {
-      bestDist = dist;
+    const distFromUnit = hexDistance(origin, hex);
+    const distFromCenter = hexDistance({ q: centerQ, r: centerR }, hex);
+    const score = distFromUnit + effectiveBias * distFromCenter;
+    if (score < bestScore) {
+      bestScore = score;
       best = hex;
     }
   }
@@ -792,6 +812,7 @@ function assignUnitIntents(
         objectiveCityId,
         objectiveUnitId,
         anchor,
+        threatenedCityId: threatenedCity?.id,
         isolationScore,
         isolated: false,
         reason,
@@ -859,7 +880,7 @@ function assignUnitIntents(
       reason = 'damaged or isolated unit recovering near a friendly city';
     } else if (posture === 'exploration') {
       // Exploration mode: push outward to find enemies
-      const explorationWaypoint = findExplorationWaypoint(state, factionId, entry.unit.position);
+      const explorationWaypoint = findDirectedExplorationWaypoint(state, factionId, entry.unit.position, difficultyProfile);
       if (explorationWaypoint && fastUnit) {
         assignment = 'raider';
         waypointKind = 'front_anchor';
@@ -1086,6 +1107,31 @@ function applyDifficultyCoordinator(
     homeCity,
     `${coordinatorLabel} coordinator home garrison`,
   );
+
+  // Lightweight coordinator for non-adaptive (Easy) difficulty:
+  // send all non-garrison units toward the nearest enemy city or map center
+  if (!difficultyProfile.adaptiveAi) {
+    const targetCity = getNearestEnemyCity(state, factionId, homeCity.position);
+    const target = targetCity?.position ?? { q: Math.floor((state.map?.width ?? 20) / 2), r: Math.floor((state.map?.height ?? 20) / 2) };
+    const hunterPool = activeArmy.filter((entry) => entry.unit.id !== garrisonUnit.unit.id);
+    for (const entry of hunterPool) {
+      intents[entry.unit.id] = {
+        ...intents[entry.unit.id],
+        assignment: 'raider',
+        waypointKind: targetCity ? 'enemy_city' : 'front_anchor',
+        waypoint: target,
+        objectiveCityId: targetCity?.id,
+        anchor: homeCity.position,
+        isolationScore: 0,
+        isolated: false,
+        reason: 'easy coordinator sending unit toward enemy',
+      };
+    }
+    return [
+      `${coordinatorLabel}_garrison=${garrisonUnit.unit.id}`,
+      `${coordinatorLabel}_coordinator=simple_exploration:hunters=${hunterPool.length}`,
+    ];
+  }
 
   const economy = state.economy.get(factionId);
   const supplyRatio = economy && economy.supplyIncome > 0 ? economy.supplyDemand / economy.supplyIncome : 0;
@@ -1995,6 +2041,7 @@ function buildHomeDefenseIntent(
   currentIntent: UnitStrategicIntent | undefined,
   homeCity: City,
   reason: string,
+  threatenedCityId?: CityId,
 ): UnitStrategicIntent {
   return {
     assignment: 'defender',
@@ -2003,6 +2050,7 @@ function buildHomeDefenseIntent(
     objectiveCityId: homeCity.id,
     objectiveUnitId: undefined,
     anchor: homeCity.position,
+    threatenedCityId: threatenedCityId ?? currentIntent?.threatenedCityId,
     isolationScore: currentIntent?.isolationScore ?? 0,
     isolated: false,
     reason,

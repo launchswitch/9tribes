@@ -1,5 +1,5 @@
 // Tests for content registry
-import { describe, it, expect } from 'vitest';
+
 import { loadRulesRegistry } from '../src/data/loader/loadRulesRegistry';
 
 const registry = loadRulesRegistry();

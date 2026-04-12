@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { hexDistance, getNeighbors, hexToKey, keyToHex, getHexesInRange } from '../src/core/hex';
 
 describe('hexDistance', () => {

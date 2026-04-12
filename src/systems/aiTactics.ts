@@ -10,6 +10,8 @@ export interface StrategicTargetScoreInput {
   attacksFromThreatenedCityHex: boolean;
   finishOffPriorityTarget: boolean;
   isolatedFromAnchor: boolean;
+  // For defender units: attacker is near the city they're defending
+  defenderProximityToThreatenedCity?: number;
 }
 
 export interface AttackCandidateScoreInput {
@@ -37,6 +39,8 @@ export interface MoveCandidateScoreInput {
   cityDistance: number;
   hiddenExplorationBonus?: boolean;
   unsafeAfterMove?: boolean;
+  // For defender units: distance to the threatened city being defended
+  threatenedCityDistance?: number;
 }
 
 export interface RetreatRiskInput {
@@ -61,6 +65,13 @@ export function scoreStrategicTarget(input: StrategicTargetScoreInput): number {
   if (input.attacksFromThreatenedCityHex) score += 4;
   if (input.finishOffPriorityTarget) score += 3;
   if (input.isolatedFromAnchor) score -= 6;
+  // Defender bonus: encourage attacking enemies near the city being defended
+  // This rewards defenders for intercepting attackers before they reach the city
+  if (input.defenderProximityToThreatenedCity !== undefined) {
+    // Higher score for being closer to threatened city (1 = adjacent, 5+ = far)
+    const proximityBonus = Math.max(0, 5 - input.defenderProximityToThreatenedCity) * 2;
+    score += proximityBonus;
+  }
   return score;
 }
 
@@ -84,9 +95,17 @@ export function scoreMoveCandidate(input: MoveCandidateScoreInput): number {
   score += input.terrainScore * 1.5;
   score += input.supportScore - input.originSupport;
 
+
   if (input.assignment === 'defender' || input.assignment === 'recovery') {
     score += Math.max(0, input.originAnchorDistance - input.anchorDistance) * 3;
     score += Math.max(0, 4 - input.cityDistance) * 1.5;
+    // For defender units: reward moving toward the threatened city to intercept attackers
+    if (input.assignment === 'defender' && input.threatenedCityDistance !== undefined) {
+      // Encourage moving closer to the threatened city (lower distance = better)
+      // Max bonus of +6 when adjacent to threatened city (distance 1)
+      const defenderProximityBonus = Math.max(0, 4 - input.threatenedCityDistance) * 1.5;
+      score += defenderProximityBonus;
+    }
   }
 
   if (input.assignment === 'siege_force') {

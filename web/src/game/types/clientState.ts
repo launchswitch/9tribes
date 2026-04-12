@@ -237,6 +237,7 @@ export type PlayFeedbackState = {
         victoryType: VictoryType;
       }
     | null;
+  absorbedDomains: string[];
 };
 
 // ── Research Inspector View Model ──

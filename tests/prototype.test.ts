@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { loadRulesRegistry } from '../src/data/loader/loadRulesRegistry';
 import { validatePrototype } from '../src/design/validatePrototype';
 import { calculatePrototypeStats } from '../src/design/calculatePrototypeStats';

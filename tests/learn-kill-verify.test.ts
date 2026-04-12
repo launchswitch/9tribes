@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { createRNG, rngNextFloat } from '../src/core/rng.js';
 import { tryLearnFromKill } from '../src/systems/learnByKillSystem.js';
 import veteranLevels from '../src/content/base/veteran-levels.json';

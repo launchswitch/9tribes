@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import { loadRulesRegistry } from '../src/data/loader/loadRulesRegistry';
 import { buildMvpScenario } from '../src/game/buildMvpScenario';
 import { previewMove, moveUnit } from '../src/systems/movementSystem';

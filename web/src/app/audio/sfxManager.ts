@@ -37,6 +37,7 @@ type AudioSnapshot = {
   lastLearnedDomainKey: string | null;
   lastResearchCompletionKey: string | null;
   hitAndRunRetreatKey: string | null;
+  absorbedDomainsKey: string | null;
   suppressedVillageLossIds: Set<string>;
   playerCityCount: number;
   playerFactionId: string | null;
@@ -231,6 +232,9 @@ function buildAudioSnapshot(state: ClientState): AudioSnapshot | null {
     hitAndRunRetreatKey: state.playFeedback.hitAndRunRetreat
       ? `${state.playFeedback.hitAndRunRetreat.unitId}:${state.playFeedback.hitAndRunRetreat.to.q},${state.playFeedback.hitAndRunRetreat.to.r}`
       : null,
+    absorbedDomainsKey: state.playFeedback.absorbedDomains.length > 0
+      ? state.playFeedback.absorbedDomains.join(',')
+      : null,
     suppressedVillageLossIds,
     playerCityCount,
     playerFactionId,
@@ -279,6 +283,10 @@ export function playSessionDeltaSounds(prevState: ClientState | null, nextState:
   }
 
   if (next.lastLearnedDomainKey && next.lastLearnedDomainKey !== prev.lastLearnedDomainKey) {
+    playSound('learned_domain');
+  }
+
+  if (next.absorbedDomainsKey && next.absorbedDomainsKey !== prev.absorbedDomainsKey) {
     playSound('learned_domain');
   }
 

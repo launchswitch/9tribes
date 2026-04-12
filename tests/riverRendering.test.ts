@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import { getRiverOverlayFrameForTile } from '../web/src/game/phaser/assets/keys.js';
 
 describe('getRiverOverlayFrameForTile', () => {

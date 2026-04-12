@@ -1,5 +1,5 @@
 // Tests for world/map modules
-import { describe, it, expect } from 'vitest';
+
 import { TERRAIN_DEFINITIONS, getTerrainDef } from '../src/world/map/terrain';
 import { createMap } from '../src/world/map/createMap';
 import { getTile, getTileByKey, hasTile } from '../src/world/map/getTile';

@@ -2,11 +2,13 @@
 // Part of the Learn by Killing + Sacrifice to Codify mechanic
 
 import type { GameState } from '../game/types.js';
+import type { City } from '../features/cities/types.js';
 import type { Unit, LearnedAbility } from '../features/units/types.js';
 
 import type { SimulationTrace } from './warEcologySimulation.js';
 import type { RNGState } from '../core/rng.js';
 import { rngNextFloat } from '../core/rng.js';
+import { hexDistance } from '../core/grid.js';
 
 const LEARN_CHANCE_BY_VETERAN_LEVEL: Record<string, number> = {
   green: 0.10,
@@ -19,6 +21,14 @@ const MAX_LEARNED_ABILITIES = 3;
 export interface LearnFromKillResult {
   unit: Unit;
   learned: boolean;
+  domainId?: string;
+  fromFactionId?: string;
+}
+
+export interface LearnFromCityCaptureResult {
+  state: GameState;
+  learned: boolean;
+  unitId?: string;
   domainId?: string;
   fromFactionId?: string;
 }
@@ -110,6 +120,79 @@ export function tryLearnFromKill(
     domainId: nativeDomain,
     fromFactionId: fromFactionId,
   };
+}
+
+/**
+ * Grant domain learning from capturing an enemy city.
+ * Finds the closest adjacent unit of the capturing faction and unconditionally
+ * grants it the old city owner's nativeDomain (100% transfer).
+ *
+ * @param city - The city that was just captured (pre-capture object, factionId = old owner)
+ * @param newOwnerFactionId - The faction that captured the city
+ * @param state - Current game state (city ownership already transferred)
+ * @param trace - Optional trace for logging
+ * @returns Updated state and transfer details
+ */
+export function tryLearnFromCityCapture(
+  city: City,
+  newOwnerFactionId: string,
+  state: GameState,
+  trace?: SimulationTrace
+): LearnFromCityCaptureResult {
+  const oldOwnerFactionId = city.factionId;
+  const oldOwnerFaction = state.factions.get(oldOwnerFactionId);
+  if (!oldOwnerFaction) {
+    return { state, learned: false };
+  }
+
+  const nativeDomain = oldOwnerFaction.nativeDomain;
+
+  // Skip if same faction (shouldn't happen but guard)
+  if (newOwnerFactionId === oldOwnerFactionId) {
+    return { state, learned: false };
+  }
+
+  // Find the first adjacent unit of the capturing faction that can accept the domain
+  for (const [, unit] of state.units) {
+    if (unit.factionId !== newOwnerFactionId || unit.hp <= 0) continue;
+    if (hexDistance(unit.position, city.position) > 1) continue;
+
+    // Already has this domain — skip to next unit
+    if (alreadyHasDomain(unit.learnedAbilities ?? [], nativeDomain)) continue;
+
+    // At ability cap — skip to next unit
+    if ((unit.learnedAbilities?.length ?? 0) >= MAX_LEARNED_ABILITIES) {
+      log(trace, `${getUnitName(unit, state)} already knows ${MAX_LEARNED_ABILITIES} abilities — cannot learn from city capture`);
+      continue;
+    }
+
+    // Grant the domain (100% chance)
+    const newAbility: LearnedAbility = {
+      domainId: nativeDomain,
+      fromFactionId: oldOwnerFactionId,
+      learnedOnRound: state.round,
+    };
+
+    const updatedUnit: Unit = {
+      ...unit,
+      learnedAbilities: [...(unit.learnedAbilities ?? []), newAbility],
+    };
+
+    const newUnits = new Map(state.units);
+    newUnits.set(updatedUnit.id, updatedUnit);
+
+    log(trace, `${getUnitName(updatedUnit, state)} LEARNED ${nativeDomain} from capturing ${city.name} (owned by ${oldOwnerFaction.name})! (${updatedUnit.learnedAbilities.length}/${MAX_LEARNED_ABILITIES} abilities)`);
+
+    return {
+      state: { ...state, units: newUnits },
+      learned: true,
+      unitId: updatedUnit.id,
+      domainId: nativeDomain,
+      fromFactionId: oldOwnerFactionId,
+    };
+  }
+
+  return { state, learned: false };
 }
 
 /**

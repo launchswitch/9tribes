@@ -98,7 +98,8 @@ type SessionFeedback = {
         factionId: string;
         villageIds: string[];
       }
-  | null;
+    | null;
+  absorbedDomains: string[];
 };
 
 type AiTurnContext = {
@@ -159,6 +160,7 @@ export class GameSession {
     lastResearchCompletion: null,
     hitAndRunRetreat: null,
     lastSettlerVillageSpend: null,
+    absorbedDomains: [],
     liveCombatEvents: [],
   };
 
@@ -223,6 +225,7 @@ export class GameSession {
             villageIds: [...this.feedback.lastSettlerVillageSpend.villageIds],
           }
         : null,
+      absorbedDomains: [...this.feedback.absorbedDomains],
     };
   }
 
@@ -713,6 +716,10 @@ export class GameSession {
     if (applied.feedback.lastLearnedDomain) {
       this.feedback.lastLearnedDomain = applied.feedback.lastLearnedDomain;
       this.record('turn', `${applied.feedback.lastLearnedDomain.domainId} ability learned from ${preview.defenderFactionId}!`);
+    }
+    if (applied.feedback.absorbedDomains.length > 0) {
+      this.feedback.absorbedDomains = applied.feedback.absorbedDomains;
+      this.record('turn', `Absorbed domains from fallen tribe: ${applied.feedback.absorbedDomains.join(', ')}`);
     }
 
     const finalCombatEvent: ReplayCombatEvent = {

@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import { buildMvpScenario } from '../src/game/buildMvpScenario';
 import { loadRulesRegistry } from '../src/data/loader/loadRulesRegistry';
 import { GameSession } from '../web/src/game/controller/GameSession';

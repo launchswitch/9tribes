@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import type { UnitView } from '../web/src/game/types/worldView';
 import {
   buildCombatAnimationScript,

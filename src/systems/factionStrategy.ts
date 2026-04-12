@@ -55,6 +55,8 @@ export interface UnitStrategicIntent {
   objectiveCityId?: CityId;
   objectiveUnitId?: UnitId;
   anchor: HexCoord;
+  // For defender units: the city being defended (may be under attack/siege)
+  threatenedCityId?: CityId;
   isolationScore: number;
   isolated: boolean;
   reason: string;

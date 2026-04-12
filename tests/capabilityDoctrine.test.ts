@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import { resolveResearchDoctrine } from '../src/systems/capabilityDoctrine';
 import { createResearchState } from '../src/systems/researchSystem';
 

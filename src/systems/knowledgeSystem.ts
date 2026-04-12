@@ -23,7 +23,7 @@ const DOMAINS = abilityDomainsData.domains as Record<string, DomainConfig>;
 const EXPOSURE_THRESHOLDS = [100, 150, 200] as const;
 
 // Maximum number of domains a faction can learn (including native)
-const MAX_LEARNED_DOMAINS = 3;
+export const MAX_LEARNED_DOMAINS = 3;
 
 // Prototype mastery cost multipliers
 const PROTOTYPE_COST_MODIFIERS: Record<number, number> = {

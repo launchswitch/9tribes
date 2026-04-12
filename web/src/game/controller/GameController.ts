@@ -399,6 +399,7 @@ export class GameController {
           winnerFactionId: victory.winnerFactionId,
           victoryType: victory.victoryType,
         },
+        absorbedDomains: [...feedback.absorbedDomains],
       },
       research: buildResearchInspectorViewModel(sessionState, session.getRegistry()),
       productionPopupCityId: this.productionPopupCityId,

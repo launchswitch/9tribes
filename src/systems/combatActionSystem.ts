@@ -24,6 +24,9 @@ import { tryLearnFromKill } from './learnByKillSystem.js';
 import { attemptCapture, attemptNonCombatCapture, hasCaptureAbility } from './captureSystem.js';
 import { addExhaustion, EXHAUSTION_CONFIG } from './warExhaustionSystem.js';
 import { applyContactTransfer } from './capabilitySystem.js';
+import { autoCompleteResearchForDomains } from './sacrificeSystem.js';
+import { getDomainProgression } from './domainProgression.js';
+import { MAX_LEARNED_DOMAINS } from './knowledgeSystem.js';
 import { destroyTransport, isTransportUnit } from './transportSystem.js';
 import {
   applyKnockback,
@@ -107,6 +110,7 @@ export interface CombatActionPreviewDetails {
 export interface CombatActionFeedback {
   lastLearnedDomain: { unitId: string; domainId: string } | null;
   hitAndRunRetreat: { unitId: string; to: { q: number; r: number } } | null;
+  absorbedDomains: string[];
   resolution: CombatActionResolution;
 }
 
@@ -394,22 +398,79 @@ function maybeAbsorbFaction(
   state: GameState,
   victorFactionId: FactionId,
   defeatedFactionId: FactionId,
-): GameState {
+  registry: RulesRegistry,
+): { state: GameState; absorbedDomains: string[] } {
   const stillAlive = Array.from(state.units.values()).some(
     (unit) => unit.factionId === defeatedFactionId && unit.hp > 0,
   );
   if (stillAlive) {
-    return state;
+    return { state, absorbedDomains: [] };
   }
 
   const defeatedFaction = state.factions.get(defeatedFactionId);
   const victorFaction = state.factions.get(victorFactionId);
   if (!defeatedFaction || !victorFaction) {
-    return state;
+    return { state, absorbedDomains: [] };
   }
 
   let current = applyContactTransfer(state, victorFactionId, defeatedFactionId, 'absorption');
   current = updateCombatRecordOnElimination(current, victorFactionId);
+
+  // Conqueror learns the defeated tribe's native domain and any learned domains
+  // Respect the MAX_LEARNED_DOMAINS cap (learnedDomains excludes native, so max slots = MAX - 1)
+  const remainingSlots = MAX_LEARNED_DOMAINS - 1 - victorFaction.learnedDomains.length;
+  const domainsToAbsorb = [
+    defeatedFaction.nativeDomain,
+    ...defeatedFaction.learnedDomains,
+  ];
+  const newlyLearned = domainsToAbsorb.filter(
+    (d) =>
+      d !== victorFaction.nativeDomain &&
+      !victorFaction.learnedDomains.includes(d) &&
+      domainsToAbsorb.indexOf(d) === domainsToAbsorb.lastIndexOf(d),
+  ).slice(0, Math.max(0, remainingSlots));
+
+  let absorbedDomains: string[] = [];
+  if (newlyLearned.length > 0) {
+    absorbedDomains = newlyLearned;
+    const newLearnedDomains = [...victorFaction.learnedDomains, ...newlyLearned];
+
+    // Auto-complete T1 research nodes for the newly learned domains
+    current = autoCompleteResearchForDomains(current, victorFactionId, newlyLearned, registry);
+
+    // Re-evaluate domain progression and triple synergy
+    const updatedFaction = current.factions.get(victorFactionId);
+    if (updatedFaction) {
+      const refreshedResearch = current.research.get(victorFactionId);
+      const progression = getDomainProgression(
+        { nativeDomain: updatedFaction.nativeDomain, learnedDomains: newLearnedDomains },
+        refreshedResearch,
+      );
+      const tripleStack = getSynergyEngine().resolveFactionTriple(
+        progression.pairEligibleDomains,
+        progression.emergentEligibleDomains,
+      );
+      const newFactions = new Map(current.factions);
+      newFactions.set(victorFactionId, {
+        ...updatedFaction,
+        learnedDomains: newLearnedDomains,
+        activeTripleStack: tripleStack ?? undefined,
+      });
+      current = { ...current, factions: newFactions };
+
+      // Set recentCodifiedDomainIds so AI strategy can react
+      const updatedResearch = current.research.get(victorFactionId);
+      if (updatedResearch) {
+        const researchMap = new Map(current.research);
+        researchMap.set(victorFactionId, {
+          ...updatedResearch,
+          recentCodifiedDomainIds: newlyLearned,
+          recentCodifiedRound: current.round,
+        });
+        current = { ...current, research: researchMap };
+      }
+    }
+  }
 
   const newCities = new Map(current.cities);
   for (const cityId of getFactionCityIds(current, defeatedFactionId)) {
@@ -433,12 +494,15 @@ function maybeAbsorbFaction(
     villageIds: [],
   });
 
-  return syncAllFactionSettlementIds({
-    ...current,
-    cities: newCities,
-    villages: newVillages,
-    factions: newFactions,
-  });
+  return {
+    state: syncAllFactionSettlementIds({
+      ...current,
+      cities: newCities,
+      villages: newVillages,
+      factions: newFactions,
+    }),
+    absorbedDomains,
+  };
 }
 
 export function previewCombatAction(
@@ -852,6 +916,7 @@ export function applyCombatAction(
       feedback: {
         lastLearnedDomain: null,
         hitAndRunRetreat: null,
+        absorbedDomains: [],
         resolution: baseResolution,
       },
     };
@@ -865,6 +930,7 @@ export function applyCombatAction(
       feedback: {
         lastLearnedDomain: null,
         hitAndRunRetreat: null,
+        absorbedDomains: [],
         resolution: baseResolution,
       },
     };
@@ -903,6 +969,7 @@ export function applyCombatAction(
   let feedback: CombatActionFeedback = {
     lastLearnedDomain: null,
     hitAndRunRetreat: null,
+    absorbedDomains: [],
     resolution: baseResolution,
   };
 
@@ -1025,7 +1092,11 @@ export function applyCombatAction(
 
   current = applyCombatSignals(current, attacker.factionId, preview.result.signals);
   current = applyContactTransfer(current, attacker.factionId, defender.factionId, 'contact');
-  current = maybeAbsorbFaction(current, attacker.factionId as FactionId, defender.factionId as FactionId);
+  const absorbResult = maybeAbsorbFaction(current, attacker.factionId as FactionId, defender.factionId as FactionId, registry);
+  current = absorbResult.state;
+  if (absorbResult.absorbedDomains.length > 0) {
+    feedback = { ...feedback, absorbedDomains: absorbResult.absorbedDomains };
+  }
   current = unlockHybridRecipes(current, attacker.factionId, registry);
 
   if (preview.result.defenderDestroyed && !capturedOnKill) {

@@ -92,7 +92,7 @@ import {
   getWallDefenseBonus,
   isCityVulnerable,
   getCapturingFaction,
-  captureCity,
+  captureCityWithResult,
 } from './siegeSystem.js';
 import {
   addExhaustion,
@@ -1663,7 +1663,8 @@ export function processFactionPhases(
         if (isCityVulnerable(degradedCity, current)) {
           const capturingFaction = getCapturingFaction(degradedCity, current);
           if (capturingFaction) {
-            current = captureCity(degradedCity, capturingFaction, current);
+            const captureResult = captureCityWithResult(degradedCity, capturingFaction, current);
+            current = captureResult.state;
             const capturedCity = current.cities.get(cityId);
             if (capturedCity) {
               recordSiegeEvent(trace, {
@@ -1679,6 +1680,9 @@ export function processFactionPhases(
               });
             }
             log(trace, `${city.name} captured by ${capturingFaction}!`);
+            if (captureResult.learnedDomain) {
+              log(trace, `  → ${captureResult.learnedDomain.unitId} learned ${captureResult.learnedDomain.domainId} from capturing ${city.name}`);
+            }
             siegeCities = new Map(current.cities);
             continue;
           }

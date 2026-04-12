@@ -200,7 +200,7 @@ export function rankProductionPriorities(
     ? Math.max(...availableMilitaryCosts)
     : 0;
   if (difficultyProfile.adaptiveAi && state.round <= difficultyProfile.production.rushTurns) {
-    return rankRushProductionPriorities(state, factionId, strategy, registry, availablePrototypes);
+    return rankRushProductionPriorities(state, factionId, strategy, registry, availablePrototypes, enemyUnits);
   }
   const researchState = state.research.get(factionId);
   const recentCodifiedDomains =
@@ -260,6 +260,12 @@ export function rankProductionPriorities(
         scoringContext,
         difficultyProfile,
       );
+      const aggressiveFillScore = scoreAggressiveSupplyFill(
+        prototype,
+        economic.supplyCost,
+        scoringContext,
+        difficultyProfile,
+      );
       const armySizePressure = scoreArmySizePressure(
         prototype,
         totalFriendlyUnits,
@@ -296,6 +302,7 @@ export function rankProductionPriorities(
         doctrineScore +
         supplyEfficiencyScore +
         underCapScore +
+        aggressiveFillScore +
         armySizePressure +
         qualityLagScore +
         forceProjectionScore -
@@ -313,6 +320,7 @@ export function rankProductionPriorities(
         codifiedPivotScore,
         settlerScore,
         underCapScore,
+        aggressiveFillScore,
         armySizePressure,
         qualityLagScore,
       );
@@ -438,12 +446,34 @@ function scoreArmyQualityLag(
   return score;
 }
 
+function scoreAggressiveSupplyFill(
+  prototype: NonNullable<GameState['prototypes'] extends Map<any, infer P> ? P : never>,
+  supplyCost: number,
+  context: ProductionScoringContext,
+  difficultyProfile: AiDifficultyProfile,
+): number {
+  const margin = difficultyProfile.production.aggressiveFillMargin;
+  const weight = difficultyProfile.production.aggressiveFillWeight;
+  if (margin === null || margin === undefined || weight <= 0) return 0;
+  if (!isMilitaryPrototype(prototype)) return 0;
+
+  const currentMargin = context.supplyIncome - context.currentSupplyDemand;
+  if (currentMargin <= margin) return 0;
+
+  const projectedMargin = currentMargin - supplyCost;
+  if (projectedMargin < 0) return 0;
+
+  const distanceFromLimit = currentMargin - margin;
+  return distanceFromLimit * weight;
+}
+
 function rankRushProductionPriorities(
   state: GameState,
   factionId: FactionId,
   strategy: FactionStrategy,
   registry: RulesRegistry,
   prototypes: ReturnType<typeof getAvailableProductionPrototypes>,
+  enemyUnits: GameState['units'] extends Map<any, infer U> ? U[] : never,
 ): ProductionPriority[] {
   const militaryPrototypes = prototypes.filter((prototype) => isRushMilitaryPrototype(prototype));
   const candidates = militaryPrototypes.length > 0 ? militaryPrototypes : prototypes;
@@ -459,7 +489,9 @@ function rankRushProductionPriorities(
       const totalCost = calculatePrototypeCost(baseCost, faction, domains);
       const supplyEfficiency = scoreSupplyEfficiency(prototype, registry);
       const forceProjection = scoreForceProjectionValue(prototype, strategy);
-      const score = 1000 - totalCost * 100 + supplyEfficiency * 10 + forceProjection * 0.25;
+      const role = prototype.derivedStats.role ?? 'melee';
+      const enemyCounterPressure = scoreEnemyCounterPressure(enemyUnits, state, role);
+      const score = 1000 - totalCost * 100 + supplyEfficiency * 10 + forceProjection * 0.25 + enemyCounterPressure * 0.3;
       return {
         prototypeId: prototype.id,
         score,
@@ -783,6 +815,7 @@ function buildProductionReason(
   codifiedPivotScore: number,
   settlerScore: number,
   underCapScore: number,
+  aggressiveFillScore: number,
   armySizePressure: number,
   qualityLagScore: number,
 ): string {
@@ -795,6 +828,7 @@ function buildProductionReason(
   if (hybridScore >= 3) parts.push('hybrid synergy payoff');
   if (codifiedPivotScore > 0) parts.push('recent codified domain pivot');
   if (underCapScore > 0) parts.push('under supply cap pressure');
+  if (aggressiveFillScore > 0) parts.push('aggressive supply fill');
   if (armySizePressure > 0) parts.push('army below target size');
   if (qualityLagScore > 0) parts.push('closes army quality gap');
   if (projectedSupplyMargin < 0) {

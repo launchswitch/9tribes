@@ -12,6 +12,7 @@ import {
   EXHAUSTION_CONFIG,
 } from './warExhaustionSystem.js';
 import { syncFactionSettlementIds } from './factionOwnershipSystem.js';
+import { tryLearnFromCityCapture } from './learnByKillSystem.js';
 
 export const SIEGE_CONFIG = {
   WALL_DAMAGE_PER_TURN: 20,
@@ -131,11 +132,31 @@ export function getCapturingFaction(
 /**
  * Execute city capture: transfer ownership, reset walls, update war exhaustion.
  */
+export interface CaptureCityResult {
+  state: GameState;
+  learnedDomain?: {
+    unitId: string;
+    domainId: string;
+    fromFactionId: string;
+  };
+}
+
 export function captureCity(
   city: City,
   newOwnerFactionId: FactionId,
   state: GameState
 ): GameState {
+  return captureCityWithResult(city, newOwnerFactionId, state).state;
+}
+
+/**
+ * Execute city capture with detailed result (including domain learning feedback).
+ */
+export function captureCityWithResult(
+  city: City,
+  newOwnerFactionId: FactionId,
+  state: GameState
+): CaptureCityResult {
   const oldOwnerFactionId = city.factionId;
 
   // Transfer city
@@ -203,5 +224,13 @@ export function captureCity(
   nextState = syncFactionSettlementIds(nextState, oldOwnerFactionId);
   nextState = syncFactionSettlementIds(nextState, newOwnerFactionId);
 
-  return nextState;
+  // Try domain learning: adjacent capturing unit receives the old owner's nativeDomain (100%)
+  const learnResult = tryLearnFromCityCapture(city, newOwnerFactionId, nextState);
+
+  return {
+    state: learnResult.state,
+    learnedDomain: learnResult.learned
+      ? { unitId: learnResult.unitId!, domainId: learnResult.domainId!, fromFactionId: learnResult.fromFactionId! }
+      : undefined,
+  };
 }

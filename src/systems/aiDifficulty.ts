@@ -31,6 +31,8 @@ export interface AiDifficultyProfile {
     counterCompositionThreshold: number;
     counterCompositionWeight: number;
     signatureExploitWeight: number;
+    aggressiveFillMargin: number | null;
+    aggressiveFillWeight: number;
   };
   research: {
     stickyThreshold: number;
@@ -96,6 +98,9 @@ export interface AiDifficultyProfile {
     postureExplorationDeadline: number;
     advantageHunterShare: number;
     losingDenialMode: boolean;
+    explorationCenterBias: number;
+    explorationCenterBiasDecayPerRound: number;
+    noEnemySeenOffensivePenalty: number;
   };
 }
 
@@ -130,6 +135,8 @@ const EASY_PROFILE: AiDifficultyProfile = {
     counterCompositionThreshold: 1,
     counterCompositionWeight: 0,
     signatureExploitWeight: 0,
+    aggressiveFillMargin: null,
+    aggressiveFillWeight: 0,
   },
   research: {
     stickyThreshold: 3,
@@ -152,7 +159,7 @@ const EASY_PROFILE: AiDifficultyProfile = {
     siegeBiasFloor: 0.25,
     raidBiasFloor: 0.25,
     focusFireLimitBonus: 0,
-    squadSizeBonus: 0,
+    squadSizeBonus: -1,
     commitAdvantageOffset: 0,
     retreatThresholdOffset: 0,
     antiSkirmishResponseWeight: 0,
@@ -161,7 +168,7 @@ const EASY_PROFILE: AiDifficultyProfile = {
     focusTargetLimit: 3,
     focusBudgetLeaderBonus: 0.5,
     focusOverfillPenalty: 2.4,
-    coordinatorEnabled: false,
+    coordinatorEnabled: true,
     multiAxisEnabled: false,
     multiAxisGroupCount: 1,
     multiAxisPrimaryShare: 1,
@@ -170,10 +177,10 @@ const EASY_PROFILE: AiDifficultyProfile = {
     multiAxisMinGroupSize: 2,
     multiAxisStaggerTurns: 0,
     coordinatorMinSupplyRatio: 0.8,
-    coordinatorMinIdleNearHome: 3,
-    coordinatorMinActiveArmy: 4,
+    coordinatorMinIdleNearHome: 1,
+    coordinatorMinActiveArmy: 2,
     coordinatorHunterShare: 0.5,
-    coordinatorHunterFloor: 3,
+    coordinatorHunterFloor: 1,
     villageDetourTolerance: 3,
     villageCityDistanceLimit: 8,
     learnLoopEnabled: false,
@@ -192,9 +199,12 @@ const EASY_PROFILE: AiDifficultyProfile = {
     settlerInterceptionEnabled: false,
     settlerInterceptionRadius: 0,
     postureCommitmentLockTurns: 0,
-    postureExplorationDeadline: 99,
+    postureExplorationDeadline: 30,
     advantageHunterShare: 0.5,
     losingDenialMode: false,
+    explorationCenterBias: 0.6,
+    explorationCenterBiasDecayPerRound: 0.03,
+    noEnemySeenOffensivePenalty: -0.5,
   },
 };
 
@@ -226,9 +236,11 @@ const NORMAL_PROFILE: AiDifficultyProfile = {
     settlerVisibleEnemyBasePenalty: 12,
     settlerVisibleEnemyPerUnitPenalty: 1.5,
     settlerReservePenaltyWeight: 2.5,
-    counterCompositionThreshold: 0.75,
+    counterCompositionThreshold: 0.5,
     counterCompositionWeight: 0.75,
     signatureExploitWeight: 0,
+    aggressiveFillMargin: 2,
+    aggressiveFillWeight: 8,
   },
   research: {
     stickyThreshold: 3,
@@ -251,7 +263,7 @@ const NORMAL_PROFILE: AiDifficultyProfile = {
     siegeBiasFloor: 0.5,
     raidBiasFloor: 0.4,
     focusFireLimitBonus: 0,
-    squadSizeBonus: 0,
+    squadSizeBonus: -1,
     commitAdvantageOffset: -0.05,
     retreatThresholdOffset: 0.05,
     antiSkirmishResponseWeight: 1.8,
@@ -269,10 +281,10 @@ const NORMAL_PROFILE: AiDifficultyProfile = {
     multiAxisMinGroupSize: 2,
     multiAxisStaggerTurns: 0,
     coordinatorMinSupplyRatio: 0.8,
-    coordinatorMinIdleNearHome: 3,
-    coordinatorMinActiveArmy: 4,
+    coordinatorMinIdleNearHome: 1,
+    coordinatorMinActiveArmy: 2,
     coordinatorHunterShare: 0.5,
-    coordinatorHunterFloor: 3,
+    coordinatorHunterFloor: 2,
     villageDetourTolerance: 3,
     villageCityDistanceLimit: 8,
     learnLoopEnabled: true,
@@ -291,9 +303,12 @@ const NORMAL_PROFILE: AiDifficultyProfile = {
     settlerInterceptionEnabled: false,
     settlerInterceptionRadius: 0,
     postureCommitmentLockTurns: 1,
-    postureExplorationDeadline: 24,
+    postureExplorationDeadline: 12,
     advantageHunterShare: 0.65,
     losingDenialMode: false,
+    explorationCenterBias: 0.8,
+    explorationCenterBiasDecayPerRound: 0.04,
+    noEnemySeenOffensivePenalty: -0.5,
   },
 };
 
@@ -328,6 +343,8 @@ const HARD_PROFILE: AiDifficultyProfile = {
     counterCompositionThreshold: 0.4,
     counterCompositionWeight: 2.5,
     signatureExploitWeight: 2.2,
+    aggressiveFillMargin: 2,
+    aggressiveFillWeight: 10,
   },
   research: {
     stickyThreshold: 2.5,
@@ -350,7 +367,7 @@ const HARD_PROFILE: AiDifficultyProfile = {
     siegeBiasFloor: 0.62,
     raidBiasFloor: 0.48,
     focusFireLimitBonus: 1,
-    squadSizeBonus: 1,
+    squadSizeBonus: 0,
     commitAdvantageOffset: -0.05,
     retreatThresholdOffset: 0.05,
     antiSkirmishResponseWeight: 1.8,
@@ -369,9 +386,9 @@ const HARD_PROFILE: AiDifficultyProfile = {
     multiAxisStaggerTurns: 1,
     coordinatorMinSupplyRatio: 0.9,
     coordinatorMinIdleNearHome: 2,
-    coordinatorMinActiveArmy: 6,
+    coordinatorMinActiveArmy: 4,
     coordinatorHunterShare: 0.80,
-    coordinatorHunterFloor: 4,
+    coordinatorHunterFloor: 3,
     villageDetourTolerance: 2,
     villageCityDistanceLimit: 6,
     learnLoopEnabled: true,
@@ -390,9 +407,12 @@ const HARD_PROFILE: AiDifficultyProfile = {
     settlerInterceptionEnabled: true,
     settlerInterceptionRadius: 18,
     postureCommitmentLockTurns: 3,
-    postureExplorationDeadline: 15,
+    postureExplorationDeadline: 10,
     advantageHunterShare: 0.95,
     losingDenialMode: true,
+    explorationCenterBias: 0.5,
+    explorationCenterBiasDecayPerRound: 0.03,
+    noEnemySeenOffensivePenalty: 0,
   },
 };
 

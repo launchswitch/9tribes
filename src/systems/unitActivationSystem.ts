@@ -260,7 +260,8 @@ function findBestTargetChoice(
   position: HexCoord,
   friendlyFactionId: FactionId,
   myPrototype: { role: string; tags?: string[] },
-  registry: RulesRegistry
+  registry: RulesRegistry,
+  threatenedCityPosition?: HexCoord,
 ) {
   let bestTarget: typeof state.units extends Map<any, infer U> ? U : never = null as any;
   let bestScore = -Infinity;
@@ -324,6 +325,10 @@ function findBestTargetChoice(
           finishOffPriorityTarget: strategy?.absorptionGoal.targetFactionId === unit.factionId
             && Boolean(strategy.absorptionGoal.finishOffPriority),
           isolatedFromAnchor: Boolean(unitIntent && nearestFriendlyDist > 3 && anchorDistance > 4),
+          // For defender units: reward attacking enemies near the city being defended
+          defenderProximityToThreatenedCity: threatenedCityPosition
+            ? hexDistance(unit.position, threatenedCityPosition)
+            : undefined,
         });
 
         // Pirate Lords: prefer targets on coast/water (their home terrain)
@@ -379,7 +384,8 @@ function findBestRangedTarget(
   friendlyFactionId: FactionId,
   myPrototype: { role: string; tags?: string[]; derivedStats?: { range?: number } },
   registry: RulesRegistry,
-  range: number
+  range: number,
+  threatenedCityPosition?: HexCoord,
 ) {
   let bestTarget: typeof state.units extends Map<any, infer U> ? U : never = null as any;
   let bestScore = -Infinity;
@@ -450,6 +456,10 @@ function findBestRangedTarget(
           finishOffPriorityTarget: strategy?.absorptionGoal.targetFactionId === unit.factionId
             && Boolean(strategy.absorptionGoal.finishOffPriority),
           isolatedFromAnchor: Boolean(unitIntent && nearestFriendlyDist > 3 && anchorDistance > 4),
+          // For defender units: reward attacking enemies near the city being defended
+          defenderProximityToThreatenedCity: threatenedCityPosition
+            ? hexDistance(unit.position, threatenedCityPosition)
+            : undefined,
         });
 
         // Pirate Lords: prefer targets on coast/water
@@ -779,6 +789,15 @@ function performStrategicMovement(
   let bestTargetCityId = unitIntent.objectiveCityId;
   let bestTargetUnitId = unitIntent.objectiveUnitId;
 
+  // For defender units: compute distance to threatened city for engagement scoring
+  const threatenedCity = unitIntent.threatenedCityId
+    ? state.cities.get(unitIntent.threatenedCityId)
+    : undefined;
+  const threatenedCityPosition = threatenedCity?.position;
+  const originThreatenedCityDistance = threatenedCityPosition
+    ? hexDistance(unit.position, threatenedCityPosition)
+    : Infinity;
+
   for (const move of validMoves) {
     const waypointDistance = hexDistance(move, waypoint);
     const originWaypointDistance = hexDistance(unit.position, waypoint);
@@ -807,6 +826,10 @@ function performStrategicMovement(
       cityDistance,
       hiddenExplorationBonus: moveVisibility === 'hidden' && !['siege_force', 'main_army', 'raider'].includes(unitIntent.assignment),
       unsafeAfterMove: wouldBeUnsafeAfterMove(state, unit, move, unitIntent),
+      // For defender units: encourage moving toward the threatened city
+      threatenedCityDistance: threatenedCityPosition
+        ? hexDistance(move, threatenedCityPosition)
+        : undefined,
     });
 
     if (score > bestScore) {
@@ -980,6 +1003,25 @@ function autoDisembark(
 
 function buildFallbackIntent(state: GameState, unit: Unit): UnitStrategicIntent {
   const city = getNearestFriendlyCity(state, unit.factionId, unit.position);
+  const strategy = state.factionStrategies.get(unit.factionId);
+  const posture = strategy?.posture;
+
+  // During exploration/offensive posture, fall forward toward map center
+  // instead of retreating to a friendly city
+  if ((posture === 'exploration' || posture === 'offensive') && state.map) {
+    const centerQ = Math.floor(state.map.width / 2);
+    const centerR = Math.floor(state.map.height / 2);
+    return {
+      assignment: 'raider',
+      waypointKind: 'front_anchor',
+      waypoint: { q: centerQ, r: centerR },
+      anchor: city?.position ?? unit.position,
+      isolationScore: 0,
+      isolated: false,
+      reason: 'fallback movement toward map center to search for enemies',
+    };
+  }
+
   const waypoint = city?.position ?? unit.position;
   return {
     assignment: 'reserve',
@@ -1095,6 +1137,13 @@ export function activateUnit(
   const factionDoctrine = resolveResearchDoctrine(current.research.get(factionId), faction);
   const canChargeAttack =
     unitRange <= 1 && (canUseCharge(prototype) || factionDoctrine.chargeTranscendenceEnabled);
+  const strategy = current.factionStrategies.get(factionId);
+  const unitIntent = getUnitIntent(strategy, unitId);
+  // For defender units: get the threatened city position for engagement scoring
+  const threatenedCityForUnit = unitIntent?.threatenedCityId
+    ? current.cities.get(unitIntent.threatenedCityId)
+    : undefined;
+  const threatenedCityPosition = threatenedCityForUnit?.position;
   const shouldEngageFromPosition = (unitAtPosition: Unit, attackScore: number): boolean => {
     const strategy = current.factionStrategies.get(factionId);
     const unitIntent = getUnitIntent(strategy, unitId);
@@ -1112,8 +1161,8 @@ export function activateUnit(
   };
 
   let enemyChoice = unitRange > 1
-    ? findBestRangedTarget(current, unitId, activeUnit.position, factionId, prototype as any, registry, unitRange)
-    : findBestTargetChoice(current, unitId, activeUnit.position, factionId, prototype as any, registry);
+    ? findBestRangedTarget(current, unitId, activeUnit.position, factionId, prototype as any, registry, unitRange, threatenedCityPosition)
+    : findBestTargetChoice(current, unitId, activeUnit.position, factionId, prototype as any, registry, threatenedCityPosition);
   let enemy: typeof enemyChoice.target | undefined = enemyChoice.target;
   if (enemy && !shouldEngageFromPosition(activeUnit, enemyChoice.score)) {
     enemy = undefined;
@@ -1125,7 +1174,7 @@ export function activateUnit(
     let bestChargeScore = -Infinity;
 
     for (const move of getValidMoves(current, unitId, map, registry)) {
-      const choice = findBestTargetChoice(current, unitId, move, factionId, prototype as any, registry);
+      const choice = findBestTargetChoice(current, unitId, move, factionId, prototype as any, registry, threatenedCityPosition);
       if (!choice.target) continue;
       const score = choice.score + (registry.getTerrain(getTerrainAt(current, move))?.defenseModifier ?? 0);
       if (score > bestChargeScore) {
@@ -1149,7 +1198,7 @@ export function activateUnit(
       if (!activeUnit) {
         return { state: setUnitActivated(current, unitId), pendingCombat: null };
       }
-      enemyChoice = findBestTargetChoice(current, unitId, activeUnit.position, factionId, prototype as any, registry);
+      enemyChoice = findBestTargetChoice(current, unitId, activeUnit.position, factionId, prototype as any, registry, threatenedCityPosition);
       enemy = enemyChoice.target;
       if (enemy && !shouldEngageFromPosition(activeUnit, enemyChoice.score)) {
         enemy = undefined;

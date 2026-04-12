@@ -199,7 +199,7 @@ function removeUnit(state: GameState, unitId: UnitId, factionId: FactionId): Gam
  * For each domain, finds the T1 research node that codifies it and marks it complete.
  * Only T1 nodes can be auto-completed via sacrifice — T2/T3 require research.
  */
-function autoCompleteResearchForDomains(
+export function autoCompleteResearchForDomains(
   state: GameState,
   factionId: FactionId,
   domainIds: string[],
