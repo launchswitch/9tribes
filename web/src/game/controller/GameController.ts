@@ -32,7 +32,7 @@ export class GameController {
   private focusedUnitId: string | null = null;
   private targetingMode: 'move' | 'attack' = 'move';
   private hoveredKey: string | null = null;
-  private zoom = 0.6;
+  private zoom = 1.1;
   private productionPopupCityId: string | null = null;
   private inspectorRequestId = 0;
 
@@ -400,6 +400,7 @@ export class GameController {
           victoryType: victory.victoryType,
         },
         absorbedDomains: [...feedback.absorbedDomains],
+        aiProcessing: feedback.aiProcessing,
       },
       research: buildResearchInspectorViewModel(sessionState, session.getRegistry()),
       productionPopupCityId: this.productionPopupCityId,

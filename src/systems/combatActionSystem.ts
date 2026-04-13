@@ -517,7 +517,7 @@ export function previewCombatAction(
     return null;
   }
 
-  if (attacker.factionId !== state.activeFactionId || defender.factionId === attacker.factionId || attacker.attacksRemaining <= 0 || attacker.movesRemaining <= 0) {
+  if (attacker.factionId !== state.activeFactionId || defender.factionId === attacker.factionId || attacker.attacksRemaining <= 0) {
     return null;
   }
 
@@ -936,6 +936,8 @@ export function applyCombatAction(
     };
   }
 
+  const attackerIsRanged = attackerPrototype.derivedStats.role === 'ranged' || (attackerPrototype.derivedStats.range ?? 1) > 1;
+
   let nextAttacker: Unit = {
     ...attacker,
     hp: Math.max(0, attacker.hp - preview.result.attackerDamage),
@@ -1049,6 +1051,24 @@ export function applyCombatAction(
     );
     current = captureResult.state;
     capturedOnKill = captureResult.captured;
+  }
+
+  // Melee advance: melee attacker occupies defender's hex on kill (not capture)
+  if (
+    preview.result.defenderDestroyed
+    && !preview.result.attackerDestroyed
+    && !capturedOnKill
+    && !attackerIsRanged
+  ) {
+    const advancingUnit = current.units.get(preview.attackerId);
+    if (advancingUnit) {
+      const advancedUnits = new Map(current.units);
+      advancedUnits.set(preview.attackerId, {
+        ...advancingUnit,
+        position: defender.position,
+      });
+      current = { ...current, units: advancedUnits };
+    }
   }
 
   if (!preview.result.defenderDestroyed && preview.result.defenderFled && nextAttacker.hp > 0 && attackerDoctrine?.captureRetreatEnabled) {

@@ -263,15 +263,30 @@ export function getExposureDetails(faction: Faction, domainId: string): { curren
 }
 
 /**
- * Calculate total prototype cost with domain mastery modifier applied.
+ * Whether a prototype is an "unlock" unit (from hybrid-recipes), as opposed to
+ * a starting unit or settler. Only unlock prototypes are subject to the cultural-shock
+ * mastery cost modifier.
  */
-export function calculatePrototypeCost(baseCost: number, faction: Faction, domainIds: string[]): number {
+export function isUnlockPrototype(prototype: { sourceRecipeId?: string }): boolean {
+  return !!prototype.sourceRecipeId && prototype.sourceRecipeId !== 'settler';
+}
+
+/**
+ * Calculate total prototype cost with domain mastery modifier applied.
+ * Pass a prototype to gate the modifier to unlock prototypes only;
+ * omit it to always apply (backwards-compatible).
+ */
+export function calculatePrototypeCost(baseCost: number, faction: Faction, domainIds: string[], prototype?: { sourceRecipeId?: string }): number {
+  if (prototype && !isUnlockPrototype(prototype)) {
+    return Math.ceil(baseCost);
+  }
+
   let maxModifier = 1.0;
-  
+
   for (const domainId of domainIds) {
     const modifier = getPrototypeCostModifier(faction, domainId);
     maxModifier = Math.max(maxModifier, modifier);
   }
-  
+
   return Math.ceil(baseCost * maxModifier);
 }

@@ -50,9 +50,9 @@ describe('Chassis', () => {
     expect(infantry?.slotTypes).toEqual(['weapon', 'armor', 'training']);
   });
 
-  it('ranged_frame has baseRange 2', () => {
+  it('ranged_frame has baseRange 1', () => {
     const ranged = registry.getChassis('ranged_frame');
-    expect(ranged?.baseRange).toBe(2);
+    expect(ranged?.baseRange).toBe(1);
   });
 
   it('chassis expose explicit supply costs for logistical modeling', () => {

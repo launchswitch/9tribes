@@ -12,10 +12,25 @@ import { getFactionProjectedSupplyDemand } from '../src/systems/productionSystem
 
 const registry = loadRulesRegistry();
 
-function getPrototypeByChassis(state: ReturnType<typeof buildMvpScenario>, factionId: string, chassisId: string) {
-  return Array.from(state.prototypes.values()).find(
+function ensurePrototype(state: ReturnType<typeof buildMvpScenario>, factionId: string, chassisId: string, componentIds: string[]) {
+  const existing = Array.from(state.prototypes.values()).find(
+    (p) => p.factionId === factionId && p.chassisId === chassisId,
+  );
+  if (existing) return existing;
+  const prototype = assemblePrototype(factionId as any, chassisId as any, componentIds as any, registry);
+  state.prototypes.set(prototype.id, prototype);
+  const faction = state.factions.get(factionId as never)!;
+  state.factions.set(factionId as never, { ...faction, prototypeIds: [...faction.prototypeIds, prototype.id] });
+  return prototype;
+}
+
+function getPrototypeByChassis(state: ReturnType<typeof buildMvpScenario>, factionId: string, chassisId: string, componentIds?: string[]) {
+  const existing = Array.from(state.prototypes.values()).find(
     (prototype) => prototype.factionId === factionId && prototype.chassisId === chassisId,
   );
+  if (existing) return existing;
+  if (componentIds) return ensurePrototype(state, factionId, chassisId, componentIds);
+  return undefined;
 }
 
 describe('adaptive AI phase 2', () => {
@@ -61,7 +76,7 @@ describe('adaptive AI phase 2', () => {
   it('computes projected supply margins for production candidates', () => {
     const state = buildMvpScenario(42, { registry });
     const factionId = 'steppe_clan' as never;
-    const cavalry = getPrototypeByChassis(state, factionId, 'cavalry_frame');
+    const cavalry = getPrototypeByChassis(state, factionId, 'cavalry_frame', ['basic_bow', 'skirmish_drill']);
     expect(cavalry).toBeTruthy();
 
     const projectedDemand = getFactionProjectedSupplyDemand(state, factionId, registry);
@@ -82,7 +97,7 @@ describe('adaptive AI phase 2', () => {
   it('applies strong soft penalties to premium upkeep when supply tightens', () => {
     const state = buildMvpScenario(42, { registry });
     const factionId = 'steppe_clan' as never;
-    const cavalry = getPrototypeByChassis(state, factionId, 'cavalry_frame');
+    const cavalry = getPrototypeByChassis(state, factionId, 'cavalry_frame', ['basic_bow', 'skirmish_drill']);
     expect(cavalry).toBeTruthy();
 
     const projectedDemand = getFactionProjectedSupplyDemand(state, factionId, registry);
@@ -190,7 +205,7 @@ describe('adaptive AI phase 2', () => {
   it('weights stronger available military more heavily on normal when army quality lags the unlock state', () => {
     const state = buildMvpScenario(42, { registry });
     const factionId = 'steppe_clan' as never;
-    const cavalry = getPrototypeByChassis(state, factionId, 'cavalry_frame');
+    const cavalry = getPrototypeByChassis(state, factionId, 'cavalry_frame', ['basic_bow', 'skirmish_drill']);
     const infantry = getPrototypeByChassis(state, factionId, 'infantry_frame');
     expect(cavalry).toBeTruthy();
     expect(infantry).toBeTruthy();
@@ -253,7 +268,7 @@ describe('adaptive AI phase 2', () => {
   it('pushes hard production toward quality catch-up more aggressively than normal', () => {
     const state = buildMvpScenario(42, { registry });
     const factionId = 'steppe_clan' as never;
-    const cavalry = getPrototypeByChassis(state, factionId, 'cavalry_frame');
+    const cavalry = getPrototypeByChassis(state, factionId, 'cavalry_frame', ['basic_bow', 'skirmish_drill']);
     const infantry = getPrototypeByChassis(state, factionId, 'infantry_frame');
 
     expect(cavalry).toBeTruthy();
@@ -325,7 +340,7 @@ describe('adaptive AI phase 2', () => {
     const hillId = 'hill_clan' as never;
     const steppeFaction = state.factions.get(steppeId)!;
     const hillFaction = state.factions.get(hillId)!;
-    const cavalry = getPrototypeByChassis(state, steppeId, 'cavalry_frame');
+    const cavalry = getPrototypeByChassis(state, steppeId, 'cavalry_frame', ['basic_bow', 'skirmish_drill']);
     const infantry = getPrototypeByChassis(state, steppeId, 'infantry_frame');
 
     expect(cavalry).toBeTruthy();

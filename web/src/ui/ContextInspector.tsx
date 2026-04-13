@@ -428,7 +428,17 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                   <div className="pq-current">
                     <div className="pq-current__header">
                       <span className="pq-current__label">NOW BUILDING</span>
-                      <span className="pq-cost-badge">{selectedCity.production.current.costLabel}</span>
+                      <span className="pq-cost-badge">
+                        {selectedCity.production.current.costModifierReason ? (
+                          <>
+                            <span className="pq-base-cost">{selectedCity.production.current.baseCost}</span>
+                            {selectedCity.production.current.cost} prod
+                          </>
+                        ) : selectedCity.production.current.costLabel}
+                      </span>
+                      {selectedCity.production.current.costModifierReason && (
+                        <span className="pq-shock-note">{selectedCity.production.current.costModifierReason}</span>
+                      )}
                     </div>
                     <strong className="pq-current__name">{selectedCity.production.current.name}</strong>
                     <div className="pq-progress">
@@ -478,7 +488,17 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                       <div className="pq-queue-item" key={`${item.type}-${item.id}-${index}`}>
                         <span className="pq-queue-item__index">{index + 1}</span>
                         <span className="pq-queue-item__name">{item.name}</span>
-                        <span className="pq-queue-item__cost">{item.costLabel}</span>
+                        <span className="pq-queue-item__cost">
+                          {item.costModifierReason ? (
+                            <>
+                              <span className="pq-base-cost">{item.baseCost}</span>
+                              {item.cost} prod
+                            </>
+                          ) : item.costLabel}
+                        </span>
+                        {item.costModifierReason && (
+                          <span className="pq-shock-note">{item.costModifierReason}</span>
+                        )}
                         {selectedCity.canManageProduction && (
                           <button
                             type="button"
@@ -524,7 +544,17 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                         {option.moves > 1 ? ` · m${option.moves}` : ''}
                         {option.range > 1 ? ` · r${option.range}` : ''}
                       </span>
-                      <span className="pq-unit-row__cost">{option.costLabel}</span>
+                      <span className="pq-unit-row__cost">
+                        {option.costModifierReason ? (
+                          <>
+                            <span className="pq-base-cost">{option.baseCost}</span>
+                            {option.cost} prod
+                          </>
+                        ) : option.costLabel}
+                      </span>
+                      {option.costModifierReason && (
+                        <span className="pq-shock-note">{option.costModifierReason}</span>
+                      )}
                     </button>
                   ))}
                 </div>

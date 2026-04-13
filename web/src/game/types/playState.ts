@@ -4,6 +4,7 @@ import type { City, GameState } from '../../../../src/game/types.js';
 import type { FactionStrategy } from '../../../../src/systems/factionStrategy.js';
 import type { TransportMap } from '../../../../src/systems/transportSystem.js';
 import type { VillageCaptureCooldownMap } from '../../../../src/systems/villageCaptureSystem.js';
+import type { FactionFogState } from '../../../../src/systems/fogSystem.js';
 import type { FactionId } from '../../../../src/types.js';
 import type { GameMap, MapGenerationMode, Tile } from '../../../../src/world/map/types.js';
 
@@ -31,6 +32,7 @@ export type SerializedGameState = Omit<
   | 'transportMap'
   | 'villageCaptureCooldowns'
   | 'map'
+  | 'fogState'
 > & {
   map?: SerializedGameMap;
   factions: SerializedEntries<Faction>;
@@ -48,6 +50,7 @@ export type SerializedGameState = Omit<
   contaminatedHexes: string[];
   transportMap: SerializedEntries<{ transportId: string; embarkedUnitIds: string[] }>;
   villageCaptureCooldowns: SerializedEntries<{ position: string; capturedByFactionId: FactionId; capturedRound: number }>;
+  fogState: SerializedEntries<FactionFogState>;
   rngState: RNGState;
 };
 
@@ -85,6 +88,7 @@ export function serializeGameState(state: GameState): SerializedGameState {
     contaminatedHexes: Array.from(state.contaminatedHexes.values()),
     transportMap: Array.from(state.transportMap.entries()),
     villageCaptureCooldowns: Array.from(state.villageCaptureCooldowns.entries()),
+    fogState: Array.from(state.fogState.entries()),
   };
 }
 
@@ -114,5 +118,6 @@ export function deserializeGameState(payload: SerializedGameState): GameState {
     contaminatedHexes: new Set(payload.contaminatedHexes),
     transportMap: toTypedMap(payload.transportMap as any),
     villageCaptureCooldowns: toTypedMap(payload.villageCaptureCooldowns as any),
+    fogState: Array.isArray(payload.fogState) ? toTypedMap(payload.fogState) : new Map(),
   };
 }

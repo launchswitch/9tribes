@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI agents working in this repository.
 
 ## Project Overview
 
@@ -34,6 +34,19 @@ npm run balance:validate      # validate balance candidate
 npm run replay:export         # export replay data
 ```
 
+## ⚠️ CRITICAL: Dual Combat Paths (THE #1 Trap)
+
+Two separate combat resolution paths exist. **Any combat mechanic must be added to BOTH.**
+
+| Path | File | When Used |
+|------|------|-----------|
+| AI/Autonomous simulation | `src/systems/warEcologySimulation.ts` | Runs all AI and autonomous turns end-to-end |
+| Player-facing live-play | `web/src/game/controller/GameSession.ts` | Player executes actions; splits into `resolveAttack()` (math) then `applyResolvedCombat()` (mutation after animation) |
+
+**What drifts between paths:** siege gating, retreat/hit-and-run, learn-by-kill, sacrifice feedback, capture behavior, combat audio, multi-axis attacks, kill-shot bonuses.
+
+If AI uses a feature but the player doesn't → check `applyResolvedCombat()` — it's probably missing there.
+
 ## Architecture
 
 ### Monorepo Structure (two build pipelines)
@@ -49,30 +62,38 @@ src/content/base/→ JSON data files: chassis, components, civilizations, terrai
                    synergies, signature abilities, veteran levels, hybrid recipes, etc.
 src/data/        → Registry types, content loaders, role/weapon effectiveness tables
 src/features/    → Domain entities: units, factions, cities, villages, prototypes, research trees
-src/systems/     ~40 rule-execution modules (see below)
+src/systems/     → 51 rule-execution modules (see system table below)
 src/game/        → GameState types, scenario builders, game loop types
 src/world/       → Map generation, terrain types
 src/balance/     → Balance evaluation, Optuna objective function, harness integration
 src/replay/      → Replay recording/playback
 ```
 
-### Key Systems (`src/systems/`)
+### All Systems (`src/systems/` — 51 total)
 
-**Central orchestrator:** `warEcologySimulation.ts` — the "god function" that runs one complete turn by activating all units. Has 31 import dependencies; changes cascade everywhere.
+**Central orchestrator:**
+| System | Purpose |
+|--------|---------|
+| `warEcologySimulation.ts` | "God function" — runs one complete turn, activates all units. 31 import dependencies; changes cascade everywhere. |
 
-**Core gameplay systems:**
+**Core gameplay:**
 | System | Purpose |
 |--------|---------|
 | `combatSystem.ts` | Attack resolution, counter-attacks, HP mutation |
+| `combatActionSystem.ts` | Combat action selection (strikes, maneuvers) |
+| `combatSignalSystem.ts` | Combat signal/event propagation |
 | `movementSystem.ts` | Path execution, ZoC checks, opportunity attacks, faction identity bonuses |
+| `unitActivationSystem.ts` | Per-unit activation logic per turn |
 | `productionSystem.ts` | City production queues, unit/city project creation |
 | `siegeSystem.ts` | Wall degradation, city capture mechanics |
 | `territorySystem.ts` | Territory control, claimed hexes, supply lines |
 | `moraleSystem.ts` | Unit morale changes from events |
 | `zocSystem.ts` | Zone of Control rules |
 | `opportunityAttackSystem.ts` | Free attacks on units leaving ZoC |
+| `occupancySystem.ts` | Unit/city occupancy rules |
+| `pathfinder.ts` | Pathfinding (shared utility, not a system) |
 
-**Identity & progression systems:**
+**Identity & progression:**
 | System | Purpose |
 |--------|---------|
 | `signatureAbilitySystem.ts` | Faction-specific powers (Frost Nova, Desert Swarm, etc.) |
@@ -81,28 +102,60 @@ src/replay/      → Replay recording/playback
 | `xpSystem.ts` | Combat XP gain |
 | `researchSystem.ts` | Technology from combat/environment (no linear tree) |
 | `knowledgeSystem.ts` | Knowledge tracking and unlocks |
+| `domainProgression.ts` | Domain-based progression tracking |
 | `capabilityDoctrine.ts` | Doctrine-based capability modifiers |
+| `capabilitySystem.ts` | Unit capability calculations |
+| `sacrificeSystem.ts` | Units codify learned abilities into faction research at home city |
+| `learnByKillSystem.ts` | Units learn enemy ability domains by killing |
+| `historySystem.ts` | Event/history tracking across game |
 
-**Newer systems (recently added):**
+**Capture, transport & villages:**
 | System | Purpose |
 |--------|---------|
 | `captureSystem.ts` | Slaver mechanic — capture enemy units instead of killing |
 | `transportSystem.ts` | Naval transport of land units (galley + infantry) |
-| `fogSystem.ts` | Fog of War — per-faction visibility, explored/visible/hidden |
-| `healingSystem.ts` | Per-turn healing based on location/faction/synergies |
-| `learnByKillSystem.ts` | Units learn enemy ability domains by killing |
-| `sacrificeSystem.ts` | Units codify learned abilities into faction research at home city |
+| `villageSystem.ts` | Village lifecycle |
 | `villageCaptureSystem.ts` | Pirate Greedy trait — capture villages instead of destroying |
-| `synergyEngine.ts` + `synergyEffects.ts` | Pair-based faction synergy bonuses |
+| `citySiteSystem.ts` | City site detection and founding |
+
+**Synergies:**
+| System | Purpose |
+|--------|---------|
+| `synergyEngine.ts` | Pair-based faction synergy evaluation |
+| `synergyEffects.ts` | Synergy effect application |
+| `synergyRuntime.ts` | Synergy runtime state management |
+
+**Faction management:**
+| System | Purpose |
+|--------|---------|
+| `factionOwnershipSystem.ts` | Faction ownership rules |
+| `factionPhaseSystem.ts` | Per-faction turn phase management |
+| `factionStrategy.ts` | Faction strategic planning |
+| `economySystem.ts` | Economy/economic rules |
+| `warExhaustionSystem.ts` | War exhaustion tracking |
 
 **AI systems:**
 | System | Purpose |
 |--------|---------|
 | `strategicAi.ts` | High-level AI decisions (production, research, movement priorities) |
+| `aiTactics.ts` | Tactical AI (flanking, positioning) |
 | `aiProductionStrategy.ts` | AI production queue management |
 | `aiResearchStrategy.ts` | AI research prioritization |
-| `aiTactics.ts` | Tactical AI (flanking, positioning) |
 | `aiPersonality.ts` | Faction personality profiles |
+| `aiDifficulty.ts` | AI difficulty scaling (recently rewritten) |
+
+**Map & world:**
+| System | Purpose |
+|--------|---------|
+| `fogSystem.ts` | Fog of War — per-faction visibility (explored/visible/hidden) |
+| `healingSystem.ts` | Per-turn healing based on location/faction/synergies |
+| `turnSystem.ts` | Turn sequencing |
+
+**Hybrid & balance:**
+| System | Purpose |
+|--------|---------|
+| `hybridSystem.ts` | Hybrid unit creation |
+| `balanceHarness.ts` | Optuna balance evaluation harness |
 
 ### Frontend Architecture (`web/src/`)
 
@@ -128,21 +181,37 @@ web/src/
 
 1. **Content JSON files** (`src/content/base/`) define all game entities
 2. **Systems** read content via RulesRegistry and operate on GameState
-3. **warEcologySimulation.ts** orchestrates all systems per turn
+3. **`warEcologySimulation.ts`** orchestrates all systems per turn
 4. **Frontend GameSession** calls systems for player actions and renders via Phaser + React
 
-### Deterministic Simulation
+### Feedback Chain (UI/SFX)
 
-The engine uses deterministic RNG (`src/core/rng.ts`) for reproducible simulations. Tests use seeded RNG states. The balance harness runs thousands of simulations to evaluate parameter candidates via Optuna.
+Narrow pipe — don't scatter ad hoc frontend hacks. If you need UI/SFX feedback:
+
+```
+GameSession.ts → GameController.ts → clientState.ts → sfxManager.ts
+```
+
+If missing data for feedback, extend the controller chain rather than adding `new Audio()` calls.
 
 ## Code Conventions
 
 - **TypeScript strict mode**, ES2022 target, ESNext modules
 - **Data-driven design**: Game content defined in JSON, loaded at runtime via registry pattern
 - **Pure-ish systems**: Most systems take GameState + inputs → return updated GameState. Side effects are documented in each system's contract (see codemap.md).
-- **TransportMap and FogState are external**: These are NOT part of GameState — callers must manage them separately.
-- **History entries**: Many systems write to `unit.history[]` or `faction.history[]` for event tracking (e.g., capture cooldowns tracked via history entries, not dedicated counters).
+- **External state**: `FogState` and `TransportMap` are NOT part of GameState — callers must manage them separately.
+- **History arrays as state**: Many systems write to `unit.history[]` or `faction.history[]` for event tracking (e.g., capture cooldowns tracked via history entries, not dedicated counters).
+- **Deterministic RNG** (`src/core/rng.ts`) for reproducible simulations. Tests use seeded RNG states.
 - **Tests** use fixtures from `tests/fixtures/` and seed RNG for determinism
+
+## Recent Work (not yet fully reflected in docs)
+
+- **Known start positions** — fixed 4/13/2026
+- **Kill-shot execute bonuses** — fixed 4/13/2026
+- **AI difficulty reshuffle** — `aiDifficulty.ts` rewritten with bug fixes
+- **Multi-axis attacks** — combat can now resolve along multiple axes
+- **Fog of war** — `fogSystem.ts` active development
+- **Queued movement across turns** — rendering + execution
 
 ## Navigation
 

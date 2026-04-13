@@ -95,17 +95,17 @@ describe('calculatePrototypeStats', () => {
     expect(stats.defense).toBe(4); // 2 base + 2 bonus
   });
 
-  it('ranged_frame alone: range=2 (baseRange)', () => {
+  it('ranged_frame alone: range=1 (baseRange)', () => {
     const chassis = registry.getChassis('ranged_frame')!;
     const stats = calculatePrototypeStats(chassis, []);
-    expect(stats.range).toBe(2);
+    expect(stats.range).toBe(1);
   });
 
-  it('ranged_frame + basic_bow: range=3 (2+1), attack=3 (1+2)', () => {
+  it('ranged_frame + basic_bow: range=2 (1+1), attack=3 (1+2)', () => {
     const chassis = registry.getChassis('ranged_frame')!;
     const bow = registry.getComponent('basic_bow')!;
     const stats = calculatePrototypeStats(chassis, [bow]);
-    expect(stats.range).toBe(3); // 2 base + 1 bonus
+    expect(stats.range).toBe(2); // 1 base + 1 bonus
     expect(stats.attack).toBe(3); // 1 base + 2 bonus
   });
 });

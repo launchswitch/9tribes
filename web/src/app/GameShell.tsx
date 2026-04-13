@@ -241,6 +241,12 @@ function KnowledgeGainedShellContent({
     <div className="game-shell--v2">
       <div className="game-shell__canvas-host" ref={hostRef} />
       {combatLocked && <div className="combat-overlay-lock" />}
+      {state.playFeedback?.aiProcessing && (
+        <div className="ai-processing-overlay">
+          <span className="ai-processing-spinner" />
+          <span>AI thinking…</span>
+        </div>
+      )}
 
       <CombatLogPanel events={state.hud.recentCombat} isOpen={combatLogOpen} onToggle={handleCombatLogToggle} />
 

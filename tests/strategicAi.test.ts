@@ -409,7 +409,8 @@ describe('strategic AI', () => {
     const normalStrategy = computeFactionStrategy(state, hillId, registry, 'normal');
     const hardStrategy = computeFactionStrategy(state, hillId, registry, 'hard');
 
-    expect(normalStrategy.primaryCityObjectiveId).toBeUndefined();
+    // Normal knows enemy home city via knownStartPositions but cannot see hidden units
+    expect(normalStrategy.primaryCityObjectiveId).toBe(steppeCityId);
     expect(normalStrategy.focusTargetUnitIds.length).toBe(0);
     expect(hardStrategy.primaryCityObjectiveId).toBe(steppeCityId);
     expect(hardStrategy.focusTargetUnitIds.length).toBeGreaterThan(0);

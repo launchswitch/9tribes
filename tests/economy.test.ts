@@ -1,5 +1,6 @@
 import { loadRulesRegistry } from '../src/data/loader/loadRulesRegistry';
 import { buildMvpScenario } from '../src/game/buildMvpScenario';
+import { assemblePrototype } from '../src/design/assemblePrototype';
 import { deriveResourceIncome, getSupplyDeficit } from '../src/systems/economySystem';
 import { createFactionEconomy } from '../src/features/economy/types';
 import { getFactionProjectedSupplyDemand, getProjectedSupplyDemandWithPrototype, getUnitSupplyCost } from '../src/systems/productionSystem';
@@ -72,9 +73,15 @@ describe('resource income derivation', () => {
     const state = buildMvpScenario(42);
     const factionId = 'steppe_clan' as never;
     const currentDemand = getFactionProjectedSupplyDemand(state, factionId, registry);
-    const cavalryPrototype = Array.from(state.prototypes.values()).find(
+    let cavalryPrototype = Array.from(state.prototypes.values()).find(
       (prototype) => prototype.factionId === factionId && prototype.chassisId === 'cavalry_frame',
     );
+    if (!cavalryPrototype) {
+      cavalryPrototype = assemblePrototype(factionId, 'cavalry_frame', ['basic_bow', 'skirmish_drill'], registry);
+      state.prototypes.set(cavalryPrototype.id, cavalryPrototype);
+      const faction = state.factions.get(factionId)!;
+      state.factions.set(factionId, { ...faction, prototypeIds: [...faction.prototypeIds, cavalryPrototype!.id] });
+    }
 
     expect(currentDemand).toBeGreaterThan(0);
     expect(cavalryPrototype).toBeTruthy();

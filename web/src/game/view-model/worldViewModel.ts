@@ -27,8 +27,10 @@ import {
   getAvailableProductionPrototypes,
   getPrototypeCostType,
   getPrototypeQueueCost,
+  getUnitCost,
   SETTLER_VILLAGE_COST,
 } from '../../../../src/systems/productionSystem.js';
+import { calculatePrototypeCost, getDomainIdsByTags, getPrototypeCostModifier, isUnlockPrototype } from '../../../../src/systems/knowledgeSystem.js';
 import type {
   CityInspectorViewModel,
   ClientMode,
@@ -821,26 +823,55 @@ function buildCityInspectorViewModel(state: GameState, cityId: string, registry:
     canManageProduction,
     production: {
       status: city.currentProduction ? 'producing' : 'idle',
-      current: city.currentProduction ? {
-        id: city.currentProduction.item.id,
-        name: currentItem?.name ?? city.currentProduction.item.id,
-        type: city.currentProduction.item.type,
-        cost: city.currentProduction.cost,
-        costType: currentCostType,
-        costLabel: currentCostType === 'villages'
-          ? `${city.currentProduction.cost} villages`
-          : `${city.currentProduction.cost} production`,
-        progress: currentProgress,
-        remaining: currentRemaining,
-        turnsRemaining: currentCostType === 'villages'
-          ? null
-          : perTurnIncome > 0
-            ? Math.ceil(Math.max(0, city.currentProduction.cost - city.currentProduction.progress) / perTurnIncome)
-            : null,
-      } : null,
+      current: city.currentProduction ? (() => {
+        const baseCost = currentItem ? getUnitCost(currentItem.chassisId) : undefined;
+        let costModifier: number | undefined;
+        let costModifierReason: string | undefined;
+        if (currentItem && faction && isUnlockPrototype(currentItem) && currentCostType === 'production') {
+          const domainIds = getDomainIdsByTags(currentItem.tags ?? []);
+          const maxModifier = domainIds.reduce((max, d) => Math.max(max, getPrototypeCostModifier(faction, d)), 1.0);
+          if (maxModifier > 1.0) {
+            costModifier = maxModifier;
+            costModifierReason = maxModifier >= 2.0 ? 'Culture Shock' : 'Integrating';
+          }
+        }
+        return {
+          id: city.currentProduction!.item.id,
+          name: currentItem?.name ?? city.currentProduction!.item.id,
+          type: city.currentProduction!.item.type,
+          cost: city.currentProduction!.cost,
+          costType: currentCostType,
+          costLabel: currentCostType === 'villages'
+            ? `${city.currentProduction!.cost} villages`
+            : `${city.currentProduction!.cost} production`,
+          baseCost: costModifier ? baseCost : undefined,
+          costModifier,
+          costModifierReason,
+          progress: currentProgress,
+          remaining: currentRemaining,
+          turnsRemaining: currentCostType === 'villages'
+            ? null
+            : perTurnIncome > 0
+              ? Math.ceil(Math.max(0, city.currentProduction!.cost - city.currentProduction!.progress) / perTurnIncome)
+              : null,
+        };
+      })() : null,
       queue: city.productionQueue.map((item) => {
         const prototype = state.prototypes.get(item.id as never);
         const costType = item.costType ?? 'production';
+        let baseCost: number | undefined;
+        let costModifier: number | undefined;
+        let costModifierReason: string | undefined;
+        if (prototype && faction && isUnlockPrototype(prototype) && costType === 'production') {
+          const rawBase = getUnitCost(prototype.chassisId);
+          const domainIds = getDomainIdsByTags(prototype.tags ?? []);
+          const maxModifier = domainIds.reduce((max, d) => Math.max(max, getPrototypeCostModifier(faction, d)), 1.0);
+          if (maxModifier > 1.0) {
+            baseCost = rawBase;
+            costModifier = maxModifier;
+            costModifierReason = maxModifier >= 2.0 ? 'Culture Shock' : 'Integrating';
+          }
+        }
         return {
           id: item.id,
           name: prototype?.name ?? item.id,
@@ -848,6 +879,9 @@ function buildCityInspectorViewModel(state: GameState, cityId: string, registry:
           cost: item.cost,
           costType,
           costLabel: costType === 'villages' ? `${item.cost} villages` : `${item.cost} production`,
+          baseCost,
+          costModifier,
+          costModifierReason,
         };
       }),
       perTurnIncome,
@@ -855,7 +889,21 @@ function buildCityInspectorViewModel(state: GameState, cityId: string, registry:
     productionOptions: (!faction ? [] : getAvailableProductionPrototypes(state, city.factionId, registry))
       .map((prototype) => {
         const costType = getPrototypeCostType(prototype);
-        const cost = getPrototypeQueueCost(prototype);
+        const baseRawCost = getUnitCost(prototype.chassisId);
+        let cost = getPrototypeQueueCost(prototype);
+        let baseCost: number | undefined;
+        let costModifier: number | undefined;
+        let costModifierReason: string | undefined;
+        if (isUnlockPrototype(prototype) && costType === 'production' && faction) {
+          const domainIds = getDomainIdsByTags(prototype.tags ?? []);
+          const maxModifier = domainIds.reduce((max, d) => Math.max(max, getPrototypeCostModifier(faction, d)), 1.0);
+          cost = calculatePrototypeCost(baseRawCost, faction, domainIds, prototype);
+          if (maxModifier > 1.0) {
+            baseCost = baseRawCost;
+            costModifier = maxModifier;
+            costModifierReason = maxModifier >= 2.0 ? 'Culture Shock' : 'Integrating';
+          }
+        }
         const villageCount = faction?.villageIds.length ?? 0;
         const disabledReason = !canManageProduction
           ? city.besieged
@@ -870,6 +918,9 @@ function buildCityInspectorViewModel(state: GameState, cityId: string, registry:
           cost,
           costType,
           costLabel: costType === 'villages' ? `${cost} villages` : `${cost} production`,
+          baseCost,
+          costModifier,
+          costModifierReason,
           chassisId: prototype.chassisId,
           attack: prototype.derivedStats.attack,
           defense: prototype.derivedStats.defense,

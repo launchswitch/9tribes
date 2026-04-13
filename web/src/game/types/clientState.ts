@@ -96,6 +96,9 @@ export type CityInspectorViewModel = {
       cost: number;
       costType: 'production' | 'villages';
       costLabel: string;
+      baseCost?: number;
+      costModifier?: number;
+      costModifierReason?: string;
       progress: number;
       remaining: number;
       turnsRemaining: number | null;
@@ -107,6 +110,9 @@ export type CityInspectorViewModel = {
       cost: number;
       costType: 'production' | 'villages';
       costLabel: string;
+      baseCost?: number;
+      costModifier?: number;
+      costModifierReason?: string;
     }>;
     perTurnIncome: number;
   };
@@ -116,6 +122,9 @@ export type CityInspectorViewModel = {
     cost: number;
     costType: 'production' | 'villages';
     costLabel: string;
+    baseCost?: number;
+    costModifier?: number;
+    costModifierReason?: string;
     chassisId: string;
     attack: number;
     defense: number;
@@ -238,6 +247,7 @@ export type PlayFeedbackState = {
       }
     | null;
   absorbedDomains: string[];
+  aiProcessing: boolean;
 };
 
 // ── Research Inspector View Model ──

@@ -1,8 +1,21 @@
 import { loadRulesRegistry } from '../src/data/loader/loadRulesRegistry';
 import { buildMvpScenario } from '../src/game/buildMvpScenario';
+import { assemblePrototype } from '../src/design/assemblePrototype';
 import { canProducePrototype, getAvailableProductionPrototypes } from '../src/systems/productionSystem';
 
 const registry = loadRulesRegistry();
+
+function ensureCavalryPrototype(state: ReturnType<typeof buildMvpScenario>, factionId: string) {
+  const existing = Array.from(state.prototypes.values()).find(
+    (p) => p.factionId === factionId && p.chassisId === 'cavalry_frame',
+  );
+  if (existing) return existing;
+  const prototype = assemblePrototype(factionId as any, 'cavalry_frame', ['basic_bow', 'skirmish_drill'] as any, registry);
+  state.prototypes.set(prototype.id, prototype);
+  const faction = state.factions.get(factionId as never)!;
+  state.factions.set(factionId as never, { ...faction, prototypeIds: [...faction.prototypeIds, prototype.id] });
+  return prototype;
+}
 
 describe('production progression', () => {
   it('steppe starts with mounted progression unlocked for fresh-game cavalry production', () => {
@@ -10,9 +23,7 @@ describe('production progression', () => {
     const factionId = 'steppe_clan' as never;
     const faction = state.factions.get(factionId)!;
     const research = state.research.get(factionId)!;
-    const cavalryPrototype = Array.from(state.prototypes.values()).find(
-      (prototype) => prototype.factionId === factionId && prototype.chassisId === 'cavalry_frame',
-    );
+    const cavalryPrototype = ensureCavalryPrototype(state, factionId);
 
     // Fresh starts only learn the native domain plus explicit startingLearnedDomains.
     // Capability seeds do not auto-add learned domains or completed research nodes.
@@ -26,6 +37,8 @@ describe('production progression', () => {
 
   it('fresh starts with special roster units can build those same units on turn 1', () => {
     const state = buildMvpScenario(42, { registry });
+    // Ensure cavalry prototype exists for steppe_clan (starting units changed but identity remains)
+    ensureCavalryPrototype(state, 'steppe_clan');
     const expectations = [
       {
         factionId: 'steppe_clan',
@@ -71,9 +84,7 @@ describe('production progression', () => {
     const state = buildMvpScenario(42, { registry });
     const factionId = 'steppe_clan' as never;
     const faction = state.factions.get(factionId)!;
-    const cavalryPrototype = Array.from(state.prototypes.values()).find(
-      (prototype) => prototype.factionId === factionId && prototype.chassisId === 'cavalry_frame',
-    );
+    const cavalryPrototype = ensureCavalryPrototype(state, factionId);
 
     expect(cavalryPrototype).toBeTruthy();
     state.factions.set(factionId, {

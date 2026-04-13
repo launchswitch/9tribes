@@ -2954,6 +2954,24 @@ select {
   border-radius: 4px;
 }
 
+.pq-base-cost {
+  text-decoration: line-through;
+  opacity: 0.5;
+  margin-right: 4px;
+  font-size: 10px;
+}
+
+.pq-shock-note {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--danger, #e74c3c);
+  background: rgba(231, 76, 60, 0.1);
+  padding: 0 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+}
+
 .pq-current__name {
   display: block;
   font-family: 'Fraunces', serif;
@@ -4372,6 +4390,41 @@ select {
   inset: 0;
   z-index: 50;
   cursor: wait;
+}
+
+/* AI turn processing overlay — keeps canvas interactive while AI works */
+.ai-processing-overlay {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(15, 12, 8, 0.85);
+  border: 1px solid rgba(210, 168, 76, 0.4);
+  border-radius: 0 0 8px 8px;
+  color: #d2a84a;
+  font-size: 13px;
+  font-family: 'Cinzel', serif;
+  pointer-events: none;
+  user-select: none;
+}
+
+.ai-processing-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(210, 168, 76, 0.3);
+  border-top-color: #d2a84a;
+  border-radius: 50%;
+  animation: ai-spin 0.8s linear infinite;
+}
+
+@keyframes ai-spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ═══════════════════════════════════════

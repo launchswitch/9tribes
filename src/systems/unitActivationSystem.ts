@@ -1448,6 +1448,29 @@ export function activateUnit(
       current = applyHillDugInIfEligible(current, factionId, unitId);
       return { state: setUnitActivated(current, unitId), pendingCombat: null };
     }
+
+    // After strategic movement, check for adjacent enemies and attack if possible
+    if (movedUnit.hp > 0) {
+      const postMoveTarget = findBestTargetChoice(
+        current, unitId, movedUnit.position, factionId, prototype as any, registry, threatenedCityPosition
+      );
+      if (postMoveTarget.target && postMoveTarget.score > 0) {
+        const postMoveEnemy = postMoveTarget.target;
+        const postMovePreview = previewCombatAction(current, registry, movedUnit.id, postMoveEnemy.id);
+        if (postMovePreview) {
+          if (combatMode === 'preview') {
+            return { state: current, pendingCombat: postMovePreview };
+          }
+          const postMoveCombat = applyCombatAction(current, registry, postMovePreview);
+          current = postMoveCombat.state;
+          const enemyProto = current.prototypes.get(postMoveEnemy.prototypeId);
+          log(trace, `${faction.name} ${prototype.name} attacked ${enemyProto?.name ?? 'enemy'} after movement`);
+          current = buildFieldFortIfEligible(current, factionId, unitId, registry, fortsBuiltThisRound);
+          current = applyHillDugInIfEligible(current, factionId, unitId);
+          return { state: setUnitActivated(current, unitId), pendingCombat: null };
+        }
+      }
+    }
   }
 
   current = buildFieldFortIfEligible(current, factionId, unitId, registry, fortsBuiltThisRound);

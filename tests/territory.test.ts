@@ -40,8 +40,8 @@ describe('Territory Control', () => {
     }
     const city = Array.from(state.cities.values())[0];
     const territory = getCityTerritoryHexes(city, state.map!, 2);
-    // City at radius 2 should claim 20 hexes (hexagonal radius formula: 1 + 3*N*(N+1) = 19 + 1 center = 20)
-    expect(territory.size).toBe(20);
+    // City at radius 2 claims 25 hexes (Chebyshev square: (2*2+1)^2 = 25)
+    expect(territory.size).toBe(25);
   });
 
   it('hex owner is the faction that claims it', () => {

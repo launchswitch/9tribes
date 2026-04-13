@@ -1,5 +1,6 @@
 import { loadRulesRegistry } from '../src/data/loader/loadRulesRegistry';
 import { buildMvpScenario } from '../src/game/buildMvpScenario';
+import { assemblePrototype } from '../src/design/assemblePrototype';
 import {
   canCompleteCurrentProduction,
   queueUnit,
@@ -40,9 +41,14 @@ describe('unit costs', () => {
     const state = buildMvpScenario(42, { registry });
     const factionId = 'steppe_clan' as never;
     const faction = state.factions.get(factionId)!;
-    const cavalryPrototype = Array.from(state.prototypes.values()).find(
+    let cavalryPrototype = Array.from(state.prototypes.values()).find(
       (prototype) => prototype.factionId === factionId && prototype.chassisId === 'cavalry_frame',
     );
+    if (!cavalryPrototype) {
+      cavalryPrototype = assemblePrototype(factionId, 'cavalry_frame', ['basic_bow', 'skirmish_drill'], registry);
+      state.prototypes.set(cavalryPrototype.id, cavalryPrototype);
+      state.factions.set(factionId, { ...faction, prototypeIds: [...faction.prototypeIds, cavalryPrototype.id] });
+    }
 
     expect(cavalryPrototype).toBeTruthy();
 

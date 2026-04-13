@@ -328,7 +328,7 @@ function getPrototypeProductionCost(
     return prototype.sourceRecipeId === 'settler' ? 0 : getUnitCost(prototype.chassisId);
   }
 
-  return calculatePrototypeCost(getUnitCost(prototype.chassisId), faction, getDomainIdsByTags(prototype.tags ?? []));
+  return calculatePrototypeCost(getUnitCost(prototype.chassisId), faction, getDomainIdsByTags(prototype.tags ?? []), prototype);
 }
 
 function averageRecordCounts(records: Record<string, number>[]): Record<string, number> {

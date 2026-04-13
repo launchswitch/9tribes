@@ -188,19 +188,23 @@ export function MenuClient() {
               <div className="menu-config-card">
                 <h3>Difficulty</h3>
                 <div className="menu-chip-row">
-                  {(['easy', 'normal', 'hard'] as DifficultyLevel[]).map((difficulty) => (
-                    <button
-                      key={difficulty}
-                      className={`menu-chip ${setup.difficulty === difficulty ? 'is-selected' : ''}`}
-                      type="button"
-                      onClick={() => {
-                        playUiSelect();
-                        setSetup((current) => ({ ...current, difficulty }));
-                      }}
-                    >
-                      {difficulty}
-                    </button>
-                  ))}
+                  {(['easy', 'normal', 'hard'] as DifficultyLevel[]).map((difficulty) => {
+                    const isLocked = difficulty !== 'normal';
+                    return (
+                      <button
+                        key={difficulty}
+                        className={`menu-chip ${setup.difficulty === difficulty ? 'is-selected' : ''} ${isLocked ? 'is-disabled' : ''}`}
+                        type="button"
+                        disabled={isLocked}
+                        onClick={() => {
+                          playUiSelect();
+                          setSetup((current) => ({ ...current, difficulty }));
+                        }}
+                      >
+                        {difficulty}
+                      </button>
+                    );
+                  })}
                 </div>
                 <p className="menu-config-card__hint">{DIFFICULTY_COPY[setup.difficulty]}</p>
               </div>

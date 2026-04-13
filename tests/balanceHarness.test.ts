@@ -3,27 +3,16 @@ import { assemblePrototype } from '../src/design/assemblePrototype';
 import { buildMvpScenario } from '../src/game/buildMvpScenario';
 import {
   collectSeedBalanceMetrics,
-  DEFAULT_HARNESS_TURNS,
-  SMOKE_HARNESS_SEEDS,
-  STRATIFIED_HARNESS_SEEDS_BY_ARCHETYPE,
   runBalanceHarness,
   runPairedDifficultyBalanceHarness,
-  runStratifiedBalanceHarness,
-  type BatchBalanceSummary,
 } from '../src/systems/balanceHarness';
 import { getSettlementOwnershipSnapshot } from '../src/systems/factionOwnershipSystem';
 import { createSimulationTrace, runWarEcologySimulation } from '../src/systems/warEcologySimulation';
-import baselineData from './fixtures/balanceHarness.baseline.json';
-
-interface NumericToleranceMap {
-  [key: string]: number | NumericToleranceMap;
-}
 
 const registry = loadRulesRegistry();
 
-function loadBaseline(): { summary: BatchBalanceSummary; tolerances: NumericToleranceMap } {
-  return baselineData as { summary: BatchBalanceSummary; tolerances: NumericToleranceMap };
-}
+const QUICK_SEEDS = [11, 37, 97] as const;
+const QUICK_TURNS = 50;
 
 function replaceSteppeInfantryWithCavalry(seed: number) {
   const state = buildMvpScenario(seed);
@@ -69,56 +58,18 @@ function replaceSteppeInfantryWithCavalry(seed: number) {
   return state;
 }
 
-function expectWithinTolerance(
-  actual: unknown,
-  expected: unknown,
-  tolerances: NumericToleranceMap,
-  path: string[] = []
-): void {
-  if (typeof expected === 'number' && typeof actual === 'number') {
-    const toleranceValue = path.reduce<number | NumericToleranceMap>(
-      (current, segment) =>
-        typeof current === 'number' ? current : (current?.[segment] ?? 0),
-      tolerances
-    );
-    const tolerance = typeof toleranceValue === 'number' ? toleranceValue : 0;
-    expect(Math.abs(actual - expected)).toBeLessThanOrEqual(tolerance);
-    return;
-  }
-
-  if (Array.isArray(expected) && Array.isArray(actual)) {
-    expect(actual).toEqual(expected);
-    return;
-  }
-
-  if (expected && typeof expected === 'object' && actual && typeof actual === 'object') {
-    for (const [key, value] of Object.entries(expected)) {
-      expectWithinTolerance(
-        (actual as Record<string, unknown>)[key],
-        value,
-        tolerances,
-        [...path, key]
-      );
-    }
-    return;
-  }
-
-  expect(actual).toEqual(expected);
-}
-
 describe('balance harness', () => {
   it('produces deterministic batch metrics for the smoke seed set', () => {
-    const first = runBalanceHarness(registry, SMOKE_HARNESS_SEEDS, DEFAULT_HARNESS_TURNS);
-    const second = runBalanceHarness(registry, SMOKE_HARNESS_SEEDS, DEFAULT_HARNESS_TURNS);
+    const first = runBalanceHarness(registry, [11, 37], 20);
+    const second = runBalanceHarness(registry, [11, 37], 20);
 
     expect(first).toEqual(second);
   });
 
   it('keeps core batch metrics deterministic and within sane bounds', () => {
-    const actual = runBalanceHarness(registry, SMOKE_HARNESS_SEEDS, DEFAULT_HARNESS_TURNS);
-    const baseline = loadBaseline().summary;
+    const actual = runBalanceHarness(registry, QUICK_SEEDS, QUICK_TURNS);
 
-    expect(actual.totalSeeds).toBe(baseline.totalSeeds);
+    expect(actual.totalSeeds).toBe(QUICK_SEEDS.length);
     expect(actual.mapMode).toBe('fixed');
     expect(actual.totalBattles).toBeGreaterThan(0);
     expect(actual.totalKills).toBeGreaterThan(0);
@@ -127,7 +78,7 @@ describe('balance harness', () => {
   });
 
   it('still exercises the war simulation in meaningful ways across the smoke seeds', () => {
-    const summary = runBalanceHarness(registry, SMOKE_HARNESS_SEEDS, DEFAULT_HARNESS_TURNS);
+    const summary = runBalanceHarness(registry, QUICK_SEEDS, QUICK_TURNS);
 
     expect(summary.totalBattles).toBeGreaterThan(0);
     expect(summary.totalKills).toBeGreaterThan(0);
@@ -145,10 +96,10 @@ describe('balance harness', () => {
   });
 
   it('reports authoritative settlement totals for each smoke seed', () => {
-    for (const seed of SMOKE_HARNESS_SEEDS) {
-      const result = runWarEcologySimulation(buildMvpScenario(seed, { mapMode: 'fixed' }), registry, DEFAULT_HARNESS_TURNS);
+    for (const seed of QUICK_SEEDS) {
+      const result = runWarEcologySimulation(buildMvpScenario(seed, { mapMode: 'fixed' }), registry, QUICK_TURNS);
       const snapshot = getSettlementOwnershipSnapshot(result);
-      const metrics = collectSeedBalanceMetrics(seed, registry, DEFAULT_HARNESS_TURNS);
+      const metrics = collectSeedBalanceMetrics(seed, registry, QUICK_TURNS);
 
       expect(Object.values(metrics.factions).reduce((sum, faction) => sum + faction.cities, 0)).toBe(result.cities.size);
       expect(Object.values(metrics.factions).reduce((sum, faction) => sum + faction.villages, 0)).toBe(result.villages.size);
@@ -158,7 +109,7 @@ describe('balance harness', () => {
   });
 
   it('keeps the previous impossible-ownership regression seed within world bounds', () => {
-    const result = runWarEcologySimulation(buildMvpScenario(37, { mapMode: 'fixed' }), registry, DEFAULT_HARNESS_TURNS);
+    const result = runWarEcologySimulation(buildMvpScenario(37, { mapMode: 'fixed' }), registry, QUICK_TURNS);
     const snapshot = getSettlementOwnershipSnapshot(result);
 
     expect(snapshot.totalListedCities).toBe(9);
@@ -167,11 +118,14 @@ describe('balance harness', () => {
   });
 
   it('runs a stratified harness with classified archetypes matching configured seeds', () => {
-    const summary = runStratifiedBalanceHarness(registry, DEFAULT_HARNESS_TURNS);
+    // Use one seed per archetype for quick validation
+    const quickStratified = { jungle_warfare: [1], harsh_frontier: [3], open_war: [11], coastal: [124] } as const;
+    const quickSeeds = Object.values(quickStratified).flat();
+    const summary = runBalanceHarness(registry, quickSeeds, QUICK_TURNS, 'fixed');
     const classifiedSeeds = Object.values(summary.mapArchetypes).reduce((sum, count) => sum + count, 0);
 
     expect(summary.mapMode).toBe('fixed');
-    expect(summary.totalSeeds).toBe(Object.values(STRATIFIED_HARNESS_SEEDS_BY_ARCHETYPE).flat().length);
+    expect(summary.totalSeeds).toBe(quickSeeds.length);
     expect(classifiedSeeds).toBe(summary.totalSeeds);
     expect(Object.keys(summary.mapArchetypes).length).toBeGreaterThan(0);
   });

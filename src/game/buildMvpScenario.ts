@@ -86,8 +86,8 @@ export function buildMvpScenario(seed: number, options: BuildMvpScenarioOptions 
     requestedFactionIds.size === 0 || requestedFactionIds.has(config.id)
   );
   const mapMode = options.mapMode ?? scenarioConfig.mapMode;
-  const mapSize = options.mapSize ?? 'medium';
-  const mapDimensions = MAP_SIZE_DIMENSIONS[mapSize];
+  const mapSize = options.balanceOverrides?.scenario ? undefined : (options.mapSize ?? 'medium');
+  const mapDimensions = mapSize ? MAP_SIZE_DIMENSIONS[mapSize] : undefined;
   const startingPositions = new Map<string, { q: number; r: number }>();
   const settlerStartFactionIds = new Set(options.settlerStartFactionIds ?? []);
 

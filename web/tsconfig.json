@@ -14,6 +14,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
+    "outDir": "../dist-web",
     "jsx": "react-jsx"
   },
   "include": ["src", "../src/**/*.ts", "../src/**/*.json"],

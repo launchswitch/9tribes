@@ -1,7 +1,9 @@
 import { loadRulesRegistry } from '../src/data/loader/loadRulesRegistry';
 import { buildMvpScenario } from '../src/game/buildMvpScenario';
+import { assemblePrototype } from '../src/design/assemblePrototype';
 import { previewMove } from '../src/systems/movementSystem';
 import { hexToKey } from '../src/core/grid';
+import { createUnitId } from '../src/core/ids';
 
 const registry = loadRulesRegistry();
 
@@ -17,8 +19,47 @@ function getFactionUnitByMovementClass(
     return registry.getChassis(prototype.chassisId)?.movementClass === movementClass;
   });
 
-  expect(unitId).toBeTruthy();
-  return state.units.get(unitId!)!;
+  if (unitId) return state.units.get(unitId)!;
+
+  // No unit with that movement class — assemble one from the faction's city
+  const chassisEntry = Array.from(registry.getAllChassis?.() ?? []).find(
+    (c: any) => c.movementClass === movementClass,
+  );
+  if (!chassisEntry) {
+    expect(unitId).toBeTruthy();
+    return null as never;
+  }
+  const city = state.cities.get(faction.cityIds[0]!);
+  const prototype = assemblePrototype(factionId as any, chassisEntry.id, [] as any, registry);
+  state.prototypes.set(prototype.id, prototype);
+  const unitId2 = createUnitId();
+  const unit = {
+    id: unitId2,
+    factionId,
+    position: city?.position ?? { q: 0, r: 0 },
+    facing: 0,
+    hp: prototype.derivedStats.hp,
+    maxHp: prototype.derivedStats.hp,
+    movesRemaining: prototype.derivedStats.moves,
+    maxMoves: prototype.derivedStats.moves,
+    attacksRemaining: 1,
+    xp: 0,
+    veteranLevel: 'green' as const,
+    status: 'ready' as const,
+    prototypeId: prototype.id,
+    history: [],
+    morale: 100,
+    routed: false,
+    poisoned: false,
+    enteredZoCThisActivation: false,
+    poisonStacks: 0,
+    isStealthed: false,
+    turnsSinceStealthBreak: 0,
+    learnedAbilities: [],
+  };
+  state.units.set(unitId2, unit);
+  faction.unitIds.push(unitId2);
+  return unit;
 }
 
 describe('movementSystem', () => {

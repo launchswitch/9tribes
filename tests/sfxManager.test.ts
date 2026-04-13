@@ -25,6 +25,8 @@ function makePlayState(options: {
       lastResearchCompletion: null,
       hitAndRunRetreat: null,
       lastSettlerVillageSpend: options.lastSettlerVillageSpend ?? null,
+      absorbedDomains: [],
+      lastCapture: null,
       victory: null,
     },
   } as any;

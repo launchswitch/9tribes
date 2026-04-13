@@ -28,6 +28,8 @@ import {
   startResearch,
 } from '../../../../src/systems/researchSystem.js';
 import { unlockHybridRecipes } from '../../../../src/systems/hybridSystem.js';
+import { calculatePrototypeCost, getDomainIdsByTags, isUnlockPrototype } from '../../../../src/systems/knowledgeSystem.js';
+import { getUnitCost } from '../../../../src/systems/productionSystem.js';
 import type { CombatResult } from '../../../../src/systems/combatSystem.js';
 import type { GameAction } from '../types/clientState';
 import type { ReplayCombatEvent } from '../types/replay';
@@ -100,6 +102,8 @@ type SessionFeedback = {
       }
     | null;
   absorbedDomains: string[];
+  /** True while runAiUntilHumanTurn is actively processing AI factions (yielded to event loop) */
+  aiProcessing: boolean;
 };
 
 type AiTurnContext = {
@@ -162,6 +166,7 @@ export class GameSession {
     lastSettlerVillageSpend: null,
     absorbedDomains: [],
     liveCombatEvents: [],
+    aiProcessing: false,
   };
 
   /** Holds a pre-resolved combat waiting for animation to complete before applying */
@@ -188,7 +193,7 @@ export class GameSession {
       this.state.factions.forEach((_faction, factionId) => this.humanControlledFactionIds.add(factionId));
     }
     this.feedback.lastActiveFactionId = this.state.activeFactionId;
-    this.runAiUntilHumanTurn();
+    this.continueAiUntilHumanTurn();
   }
 
   getState() {
@@ -226,6 +231,7 @@ export class GameSession {
           }
         : null,
       absorbedDomains: [...this.feedback.absorbedDomains],
+      aiProcessing: this.feedback.aiProcessing,
     };
   }
 
@@ -277,6 +283,9 @@ export class GameSession {
         this.applyDisembarkUnit(action.unitId, action.transportId, action.destination);
         return;
       case 'end_turn':
+        // Execute pending move queues at end of turn (before MP refresh) so units
+        // arrive at their destination but start the next turn with full MP.
+        this.state = this.executeMoveQueues(this.state);
         if (this.state.activeFactionId) {
           const activeFactionId = this.state.activeFactionId;
           this.state = runFactionPhase(this.state, activeFactionId as never, this.registry, {
@@ -285,15 +294,13 @@ export class GameSession {
         }
         this.feedback.lastMove = null;
         this.state = this.refreshFogForAllFactions(advanceTurn(this.state));
-        // Execute pending move queues for human factions after MP refresh
-        this.state = this.executeMoveQueues(this.state);
         this.feedback.endTurnCount += 1;
         this.feedback.lastActiveFactionId = this.state.activeFactionId;
         this.feedback.lastTurnChange = this.state.activeFactionId
           ? { factionId: this.state.activeFactionId }
           : null;
         this.record('turn', `Turn passed to ${this.getActiveFactionName()}.`);
-        this.runAiUntilHumanTurn();
+        this.continueAiUntilHumanTurn();
         return;
       case 'set_city_production':
         this.setCityProduction(action.cityId, action.prototypeId);
@@ -748,10 +755,6 @@ export class GameSession {
   }
 
   dequeueAiCombat(): PendingCombat | null {
-    if (this._aiCombatQueue.length === 0) {
-      this.runAiUntilHumanTurn();
-    }
-
     const next = this._aiCombatQueue.shift() ?? null;
     if (next) {
       this._pendingCombat = next;
@@ -793,22 +796,40 @@ export class GameSession {
     return this.isHumanControlledFaction(attackerFactionId) || this.isHumanControlledFaction(defenderFactionId);
   }
 
-  private runAiUntilHumanTurn() {
+  /**
+   * Drives AI turn processing asynchronously, yielding to the event loop between
+   * units and factions so the browser can repaint and remain responsive.
+   * Resumes via setTimeout until a human faction is active or safety is hit.
+   */
+  private continueAiUntilHumanTurn(): void {
+    this.feedback.aiProcessing = true;
+    const result = this.runAiChunk();
+    if (!result.done) {
+      setTimeout(() => this.continueAiUntilHumanTurn(), 0);
+    } else {
+      this.feedback.aiProcessing = false;
+    }
+  }
+
+  private runAiChunk(): { done: boolean } {
     let safety = 0;
     while (this.state.activeFactionId && !this.isHumanControlledFaction(this.state.activeFactionId)) {
       if (safety >= 32) {
         this.record('turn', 'AI turn loop stopped early due to safety guard.');
-        break;
+        this.feedback.aiProcessing = false;
+        return { done: true };
       }
 
-      if (!this.processAiTurnUntilBoundary(this.state.activeFactionId)) {
-        break;
+      if (!this.processAiTurnChunk(this.state.activeFactionId)) {
+        return { done: false }; // combat pending, will resume via setTimeout
       }
       safety += 1;
     }
+    this.feedback.aiProcessing = false;
+    return { done: true };
   }
 
-  private processAiTurnUntilBoundary(factionId: string) {
+  private processAiTurnChunk(factionId: string) {
     if (this.state.activeFactionId !== factionId) {
       return false;
     }
@@ -856,8 +877,7 @@ export class GameSession {
     this.state = this.refreshFogForAllFactions(advanceTurn(this.state));
     // Update siege state for all cities after turn advance
     this.state = this.updateSiegeState(this.state);
-    // If control passed back to a human faction, resolve queued moves on turn start.
-    this.state = this.executeMoveQueues(this.state);
+    // Queued moves execute at end of human turn (via end_turn handler), not here.
     this.feedback.lastActiveFactionId = this.state.activeFactionId;
     this.feedback.lastTurnChange = this.state.activeFactionId
       ? { factionId: this.state.activeFactionId }
@@ -1152,6 +1172,20 @@ export class GameSession {
       return 10;
     }
 
+    // Unlock prototypes (hybrid recipes) use the mastery cost modifier
+    if (isUnlockPrototype(prototype)) {
+      const faction = this.state.factions.get(prototype.factionId as never);
+      if (faction) {
+        return calculatePrototypeCost(
+          getUnitCost(prototype.chassisId),
+          faction,
+          getDomainIdsByTags(prototype.tags ?? []),
+          prototype,
+        );
+      }
+    }
+
+    // Starting prototypes use hardcoded balance-tuned costs
     switch (prototype.chassisId) {
       case 'infantry_frame':
         return 8;

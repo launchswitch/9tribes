@@ -76,7 +76,7 @@ function getProductionCostForPrototype(
   if (getPrototypeCostType(prototype) === 'villages') {
     return prototype.sourceRecipeId === 'settler' ? 0 : getPrototypeQueueCost(prototype);
   }
-  return calculatePrototypeCost(getUnitCost(prototype.chassisId), faction, getDomainIdsByTags(prototype.tags ?? []));
+  return calculatePrototypeCost(getUnitCost(prototype.chassisId), faction, getDomainIdsByTags(prototype.tags ?? []), prototype);
 }
 
 export function getSupplyMargin(economy: { supplyIncome: number; supplyDemand: number }): number {
@@ -359,7 +359,8 @@ export function chooseStrategicProduction(
   const cost = calculatePrototypeCost(
     getUnitCost(prototype.chassisId),
     faction,
-    getDomainIdsByTags(prototype.tags ?? [])
+    getDomainIdsByTags(prototype.tags ?? []),
+    prototype,
   );
   return {
     prototypeId: prototype.id,
