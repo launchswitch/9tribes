@@ -76,6 +76,7 @@ export function generateClimateBandMap(
     carveJungles(map, rng, climateProfile);
     carveRivers(map, rng, options);
     carveSwamps(map, rng, climateProfile);
+    carveMountains(map, rng);
     normalizeClimateBands(map, climateProfile);
 
     const placement = placeStarts(map, rng, requests, options, climateProfile);
@@ -208,7 +209,7 @@ function carveHills(map: GameMap, rng: RNGState): void {
     const radius = rngInt(rng, 1, 2);
     for (const hex of getHexesInRange(center, radius)) {
       const tile = map.tiles.get(hexToKey(hex));
-      if (!tile || WATER_TERRAINS.has(tile.terrain)) continue;
+      if (!tile || WATER_TERRAINS.has(tile.terrain) || tile.terrain === 'mountain') continue;
       if (rngNextFloat(rng) < 0.78) {
         tile.terrain = 'hill';
       }
@@ -226,7 +227,7 @@ function carveJungles(map: GameMap, rng: RNGState, climate: ClimateProfile): voi
     const radius = rngInt(rng, 1, 2);
     for (const hex of getHexesInRange(center, radius)) {
       const tile = map.tiles.get(hexToKey(hex));
-      if (!tile || WATER_TERRAINS.has(tile.terrain)) continue;
+      if (!tile || WATER_TERRAINS.has(tile.terrain) || tile.terrain === 'mountain') continue;
       if (rngNextFloat(rng) < 0.5) {
         tile.terrain = 'jungle';
       }
@@ -236,17 +237,23 @@ function carveJungles(map: GameMap, rng: RNGState, climate: ClimateProfile): voi
 
 function carveRivers(map: GameMap, rng: RNGState, options: ClimateBandMapOptions): void {
   const riverCount = rngInt(rng, options.riverCountMin, options.riverCountMax);
+  let carvedCount = 0;
+  let attempts = 0;
+  const maxAttempts = Math.max(riverCount * 4, 6);
 
-  for (let index = 0; index < riverCount; index++) {
+  while (carvedCount < riverCount && attempts < maxAttempts) {
+    attempts += 1;
     let q = rngInt(rng, 2, map.width - 3);
     let r = rngInt(rng, 1, Math.max(2, Math.floor(map.height * 0.45)));
-
+    const path: HexCoord[] = [];
+    const pathKeys = new Set<string>();
     const riverLength = rngInt(rng, Math.floor(map.height * 0.5), Math.floor(map.height * 0.9));
     for (let step = 0; step < riverLength; step++) {
       const key = hexToKey({ q, r });
       const tile = map.tiles.get(key);
-      if (tile && tile.terrain !== 'coast') {
-        tile.terrain = 'river';
+      if (tile && tile.terrain !== 'coast' && !pathKeys.has(key)) {
+        path.push({ q, r });
+        pathKeys.add(key);
       }
 
       const southBias = rngNextFloat(rng);
@@ -269,6 +276,19 @@ function carveRivers(map: GameMap, rng: RNGState, options: ClimateBandMapOptions
         break;
       }
     }
+
+    if (path.length < 2) {
+      continue;
+    }
+
+    for (const coord of path) {
+      const tile = map.tiles.get(hexToKey(coord));
+      if (tile && tile.terrain !== 'coast') {
+        tile.terrain = 'river';
+      }
+    }
+
+    carvedCount += 1;
   }
 }
 
@@ -311,6 +331,28 @@ function carveSwamps(map: GameMap, rng: RNGState, climate: ClimateProfile): void
       if (tile.terrain === 'swamp') continue;
       if (rngNextFloat(rng) < 0.55) {
         tile.terrain = 'swamp';
+      }
+    }
+  }
+}
+
+const MOUNTAIN_SKIP_TERRAINS = new Set<TerrainType>([...WATER_TERRAINS, 'swamp', 'mountain']);
+
+/**
+ * Carve rare, small mountain clusters — impassable terrain.
+ * Avoids water, swamp, and existing mountains so wetland tiles stay traversable.
+ */
+function carveMountains(map: GameMap, rng: RNGState): void {
+  const clusterCount = Math.max(1, Math.floor(map.width * map.height / 600));
+
+  for (let i = 0; i < clusterCount; i++) {
+    const center = { q: rngInt(rng, 3, map.width - 4), r: rngInt(rng, 3, map.height - 4) };
+    const radius = rngInt(rng, 1, 2);
+    for (const hex of getHexesInRange(center, radius)) {
+      const tile = map.tiles.get(hexToKey(hex));
+      if (!tile || MOUNTAIN_SKIP_TERRAINS.has(tile.terrain)) continue;
+      if (rngNextFloat(rng) < 0.5) {
+        tile.terrain = 'mountain';
       }
     }
   }
@@ -699,7 +741,7 @@ function countTerrainWithinRange(map: GameMap, center: HexCoord, terrain: Terrai
 function countPassableNeighbors(map: GameMap, center: HexCoord, range: number): number {
   return getHexesInRange(center, range)
     .map((hex) => map.tiles.get(hexToKey(hex)))
-    .filter((tile): tile is NonNullable<typeof tile> => Boolean(tile))
+    .filter((tile): tile is NonNullable<typeof tile> => Boolean(tile && tile.terrain !== 'mountain'))
     .length;
 }
 

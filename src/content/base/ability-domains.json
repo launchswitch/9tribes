@@ -41,13 +41,14 @@
     },
     "hitrun": {
       "id": "hitrun",
-      "name": "Skirmish Retreat",
+      "name": "Skirmish Pursuit",
       "nativeFaction": "steppe_clan",
       "tags": ["skirmish"],
       "baseEffect": {
         "type": "on_combat_end",
-        "effect": "retreat",
-        "description": "After combat, unit retreats to safest adjacent hex"
+        "effect": "pursuit",
+        "bonusDamage": 2,
+        "description": "When unit deals more damage than it receives, deals +2 bonus damage (presses the advantage)"
       }
     },
     "tidal_warfare": {

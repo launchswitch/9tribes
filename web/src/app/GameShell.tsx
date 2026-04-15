@@ -47,6 +47,8 @@ type ShellContentProps = {
   onSetTurnBanner: (v: string | null) => void;
   onSetResearchOpen: (v: boolean) => void;
   onSetHelpOpen: (v: boolean) => void;
+  onSetInitialHelpTab: (v: string | undefined) => void;
+  initialHelpTab: string | undefined;
   onSetInspectorOpen: (v: boolean) => void;
   onSetCombatLogOpen: (v: boolean) => void;
   onSetDebugVisible: (v: boolean) => void;
@@ -74,6 +76,8 @@ function KnowledgeGainedShellContent({
   onSetTurnBanner,
   onSetResearchOpen,
   onSetHelpOpen,
+  onSetInitialHelpTab,
+  initialHelpTab,
   onSetInspectorOpen,
   onSetCombatLogOpen,
   onSetDebugVisible,
@@ -253,7 +257,8 @@ function KnowledgeGainedShellContent({
       <GameMenuBar
         state={state}
         onOpenResearch={() => onSetResearchOpen(true)}
-        onOpenHelp={() => onSetHelpOpen(true)}
+        onOpenHelp={() => { onSetInitialHelpTab(undefined); onSetHelpOpen(true); }}
+        onOpenControls={() => { onSetInitialHelpTab('controls'); onSetHelpOpen(true); }}
         onRestartSession={onRestartSession}
         onMenuAction={handleMenuAction}
       />
@@ -332,6 +337,7 @@ function KnowledgeGainedShellContent({
         <HelpPanel
           state={state}
           onClose={() => onSetHelpOpen(false)}
+          initialTab={initialHelpTab}
         />
       ) : null}
     </div>
@@ -350,6 +356,7 @@ export function GameShell({ controller, onRestartSession, onSaveGame }: GameShel
   const [instructionsDismissed, setInstructionsDismissed] = useState(false);
   const [researchOpen, setResearchOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [initialHelpTab, setInitialHelpTab] = useState<string | undefined>(undefined);
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [combatLogOpen, setCombatLogOpen] = useState(false);
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -447,6 +454,8 @@ export function GameShell({ controller, onRestartSession, onSaveGame }: GameShel
           onSetTurnBanner={setTurnBanner}
           onSetResearchOpen={setResearchOpen}
           onSetHelpOpen={setHelpOpen}
+          onSetInitialHelpTab={setInitialHelpTab}
+          initialHelpTab={initialHelpTab}
           onSetInspectorOpen={setInspectorOpen}
           onSetCombatLogOpen={setCombatLogOpen}
           onSetDebugVisible={setDebugVisible}

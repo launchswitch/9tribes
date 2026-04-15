@@ -62,7 +62,14 @@ export const TERRAIN_DEFINITIONS: Record<TerrainType, TerrainDef> = {
     id: 'swamp',
     name: 'Swamp',
     movementCost: 3,
-    defenseBonus: 0,
+    defenseBonus: 1,
+  },
+  mountain: {
+    id: 'mountain',
+    name: 'Mountain',
+    movementCost: 999,
+    defenseBonus: 2,
+    passable: false,
   },
   ocean: {
     id: 'ocean',

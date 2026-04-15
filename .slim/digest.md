@@ -319,3 +319,15 @@ No significant changes detected.
 ### Dependency Changes
 - `src/systems/synergyRuntime.ts` imports: src/systems/synergyEffects.ts (SynergyCombatResult), src/content/base/pair-synergies.json (pairSynergiesData), src/content/base/ability-domains.json (abilityDomainsData), src/content/base/emergent-rules.json (emergentRulesData)
 - `src/systems/combatActionSystem.ts` — 60 dependencies
+
+---
+
+## Digest — 2026-04-14T03:00:41.321965Z
+
+### Modified Files
+- `src/systems/knowledgeSystem.ts` — +1 exports (isUnlockPrototype); ~1 signatures (calculatePrototypeCost)
+- `src/systems/zocSystem.ts` — ~2 signatures (getZoCBlockers, getZoCBlockersWithAura)
+
+### Dependency Changes
+- `src/systems/knowledgeSystem.ts` — 6 dependencies
+- `src/systems/zocSystem.ts` — 12 dependencies

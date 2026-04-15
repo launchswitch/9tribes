@@ -120,7 +120,8 @@ export function previewMove(
   const amphibiousLandingPenalty = (isNavalUnit && isAmphibious && !isWaterTerrain) ? 1 : 0;
 
   // Movement must always spend at least one point per entered hex.
-  let totalCost = terrain.movementCost + zocCost + movementModifier + amphibiousLandingPenalty;
+  // ZoC does NOT add to cost — it triggers a forced-stop (all moves consumed) instead.
+  let totalCost = terrain.movementCost + movementModifier + amphibiousLandingPenalty;
 
   // Endless Stride (desert_nomads signature): all faction units ignore terrain costs
   const factionAbility = rulesRegistry.getSignatureAbility(unit.factionId);
@@ -144,23 +145,23 @@ export function previewMove(
 
   // River crossing (tidal_warfare Tier 1): river costs 1 instead of 2
   if (targetTerrainId === 'river' && doctrine.riverCrossingEnabled) {
-    totalCost = Math.min(totalCost, 1 + zocCost);
+    totalCost = Math.min(totalCost, 1);
   }
   if ((targetTerrainId === 'coast' || targetTerrainId === 'river') && doctrine.amphibiousMovementEnabled) {
-    totalCost = Math.min(totalCost, 1 + zocCost);
+    totalCost = Math.min(totalCost, 1);
   }
   if (targetTerrainId === 'desert' && doctrine.heatResistanceEnabled) {
-    totalCost = Math.min(totalCost, 1 + zocCost);
+    totalCost = Math.min(totalCost, 1);
   }
   // Winter campaign (camel_adaptation Tier 2): no tundra movement penalty
   if (targetTerrainId === 'tundra' && doctrine.winterCampaignEnabled) {
-    totalCost = Math.min(totalCost, 1 + zocCost);
+    totalCost = Math.min(totalCost, 1);
   }
   if (doctrine.forestMovementEnabled && ['forest', 'jungle', 'hill', 'swamp'].includes(targetTerrainId)) {
     totalCost = Math.max(1, totalCost - 1);
   }
   if (canChargeThroughTerrain) {
-    totalCost = Math.min(totalCost, 1 + zocCost);
+    totalCost = Math.min(totalCost, 1);
   }
 
   // Only River People naval movement through rivers is allowed to drop below 1.

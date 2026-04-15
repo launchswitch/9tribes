@@ -125,7 +125,7 @@
     "id": "swamp",
     "name": "Swamp",
     "movementCost": 3,
-    "defenseBonus": 0,
+    "defenseBonus": 1,
     "defenseModifier": 0.25,
     "passable": true,
     "ecologyTags": ["swamp", "wetland", "marsh", "amphibious"],
@@ -133,6 +133,20 @@
       "navigation": 1.0,
       "stealth": 1.5,
       "woodcraft": 0.5
+    }
+  },
+  "mountain": {
+    "id": "mountain",
+    "name": "Mountain",
+    "movementCost": 999,
+    "defenseBonus": 2,
+    "defenseModifier": 0.75,
+    "passable": false,
+    "ecologyTags": ["mountain", "ridge", "stone", "high_ground"],
+    "capabilityPressure": {
+      "fortification": 1.5,
+      "hill_fighting": 1.25,
+      "shock_resistance": 1
     }
   },
   "ocean": {

@@ -103,7 +103,7 @@ export interface CombatActionPreviewDetails {
   frostbiteSlow: number;
   attackerSynergyEffects: string[];
   defenderSynergyEffects: string[];
-  swiftChargeTriggered: boolean;
+  sneakAttackTriggered: boolean;
   stampedeTriggered: boolean;
 }
 
@@ -128,6 +128,7 @@ export interface CombatActionResolution {
   hitAndRunTriggered: boolean;
   healOnRetreatApplied: number;
   totalKnockbackDistance: number;
+  pursuitDamageApplied: number;
 }
 
 export interface CombatActionApplyResult {
@@ -560,11 +561,7 @@ export function previewCombatAction(
   const ambushAttackBonus = attacker.preparedAbility === 'ambush' ? 0.15 : 0;
   const attackerWasStealthed = attacker.isStealthed ?? false;
   let chargeAttackBonus = isChargeAttack && !braceTriggered ? 0.15 : 0;
-  let swiftChargeTriggered = false;
-  if (isChargeAttack && !braceTriggered && attackerPrototype.tags?.includes('cavalry')) {
-    chargeAttackBonus = registry.getSignatureAbility('plains_riders')?.swiftChargeBonus ?? 0.3;
-    swiftChargeTriggered = true;
-  }
+  let sneakAttackTriggered = false;
   let stampedeTriggered = false;
   if (
     isChargeAttack
@@ -579,6 +576,11 @@ export function previewCombatAction(
     : 0;
   let situationalAttackModifier = getCombatAttackModifier(attackerFaction, attackerTerrain, defenderTerrain);
   let situationalDefenseModifier = getCombatDefenseModifier(defenderFaction, defenderTerrain);
+
+  if ((attackerTerrainId === 'river' || attackerTerrainId === 'swamp') && attackerFaction.id === 'plains_riders') {
+    situationalAttackModifier += registry.getSignatureAbility('plains_riders')?.sneakAttackBonus ?? 0.5;
+    sneakAttackTriggered = true;
+  }
 
   const desertAbility = registry.getSignatureAbility('desert_nomads');
   const desertSwarmConfig = desertAbility
@@ -819,8 +821,8 @@ export function previewCombatAction(
   if (fortifiedCoverTriggered) {
     pushCombatEffect(triggeredEffects, 'Fortified Cover', 'Ranged defender in a field fort gained fortified cover.', 'ability');
   }
-  if (swiftChargeTriggered) {
-    pushCombatEffect(triggeredEffects, 'Swift Charge', 'Cavalry signature charge replaced the baseline charge bonus.', 'ability');
+  if (sneakAttackTriggered) {
+    pushCombatEffect(triggeredEffects, 'Sneak Attack', 'River stealth ambush from water terrain for massive damage.', 'ability');
   }
   if (stampedeTriggered) {
     pushCombatEffect(triggeredEffects, 'Stampede', 'Elephant momentum stacked extra charge damage.', 'ability');
@@ -881,7 +883,7 @@ export function previewCombatAction(
       frostbiteSlow: attackerSynergyResult.frostbiteSlow,
       attackerSynergyEffects: attackerSynergyResult.additionalEffects,
       defenderSynergyEffects: defenderSynergyResult.additionalEffects,
-      swiftChargeTriggered,
+      sneakAttackTriggered,
       stampedeTriggered,
     },
   );
@@ -906,6 +908,7 @@ export function applyCombatAction(
     hitAndRunTriggered: false,
     healOnRetreatApplied: 0,
     totalKnockbackDistance: 0,
+    pursuitDamageApplied: 0,
   };
 
   const attacker = state.units.get(preview.attackerId);
@@ -1021,6 +1024,29 @@ export function applyCombatAction(
   const defenderDoctrine = defenderFaction
     ? resolveCapabilityDoctrine(current.research.get(defender.factionId), defenderFaction)
     : undefined;
+
+  // Pursuit bonus: hitrun domain units press their advantage when winning the exchange
+  const hasHitrunDomain = attackerFaction && (
+    attackerFaction.nativeDomain === 'hitrun'
+    || attackerFaction.learnedDomains?.includes('hitrun')
+  );
+  let pursuitDamageApplied = 0;
+  if (
+    hasHitrunDomain
+    && nextAttacker.hp > 0
+    && nextDefender.hp > 0
+    && preview.result.defenderDamage > preview.result.attackerDamage
+  ) {
+    const PURSUIT_BONUS = 2;
+    const pursuedDefender = current.units.get(preview.defenderId);
+    if (pursuedDefender && pursuedDefender.hp > 0) {
+      const newHp = Math.max(0, pursuedDefender.hp - PURSUIT_BONUS);
+      const unitsAfterPursuit = new Map(current.units);
+      unitsAfterPursuit.set(preview.defenderId, { ...pursuedDefender, hp: newHp });
+      current = { ...current, units: unitsAfterPursuit };
+      pursuitDamageApplied = PURSUIT_BONUS;
+    }
+  }
   const attackerTerrainId = current.map?.tiles.get(hexToKey(attacker.position))?.terrain ?? '';
   const isGreedyCoastal = attackerFaction?.identityProfile.passiveTrait === 'greedy'
     && WATER_TERRAIN.has(attackerTerrainId);
@@ -1398,6 +1424,9 @@ export function applyCombatAction(
   if (healOnRetreatApplied > 0) {
     pushCombatEffect(triggeredEffects, 'Retreat Heal', `Attacker recovered ${healOnRetreatApplied} HP while withdrawing.`, 'aftermath');
   }
+  if (pursuitDamageApplied > 0) {
+    pushCombatEffect(triggeredEffects, 'Pursuit', `Skirmisher pressed the advantage for +${pursuitDamageApplied} bonus damage.`, 'aftermath');
+  }
 
   feedback = {
     ...feedback,
@@ -1415,6 +1444,7 @@ export function applyCombatAction(
       hitAndRunTriggered,
       healOnRetreatApplied,
       totalKnockbackDistance,
+      pursuitDamageApplied,
     },
   };
 

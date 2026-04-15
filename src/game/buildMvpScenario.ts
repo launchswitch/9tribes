@@ -11,7 +11,7 @@ import { createCombatRecord } from '../features/factions/types.js';
 import { createWarExhaustion } from '../systems/warExhaustionSystem.js';
 import type { UnitId, CityId, PrototypeId, VillageId, FactionId } from '../types.js';
 import type { Faction } from '../game/types.js';
-import { getHexesInRange, hexToKey } from '../core/grid.js';
+import { getHexesInRange, getNeighbors, hexToKey } from '../core/grid.js';
 import { createResearchState } from '../systems/researchSystem.js';
 import { recordUnitCreated } from '../systems/historySystem.js';
 import { createCapabilityState } from '../systems/capabilitySystem.js';
@@ -23,6 +23,61 @@ import type { RulesRegistry } from '../data/registry/types.js';
 import type { BalanceOverrides } from '../balance/types.js';
 import { getMvpFactionConfigs, getMvpScenarioConfig, getStartingUnits, MVP_IMPROVEMENTS } from './scenarios/mvp.js';
 import { createCitySiteBonuses } from '../systems/citySiteSystem.js';
+
+/**
+ * Check if a position is valid terrain for a unit with the given chassis.
+ * Non-naval units cannot be on deep water (coast/ocean).
+ * Naval units must be on water unless amphibious.
+ */
+function isValidSpawnTerrain(
+  state: GameState,
+  pos: { q: number; r: number },
+  registry: RulesRegistry,
+  chassisId: string,
+  tags?: string[],
+): boolean {
+  if (!state.map) return false;
+  const tile = state.map.tiles.get(hexToKey(pos));
+  if (!tile) return false;
+  const terrainDef = registry.getTerrain(tile.terrain);
+  if (terrainDef && terrainDef.passable === false) return false;
+
+  const chassis = registry.getChassis(chassisId);
+  const isNavalUnit = chassis?.movementClass === 'naval';
+  const isAmphibious = tags?.includes('amphibious') ?? false;
+  const tid = tile.terrain;
+  const isDeepWater = tid === 'coast' || tid === 'ocean';
+  const isWater = tid === 'coast' || tid === 'river' || tid === 'ocean';
+
+  if (isDeepWater && !isNavalUnit) return false;
+  if (isNavalUnit && !isWater && !isAmphibious) return false;
+  return true;
+}
+
+/**
+ * Find a valid spawn position near `preferred`, expanding outward in rings.
+ * Returns `preferred` itself if already valid.
+ */
+function findValidSpawnPosition(
+  state: GameState,
+  preferred: { q: number; r: number },
+  registry: RulesRegistry,
+  chassisId: string,
+  tags?: string[],
+  maxRadius: number = 3,
+): { q: number; r: number } {
+  if (isValidSpawnTerrain(state, preferred, registry, chassisId, tags)) {
+    return preferred;
+  }
+  for (let radius = 1; radius <= maxRadius; radius++) {
+    for (const hex of getHexesInRange(preferred, radius)) {
+      if (isValidSpawnTerrain(state, hex, registry, chassisId, tags)) {
+        return hex;
+      }
+    }
+  }
+  return preferred; // fallback
+}
 
 export interface BuildMvpScenarioOptions {
   mapMode?: MapGenerationMode;
@@ -264,8 +319,8 @@ export function buildMvpScenario(seed: number, options: BuildMvpScenarioOptions 
       ? factionConfig.startingUnits
       : getStartingUnits(i, options.balanceOverrides);
     for (const unitConfig of unitConfigs) {
-      // Calculate unit position (startHex + offset)
-      const position = {
+      // Calculate unit position (startHex + offset), then validate terrain
+      const rawPosition = {
         q: startHex.q + unitConfig.positionOffset.q,
         r: startHex.r + unitConfig.positionOffset.r,
       };
@@ -279,6 +334,8 @@ export function buildMvpScenario(seed: number, options: BuildMvpScenarioOptions 
         existingPrototypeIds as any,
         {
           faction,
+          name: (unitConfig as { name?: string }).name,
+          productionCost: (unitConfig as { costOverride?: number }).costOverride,
           validation: {
             // Starting rosters are identity seeds, not proof that the domain was unlocked via sacrifice.
             ignoreResearchRequirements: true,
@@ -289,6 +346,11 @@ export function buildMvpScenario(seed: number, options: BuildMvpScenarioOptions 
       existingPrototypeIds.push(prototype.id);
       state.prototypes.set(prototype.id, prototype);
       faction.prototypeIds.push(prototype.id);
+
+      // Ensure the spawn position is valid terrain for this unit type
+      const position = findValidSpawnPosition(
+        state, rawPosition, registry, prototype.chassisId, prototype.tags,
+      );
 
       // Create unit with full stats
       const unitId = createUnitId();

@@ -9,7 +9,7 @@ import { collectCombatSignals } from '../src/systems/combatSignalSystem';
 import { runWarEcologySimulation } from '../src/systems/warEcologySimulation';
 import { createRNG } from '../src/core/rng';
 import { canUseAmbush, canUseBrace, canUseCharge } from '../src/systems/abilitySystem';
-import { getCombatAttackModifier, getCombatDefenseModifier } from '../src/systems/factionIdentitySystem';
+import { getCombatAttackModifier, getCombatDefenseModifier, isUnitRiverStealthed } from '../src/systems/factionIdentitySystem';
 
 const registry = loadRulesRegistry();
 function makeCombatRng() {
@@ -105,6 +105,15 @@ describe('faction identity combat modifiers', () => {
     expect(getCombatDefenseModifier(steppe, registry.getTerrain('plains'))).toBe(0.2);
     expect(getCombatDefenseModifier(steppe, registry.getTerrain('savannah'))).toBe(0.2);
     expect(getCombatDefenseModifier(steppe, registry.getTerrain('forest'))).toBe(0);
+  });
+
+  it('river_assault keeps plains riders stealthed in swamp tiles', () => {
+    const state = buildMvpScenario(42);
+    const plainsRiders = state.factions.get('plains_riders' as never)!;
+
+    expect(isUnitRiverStealthed(plainsRiders, 'river')).toBe(true);
+    expect(isUnitRiverStealthed(plainsRiders, 'swamp')).toBe(true);
+    expect(isUnitRiverStealthed(plainsRiders, 'plains')).toBe(false);
   });
 });
 

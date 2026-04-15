@@ -1172,6 +1172,11 @@ export class GameSession {
       return 10;
     }
 
+    // Prototype-level cost override (faction-specific starting units)
+    if (prototype.productionCost != null) {
+      return prototype.productionCost;
+    }
+
     // Unlock prototypes (hybrid recipes) use the mastery cost modifier
     if (isUnlockPrototype(prototype)) {
       const faction = this.state.factions.get(prototype.factionId as never);

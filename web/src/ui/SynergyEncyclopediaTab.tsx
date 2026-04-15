@@ -35,7 +35,7 @@ const DOMAIN_NAMES: Record<string, string> = {
   venom: 'Venomcraft',
   fortress: 'Fortress Discipline',
   charge: 'Charge',
-  hitrun: 'Skirmish Retreat',
+  hitrun: 'Skirmish Pursuit',
   tidal_warfare: 'Tidal Warfare',
   slaving: 'Slaving',
   nature_healing: 'Nature Healing',

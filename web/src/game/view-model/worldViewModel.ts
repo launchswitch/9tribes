@@ -375,7 +375,9 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
         role: prototype?.derivedStats.role,
         spriteKey: getSpriteKeyForUnit(unit.factionId, prototype?.name ?? unit.prototypeId, chassisId, prototype?.sourceRecipeId),
         facing: unit.facing ?? 0,
-        visible: (hexVisibility.get(hexToKey(unit.position)) ?? 'hidden') !== 'hidden',
+        visible: unit.factionId === state.activeFactionId
+          ? (hexVisibility.get(hexToKey(unit.position)) ?? 'hidden') !== 'hidden'
+          : (hexVisibility.get(hexToKey(unit.position)) ?? 'hidden') === 'visible',
         veteranLevel: unit.veteranLevel,
         xp: unit.xp,
         nativeDomain: faction?.nativeDomain,
@@ -399,7 +401,9 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
       factionId: city.factionId,
       q: city.position.q,
       r: city.position.r,
-      visible: (hexVisibility.get(hexToKey(city.position)) ?? 'hidden') !== 'hidden',
+      visible: city.factionId === state.activeFactionId
+        ? (hexVisibility.get(hexToKey(city.position)) ?? 'hidden') !== 'hidden'
+        : (hexVisibility.get(hexToKey(city.position)) ?? 'hidden') === 'visible',
       remembered: true,
       besieged: city.besieged,
       wallHp: city.wallHP,
@@ -412,7 +416,9 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
       factionId: village.factionId,
       q: village.position.q,
       r: village.position.r,
-      visible: (hexVisibility.get(hexToKey(village.position)) ?? 'hidden') !== 'hidden',
+      visible: village.factionId === state.activeFactionId
+        ? (hexVisibility.get(hexToKey(village.position)) ?? 'hidden') !== 'hidden'
+        : (hexVisibility.get(hexToKey(village.position)) ?? 'hidden') === 'visible',
       remembered: true,
     })),
     improvements: Array.from(state.improvements.values()).map((improvement) => ({
@@ -421,6 +427,9 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
       q: improvement.position.q,
       r: improvement.position.r,
       ownerFactionId: improvement.ownerFactionId,
+      visible: improvement.ownerFactionId === state.activeFactionId
+        ? (hexVisibility.get(hexToKey(improvement.position)) ?? 'hidden') !== 'hidden'
+        : (hexVisibility.get(hexToKey(improvement.position)) ?? 'hidden') === 'visible',
     })),
     overlays: {
       borders: buildBorderEdges(hexes, factions),
@@ -889,8 +898,8 @@ function buildCityInspectorViewModel(state: GameState, cityId: string, registry:
     productionOptions: (!faction ? [] : getAvailableProductionPrototypes(state, city.factionId, registry))
       .map((prototype) => {
         const costType = getPrototypeCostType(prototype);
-        const baseRawCost = getUnitCost(prototype.chassisId);
-        let cost = getPrototypeQueueCost(prototype);
+        const baseRawCost = prototype.productionCost ?? getUnitCost(prototype.chassisId);
+        let cost = prototype.productionCost ?? getPrototypeQueueCost(prototype);
         let baseCost: number | undefined;
         let costModifier: number | undefined;
         let costModifierReason: string | undefined;

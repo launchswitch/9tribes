@@ -534,24 +534,29 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                     <button
                       key={option.prototypeId}
                       type="button"
-                      className={`pq-unit-row${option.disabled ? ' pq-unit-row--disabled' : ''}`}
+                      className={`pq-unit-card${option.disabled ? ' pq-unit-card--disabled' : ''}`}
                       disabled={option.disabled}
                       onClick={() => onSetCityProduction(selectedCity.cityId, option.prototypeId)}
                     >
-                      <span className="pq-unit-row__name">{option.name}</span>
-                      <span className="pq-unit-row__stats">
-                        {option.attack}/{option.defense} · {option.hp}hp
-                        {option.moves > 1 ? ` · m${option.moves}` : ''}
-                        {option.range > 1 ? ` · r${option.range}` : ''}
-                      </span>
-                      <span className="pq-unit-row__cost">
-                        {option.costModifierReason ? (
-                          <>
-                            <span className="pq-base-cost">{option.baseCost}</span>
-                            {option.cost} prod
-                          </>
-                        ) : option.costLabel}
-                      </span>
+                      <div className="pq-unit-card__header">
+                        <span className="pq-unit-card__name">{option.name}</span>
+                        <span className="pq-unit-card__cost">
+                          {option.costModifierReason ? (
+                            <>
+                              <span className="pq-base-cost">{option.baseCost}</span>
+                              {option.cost}
+                            </>
+                          ) : option.cost}
+                          <span className="pq-unit-card__cost-label">prod</span>
+                        </span>
+                      </div>
+                      <div className="pq-unit-card__stats">
+                        <span className="pq-stat pq-stat--atk">ATK {option.attack}</span>
+                        <span className="pq-stat pq-stat--def">DEF {option.defense}</span>
+                        <span className="pq-stat pq-stat--hp">HP {option.hp}</span>
+                        {option.moves > 1 && <span className="pq-stat pq-stat--mov">MOV {option.moves}</span>}
+                        {option.range > 1 && <span className="pq-stat pq-stat--rng">RNG {option.range}</span>}
+                      </div>
                       {option.costModifierReason && (
                         <span className="pq-shock-note">{option.costModifierReason}</span>
                       )}

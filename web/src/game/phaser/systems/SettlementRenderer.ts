@@ -18,6 +18,7 @@ export class SettlementRenderer {
     this.layer.removeAll(true);
 
     for (const city of world.cities) {
+      if (!city.visible) continue;
       const point = this.worldToScreen(city.q, city.r);
       const factionColor = Phaser.Display.Color.HexStringToColor(world.factions.find((faction) => faction.id === city.factionId)?.color ?? '#c8b68e').color;
       const backing = this.scene.add.ellipse(point.x, point.y - 16, 58, 30, 0x120f0c, 0.72)
@@ -40,6 +41,7 @@ export class SettlementRenderer {
     }
 
     for (const village of world.villages) {
+      if (!village.visible) continue;
       const point = this.worldToScreen(village.q, village.r);
       const factionColor = Phaser.Display.Color.HexStringToColor(world.factions.find((faction) => faction.id === village.factionId)?.color ?? '#d7c692').color;
       const sprite = this.scene.add.image(point.x, point.y - 4, TEXTURES.cities, getSettlementFrame(village.factionId, 'village'))

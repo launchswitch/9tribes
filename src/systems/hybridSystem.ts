@@ -59,6 +59,7 @@ export function unlockHybridRecipes(
           name: recipe.name,
           tags: recipe.tags ?? [],
           sourceRecipeId: recipe.id,
+          productionCost: recipe.costOverride,
         }
       );
     } catch {

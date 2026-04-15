@@ -35,6 +35,8 @@ export function generateMvpMap(
   carveHills(map, rng);
   ensureHillsNearStart(map, { q: 6, r: 15 }, 2);
 
+  carveMountains(map, rng);
+
   carveSavannahs(map, rng);
   ensureSavannahNearStart(map, { q: 20, r: 27 }, 1);
 
@@ -129,7 +131,7 @@ function carveSwamps(map: GameMap, rng: RNGState): void {
         const key = hexToKey({ q, r });
         const tile = map.tiles.get(key);
         if (!tile) continue;
-        if (tile.terrain === 'river' || tile.terrain === 'coast' || tile.terrain === 'ocean') continue;
+        if (tile.terrain === 'river' || tile.terrain === 'coast' || tile.terrain === 'ocean' || tile.terrain === 'mountain') continue;
         if (tile.terrain === 'swamp') continue;
         if (distance <= radius || rngNextFloat(rng) > 0.6) {
           tile.terrain = 'swamp';
@@ -214,7 +216,7 @@ function carveSavannahs(map: GameMap, rng: RNGState): void {
         const key = hexToKey({ q, r });
         const tile = map.tiles.get(key);
         if (!tile) continue;
-        if (tile.terrain === 'river' || tile.terrain === 'coast' || tile.terrain === 'ocean') continue;
+        if (tile.terrain === 'river' || tile.terrain === 'coast' || tile.terrain === 'ocean' || tile.terrain === 'mountain') continue;
         if (distance <= radius || rngNextFloat(rng) > 0.6) {
           tile.terrain = 'savannah';
         }
@@ -238,9 +240,43 @@ function carveHills(map: GameMap, rng: RNGState): void {
         const key = hexToKey({ q, r });
         const tile = map.tiles.get(key);
         if (!tile) continue;
-        if (tile.terrain === 'river' || tile.terrain === 'coast' || tile.terrain === 'ocean') continue;
+        if (tile.terrain === 'river' || tile.terrain === 'coast' || tile.terrain === 'ocean' || tile.terrain === 'mountain') continue;
         if (distance <= radius || rngNextFloat(rng) > 0.45) {
           tile.terrain = 'hill';
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Carve mountain clusters — rare, small, impassable terrain.
+ * Avoids water tiles and start positions.
+ */
+function carveMountains(map: GameMap, rng: RNGState): void {
+  const clusterCount = Math.max(1, Math.floor(map.width * map.height / 600));
+
+  for (let i = 0; i < clusterCount; i++) {
+    const centerQ = Math.floor(rngNextFloat(rng) * map.width);
+    const centerR = Math.floor(rngNextFloat(rng) * map.height);
+    const radius = 1 + Math.floor(rngNextFloat(rng) * 1);
+
+    for (let q = Math.max(0, centerQ - radius); q <= Math.min(map.width - 1, centerQ + radius); q++) {
+      for (let r = Math.max(0, centerR - radius); r <= Math.min(map.height - 1, centerR + radius); r++) {
+        const distance = Math.abs(q - centerQ) + Math.abs(r - centerR);
+        if (distance > radius + 1) continue;
+        const key = hexToKey({ q, r });
+        const tile = map.tiles.get(key);
+        if (!tile) continue;
+        if (tile.terrain === 'river' || tile.terrain === 'coast' || tile.terrain === 'ocean' || tile.terrain === 'swamp' || tile.terrain === 'mountain') continue;
+        // Don't place mountains near known start positions
+        const nearStart =
+          (q >= 4 && q <= 8 && r >= 13 && r <= 17) ||
+          (q >= 32 && q <= 36 && r >= 1 && r <= 5) ||
+          (q >= 18 && q <= 22 && r >= 25 && r <= 29);
+        if (nearStart) continue;
+        if (distance <= radius || rngNextFloat(rng) > 0.5) {
+          tile.terrain = 'mountain';
         }
       }
     }

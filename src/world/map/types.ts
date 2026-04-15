@@ -16,6 +16,7 @@ export type TerrainType =
   | 'coast'
   | 'river'
   | 'swamp'
+  | 'mountain'
   | 'ocean';
 
 // Terrain definition with game mechanics

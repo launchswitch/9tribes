@@ -17,6 +17,7 @@ export interface AssemblePrototypeOptions {
   name?: string;
   tags?: string[];
   sourceRecipeId?: string;
+  productionCost?: number;
 }
 
 /**
@@ -89,5 +90,6 @@ export function assemblePrototype(
     derivedStats,
     tags,
     sourceRecipeId: options.sourceRecipeId,
+    productionCost: options.productionCost,
   };
 }

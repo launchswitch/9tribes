@@ -17,6 +17,10 @@ export class ImprovementRenderer {
         continue;
       }
 
+      if (!improvement.visible) {
+        continue;
+      }
+
       const point = this.worldToScreen(improvement.q, improvement.r);
       const ownerColor = world.factions.find((faction) => faction.id === improvement.ownerFactionId)?.color ?? null;
       const sprite = this.scene.add.image(point.x, point.y - 8, TEXTURES.hillFortress)

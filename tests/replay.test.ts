@@ -20,14 +20,15 @@ describe('replay export', () => {
     const steppeId = 'steppe_clan' as never;
     const jungleUnitId = state.factions.get(jungleId)!.unitIds[0];
     const steppeUnitId = state.factions.get(steppeId)!.unitIds[0];
+    keepOnlyUnits(state, [jungleUnitId, steppeUnitId]);
 
     state.units.set(jungleUnitId, {
       ...state.units.get(jungleUnitId)!,
-      position: { q: 10, r: 10 },
+      position: { q: 8, r: 8 },
     });
     state.units.set(steppeUnitId, {
       ...state.units.get(steppeUnitId)!,
-      position: { q: 11, r: 10 },
+      position: { q: 9, r: 8 },
     });
 
     const trace = createSimulationTrace(true);
@@ -132,8 +133,18 @@ describe('replay export', () => {
     const trace = createSimulationTrace(true);
     const finalState = runWarEcologySimulation(state, registry, 1, trace);
     const replay = exportReplayBundle(finalState, trace, 1);
-    const combatEvent = replay.turns
-      .flatMap((turn) => turn.combatEvents)
+
+    // Debug: show all combat events
+    const allCombatEvents = replay.turns.flatMap((turn) => turn.combatEvents);
+    console.log('Combat events:', allCombatEvents.length);
+    for (const evt of allCombatEvents) {
+      console.log('  event:', evt.attackerUnitId, '->', evt.defenderUnitId, '|', evt.summary?.substring(0, 60));
+    }
+    console.log('Attacker id:', attackerId, 'Defender id:', defenderId);
+    console.log('Final attacker:', finalState.units.get(attackerId)?.position, 'hp:', finalState.units.get(attackerId)?.hp);
+    console.log('Final defender:', finalState.units.get(defenderId)?.position, 'hp:', finalState.units.get(defenderId)?.hp);
+
+    const combatEvent = allCombatEvents
       .find((event) => event.attackerUnitId === attackerId && event.defenderUnitId === defenderId);
 
     expect(combatEvent).toBeDefined();

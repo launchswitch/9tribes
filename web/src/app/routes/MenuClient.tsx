@@ -29,6 +29,18 @@ const DIFFICULTY_COPY: Record<DifficultyLevel, string> = {
   hard: 'Sharper AI decisions and less room for early mistakes.',
 };
 
+const FACTION_ABILITY: Record<string, string> = {
+  jungle_clan: 'Venom — units poison enemies for damage over time; summon Serpent Gods in jungle',
+  druid_circle: 'Healing Druids — units heal in forest terrain each turn',
+  steppe_clan: 'Skirmish Pursuit — +2 bonus damage when winning exchanges; summon Warlords on open ground',
+  hill_clan: 'Engineering — can build Fortresses and a Catapult; fortified units gain extra defense on hills',
+  coral_people: 'Greedy — capture villages for resources and enslave enemy units instead of killing them',
+  desert_nomads: 'Desert Swarm — bonuses when multiple units cluster; immune to desert attrition',
+  savannah_lions: 'Charge Momentum — units hit harder after moving, up to devastating impact',
+  plains_riders: 'River Stealth — units are invisible in river and swamp tiles; cavalry charge attacks deal extra damage; summon Ancient Alligators near water',
+  frost_wardens: 'Cold Hardened — better growth from poor land; summon Polar Bears on tundra',
+};
+
 const DEFAULT_SETUP: SetupState = {
   difficulty: 'normal',
   mapSize: 'medium',
@@ -294,12 +306,8 @@ export function MenuClient() {
                       <dd>{selectedFaction.signatureUnit}</dd>
                     </div>
                     <div>
-                      <dt>Strength</dt>
-                      <dd>{selectedFaction.naturalPrey}</dd>
-                    </div>
-                    <div>
-                      <dt>Threat</dt>
-                      <dd>{selectedFaction.naturalCounter}</dd>
+                      <dt>Ability</dt>
+                      <dd>{FACTION_ABILITY[selectedFaction.id] ?? selectedFaction.passiveTrait}</dd>
                     </div>
                   </dl>
                 </aside>

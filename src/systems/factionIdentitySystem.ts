@@ -260,7 +260,7 @@ export function getEconomySupplyBonus(
 
 export function isUnitRiverStealthed(faction: Faction | undefined, terrainId: string): boolean {
   const passive = faction?.identityProfile.passiveTrait;
-  return passive === 'river_assault' && isWaterTerrain(terrainId);
+  return passive === 'river_assault' && (isWaterTerrain(terrainId) || terrainId === 'swamp');
 }
 
 export function getTerrainPreferenceScore(
@@ -279,7 +279,7 @@ export function getTerrainPreferenceScore(
   if (passive === 'greedy' && (terrainId === 'coast' || terrainId === 'ocean')) {
     return 2;
   }
-  if (passive === 'river_assault' && terrainId === 'river') {
+  if (passive === 'river_assault' && (terrainId === 'river' || terrainId === 'swamp')) {
     return 1.5;
   }
   if (passive === 'foraging_riders' && OPEN_GROUND_TERRAINS.has(terrainId)) {

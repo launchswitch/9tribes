@@ -456,13 +456,13 @@ KNOBS = [
         0.1,
         0.5,
     ),
-    # --- Plains Riders: Swift Charge (mounted charge attack bonus) ---
+    # --- Plains Riders: Sneak Attack (river/swamp terrain attack bonus) ---
     TrialConfig(
-        "swift_charge",
+        "sneak_attack",
         "float",
-        ("signatureAbilities", "plains_riders", "swiftChargeBonus"),
-        0.15,
-        0.5,
+        ("signatureAbilities", "plains_riders", "sneakAttackBonus"),
+        0.3,
+        0.7,
     ),
     # --- Frost Wardens: Polar Call (summon bear stats + lifecycle) ---
     TrialConfig(

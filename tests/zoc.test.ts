@@ -95,13 +95,16 @@ describe('Zone of Control', () => {
     expect(blockers.length).toBe(0);
   });
 
-  it('adds +1 movement cost when entering enemy ZoC', () => {
+  it('ZoC does not block entry — unit can always enter an adjacent ZoC hex', () => {
+    // Civ-style: ZoC triggers forced-stop (all moves consumed) but never blocks entry.
+    // A 2-MP infantry can enter a forest+ZoC hex (forest cost=2, ZoC no longer adds +1).
     const state = buildMvpScenario(42);
     const movingUnit = makeUnit({
       id: 'mover' as any,
       factionId: 'red' as any,
       position: { q: 4, r: 5 },
-      movesRemaining: 3,
+      movesRemaining: 2,
+      maxMoves: 2,
     });
     const enemyUnit = makeUnit({
       id: 'enemy_1' as any,
@@ -112,8 +115,15 @@ describe('Zone of Control', () => {
     state.units.set(movingUnit.id, movingUnit);
     state.units.set(enemyUnit.id, enemyUnit);
 
+    // getZoCMovementCost still returns 1 for boolean detection
     const cost = getZoCMovementCost({ q: 5, r: 5 }, movingUnit, state);
     expect(cost).toBe(1);
+
+    // But the move succeeds — ZoC no longer adds to terrain cost
+    expect(entersEnemyZoC(movingUnit.position, { q: 5, r: 5 }, movingUnit, state)).toBe(true);
+    const moved = moveUnit(state, movingUnit.id, { q: 5, r: 5 }, state.map!, registry);
+    expect(moved.units.get(movingUnit.id)?.position).toEqual({ q: 5, r: 5 });
+    expect(moved.units.get(movingUnit.id)?.movesRemaining).toBe(0); // all moves consumed
   });
 
   it('cavalry ignores ZoC movement cost', () => {

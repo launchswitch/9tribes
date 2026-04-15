@@ -312,7 +312,7 @@ function isSignatureCapableUnit(factionId: FactionId, prototype: Prototype, regi
   if (ability?.forestHealRate && (tags.has('druid') || tags.has('healing'))) return true;
   if (ability?.bulwarkDefenseBonus && tags.has('fortress')) return true;
   if (ability?.desertSwarmAttackBonus && (tags.has('camel') || tags.has('desert'))) return true;
-  if (ability?.swiftChargeBonus && (prototype.derivedStats.role === 'mounted' || tags.has('river') || tags.has('amphibious'))) return true;
+  if (ability?.sneakAttackBonus) return true;
   if (ability?.wallDefenseMultiplier && tags.has('transport')) return true;
   if (ability?.greedyBonus && tags.has('capture')) return true;
   if (ability?.summon && tags.has('cold')) return true;

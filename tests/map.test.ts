@@ -16,12 +16,14 @@ const START_REQUESTS = MVP_FACTION_CONFIGS.map((config) => ({
 }));
 
 describe('terrain.ts', () => {
-  it('TERRAIN_DEFINITIONS has core terrain types including river and jungle', () => {
+  it('TERRAIN_DEFINITIONS has core terrain types including river, swamp, and mountain', () => {
     expect(TERRAIN_DEFINITIONS).toHaveProperty('plains');
     expect(TERRAIN_DEFINITIONS).toHaveProperty('forest');
     expect(TERRAIN_DEFINITIONS).toHaveProperty('jungle');
     expect(TERRAIN_DEFINITIONS).toHaveProperty('hill');
     expect(TERRAIN_DEFINITIONS).toHaveProperty('river');
+    expect(TERRAIN_DEFINITIONS).toHaveProperty('swamp');
+    expect(TERRAIN_DEFINITIONS).toHaveProperty('mountain');
   });
 
   it('getTerrainDef returns correct definitions for each type', () => {
@@ -29,6 +31,8 @@ describe('terrain.ts', () => {
     expect(getTerrainDef('forest')).toEqual(TERRAIN_DEFINITIONS.forest);
     expect(getTerrainDef('jungle')).toEqual(TERRAIN_DEFINITIONS.jungle);
     expect(getTerrainDef('hill')).toEqual(TERRAIN_DEFINITIONS.hill);
+    expect(getTerrainDef('swamp')).toEqual(TERRAIN_DEFINITIONS.swamp);
+    expect(getTerrainDef('mountain')).toEqual(TERRAIN_DEFINITIONS.mountain);
   });
 
   it('plains has movementCost 1, defenseBonus 0', () => {
@@ -53,6 +57,13 @@ describe('terrain.ts', () => {
     const jungle = getTerrainDef('jungle');
     expect(jungle.movementCost).toBe(3);
     expect(jungle.defenseBonus).toBe(2);
+  });
+
+  it('mountain is impassable terrain', () => {
+    const mountain = getTerrainDef('mountain');
+    expect(mountain.movementCost).toBe(999);
+    expect(mountain.passable).toBe(false);
+    expect(mountain.defenseBonus).toBe(2);
   });
 });
 
@@ -147,7 +158,7 @@ describe('generateMvpMap', () => {
   it('All tiles have valid terrain types', () => {
     const rng = createRNG(42);
     const map = generateMvpMap(rng, 10, 10);
-    const validTypes = ['plains', 'forest', 'jungle', 'hill', 'desert', 'tundra', 'savannah', 'coast', 'river', 'swamp', 'ocean'];
+    const validTypes = ['plains', 'forest', 'jungle', 'hill', 'desert', 'tundra', 'savannah', 'coast', 'river', 'swamp', 'mountain', 'ocean'];
     
     for (const tile of map.tiles.values()) {
       expect(validTypes).toContain(tile.terrain);
@@ -221,9 +232,21 @@ describe('generateClimateBandMap', () => {
     expect(validationByFaction.hill_clan.checks.hillCluster).toBe(true);
   });
 
+  it('generates both swamps and mountains on the random climate map path', () => {
+    const rng = createRNG(2026);
+    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 24, height: 18, rerollCap: 15 });
+    const terrainCounts = Array.from(map.tiles.values()).reduce<Record<string, number>>((counts, tile) => {
+      counts[tile.terrain] = (counts[tile.terrain] ?? 0) + 1;
+      return counts;
+    }, {});
+
+    expect(terrainCounts.swamp ?? 0).toBeGreaterThan(0);
+    expect(terrainCounts.mountain ?? 0).toBeGreaterThan(0);
+  });
+
   it('never places desert in the arctic and tundra rows', () => {
     const rng = createRNG(55);
-    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 24, height: 18, rerollCap: 15 });
+    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 24, height: 18, rerollCap: 25 });
     const tundraBandEndRow = map.metadata?.climateProfile?.tundraBandEndRow ?? 0;
 
     const invalidDesert = Array.from(map.tiles.values()).filter(
@@ -234,7 +257,7 @@ describe('generateClimateBandMap', () => {
 
   it('never places tundra in the hot southern desert band', () => {
     const rng = createRNG(56);
-    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 24, height: 18, rerollCap: 15 });
+    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 24, height: 18, rerollCap: 25 });
     const desertBandStartRow = map.metadata?.climateProfile?.desertBandStartRow ?? map.height;
 
     const invalidTundra = Array.from(map.tiles.values()).filter(
@@ -257,7 +280,8 @@ describe('generateClimateBandMap', () => {
 
   it('keeps river tiles in connected corridor clusters', () => {
     const rng = createRNG(58);
-    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 24, height: 18, rerollCap: 15 });
+    // Keep this focused on river generation rather than unrelated full-start placement scarcity.
+    const { map } = generateClimateBandMap(rng, [], { width: 24, height: 18, rerollCap: 25 });
     const riverTiles = Array.from(map.tiles.values()).filter((tile) => tile.terrain === 'river');
     const visited = new Set<string>();
 

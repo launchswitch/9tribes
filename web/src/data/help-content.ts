@@ -79,8 +79,8 @@ export const helpContent: HelpContent = {
 <h3>Opportunity Attacks</h3>
 <p>Every unit projects a <strong>Zone of Control</strong> over the hexes surrounding it. If you march through an enemy-controlled hex, that unit gets a free attack on you — no action required. This means you can't just casually stroll past enemies. Plan your routes, or you'll arrive at your destination already bleeding.</p>
 
-<h3>Retreat &amp; Hit-and-Run</h3>
-<p>Some units carry the <strong>skirmish</strong> tag, letting them attack and then immediately withdraw to a safe hex. The defender's counter-attack misses because — poof — you're gone. This is devastating for harassment: nibble away at a strong enemy, retreat, heal, repeat. Just don't expect skirmishers to win a stand-up fight.</p>
+<h3>Skirmish Pursuit</h3>
+<p>Factions with the <strong>Skirmish Pursuit</strong> domain press their advantage in combat. When one of their units deals more damage than it takes in an exchange, they deal <strong>+2 bonus damage</strong> — pressing the wound before the enemy can recover. This rewards winning trades and makes skirmishers dangerous in sustained exchanges where they consistently come out ahead. Combined with research upgrades that add mobility and disengage options, pursuit forms the foundation of a hit-and-run playstyle built around attrition through repeated favorable exchanges.</p>
 
 <h3>Morale &amp; Rout</h3>
 <p>Units aren't mindless. When they take heavy losses and their HP drops low enough, they may <strong>rout</strong> — that is, flee the battlefield entirely. A routed unit is gone for that fight. Keep your units healthy, and watch for enemies who are one good hit away from breaking. Certain synergy effects can push the rout threshold higher or lower, turning a stable line into a rout cascade.</p>
@@ -121,7 +121,7 @@ export const helpContent: HelpContent = {
 </ul>
 
 <h3>How It Actually Plays Out</h3>
-<p>You're playing <strong>Jungle Clans</strong> (native: Venom). You send your Serpent God into Steppe Rider territory and kill one of their units — the Serpent God learns <strong>Skirmish Retreat</strong>, the Steppe Riders' native domain. You retreat the Serpent God back to your capital and sacrifice it. The Serpent God is gone, but Skirmish Retreat is now in your research tree. You research it to T3, and suddenly any unit with both <em>poison</em> and <em>skirmish</em> tags gains the <strong>Poisoned Skirmish</strong> synergy: after retreating, the unit leaves a poison trap on the hex it vacated. Enemies chasing you walk into poison. <em>That's the loop.</em></p>
+<p>You're playing <strong>Jungle Clans</strong> (native: Venom). You send your Serpent God into Steppe Rider territory and kill one of their units — the Serpent God learns <strong>Skirmish Pursuit</strong>, the Steppe Riders' native domain. You retreat the Serpent God back to your capital and sacrifice it. The Serpent God is gone, but Skirmish Pursuit is now in your research tree. You research it to T3, and suddenly any unit with both <em>poison</em> and <em>skirmish</em> tags gains the <strong>Poisoned Skirmish</strong> synergy: after retreating, the unit leaves a poison trap on the hex it vacated. Enemies chasing you walk into poison. <em>That's the loop.</em></p>
 
 <h3>Emergent Triple Stacks</h3>
 <p>When you reach T2+ in three domains that match a specific pattern (e.g., one terrain + one combat + one mobility domain), you unlock a powerful faction-wide bonus called an <strong>Emergent Rule</strong>. These are the ultimate builds — things like <em>Ghost Army</em> (three mobility domains = ignore all terrain penalties) or <em>Iron Turtle</em> (fortress + heavy + terrain = damage reflection + crushing zone control). These are the endgame goals you build toward across the entire match.</p>
@@ -180,7 +180,7 @@ export const helpContent: HelpContent = {
       homeBiome: 'Plains',
       intro: 'Speed is life for the Steppe Riders. These horse lords race across open plains, striking where enemies are weakest and vanishing before reinforcements arrive. Their Foraging Riders passive means their cavalry doesn\'t slow down to resupply — they eat on the move, keeping pressure on from turn one. Their signature Warlord unit rallies nearby cavalry with an aura boost, turning already-fast units into an absolute blur. If you like keeping opponents off-balance and never fighting fair, this is your faction.',
       strengths: [
-        'You dictate when and where fights happen. Hit, retreat, hit again — opponents never get to set up comfortably because you\'re always moving.',
+        'You dictate when and where fights happen. Your Skirmish Pursuit domain deals +2 bonus damage whenever you win an exchange — press the advantage before enemies can recover.',
         'Supply isn\'t your problem. The Foraging Riders passive means long cavalry raids don\'t need logistics planning, letting you operate deep in enemy territory.',
         'Slow, stationary armies are free food. Your horse archers punish anyone who tries to form a static firing line on open ground.',
       ],

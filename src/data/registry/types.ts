@@ -121,6 +121,7 @@ export interface HybridRecipeDef {
   requiredCapabilityLevels?: Record<string, number>;
   tags?: string[];
   nativeFaction?: string;
+  costOverride?: number;
 }
 
 export interface TerrainYieldDef {
@@ -213,7 +214,7 @@ export interface SignatureAbilityParams {
   forestHealRate?: number;
   hitAndRun?: boolean;
   tidalAssaultBonus?: number;
-  swiftChargeBonus?: number;
+  sneakAttackBonus?: number;
   greedyBonus?: number;
   villageCaptureDestroys?: boolean;
   villageCaptureCooldownRounds?: number;

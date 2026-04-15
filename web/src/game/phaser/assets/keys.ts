@@ -15,6 +15,7 @@ export const TEXTURES = {
   jungleOverlay: 'terrain-jungle-overlay',
   hillOverlay: 'terrain-hill-overlay',
   swampOverlay: 'terrain-swamp-overlay',
+  mountainOverlay: 'terrain-mountain-overlay',
   oceanBase: 'terrain-ocean-base',
   riverOverlay: 'terrain-river-overlay',
   cities: 'settlements-cities',
@@ -117,6 +118,8 @@ export const FREELAND_SPECS = {
   savannahTerrain: 'freeland-savannah-terrain-spec',
   desertTerrain: 'freeland-desert-terrain-spec',
   tundraTerrain: 'freeland-tundra-terrain-spec',
+  swampTerrain: 'freeland-swamp-terrain-spec',
+  mountainTerrain: 'freeland-mountain-terrain-spec',
 } as const;
 
 export type FogRenderState = 'u' | 'f' | 'k';
@@ -150,6 +153,7 @@ export const TERRAIN_FRAMES = {
 };
 
 const TERRAIN_SPEC_COLUMNS = 6;
+const TERRAIN_OVERLAY_SPEC_COLUMNS = 4;
 
 const TERRAIN_BASE_TAGS = {
   grassBase: 't.l0.grassland1',
@@ -165,7 +169,23 @@ const TERRAIN_FRAME_SPEC_KEYS = {
   tundraBase: FREELAND_SPECS.tundraTerrain,
 } as const;
 
+const TERRAIN_OVERLAY_FRAME_SPEC_KEYS = {
+  swamp: FREELAND_SPECS.swampTerrain,
+  mountain: FREELAND_SPECS.mountainTerrain,
+} as const;
+
+const TERRAIN_OVERLAY_TAG_PREFIXES = {
+  swamp: 't.l1.swamp',
+  mountain: 't.l1.mountains',
+} as const;
+
+type TerrainOverlayKind = keyof typeof TERRAIN_OVERLAY_FRAME_SPEC_KEYS;
+
 let resolvedTerrainFrames = { ...TERRAIN_FRAMES };
+let resolvedTerrainOverlayFrames: Record<TerrainOverlayKind, Map<string, number>> = {
+  swamp: new Map(),
+  mountain: new Map(),
+};
 
 function getRequiredSpecText(scene: Phaser.Scene, key: string): string {
   const specText = scene.cache.text.get(key);
@@ -177,6 +197,10 @@ function getRequiredSpecText(scene: Phaser.Scene, key: string): string {
 
 export function initializeFreelandTerrainFrames(scene: Phaser.Scene) {
   const nextFrames = { ...TERRAIN_FRAMES };
+  const nextOverlayFrames: Record<TerrainOverlayKind, Map<string, number>> = {
+    swamp: new Map(),
+    mountain: new Map(),
+  };
 
   for (const [terrainKey, specKey] of Object.entries(TERRAIN_FRAME_SPEC_KEYS) as Array<[keyof typeof TERRAIN_FRAME_SPEC_KEYS, string]>) {
     const tagLookup = parseFreecivTagFrameLookup(getRequiredSpecText(scene, specKey), TERRAIN_SPEC_COLUMNS);
@@ -188,7 +212,15 @@ export function initializeFreelandTerrainFrames(scene: Phaser.Scene) {
     nextFrames[terrainKey] = frameIndex;
   }
 
+  for (const [terrainKey, specKey] of Object.entries(TERRAIN_OVERLAY_FRAME_SPEC_KEYS) as Array<[TerrainOverlayKind, string]>) {
+    nextOverlayFrames[terrainKey] = parseFreecivTagFrameLookup(
+      getRequiredSpecText(scene, specKey),
+      TERRAIN_OVERLAY_SPEC_COLUMNS,
+    );
+  }
+
   resolvedTerrainFrames = nextFrames;
+  resolvedTerrainOverlayFrames = nextOverlayFrames;
 }
 
 const SETTLEMENT_FRAME_COLUMNS = 12;
@@ -383,22 +415,56 @@ function encodeRiverConnectionFlags(flags: RiverConnectionFlags): number {
     + (flags.west ? 1 : 0);
 }
 
+function getConnectionFlags(
+  q: number,
+  r: number,
+  getTerrainAt: (q: number, r: number) => string | null | undefined,
+  isConnectedTerrain: (terrain: string | null | undefined) => boolean,
+): RiverConnectionFlags {
+  const isConnection = (dq: number, dr: number) => isConnectedTerrain(getTerrainAt(q + dq, r + dr));
+
+  return {
+    north: isConnection(0, -1) || isConnection(-1, -1) || isConnection(1, -1),
+    east: isConnection(1, 0),
+    south: isConnection(0, 1) || isConnection(-1, 1) || isConnection(1, 1),
+    west: isConnection(-1, 0),
+  };
+}
+
 export function getRiverOverlayFrameForTile(
   q: number,
   r: number,
   getTerrainAt: (q: number, r: number) => string | null | undefined,
 ): number {
-  const isRiverConnection = (dq: number, dr: number) => {
-    const terrain = getTerrainAt(q + dq, r + dr);
-    return terrain === 'river' || terrain === 'coast';
-  };
+  return encodeRiverConnectionFlags(
+    getConnectionFlags(
+      q,
+      r,
+      getTerrainAt,
+      (terrain) => terrain === 'river' || terrain === 'coast',
+    ),
+  );
+}
 
-  return encodeRiverConnectionFlags({
-    north: isRiverConnection(0, -1) || isRiverConnection(-1, -1) || isRiverConnection(1, -1),
-    east: isRiverConnection(1, 0),
-    south: isRiverConnection(0, 1) || isRiverConnection(-1, 1) || isRiverConnection(1, 1),
-    west: isRiverConnection(-1, 0),
-  });
+export function getTerrainOverlayTagForTile(
+  terrain: TerrainOverlayKind,
+  q: number,
+  r: number,
+  getTerrainAt: (q: number, r: number) => string | null | undefined,
+): string {
+  const flags = getConnectionFlags(q, r, getTerrainAt, (candidate) => candidate === terrain);
+  const prefix = TERRAIN_OVERLAY_TAG_PREFIXES[terrain];
+  return `${prefix}_n${flags.north ? 1 : 0}e${flags.east ? 1 : 0}s${flags.south ? 1 : 0}w${flags.west ? 1 : 0}`;
+}
+
+export function getTerrainOverlayFrameForTile(
+  terrain: TerrainOverlayKind,
+  q: number,
+  r: number,
+  getTerrainAt: (q: number, r: number) => string | null | undefined,
+): number {
+  const tag = getTerrainOverlayTagForTile(terrain, q, r, getTerrainAt);
+  return resolvedTerrainOverlayFrames[terrain].get(tag) ?? TERRAIN_FRAMES.overlayDefault;
 }
 
 export function getTerrainRenderSpec(terrain: string): TerrainRenderSpec {
@@ -434,6 +500,14 @@ export function getTerrainRenderSpec(terrain: string): TerrainRenderSpec {
         overlayTexture: TEXTURES.swampOverlay,
         overlayFrame: TERRAIN_FRAMES.overlayDefault,
         fallbackColor: 0x58654d,
+      };
+    case 'mountain':
+      return {
+        baseTexture: TEXTURES.grassBase,
+        baseFrame: resolvedTerrainFrames.grassBase,
+        overlayTexture: TEXTURES.mountainOverlay,
+        overlayFrame: TERRAIN_FRAMES.overlayDefault,
+        fallbackColor: 0x7a7a7a,
       };
     case 'savannah':
       return {

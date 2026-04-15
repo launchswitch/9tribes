@@ -8,13 +8,32 @@ import type { ResearchDoctrine } from './capabilityDoctrine.js';
 import { getDirectionIndex, getNeighbors, getOppositeDirection } from '../core/grid.js';
 import { getUnitAtHex } from './occupancySystem.js';
 
+/** Naval chassis IDs — any unit with one of these is in the naval ZoC domain. */
+const NAVAL_CHASSIS_IDS = new Set(['naval_frame', 'ranged_naval_frame', 'galley_frame']);
+
+/**
+ * Check if two units share a movement domain (both naval or both land).
+ * Cross-domain units (naval vs land) do NOT exert ZoC on each other.
+ */
+function sameMovementDomain(a: Unit, b: Unit, state: GameState): boolean {
+  const protoA = state.prototypes.get(a.prototypeId);
+  const protoB = state.prototypes.get(b.prototypeId);
+  // If we can't determine chassis, assume same domain (conservative)
+  if (!protoA || !protoB) return true;
+  const aNaval = NAVAL_CHASSIS_IDS.has(protoA.chassisId);
+  const bNaval = NAVAL_CHASSIS_IDS.has(protoB.chassisId);
+  return aNaval === bNaval;
+}
+
 /**
  * Get all enemy units adjacent to a hex that exert Zone of Control.
+ * Only units in the same movement domain (naval/naval or land/land) apply.
  */
 export function getZoCBlockers(
   hex: HexCoord,
   movingFactionId: FactionId,
-  state: GameState
+  state: GameState,
+  movingUnit?: Unit
 ): Unit[] {
   const neighbors = getNeighbors(hex);
   const blockers: Unit[] = [];
@@ -24,7 +43,9 @@ export function getZoCBlockers(
     if (unitId) {
       const unit = state.units.get(unitId);
       if (unit && unit.factionId !== movingFactionId && unit.hp > 0 && !unit.routed) {
-        blockers.push(unit);
+        if (!movingUnit || sameMovementDomain(movingUnit, unit, state)) {
+          blockers.push(unit);
+        }
       }
     }
   }
@@ -41,9 +62,10 @@ export function getZoCBlockersWithAura(
   hex: HexCoord,
   movingFactionId: FactionId,
   state: GameState,
-  doctrine?: ResearchDoctrine
+  doctrine?: ResearchDoctrine,
+  movingUnit?: Unit
 ): { blockers: Unit[]; fortZoC: boolean } {
-  const blockers = getZoCBlockers(hex, movingFactionId, state);
+  const blockers = getZoCBlockers(hex, movingFactionId, state, movingUnit);
   let fortZoC = false;
 
   // Hill-dug-in units project ZoC aura (doctrine-gated)
@@ -54,7 +76,7 @@ export function getZoCBlockersWithAura(
       if (unitId) {
         const unit = state.units.get(unitId);
         if (unit && unit.factionId !== movingFactionId && unit.hp > 0 && !unit.routed && unit.hillDugIn) {
-          if (!blockers.find(b => b.id === unit.id)) {
+          if (!blockers.find(b => b.id === unit.id) && (!movingUnit || sameMovementDomain(movingUnit, unit, state))) {
             blockers.push(unit);
           }
         }
@@ -91,7 +113,7 @@ export function getZoCMovementCost(
   state: GameState,
   doctrine?: ResearchDoctrine
 ): number {
-  const { blockers, fortZoC } = getZoCBlockersWithAura(hex, movingUnit.factionId, state, doctrine);
+  const { blockers, fortZoC } = getZoCBlockersWithAura(hex, movingUnit.factionId, state, doctrine, movingUnit);
 
   // Fort ZoC cannot be ignored by any unit type
   if (fortZoC) return 1;
@@ -121,7 +143,7 @@ export function entersEnemyZoC(
   doctrine?: ResearchDoctrine
 ): boolean {
   // Check if target hex has fort ZoC (uncancellable by mounted units)
-  const { fortZoC } = getZoCBlockersWithAura(targetHex, movingUnit.factionId, state, doctrine);
+  const { fortZoC } = getZoCBlockersWithAura(targetHex, movingUnit.factionId, state, doctrine, movingUnit);
 
   // Mounted units ignore normal unit ZoC
   if (isMounted(movingUnit, state) || canIgnoreZoCWithHitAndRun(movingUnit, state, doctrine)) {

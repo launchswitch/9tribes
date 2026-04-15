@@ -1,7 +1,14 @@
 import Phaser from 'phaser';
 import type { ClientState } from '../../types/clientState';
 import type { WorldViewModel } from '../../types/worldView';
-import { getRiverOverlayFrameForTile, getTerrainRenderSpec, TEXTURES, TILE_HEIGHT, TILE_WIDTH } from '../assets/keys';
+import {
+  getRiverOverlayFrameForTile,
+  getTerrainOverlayFrameForTile,
+  getTerrainRenderSpec,
+  TEXTURES,
+  TILE_HEIGHT,
+  TILE_WIDTH,
+} from '../assets/keys';
 
 type TileCallbacks = {
   onHexSelected: (q: number, r: number, pointer?: Phaser.Input.Pointer) => void;
@@ -29,6 +36,16 @@ export class TileLayerRenderer {
         ? {
             ...baseSpec,
             overlayFrame: getRiverOverlayFrameForTile(
+              hex.q,
+              hex.r,
+              (q, r) => terrainByKey.get(`${q},${r}`),
+            ),
+          }
+        : hex.terrain === 'swamp' || hex.terrain === 'mountain'
+        ? {
+            ...baseSpec,
+            overlayFrame: getTerrainOverlayFrameForTile(
+              hex.terrain,
               hex.q,
               hex.r,
               (q, r) => terrainByKey.get(`${q},${r}`),

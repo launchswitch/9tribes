@@ -5,8 +5,9 @@ import { SynergyEncyclopediaTab } from './SynergyEncyclopediaTab';
 import { TribesTab } from './TribesTab';
 import { ResearchTab } from './ResearchTab';
 import { CombatTab } from './CombatTab';
+import { ControlsTab } from './ControlsTab';
 
-type HelpTabId = 'quick-start' | 'tribes' | 'combat' | 'research' | 'synergies';
+type HelpTabId = 'quick-start' | 'tribes' | 'combat' | 'research' | 'synergies' | 'controls';
 
 type HelpTab = {
   id: HelpTabId;
@@ -20,6 +21,7 @@ const TABS: HelpTab[] = [
   { id: 'combat', label: 'Combat', enabled: true },
   { id: 'research', label: 'Research & Codify', enabled: true },
   { id: 'synergies', label: 'Synergies', enabled: true },
+  { id: 'controls', label: 'Controls', enabled: true },
 ];
 
 type HelpPanelProps = {
@@ -73,6 +75,11 @@ export function HelpPanel({ state: _state, onClose, initialTab }: HelpPanelProps
         </nav>
 
         <div className="help-panel__body">
+          {activeTab === 'controls' && (
+            <div className="help-content">
+              <ControlsTab />
+            </div>
+          )}
           {activeTab === 'quick-start' && (
             <div className="help-content">
               <div

@@ -27,6 +27,9 @@ export class UnitRenderer {
       if (callbacks.skipUnitIds?.has(unit.id)) {
         continue;
       }
+      if (!unit.visible) {
+        continue;
+      }
 
       const point = this.worldToScreen(unit.q, unit.r);
       const factionColor = world.factions.find((faction) => faction.id === unit.factionId)?.color ?? '#d8c7a3';
