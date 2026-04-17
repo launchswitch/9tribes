@@ -368,3 +368,65 @@ No significant changes detected.
 ### Dependency Changes
 - `web/src/game/controller/GameSession.ts` — 85 dependencies
 - `web/src/game/view-model/worldViewModel.ts` — 42 dependencies
+
+---
+
+## Digest — 2026-04-17T17:31:58.378313Z
+
+### New Files
+- `src/systems/simulation/environmentalEffects.ts` — 5 exports: HEALING_CONFIG, getHealRate, getTerrainAt, occupiesFriendlySettlement, applyEnvironmentalDamage
+- `src/systems/simulation/factionTurnEffects.ts` — 1 exports: processFactionPhases
+- `src/systems/simulation/summarizeFaction.ts` — 1 exports: summarizeFaction
+- `src/systems/simulation/traceRecorder.ts` — 8 exports: createSimulationTrace, recordSnapshot, log, recordCombatEvent, recordSiegeEvent, ... (+3 more)
+- `src/systems/simulation/traceTypes.ts` — 17 exports: TurnSnapshot, TraceLogEvent, TraceCombatEvent, TraceCombatBreakdown, TraceCombatUnitBreakdown, ... (+12 more)
+- `src/systems/simulation/victory.ts` — 2 exports: getVictoryStatus, getAliveFactions
+- `src/systems/strategic-ai/assignments.ts` — 1 exports: assignUnitIntents
+- `src/systems/strategic-ai/debugReasons.ts` — 2 exports: summarizePrimaryObjective, buildDebugReasons
+- `src/systems/strategic-ai/difficultyCoordinator.ts` — 1 exports: applyDifficultyCoordinator
+- `src/systems/strategic-ai/fronts.ts` — 4 exports: getLivingUnitsForFaction, getLivingEnemyUnits, assessThreatenedCities, detectFronts
+- `src/systems/strategic-ai/helpers.ts` — 12 exports: compareUnitEntries, compareUnits, compareHexes, nearestHex, dedupeHexes, ... (+7 more)
+- `src/systems/strategic-ai/learnLoopCoordinator.ts` — 1 exports: applyDifficultyLearnAndSacrificeCoordinator
+- `src/systems/strategic-ai/objectives.ts` — 17 exports: choosePrimaryEnemyFaction, choosePrimaryCityObjective, choosePrimaryFrontAnchor, chooseFocusTargets, buildRegroupAnchors, ... (+12 more)
+- `src/systems/strategic-ai/posture.ts` — 1 exports: determinePosture
+- `src/systems/strategic-ai/types.ts` — 13 exports: FRONT_RADIUS, THREAT_RADIUS, REGROUP_DISTANCE, RECOVERY_HP_RATIO, UnitWithPrototype, ... (+8 more)
+- `web/src/app/hooks/useCombatBridge.ts` — 1 exports: useCombatBridge
+- `web/src/app/hooks/useEscapeHandler.ts` — 1 exports: useEscapeHandler
+- `web/src/app/hooks/useSessionAudio.ts` — 1 exports: useSessionAudio
+- `web/src/game/controller/combatSession.ts` — 2 exports: PendingCombat, buildPendingCombat
+- `web/src/game/controller/moveQueueSession.ts` — 3 exports: clearMoveQueueOnUnit, clearQueueAndReturn, executeQueuedMovesForUnit
+- `web/src/game/controller/movementExplorer.ts` — 1 exports: buildReachableMoves
+- `web/src/game/controller/sessionUtils.ts` — 10 exports: refreshFogForAllFactions, updateSiegeState, getImprovementAtHex, isFortificationHex, getFortBuildEligibility, ... (+5 more)
+- `web/src/game/view-model/inspectors/cityInspectorViewModel.ts` — 3 exports: buildCityInspectorViewModel, buildSettlementBonusSummary, buildSettlementPreview
+- `web/src/game/view-model/inspectors/researchInspectorViewModel.ts` — 1 exports: buildResearchInspectorViewModel
+- `web/src/game/view-model/spriteKeys.ts` — 3 exports: getSpriteKeyForImprovement, getSpriteKeyForUnit, inferChassisId
+
+### Modified Files
+- `src/systems/strategicAi.ts` — ~4 signatures (getNearbySupportScore, getNearestFriendlyCity, isThreatenedCityHex, scoreStrategicTerrain)
+- `src/systems/warEcologySimulation.ts` — -30 exports (SimulationTrace, TraceAbilityLearnedEvent, TraceAiIntentEvent, TraceCombatBreakdown, TraceCombatEffect); ~1 signatures (runWarEcologySimulation)
+
+### Dependency Changes
+- `src/systems/simulation/environmentalEffects.ts` imports: src/game/types.ts (GameState, Unit), src/types.ts (FactionId, HexCoord, UnitId), src/core/grid.ts (hexToKey, hexDistance, getNeighbors), src/systems/capabilityDoctrine.ts (resolveResearchDoctrine), src/systems/factionIdentitySystem.ts (getHealingBonus)
+- `src/systems/simulation/factionTurnEffects.ts` imports: src/game/types.ts (GameState, Unit), src/data/registry/types.ts (RulesRegistry), src/types.ts (FactionId, HexCoord, UnitId), src/features/prototypes/types.ts (Prototype), src/core/enums.ts (VeteranLevel, UnitStatus)
+- `src/systems/simulation/summarizeFaction.ts` imports: src/game/types.ts (GameState), src/types.ts (FactionId), src/systems/historySystem.ts (getBattleCount, getKillCount), src/systems/capabilitySystem.ts (describeCapabilityLevels), src/systems/factionOwnershipSystem.ts (getFactionCityIds)
+- `src/systems/simulation/traceRecorder.ts` imports: src/game/types.ts (GameState), src/types.ts (FactionId), src/core/grid.ts (hexToKey)
+- `src/systems/simulation/traceTypes.ts` imports: src/types.ts (FactionId, HexCoord, UnitId), src/systems/factionStrategy.ts (FactionStrategy)
+- `src/systems/simulation/victory.ts` imports: src/game/types.ts (GameState), src/types.ts (FactionId), src/systems/simulation/traceTypes.ts (VictoryType, VictoryStatus)
+- `src/systems/strategic-ai/assignments.ts` imports: src/game/types.ts (GameState), src/types.ts (FactionId, HexCoord, UnitId), src/systems/factionStrategy.ts (FactionPosture, FactionStrategy, UnitStrategicIntent), src/systems/aiPersonality.ts (AiPersonalitySnapshot, shouldCommitAttack), src/systems/aiDifficulty.ts (AiDifficultyProfile)
+- `src/systems/strategic-ai/debugReasons.ts` imports: src/systems/factionStrategy.ts (FactionPosture, ThreatAssessment, FrontLine), src/types.ts (CityId, FactionId), src/core/grid.ts (hexToKey)
+- `src/systems/strategic-ai/difficultyCoordinator.ts` imports: src/game/types.ts (GameState), src/types.ts (FactionId, HexCoord, UnitId), src/systems/factionStrategy.ts (FactionPosture, FactionStrategy, UnitStrategicIntent), src/systems/aiDifficulty.ts (AiDifficultyProfile), src/systems/strategic-ai/types.ts (UnitWithPrototype, PressureObjective)
+- `src/systems/strategic-ai/fronts.ts` imports: src/game/types.ts (GameState), src/types.ts (FactionId), src/systems/factionStrategy.ts (ThreatAssessment, FrontLine), src/systems/strategic-ai/types.ts (UnitWithPrototype, THREAT_RADIUS), src/core/grid.ts (hexDistance, hexToKey)
+- `src/systems/strategic-ai/helpers.ts` imports: src/game/types.ts (City, Prototype, Unit), src/types.ts (CityId, FactionId, HexCoord), src/systems/factionStrategy.ts (UnitStrategicIntent), src/core/grid.ts (hexDistance, hexToKey), src/systems/strategic-ai/types.ts (UnitWithPrototype)
+- `src/systems/strategic-ai/learnLoopCoordinator.ts` imports: src/game/types.ts (GameState, City), src/types.ts (FactionId, HexCoord, UnitId), src/systems/factionStrategy.ts (UnitStrategicIntent), src/systems/aiDifficulty.ts (AiDifficultyProfile), src/systems/strategic-ai/types.ts (UnitWithPrototype)
+- `src/systems/strategic-ai/objectives.ts` imports: src/game/types.ts (GameState, City, Village), src/types.ts (CityId, FactionId, HexCoord), src/systems/strategic-ai/types.ts (FocusTargetDecision, FocusTargetCandidate, FocusTargetBudget), src/systems/factionStrategy.ts (FrontLine, ThreatAssessment, FactionPosture), src/systems/aiPersonality.ts (AiPersonalitySnapshot, scoreFocusTarget)
+- `src/systems/strategic-ai/posture.ts` imports: src/types.ts (FactionId), src/systems/factionStrategy.ts (FactionPosture, FactionStrategy, ThreatAssessment), src/systems/strategic-ai/types.ts (PostureDecision), src/systems/aiPersonality.ts (AiPersonalitySnapshot, scorePosture), src/systems/aiDifficulty.ts (AiDifficultyProfile)
+- `src/systems/strategic-ai/types.ts` imports: src/game/types.ts (City, Prototype, Unit), src/types.ts (CityId, FactionId, HexCoord), src/systems/factionStrategy.ts (FactionPosture, UnitAssignment, WaypointKind)
+- `web/src/app/hooks/useCombatBridge.ts` imports: web/src/game/controller/GameController.ts (GameController), web/src/game/controller/combatSession.ts (PendingCombat), web/src/game/types/worldView.ts (UnitView), web/src/app/audio/sfxManager.ts (playCombatSoundForPendingCombat)
+- `web/src/app/hooks/useSessionAudio.ts` imports: web/src/game/types/clientState.ts (ClientState), web/src/app/audio/sfxManager.ts (getDestroyedPlayerVillages, playSessionDeltaSounds)
+- `web/src/game/controller/combatSession.ts` imports: src/game/types.ts (GameState, UnitId), src/data/registry/types.ts (RulesRegistry), src/systems/combatSystem.ts (CombatResult), src/systems/combatActionSystem.ts (CombatActionPreview), web/src/game/types/replay.ts (ReplayCombatEvent)
+- `web/src/game/controller/moveQueueSession.ts` imports: src/game/types.ts (GameState, UnitId), src/types.ts (HexCoord), src/systems/pathfinder.ts (findPath), src/systems/movementSystem.ts (moveUnit, canMoveTo), src/data/registry/types.ts (RulesRegistry)
+- `web/src/game/controller/movementExplorer.ts` imports: src/game/types.ts (GameState, UnitId), src/data/registry/types.ts (RulesRegistry), src/systems/movementSystem.ts (getValidMoves, moveUnit, previewMove), web/src/game/types/worldView.ts (ReachableHexView)
+- `web/src/game/controller/sessionUtils.ts` imports: src/game/types.ts (GameState, Unit, UnitId), src/types.ts (HexCoord), src/core/ids.ts (createImprovementId), src/systems/capabilityDoctrine.ts (resolveCapabilityDoctrine), src/systems/fogSystem.ts (updateFogState)
+- `web/src/game/view-model/inspectors/cityInspectorViewModel.ts` imports: src/game/types.ts (GameState), src/data/registry/types.ts (RulesRegistry), src/features/cities/types.ts (CitySiteBonuses, CitySiteTrait), src/systems/economySystem.ts (deriveResourceIncome, getCaptureRampMultiplier, getSupplyDeficit), src/systems/villageSystem.ts (getVillageSpawnReadinessWithRegistry)
+- `web/src/game/view-model/inspectors/researchInspectorViewModel.ts` imports: src/game/types.ts (GameState), src/data/registry/types.ts (RulesRegistry, ResearchNodeDef), src/systems/domainProgression.ts (getDomainProgression)
+- `src/systems/strategicAi.ts` — 28 dependencies
+- `src/systems/warEcologySimulation.ts` — 47 dependencies
