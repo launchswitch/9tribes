@@ -3,6 +3,7 @@ import type { ClientState } from '../game/types/clientState';
 import type { CapabilityPipViewModel } from '../game/types/clientState';
 import pairSynergiesData from '../data/pair-synergies.json';
 import emergentRulesData from '../data/emergent-rules.json';
+import abilityDomainsData from '../data/ability-domains.json';
 
 type PairSynergy = typeof pairSynergiesData.pairSynergies[number];
 type EmergentRule = typeof emergentRulesData.rules[number];
@@ -59,6 +60,10 @@ export function domainColor(domainId: string): string {
 
 export function domainDisplayName(domainId: string): string {
   return DOMAIN_NAMES[domainId] ?? domainId.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+}
+
+export function domainBenefit(domainId: string): string {
+  return (abilityDomainsData.domains as Record<string, { baseEffect?: { description?: string } }>)[domainId]?.baseEffect?.description ?? '';
 }
 
 // ── Resolution logic ──
@@ -373,15 +378,22 @@ export function SynergyChip({ state }: SynergyChipProps) {
               <div className="syn-domain-list">
                 {resolved.allDomains.map((d) => {
                   const isNative = d === nativeDomain;
+                  const isUnlocked = isNative || pairEligibleDomains.includes(d);
                   return (
-                    <div key={d} className="syn-domain-item" data-native={isNative || undefined}>
+                    <div key={d} className={`syn-domain-item${!isUnlocked ? ' syn-domain-item--locked' : ''}`} data-native={isNative || undefined}>
                       <DomainDot domainId={d} size={18} isNative={isNative} />
-                      <span className="syn-domain-item__name">{domainDisplayName(d)}</span>
+                      <div className="syn-domain-item__info">
+                        <span className="syn-domain-item__name">{domainDisplayName(d)}</span>
+                        <span className="syn-domain-item__benefit">{domainBenefit(d)}</span>
+                        {!isUnlocked && (
+                          <span className="syn-domain-item__unlock-hint">Unlocks when T3 researched</span>
+                        )}
+                      </div>
                       {isNative && (
                         <span className="syn-domain-item__tag syn-domain-item__tag--native">Native</span>
                       )}
                       {!isNative && (
-                        <span className="syn-domain-item__tag syn-domain-item__tag--codified">Acquired</span>
+                        <span className={`syn-domain-item__tag ${isUnlocked ? 'syn-domain-item__tag--codified' : 'syn-domain-item__tag--locked'}`}>Acquired</span>
                       )}
                     </div>
                   );

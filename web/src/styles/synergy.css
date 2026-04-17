@@ -361,11 +361,45 @@
   background: color-mix(in srgb, var(--syn-dot-color, #888) 6%, rgba(255,255,255,0.02));
 }
 
-.syn-domain-item__name {
+.syn-domain-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
   flex: 1;
+}
+
+.syn-domain-item__name {
   font-size: 12px;
   font-weight: 500;
   color: var(--text);
+}
+
+.syn-domain-item__benefit {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.syn-domain-item--locked {
+  opacity: 0.45;
+}
+
+.syn-domain-item--locked .syn-domain-item__name {
+  color: var(--muted);
+}
+
+.syn-domain-item__unlock-hint {
+  font-size: 9px;
+  color: var(--accent);
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.syn-domain-item__tag--locked {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  opacity: 0.6;
 }
 
 .syn-domain-item__tag {

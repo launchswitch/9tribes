@@ -269,3 +269,157 @@
   }
 }
 
+/* ═══════════════════════════════════════
+   Tutorial Overlay (tut-*)
+   ═══════════════════════════════════════ */
+
+.tut-overlay {
+  position: fixed;
+  bottom: calc(var(--command-tray-height) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 48;
+  pointer-events: none;
+}
+
+.tut-card {
+  pointer-events: all;
+  width: min(460px, 92vw);
+  background: var(--panel-glass);
+  backdrop-filter: var(--panel-blur);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+  border-radius: var(--panel-radius-float);
+  box-shadow: var(--panel-shadow-heavy);
+  animation: tut-slide-in 280ms var(--ease-out-expo) both;
+}
+
+@keyframes tut-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tut-header {
+  padding: 16px 20px 0;
+}
+
+.tut-title {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.01em;
+}
+
+.tut-body {
+  padding: 10px 20px;
+}
+
+.tut-text {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.tut-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px 20px 14px;
+  border-top: 1px solid var(--panel-border);
+}
+
+.tut-btn {
+  padding: 7px 22px;
+  background: var(--accent);
+  color: #17130e;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.tut-btn:hover {
+  opacity: 0.85;
+}
+
+/* Welcome variant — centered modal with backdrop */
+.tut-overlay--welcome {
+  inset: 0;
+  bottom: 0;
+  left: 0;
+  transform: none;
+  background: rgba(23, 19, 14, 0.72);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  pointer-events: all;
+}
+
+.tut-overlay--welcome .tut-card {
+  width: min(520px, 92vw);
+  animation: tut-fade-in 300ms ease-out both;
+}
+
+.tut-overlay--welcome .tut-title {
+  font-size: 20px;
+  color: var(--accent);
+}
+
+@keyframes tut-fade-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Tutorial checkbox in menu setup */
+.menu-config-card--full {
+  grid-column: 1 / -1;
+}
+
+.menu-tutorial-toggle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.menu-tutorial-checkbox {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.menu-tutorial-label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.menu-tutorial-label strong {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.menu-tutorial-label span {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--muted);
+}
+

@@ -12,6 +12,7 @@ type SetupState = {
   difficulty: DifficultyLevel;
   mapSize: MapSize;
   selectedFactionId: string;
+  tutorialMode: boolean;
 };
 
 const FACTIONS = getMvpFactionConfigs();
@@ -43,8 +44,9 @@ const FACTION_ABILITY: Record<string, string> = {
 
 const DEFAULT_SETUP: SetupState = {
   difficulty: 'normal',
-  mapSize: 'medium',
+  mapSize: 'small',
   selectedFactionId: FACTIONS.find((faction) => faction.id === 'steppe_clan')?.id ?? FACTIONS[0]?.id ?? 'steppe_clan',
+  tutorialMode: false,
 };
 
 export function MenuClient() {
@@ -95,6 +97,7 @@ export function MenuClient() {
     params.set('size', setup.mapSize);
     params.set('difficulty', setup.difficulty);
     params.set('player', selectedFaction.id);
+    if (setup.tutorialMode) params.set('tutorial', '1');
 
     window.location.search = params.toString();
   };
@@ -197,6 +200,24 @@ export function MenuClient() {
             </div>
 
             <div className="menu-config-grid">
+              <div className="menu-config-card menu-config-card--full">
+                <label className="menu-tutorial-toggle">
+                  <input
+                    type="checkbox"
+                    className="menu-tutorial-checkbox"
+                    checked={setup.tutorialMode}
+                    onChange={(e) => {
+                      playUiSelect();
+                      setSetup((current) => ({ ...current, tutorialMode: e.target.checked }));
+                    }}
+                  />
+                  <span className="menu-tutorial-label">
+                    <strong>Tutorial Mode</strong>
+                    <span>Show guided popups during your first two turns.</span>
+                  </span>
+                </label>
+              </div>
+
               <div className="menu-config-card">
                 <h3>Difficulty</h3>
                 <div className="menu-chip-row">
@@ -224,19 +245,23 @@ export function MenuClient() {
               <div className="menu-config-card">
                 <h3>Map Size</h3>
                 <div className="menu-chip-row">
-                  {(['small', 'medium', 'large'] as MapSize[]).map((mapSize) => (
-                    <button
-                      key={mapSize}
-                      className={`menu-chip ${setup.mapSize === mapSize ? 'is-selected' : ''}`}
-                      type="button"
-                      onClick={() => {
-                        playUiSelect();
-                        setSetup((current) => ({ ...current, mapSize }));
-                      }}
-                    >
-                      {mapSize}
-                    </button>
-                  ))}
+                  {(['small', 'medium', 'large'] as MapSize[]).map((mapSize) => {
+                    const isLocked = mapSize !== 'small';
+                    return (
+                      <button
+                        key={mapSize}
+                        className={`menu-chip ${setup.mapSize === mapSize ? 'is-selected' : ''} ${isLocked ? 'is-disabled' : ''}`}
+                        type="button"
+                        disabled={isLocked}
+                        onClick={() => {
+                          playUiSelect();
+                          setSetup((current) => ({ ...current, mapSize }));
+                        }}
+                      >
+                        {mapSize}
+                      </button>
+                    );
+                  })}
                 </div>
                 <p className="menu-config-card__hint">World size: {MAP_SIZE_LABELS[setup.mapSize]}</p>
               </div>

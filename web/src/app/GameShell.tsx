@@ -24,6 +24,8 @@ import { CombatLogPanel } from '../ui/CombatLogPanel';
 import { useCombatBridge } from './hooks/useCombatBridge';
 import { useSessionAudio } from './hooks/useSessionAudio';
 import { useEscapeHandler } from './hooks/useEscapeHandler';
+import { useTutorial } from './hooks/useTutorial';
+import { TutorialOverlay } from '../ui/TutorialOverlay';
 
 const params = new URLSearchParams(window.location.search);
 const USE_V2_LAYOUT = params.get('layout') !== 'legacy';
@@ -101,6 +103,7 @@ function KnowledgeGainedShellContent({
 
   const { combatLocked } = useCombatBridge(controller, gameRef);
   useSessionAudio(state, combatLocked);
+  const tutorial = useTutorial(state);
 
   useEscapeHandler({
     activeOverlay,
@@ -257,6 +260,10 @@ function KnowledgeGainedShellContent({
           onClose={() => onSetHelpOpen(false)}
           initialTab={initialHelpTab}
         />
+      ) : null}
+
+      {tutorial.popupVisible ? (
+        <TutorialOverlay step={tutorial.step} onDismiss={tutorial.onDismiss} />
       ) : null}
     </div>
   );
