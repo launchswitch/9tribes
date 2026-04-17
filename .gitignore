@@ -34,6 +34,7 @@ docs/full-ui-implementation-plan.md
 .pi/
 artifacts/
 *.png
+!web/public/assets/**/*.png
 *.lnk
 *.tsbuildinfo
 .vite/
