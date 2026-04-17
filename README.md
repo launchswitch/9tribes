@@ -6,19 +6,17 @@
 
 **War-Civ V2** is a turn-based strategy simulation focused on how civilizations evolve through war. It is **not** a traditional 4X game — it optimizes for conflict-driven evolution, military identity, emergent behavior, and simple systems that create complex outcomes.
 
-> *If a system does not meaningfully affect war, cut it.*
-
 ## Core Pillars
 
 - **Combat drives everything** — Technology and identity emerge from conflict, not separate economy screens
 - **Military identity is earned** — Terrain, battle outcomes, and doctrines shape each faction's personality over time
 - **Technology from environment + combat** — No linear tech trees; units learn from what they fight and where they fight it
-- **Units are persistent** — Veterans carry history; every battle leaves marks
-- **Prototypes over unit tiers** — 16 chassis × 34 components create unit variety without rigid upgrade ladders
+- **Units are persistent** — Veterans carry history and can "learn" enemy doctrines from battle
+- **Prototypes over unit tiers** — 16 chassis × 34 components x 176 domain combinations create unit variety without rigid upgrade ladders
 
 ## Factions (9)
 
-Each faction has a home biome, unique starting units, a signature ability, and a native domain that shapes its research and hybrid potential.
+Each faction has a home biome, unique units, signature abilities, and a native domain that shapes its research and hybrid potential.
 
 | Faction | Biome | Identity |
 |---------|-------|----------|
