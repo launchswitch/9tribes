@@ -2,35 +2,16 @@ import civilizationsData from '../../../../src/content/base/civilizations.json';
 import { hexDistance, hexToKey } from '../../../../src/core/grid.js';
 import type { RulesRegistry } from '../../../../src/data/registry/types.js';
 import type { FactionId, GameState, Unit } from '../../../../src/game/types.js';
-import type { CitySiteBonuses } from '../../../../src/features/cities/types.js';
-import {
-  evaluateCitySiteBonuses,
-  formatSettlementOccupancyBlocker,
-  getCitySiteBonuses,
-  getSettlementOccupancyBlocker,
-} from '../../../../src/systems/citySiteSystem.js';
 import { canUseAmbush, canUseBrace, getTerrainAt, hasAdjacentEnemy } from '../../../../src/systems/abilitySystem.js';
 import { resolveCapabilityDoctrine } from '../../../../src/systems/capabilityDoctrine.js';
-import { deriveResourceIncome, getCaptureRampMultiplier, getSupplyDeficit } from '../../../../src/systems/economySystem.js';
+import { deriveResourceIncome, getSupplyDeficit } from '../../../../src/systems/economySystem.js';
 import { getValidMoves } from '../../../../src/systems/movementSystem.js';
-import {
-  getDomainTier,
-} from '../../../../src/systems/researchSystem.js';
-import { getDomainProgression } from '../../../../src/systems/domainProgression.js';
 import { getHexOwner } from '../../../../src/systems/territorySystem.js';
 import { canBoardTransport, getUnitTransport, getValidDisembarkHexes } from '../../../../src/systems/transportSystem.js';
 import { calculateProductionPenalty, calculateMoralePenalty } from '../../../../src/systems/warExhaustionSystem.js';
-import { getVillageSpawnReadinessWithRegistry } from '../../../../src/systems/villageSystem.js';
-import { getFactionCityIds } from '../../../../src/systems/factionOwnershipSystem.js';
-import {
-  canPaySettlerVillageCost,
-  getAvailableProductionPrototypes,
-  getPrototypeCostType,
-  getPrototypeQueueCost,
-  getUnitCost,
-  SETTLER_VILLAGE_COST,
-} from '../../../../src/systems/productionSystem.js';
-import { calculatePrototypeCost, getDomainIdsByTags, getPrototypeCostModifier, isUnlockPrototype } from '../../../../src/systems/knowledgeSystem.js';
+import { getSpriteKeyForUnit, getSpriteKeyForImprovement, inferChassisId } from './spriteKeys.js';
+import { buildCityInspectorViewModel, buildSettlementPreview } from './inspectors/cityInspectorViewModel.js';
+import { buildResearchInspectorViewModel } from './inspectors/researchInspectorViewModel.js';
 import type {
   CityInspectorViewModel,
   ClientMode,
@@ -38,10 +19,6 @@ import type {
   DebugViewModel,
   HudViewModel,
   ResearchInspectorViewModel,
-  ResearchNodeViewState,
-  ResearchNodeViewModel,
-  SettlementBonusSummaryViewModel,
-  SettlementPreviewViewModel,
 } from '../types/clientState';
 import type { ReplayAiIntentEvent, ReplayBundle, ReplayCombatEvent, ReplayFactionSummary, ReplayTurn } from '../types/replay';
 import type {
@@ -92,24 +69,16 @@ const BORDER_DIRECTIONS: Array<{ side: BorderSide; dq: number; dr: number }> = [
   { side: 'west', dq: -1, dr: 0 },
 ];
 
-// Derive CAPTURE_RAMP_TURNS from getCaptureRampMultiplier behavior
-// The function returns 0 during the ramp period, then positive values after
-function deriveCaptureRampTurns(): number {
-  for (let turns = 0; turns < 50; turns++) {
-    if (getCaptureRampMultiplier(turns) > 0) {
-      return turns; // This equals CAPTURE_RAMP_TURNS + 1
-    }
-  }
-  return 6; // fallback: CAPTURE_RAMP_TURNS + 1
-}
-const CAPTURE_RAMP_TURNS = deriveCaptureRampTurns() - 1;
-
 type SelectionInfo = {
   title: string;
   description: string;
   meta: Array<{ label: string; value: string }>;
   city: CityInspectorViewModel | null;
 };
+
+// ---------------------------------------------------------------------------
+// Public entry points (thin dispatchers)
+// ---------------------------------------------------------------------------
 
 export function buildWorldViewModel(source: WorldViewSource): WorldViewModel {
   return source.kind === 'replay'
@@ -151,6 +120,12 @@ export function getIntentSummary(intent: ReplayAiIntentEvent, factions: ReplayFa
   return `${faction?.name ?? intent.factionId}: ${intent.intent} · ${intent.reason}`;
 }
 
+export { buildResearchInspectorViewModel };
+
+// ---------------------------------------------------------------------------
+// Replay world view
+// ---------------------------------------------------------------------------
+
 function buildReplayWorldViewModel(source: ReplayWorldSource): WorldViewModel {
   const turn = source.replay.turns[source.turnIndex] ?? source.replay.turns[0];
   const board = turn.snapshotEnd;
@@ -190,10 +165,10 @@ function buildReplayWorldViewModel(source: ReplayWorldSource): WorldViewModel {
         r: unit.r,
         hp: unit.hp,
         maxHp: unit.maxHp,
-        attack: unit.attack ?? 0,
-        defense: unit.defense ?? 0,
-        effectiveDefense: unit.defense ?? 0,
-        range: unit.range ?? 1,
+        attack: 0,
+        defense: 0,
+        effectiveDefense: 0,
+        range: 1,
         movesRemaining: 0,
         movesMax: 0,
         acted: false,
@@ -220,7 +195,7 @@ function buildReplayWorldViewModel(source: ReplayWorldSource): WorldViewModel {
       besieged: city.besieged,
       wallHp: city.wallHp,
       maxWallHp: city.maxWallHp,
-      turnsSinceCapture: city.turnsSinceCapture,
+      turnsSinceCapture: 0,
     })),
     villages: board.villages.map((village) => ({
       id: village.id,
@@ -246,6 +221,10 @@ function buildReplayWorldViewModel(source: ReplayWorldSource): WorldViewModel {
     },
   };
 }
+
+// ---------------------------------------------------------------------------
+// Play world view
+// ---------------------------------------------------------------------------
 
 function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
   const { state } = source;
@@ -452,6 +431,10 @@ function thisChassisMovementClass(chassisId: string | undefined, registry: Rules
   return chassisId ? registry.getChassis(chassisId)?.movementClass : undefined;
 }
 
+// ---------------------------------------------------------------------------
+// HUD builders
+// ---------------------------------------------------------------------------
+
 function buildReplayHudViewModel(
   replay: ReplayBundle,
   turnIndex: number,
@@ -572,7 +555,6 @@ function buildResearchChip(
   const faction = state.factions.get(factionId as never);
   if (!research || !faction) return null;
 
-  // Find the active node across all domains
   let activeNodeName: string | null = null;
   let activeNodeCost = 0;
   const activeProgress = research.activeNodeId
@@ -595,71 +577,9 @@ function buildResearchChip(
   };
 }
 
-function buildSettlementPreview(
-  state: GameState,
-  selected: ClientSelection,
-  hoveredKey: string | null,
-  world: WorldViewModel,
-): SettlementPreviewViewModel | null {
-  if (!state.map || selected?.type !== 'unit') {
-    return null;
-  }
-
-  const unit = state.units.get(selected.unitId as never);
-  const prototype = unit ? state.prototypes.get(unit.prototypeId as never) : null;
-  if (!unit || !prototype?.tags?.includes('settler')) {
-    return null;
-  }
-
-  const currentKey = hexToKey(unit.position);
-  const reachableKeys = new Set(world.overlays.reachableHexes.map((entry) => entry.key));
-  const previewKey = hoveredKey && (hoveredKey === currentKey || reachableKeys.has(hoveredKey))
-    ? hoveredKey
-    : currentKey;
-  const previewTile = state.map.tiles.get(previewKey);
-  if (!previewTile) {
-    return null;
-  }
-
-  const position = { q: previewTile.position.q, r: previewTile.position.r };
-  const bonuses = evaluateCitySiteBonuses(state.map, position, 2);
-  const requiresMove = previewKey !== currentKey;
-  const blocker = getSettlementOccupancyBlocker(state, position);
-  const unitCanFoundNow = unit.factionId === state.activeFactionId
-    && unit.status === 'ready'
-    && unit.movesRemaining === unit.maxMoves;
-  const canFoundNow = !requiresMove && unitCanFoundNow && !blocker;
-
-  let blockedReason: string | undefined;
-  if (requiresMove) {
-    blockedReason = 'Move the settler here to found a city.';
-  } else if (blocker) {
-    blockedReason = formatSettlementOccupancyBlocker(blocker);
-  } else if (unit.factionId !== state.activeFactionId) {
-    blockedReason = 'Only the active faction can found a city.';
-  } else if (unit.status !== 'ready' || unit.movesRemaining !== unit.maxMoves) {
-    blockedReason = 'Settlers need full moves to found a city.';
-  }
-
-  return {
-    q: position.q,
-    r: position.r,
-    terrain: previewTile.terrain,
-    canFoundNow,
-    requiresMove,
-    blockedReason,
-    ...buildSettlementBonusSummary(bonuses),
-  };
-}
-
-function buildSettlementBonusSummary(bonuses: CitySiteBonuses): SettlementBonusSummaryViewModel {
-  return {
-    productionBonus: bonuses.productionBonus,
-    supplyBonus: bonuses.supplyBonus,
-    villageCooldownReduction: bonuses.villageCooldownReduction,
-    traits: bonuses.traits.map((trait) => ({ ...trait })),
-  };
-}
+// ---------------------------------------------------------------------------
+// Selection description
+// ---------------------------------------------------------------------------
 
 function describeReplaySelection(
   replay: ReplayBundle,
@@ -794,220 +714,9 @@ function describeSelectionFromWorld(
   };
 }
 
-function buildCityInspectorViewModel(state: GameState, cityId: string, registry: RulesRegistry): CityInspectorViewModel | null {
-  const city = state.cities.get(cityId as never);
-  if (!city) {
-    return null;
-  }
-
-  const faction = state.factions.get(city.factionId);
-  const economy = deriveResourceIncome(state, city.factionId, registry);
-  const exhaustion = state.warExhaustion.get(city.factionId);
-  const isFriendly = city.factionId === state.activeFactionId;
-  const canManageProduction = isFriendly && !city.besieged;
-  const cityCount = Math.max(1, getFactionCityIds(state, city.factionId).length);
-  const perTurnIncome = Number((economy.productionPool / cityCount).toFixed(2));
-  const readiness = getVillageSpawnReadinessWithRegistry(state, city.id as never, registry);
-  const currentItem = city.currentProduction
-    ? state.prototypes.get(city.currentProduction.item.id as never)
-    : null;
-  const currentCostType = city.currentProduction?.costType ?? city.currentProduction?.item.costType ?? 'production';
-  const currentVillageCount = faction?.villageIds.length ?? 0;
-  const currentProgress = city.currentProduction
-    ? currentCostType === 'villages'
-      ? Math.min(city.currentProduction.cost, currentVillageCount)
-      : Number(city.currentProduction.progress.toFixed(2))
-    : 0;
-  const currentRemaining = city.currentProduction
-    ? currentCostType === 'villages'
-      ? Math.max(0, city.currentProduction.cost - currentVillageCount)
-      : Number(Math.max(0, city.currentProduction.cost - city.currentProduction.progress).toFixed(2))
-    : 0;
-
-  return {
-    cityId: city.id,
-    cityName: city.name,
-    factionId: city.factionId,
-    factionName: faction?.name ?? city.factionId,
-    isFriendly,
-    isActiveFaction: city.factionId === state.activeFactionId,
-    canManageProduction,
-    production: {
-      status: city.currentProduction ? 'producing' : 'idle',
-      current: city.currentProduction ? (() => {
-        const baseCost = currentItem ? getUnitCost(currentItem.chassisId) : undefined;
-        let costModifier: number | undefined;
-        let costModifierReason: string | undefined;
-        if (currentItem && faction && isUnlockPrototype(currentItem) && currentCostType === 'production') {
-          const domainIds = getDomainIdsByTags(currentItem.tags ?? []);
-          const maxModifier = domainIds.reduce((max, d) => Math.max(max, getPrototypeCostModifier(faction, d)), 1.0);
-          if (maxModifier > 1.0) {
-            costModifier = maxModifier;
-            costModifierReason = maxModifier >= 2.0 ? 'Culture Shock' : 'Integrating';
-          }
-        }
-        return {
-          id: city.currentProduction!.item.id,
-          name: currentItem?.name ?? city.currentProduction!.item.id,
-          type: city.currentProduction!.item.type,
-          cost: city.currentProduction!.cost,
-          costType: currentCostType,
-          costLabel: currentCostType === 'villages'
-            ? `${city.currentProduction!.cost} villages`
-            : `${city.currentProduction!.cost} production`,
-          baseCost: costModifier ? baseCost : undefined,
-          costModifier,
-          costModifierReason,
-          progress: currentProgress,
-          remaining: currentRemaining,
-          turnsRemaining: currentCostType === 'villages'
-            ? null
-            : perTurnIncome > 0
-              ? Math.ceil(Math.max(0, city.currentProduction!.cost - city.currentProduction!.progress) / perTurnIncome)
-              : null,
-        };
-      })() : null,
-      queue: city.productionQueue.map((item) => {
-        const prototype = state.prototypes.get(item.id as never);
-        const costType = item.costType ?? 'production';
-        let baseCost: number | undefined;
-        let costModifier: number | undefined;
-        let costModifierReason: string | undefined;
-        if (prototype && faction && isUnlockPrototype(prototype) && costType === 'production') {
-          const rawBase = getUnitCost(prototype.chassisId);
-          const domainIds = getDomainIdsByTags(prototype.tags ?? []);
-          const maxModifier = domainIds.reduce((max, d) => Math.max(max, getPrototypeCostModifier(faction, d)), 1.0);
-          if (maxModifier > 1.0) {
-            baseCost = rawBase;
-            costModifier = maxModifier;
-            costModifierReason = maxModifier >= 2.0 ? 'Culture Shock' : 'Integrating';
-          }
-        }
-        return {
-          id: item.id,
-          name: prototype?.name ?? item.id,
-          type: item.type,
-          cost: item.cost,
-          costType,
-          costLabel: costType === 'villages' ? `${item.cost} villages` : `${item.cost} production`,
-          baseCost,
-          costModifier,
-          costModifierReason,
-        };
-      }),
-      perTurnIncome,
-    },
-    productionOptions: (!faction ? [] : getAvailableProductionPrototypes(state, city.factionId, registry))
-      .map((prototype) => {
-        const costType = getPrototypeCostType(prototype);
-        const baseRawCost = prototype.productionCost ?? getUnitCost(prototype.chassisId);
-        let cost = prototype.productionCost ?? getPrototypeQueueCost(prototype);
-        let baseCost: number | undefined;
-        let costModifier: number | undefined;
-        let costModifierReason: string | undefined;
-        if (isUnlockPrototype(prototype) && costType === 'production' && faction) {
-          const domainIds = getDomainIdsByTags(prototype.tags ?? []);
-          const maxModifier = domainIds.reduce((max, d) => Math.max(max, getPrototypeCostModifier(faction, d)), 1.0);
-          cost = calculatePrototypeCost(baseRawCost, faction, domainIds, prototype);
-          if (maxModifier > 1.0) {
-            baseCost = baseRawCost;
-            costModifier = maxModifier;
-            costModifierReason = maxModifier >= 2.0 ? 'Culture Shock' : 'Integrating';
-          }
-        }
-        const villageCount = faction?.villageIds.length ?? 0;
-        const disabledReason = !canManageProduction
-          ? city.besieged
-            ? 'Cannot change production while besieged.'
-            : 'Only the active friendly city can change production.'
-          : costType === 'villages' && !canPaySettlerVillageCost(state, city.factionId, SETTLER_VILLAGE_COST)
-            ? `Requires ${SETTLER_VILLAGE_COST} villages (${villageCount} available).`
-            : undefined;
-        return {
-          prototypeId: prototype.id,
-          name: prototype.name,
-          cost,
-          costType,
-          costLabel: costType === 'villages' ? `${cost} villages` : `${cost} production`,
-          baseCost,
-          costModifier,
-          costModifierReason,
-          chassisId: prototype.chassisId,
-          attack: prototype.derivedStats.attack,
-          defense: prototype.derivedStats.defense,
-          hp: prototype.derivedStats.hp,
-          moves: prototype.derivedStats.moves,
-          range: prototype.derivedStats.range,
-          disabled: disabledReason !== undefined,
-          disabledReason,
-        };
-      }),
-    supply: {
-      income: economy.supplyIncome,
-      used: economy.supplyDemand,
-      demand: economy.supplyDemand,
-      balance: Number((economy.supplyIncome - economy.supplyDemand).toFixed(2)),
-      deficit: getSupplyDeficit(economy),
-    },
-    turnsUntilNextVillage: readiness.roundsUntilCooldownReady,
-    exhaustion: {
-      points: exhaustion?.exhaustionPoints ?? 0,
-      productionPenalty: calculateProductionPenalty(exhaustion?.exhaustionPoints ?? 0),
-      moralePenalty: calculateMoralePenalty(exhaustion?.exhaustionPoints ?? 0),
-    },
-    villageReadiness: {
-      eligible: readiness.eligible,
-      latestVillageRound: readiness.latestVillageRound ?? 0,
-      checklist: [
-        {
-          key: 'city',
-          label: 'City can host villages',
-          met: readiness.cityExists,
-        },
-        {
-          key: 'cooldown',
-          label: 'Village cooldown ready',
-          met: readiness.cooldownMet,
-          detail: readiness.cooldownMet ? undefined : `${readiness.roundsUntilCooldownReady} round(s) remaining`,
-        },
-        {
-          key: 'hex',
-          label: 'Valid spawn hex available',
-          met: readiness.validSpawnHex,
-        },
-      ],
-    },
-    siteBonuses: buildSettlementBonusSummary(getCitySiteBonuses(city, state.map)),
-    walls: {
-      wallHp: city.wallHP,
-      maxWallHp: city.maxWallHP,
-      besieged: city.besieged,
-    },
-    captureRamp: (() => {
-      if (city.turnsSinceCapture === undefined) {
-        return undefined;
-      }
-      const rampMultiplier = getCaptureRampMultiplier(city.turnsSinceCapture);
-      if (rampMultiplier >= 1) {
-        return undefined; // No ramp in effect
-      }
-      // turnsUntilOutput: turns until production starts (> 0 means still at 0%)
-      const turnsUntilOutput = rampMultiplier <= 0
-        ? CAPTURE_RAMP_TURNS - city.turnsSinceCapture + 1
-        : 0;
-      // turnsUntilFull: turns until 100% output
-      const turnsUntilFull = rampMultiplier < 1
-        ? CAPTURE_RAMP_TURNS * 2 - city.turnsSinceCapture
-        : 0;
-      return {
-        turnsSinceCapture: city.turnsSinceCapture,
-        rampMultiplier,
-        turnsUntilOutput: Math.max(0, turnsUntilOutput),
-        turnsUntilFull: Math.max(0, turnsUntilFull),
-      };
-    })(),
-  };
-}
+// ---------------------------------------------------------------------------
+// Shared helpers
+// ---------------------------------------------------------------------------
 
 function describeVictory(replay: ReplayBundle) {
   const winner = replay.victory.winnerFactionId
@@ -1120,258 +829,4 @@ function getAttackableEnemies(state: GameState, unit: Unit) {
     && candidate.factionId !== unit.factionId
     && hexDistance(unit.position, candidate.position) <= attackRange
   );
-}
-
-function inferChassisId(name: string) {
-  const lowered = name.toLowerCase();
-  if (lowered.includes('camel')) return 'camel';
-  if (lowered.includes('elephant')) return 'elephant';
-  if (lowered.includes('naval') || lowered.includes('marine') || lowered.includes('river')) return 'naval';
-  if (lowered.includes('cavalry') || lowered.includes('horse')) return 'cavalry';
-  if (lowered.includes('ranged') || lowered.includes('archer') || lowered.includes('bow')) return 'ranged';
-  return 'infantry';
-}
-
-function normalizeSpriteKey(chassisId: string) {
-  if (chassisId.includes('camel')) return 'camel';
-  if (chassisId.includes('elephant')) return 'elephant';
-  if (chassisId.includes('naval')) return 'naval';
-  if (chassisId.includes('cavalry')) return 'cavalry';
-  if (chassisId.includes('ranged')) return 'ranged';
-  return 'infantry';
-}
-
-const DEFAULT_IMPROVEMENT_SPRITE_KEYS: Record<string, string> = {
-  fortification: 'hill_fortress',
-};
-
-const FACTION_IMPROVEMENT_SPRITE_KEYS: Record<string, Record<string, string>> = {
-  hill_clan: {
-    fortification: 'hill_fortress',
-  },
-};
-
-function getSpriteKeyForImprovement(ownerFactionId: string | null, type: string): string {
-  return (ownerFactionId ? FACTION_IMPROVEMENT_SPRITE_KEYS[ownerFactionId]?.[type] : undefined)
-    ?? DEFAULT_IMPROVEMENT_SPRITE_KEYS[type]
-    ?? 'hill_fortress';
-}
-
-function getSpriteKeyForUnit(factionId: string, prototypeName: string, chassisId: string, sourceRecipeId?: string): string {
-  if (sourceRecipeId === 'settler' || prototypeName.toLowerCase() === 'settler') {
-    return 'settler';
-  }
-
-  // Hybrid units (identified by sourceRecipeId from hybrid-recipes.json)
-  if (sourceRecipeId) {
-    const map: Record<string, string> = {
-      // Jungle
-      'blowgun_skirmishers': 'jungle_blowgun',
-      'serpent_priest': 'jungle_priest',
-      // Druid
-      'healing_druids': 'druid_healer',
-      'druid_wizard': 'druid_wizard',
-      // Steppe
-      'steppe_raiders': 'steppe_raiders',
-      'steppe_priest': 'steppe_priestess',
-      // Hill
-      'fortress_archer': 'hill_fortress_archer',
-      'catapult': 'hill_catapult',
-      // Pirate
-      'slaver': 'pirate_slaver',
-      'slave_galley': 'pirate_slaver_ship',
-      // Desert
-      'camel_lancers': 'desert_camel_lancers',
-      'desert_immortals': 'desert_immortal',
-      // Savannah
-      'war_elephants': 'savannah_elephant',
-      'war_chariot': 'savannah_chariot',
-      // River
-      'river_raiders': 'river_raiders',
-      'river_priest': 'river_priestess',
-      // Frost
-      'ice_defenders': 'frost_ice_defenders',
-      'polar_priest': 'frost_priest',
-    };
-    if (map[sourceRecipeId]) return map[sourceRecipeId];
-  }
-
-  // Summon/signature units (identified by special chassis IDs)
-  if (chassisId === 'serpent_frame') return 'jungle_serpent';
-  if (chassisId === 'warlord_frame') return 'steppe_warlord';
-  if (chassisId === 'galley_frame') return 'pirate_galley';
-  if (chassisId === 'polar_bear_frame') return 'frost_polar_bear';
-  if (chassisId === 'alligator_frame') return 'river_crocodile';
-
-  // Starting units by faction
-  const startingMap: Record<string, Record<string, string>> = {
-    jungle_clan: {
-      infantry_frame: 'jungle_spearman',
-      ranged_frame: 'jungle_archer',
-    },
-    druid_circle: {
-      infantry_frame: 'druid_spear_infantry',
-      ranged_frame: 'druid_archer',
-    },
-    steppe_clan: {
-      infantry_frame: 'steppe_spear_infantry',
-      ranged_frame: 'steppe_raiders',
-      cavalry_frame: 'steppe_horse_archer',
-    },
-    hill_clan: {
-      infantry_frame: 'hill_spear_infantry',
-      ranged_frame: 'hill_archer',
-    },
-    coral_people: {
-      infantry_frame: 'pirate_infantry',
-      ranged_frame: 'pirate_ranged',
-    },
-    desert_nomads: {
-      camel_frame: 'desert_camel',
-      ranged_frame: 'desert_archer',
-    },
-    savannah_lions: {
-      infantry_frame: 'savannah_spearman',
-      ranged_frame: 'savannah_javelin',
-    },
-    plains_riders: {
-      infantry_frame: 'river_spearman',
-      naval_frame: 'river_canoe',
-    },
-    frost_wardens: {
-      infantry_frame: 'frost_spearman',
-      ranged_frame: 'frost_archer',
-    },
-  };
-
-  const factionUnits = startingMap[factionId];
-  if (factionUnits) {
-    const sprite = factionUnits[chassisId];
-    if (sprite) return sprite;
-  }
-
-  // Ultimate fallback (should never hit if all units are mapped)
-  return normalizeSpriteKey(chassisId);
-}
-
-export function buildResearchInspectorViewModel(
-  state: GameState,
-  registry: RulesRegistry,
-): ResearchInspectorViewModel | null {
-  const factionId = state.activeFactionId;
-  if (!factionId) return null;
-  const faction = state.factions.get(factionId as never);
-  if (!faction) return null;
-
-  const research = state.research.get(factionId as never);
-  if (!research) return null;
-
-  const nativeDomain = faction.nativeDomain ?? '';
-  const learnedDomains = faction.learnedDomains ?? [nativeDomain];
-  const allDomains = registry.getAllResearchDomains();
-  const progression = getDomainProgression(faction, research);
-
-  // Build node VMs across all research domains
-  const nodes: ResearchNodeViewModel[] = [];
-  for (const domainDef of allDomains) {
-    const domainId = domainDef.id;
-    const isNative = domainId === nativeDomain;
-    const isUnlocked = learnedDomains.includes(domainId);
-
-    for (const nodeDef of Object.values(domainDef.nodes)) {
-      const isCompleted = research.completedNodes.includes(nodeDef.id as never);
-      const isActive = research.activeNodeId === nodeDef.id;
-      const progress = research.progressByNodeId[nodeDef.id as never] ?? 0;
-
-      const prereqsMet = (nodeDef.prerequisites ?? []).every((prereqId) =>
-        research.completedNodes.includes(prereqId as never),
-      );
-
-      let nodeState: ResearchNodeViewState;
-      if (!isUnlocked) nodeState = 'locked';
-      else if (isCompleted) nodeState = 'completed';
-      else if (isActive) nodeState = 'active';
-      else if (!prereqsMet) nodeState = 'locked';
-      else nodeState = 'available';
-
-      const estimatedTurns =
-        nodeState === 'active' && research.researchPerTurn > 0
-          ? Math.ceil(Math.max(0, nodeDef.xpCost - progress) / research.researchPerTurn)
-          : null;
-
-      nodes.push({
-        nodeId: nodeDef.id,
-        name: nodeDef.name,
-        tier: nodeDef.tier ?? 1,
-        xpCost: nodeDef.xpCost,
-        discountedXpCost: null,
-        currentProgress: progress,
-        state: nodeState,
-        prerequisites: nodeDef.prerequisites ?? [],
-        prerequisiteNames: [],
-        unlocks: [],
-        qualitativeEffect: nodeDef.qualitativeEffect?.description ?? null,
-        estimatedTurns,
-        domain: domainId,
-        isNative,
-        isLocked: !isUnlocked,
-      });
-    }
-  }
-
-  // Build domain pips for all 10 research domains
-  const capabilitiesVms = allDomains.map((domainDef) => {
-    const domainId = domainDef.id;
-    const tier = getDomainTier(faction, domainId, research.completedNodes);
-    return {
-      domainId,
-      domainName: domainDef.name,
-      description: domainDef.name,
-      level: tier,
-      hasResearchTrack: true,
-      codified: learnedDomains.includes(domainId),
-      t1Ready: tier >= 1,
-      t2Ready: tier >= 2,
-    };
-  });
-
-  // Find active node info across domains
-  let activeNodeName: string | null = null;
-  let activeNodeCost: number | null = null;
-  let activeNodeProgress: number | null = null;
-
-  if (research.activeNodeId) {
-    const domainId = research.activeNodeId.split('_t')[0];
-    const domain = registry.getResearchDomain(domainId);
-    if (domain?.nodes[research.activeNodeId]) {
-      activeNodeName = domain.nodes[research.activeNodeId].name;
-      activeNodeCost = domain.nodes[research.activeNodeId].xpCost;
-      activeNodeProgress = research.progressByNodeId[research.activeNodeId as never] ?? 0;
-    }
-  }
-
-  // Simplified rate breakdown — flat base rate only
-  const totalRate = research.researchPerTurn;
-
-  return {
-    factionId,
-    activeNodeId: research.activeNodeId,
-    activeNodeName,
-    activeNodeProgress,
-    activeNodeXpCost: activeNodeCost,
-    completedCount: research.completedNodes.length,
-    totalNodes: nodes.length,
-    nodes,
-    capabilities: capabilitiesVms,
-    rateBreakdown: {
-      base: research.researchPerTurn,
-      detail: progression.canBuildLateTier
-        ? `${learnedDomains.length} domains unlocked · late-tier production available`
-        : progression.canBuildMidTier
-          ? `${learnedDomains.length} domains unlocked · mid-tier production available`
-          : `${learnedDomains.length} domain unlocked · base production only`,
-      total: totalRate,
-    },
-    hasKnowledgeDiscount: false,
-  };
 }

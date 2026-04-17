@@ -6,54 +6,6 @@ type CombatDetailModalProps = {
   onClose: () => void;
 };
 
-type ExtendedUnitBreakdown = {
-  prototypeName?: string;
-  terrain?: string;
-  hpBefore?: number;
-  hpAfter?: number;
-  maxHp?: number;
-  baseStat?: number;
-};
-
-type ExtendedModifiers = ReplayCombatEvent['breakdown']['modifiers'] & {
-  roleModifier?: number;
-  weaponModifier?: number;
-  chargeBonus?: number;
-  ambushBonus?: number;
-  hiddenAttackBonus?: number;
-  situationalAttackModifier?: number;
-  synergyAttackModifier?: number;
-  baseMultiplier?: number;
-  positionalMultiplier?: number;
-  improvementDefenseBonus?: number;
-  wallDefenseBonus?: number;
-  braceDefenseBonus?: number;
-  situationalDefenseModifier?: number;
-  synergyDefenseModifier?: number;
-  damageVarianceMultiplier?: number;
-  retaliationVarianceMultiplier?: number;
-};
-
-type ExtendedOutcome = ReplayCombatEvent['breakdown']['outcome'] & {
-  defenderKnockedBack?: boolean;
-  knockbackDistance?: number;
-};
-
-type ExtendedMorale = {
-  attackerChange?: number;
-  defenderChange?: number;
-  attackerLoss?: number;
-  defenderLoss?: number;
-};
-
-type ExtendedBreakdown = ReplayCombatEvent['breakdown'] & {
-  attacker?: ExtendedUnitBreakdown;
-  defender?: ExtendedUnitBreakdown;
-  modifiers: ExtendedModifiers;
-  outcome: ExtendedOutcome;
-  morale?: ExtendedMorale;
-};
-
 export function CombatDetailModal({ event, onClose }: CombatDetailModalProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -63,32 +15,30 @@ export function CombatDetailModal({ event, onClose }: CombatDetailModalProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  const breakdown = event.breakdown as ExtendedBreakdown;
+  const breakdown = event.breakdown;
   const mods = breakdown.modifiers;
   const attacker = breakdown.attacker;
   const defender = breakdown.defender;
 
-  const roleModifier = mods.roleModifier ?? 0;
-  const weaponModifier = mods.weaponModifier ?? 0;
-  const chargeBonus = mods.chargeBonus ?? 0;
-  const ambushBonus = mods.ambushBonus ?? 0;
-  const hiddenAttackBonus = mods.hiddenAttackBonus ?? 0;
-  const situationalAttackModifier = mods.situationalAttackModifier ?? 0;
-  const synergyAttackModifier = mods.synergyAttackModifier ?? 0;
-  const baseMultiplier = mods.baseMultiplier ?? 1;
-  const positionalMultiplier = mods.positionalMultiplier ?? 1;
-  const improvementDefenseBonus = mods.improvementDefenseBonus ?? 0;
-  const wallDefenseBonus = mods.wallDefenseBonus ?? 0;
-  const braceDefenseBonus = mods.braceDefenseBonus ?? 0;
-  const situationalDefenseModifier = mods.situationalDefenseModifier ?? 0;
-  const synergyDefenseModifier = mods.synergyDefenseModifier ?? 0;
-  const damageVarianceMultiplier = mods.damageVarianceMultiplier ?? 0;
-  const retaliationVarianceMultiplier = mods.retaliationVarianceMultiplier ?? 0;
+  const roleModifier = mods.roleModifier;
+  const weaponModifier = mods.weaponModifier;
+  const chargeBonus = mods.chargeBonus;
+  const ambushBonus = mods.ambushBonus;
+  const hiddenAttackBonus = mods.hiddenAttackBonus;
+  const situationalAttackModifier = mods.situationalAttackModifier;
+  const synergyAttackModifier = mods.synergyAttackModifier;
+  const baseMultiplier = mods.baseMultiplier;
+  const positionalMultiplier = mods.positionalMultiplier;
+  const improvementDefenseBonus = mods.improvementDefenseBonus;
+  const wallDefenseBonus = mods.wallDefenseBonus;
+  const braceDefenseBonus = mods.braceDefenseBonus;
+  const situationalDefenseModifier = mods.situationalDefenseModifier;
+  const synergyDefenseModifier = mods.synergyDefenseModifier;
+  const damageVarianceMultiplier = mods.damageVarianceMultiplier;
+  const retaliationVarianceMultiplier = mods.retaliationVarianceMultiplier;
 
-  const moraleAttackerDelta = breakdown.morale?.attackerChange
-    ?? (typeof breakdown.morale?.attackerLoss === 'number' ? -breakdown.morale.attackerLoss : 0);
-  const moraleDefenderDelta = breakdown.morale?.defenderChange
-    ?? (typeof breakdown.morale?.defenderLoss === 'number' ? -breakdown.morale.defenderLoss : 0);
+  const moraleAttackerDelta = -breakdown.morale.attackerLoss;
+  const moraleDefenderDelta = -breakdown.morale.defenderLoss;
 
   return (
     <div className="cd-overlay" onClick={onClose}>
@@ -228,7 +178,7 @@ function UnitSnapshot({
   label,
   side,
 }: {
-  unit: ExtendedUnitBreakdown;
+  unit: ReplayCombatEvent['breakdown']['attacker'];
   fallbackName: string;
   label: string;
   side: 'attacker' | 'defender';
@@ -238,12 +188,12 @@ function UnitSnapshot({
       <span className="cd-unit__label">{label}</span>
       <span className="cd-unit__name">{unit.prototypeName ?? fallbackName}</span>
       {unit.terrain && <span className="cd-unit__terrain">Terrain: {unit.terrain}</span>}
-      {(typeof unit.hpBefore === 'number' && typeof unit.hpAfter === 'number' && typeof unit.maxHp === 'number') && (
+      {(
         <span className="cd-unit__hp">
           HP: {unit.hpBefore} &rarr; {unit.hpAfter} / {unit.maxHp}
         </span>
       )}
-      {typeof unit.baseStat === 'number' && <span className="cd-unit__base-stat">Base stat: {unit.baseStat}</span>}
+      <span className="cd-unit__base-stat">Base stat: {unit.baseStat}</span>
     </div>
   );
 }

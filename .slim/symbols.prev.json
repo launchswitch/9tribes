@@ -1382,17 +1382,6 @@
         }
       ]
     },
-    "web/src/game/phaser/scenes/MapScene.ts": {
-      "exports": [
-        {
-          "name": "MapScene",
-          "kind": "class",
-          "line": 16,
-          "signature": "export class MapScene extends Phaser.Scene {",
-          "isDefault": false
-        }
-      ]
-    },
     "src/data/registry/types.ts": {
       "exports": [
         {
@@ -5096,17 +5085,6 @@
         }
       ]
     },
-    "web/src/ui/CombatDetailModal.tsx": {
-      "exports": [
-        {
-          "name": "CombatDetailModal",
-          "kind": "function",
-          "line": 9,
-          "signature": "export function CombatDetailModal({",
-          "isDefault": false
-        }
-      ]
-    },
     "src/data/loader/loadRulesRegistry.ts": {
       "exports": [
         {
@@ -6013,73 +5991,6 @@
         }
       ]
     },
-    "src/systems/combatActionSystem.ts": {
-      "exports": [
-        {
-          "name": "CombatActionEffectCategory",
-          "kind": "type",
-          "line": 63,
-          "signature": "export type CombatActionEffectCategory = 'positioning' | 'ability' | 'synergy' | 'aftermath';",
-          "isDefault": false
-        },
-        {
-          "name": "CombatActionEffect",
-          "kind": "interface",
-          "line": 65,
-          "signature": "export interface CombatActionEffect {",
-          "isDefault": false
-        },
-        {
-          "name": "CombatActionPreview",
-          "kind": "interface",
-          "line": 71,
-          "signature": "export interface CombatActionPreview {",
-          "isDefault": false
-        },
-        {
-          "name": "CombatActionPreviewDetails",
-          "kind": "interface",
-          "line": 86,
-          "signature": "export interface CombatActionPreviewDetails {",
-          "isDefault": false
-        },
-        {
-          "name": "CombatActionFeedback",
-          "kind": "interface",
-          "line": 110,
-          "signature": "export interface CombatActionFeedback {",
-          "isDefault": false
-        },
-        {
-          "name": "CombatActionResolution",
-          "kind": "interface",
-          "line": 117,
-          "signature": "export interface CombatActionResolution {",
-          "isDefault": false
-        },
-        {
-          "name": "CombatActionApplyResult",
-          "kind": "interface",
-          "line": 134,
-          "signature": "export interface CombatActionApplyResult {",
-          "isDefault": false
-        },
-        {
-          "name": "previewCombatAction",
-          "kind": "function",
-          "line": 509,
-          "signature": "export function previewCombatAction( state: GameState, registry: RulesRegistry, attackerId: UnitId, defenderId: UnitId, ): CombatActionPreview | null {",
-          "isDefault": false
-        },
-        {
-          "name": "applyCombatAction",
-          "kind": "function",
-          "line": 892,
-          "signature": "export function applyCombatAction( state: GameState, registry: RulesRegistry, preview: CombatActionPreview, ): CombatActionApplyResult {",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/app/routes/MenuClient.tsx": {
       "exports": [
         {
@@ -6257,52 +6168,6 @@
         }
       ]
     },
-    "src/systems/unitActivationSystem.ts": {
-      "exports": [
-        {
-          "name": "UnitActivationCombatMode",
-          "kind": "type",
-          "line": 76,
-          "signature": "export type UnitActivationCombatMode = 'apply' | 'preview';",
-          "isDefault": false
-        },
-        {
-          "name": "UnitActivationOptions",
-          "kind": "interface",
-          "line": 78,
-          "signature": "export interface UnitActivationOptions {",
-          "isDefault": false
-        },
-        {
-          "name": "UnitActivationResult",
-          "kind": "interface",
-          "line": 84,
-          "signature": "export interface UnitActivationResult {",
-          "isDefault": false
-        },
-        {
-          "name": "maybeExpirePreparedAbility",
-          "kind": "function",
-          "line": 154,
-          "signature": "export function maybeExpirePreparedAbility(unit: Unit, round: number, state: GameState): Unit {",
-          "isDefault": false
-        },
-        {
-          "name": "activateUnit",
-          "kind": "function",
-          "line": 1148,
-          "signature": "export function activateUnit( state: GameState, unitId: UnitId, registry: RulesRegistry, options: UnitActivationOptions = {",
-          "isDefault": false
-        },
-        {
-          "name": "activateAiUnit",
-          "kind": "function",
-          "line": 1679,
-          "signature": "export function activateAiUnit( state: GameState, unitId: UnitId, registry: RulesRegistry, options: UnitActivationOptions = {",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/data/help-content.ts": {
       "exports": [
         {
@@ -6352,11 +6217,146 @@
           "isDefault": false
         }
       ]
+    },
+    "web/src/ui/CombatDetailModal.tsx": {
+      "exports": [
+        {
+          "name": "CombatDetailModal",
+          "kind": "function",
+          "line": 57,
+          "signature": "export function CombatDetailModal({",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/phaser/scenes/MapScene.ts": {
+      "exports": [
+        {
+          "name": "MapScene",
+          "kind": "class",
+          "line": 16,
+          "signature": "export class MapScene extends Phaser.Scene {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/unitActivationSystem.ts": {
+      "exports": [
+        {
+          "name": "UnitActivationCombatMode",
+          "kind": "type",
+          "line": 76,
+          "signature": "export type UnitActivationCombatMode = 'apply' | 'preview';",
+          "isDefault": false
+        },
+        {
+          "name": "UnitActivationOptions",
+          "kind": "interface",
+          "line": 78,
+          "signature": "export interface UnitActivationOptions {",
+          "isDefault": false
+        },
+        {
+          "name": "UnitActivationResult",
+          "kind": "interface",
+          "line": 84,
+          "signature": "export interface UnitActivationResult {",
+          "isDefault": false
+        },
+        {
+          "name": "maybeExpirePreparedAbility",
+          "kind": "function",
+          "line": 154,
+          "signature": "export function maybeExpirePreparedAbility(unit: Unit, round: number, state: GameState): Unit {",
+          "isDefault": false
+        },
+        {
+          "name": "activateUnit",
+          "kind": "function",
+          "line": 1148,
+          "signature": "export function activateUnit( state: GameState, unitId: UnitId, registry: RulesRegistry, options: UnitActivationOptions = {",
+          "isDefault": false
+        },
+        {
+          "name": "activateAiUnit",
+          "kind": "function",
+          "line": 1679,
+          "signature": "export function activateAiUnit( state: GameState, unitId: UnitId, registry: RulesRegistry, options: UnitActivationOptions = {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/combatActionSystem.ts": {
+      "exports": [
+        {
+          "name": "CombatActionEffectCategory",
+          "kind": "type",
+          "line": 63,
+          "signature": "export type CombatActionEffectCategory = 'positioning' | 'ability' | 'synergy' | 'aftermath';",
+          "isDefault": false
+        },
+        {
+          "name": "CombatActionEffect",
+          "kind": "interface",
+          "line": 65,
+          "signature": "export interface CombatActionEffect {",
+          "isDefault": false
+        },
+        {
+          "name": "CombatActionPreview",
+          "kind": "interface",
+          "line": 71,
+          "signature": "export interface CombatActionPreview {",
+          "isDefault": false
+        },
+        {
+          "name": "CombatActionPreviewDetails",
+          "kind": "interface",
+          "line": 86,
+          "signature": "export interface CombatActionPreviewDetails {",
+          "isDefault": false
+        },
+        {
+          "name": "CombatActionFeedback",
+          "kind": "interface",
+          "line": 110,
+          "signature": "export interface CombatActionFeedback {",
+          "isDefault": false
+        },
+        {
+          "name": "CombatActionResolution",
+          "kind": "interface",
+          "line": 117,
+          "signature": "export interface CombatActionResolution {",
+          "isDefault": false
+        },
+        {
+          "name": "CombatActionApplyResult",
+          "kind": "interface",
+          "line": 134,
+          "signature": "export interface CombatActionApplyResult {",
+          "isDefault": false
+        },
+        {
+          "name": "previewCombatAction",
+          "kind": "function",
+          "line": 509,
+          "signature": "export function previewCombatAction( state: GameState, registry: RulesRegistry, attackerId: UnitId, defenderId: UnitId, ): CombatActionPreview | null {",
+          "isDefault": false
+        },
+        {
+          "name": "applyCombatAction",
+          "kind": "function",
+          "line": 892,
+          "signature": "export function applyCombatAction( state: GameState, registry: RulesRegistry, preview: CombatActionPreview, ): CombatActionApplyResult {",
+          "isDefault": false
+        }
+      ]
     }
   },
   "_metadata": {
     "version": "2.0.0",
-    "last_run": "2026-04-16T22:34:17.334318Z",
+    "last_run": "2026-04-16T22:35:23.934941Z",
     "root": "C:\\Users\\fosbo\\war-civ-v2",
     "file_count": 155
   },
@@ -6368,8 +6368,9 @@
     "docs/claude-knowledge-dump.md": "cebf27e5aa349b6552dd0e7ac9b1d8d8",
     "docs/codex-rehydration-memory.md": "ae423776abd71fd09bbb7a7c620baacd",
     "docs/difficulty-reference.md": "d3d31f0b724d67589692f0da07e52ca2",
+    "IMPLEMENTATION_PLAN.md": "aebc2df235a7bacc34c8265dcd8d9f97",
     "package-lock.json": "5eaf0320f9b6920ac35408741ab09edb",
-    "package.json": "08a5ecc45c53489942fcaf86f75b2fce",
+    "package.json": "d15b78d7c8bb854f11b83d4b2cc17fbe",
     "scripts/evaluateBalance.ts": "ee192ce33719910c456b0151d18d52d0",
     "scripts/exportReplay.ts": "83b43c9308e1365df1b07c41ebb73ea4",
     "scripts/manual-vitest-runner.mjs": "963be1380b0a9250b40413cf2ee8d70e",
@@ -6439,7 +6440,7 @@
     "src/systems/capabilitySystem.ts": "80479650f06d36a36c64ead7ab27c61d",
     "src/systems/captureSystem.ts": "9dddf952cf6f419f896da8f68cf793e1",
     "src/systems/citySiteSystem.ts": "dab1ad05728e8ca57b9079bbbe9881aa",
-    "src/systems/combatActionSystem.ts": "272582bf8f07bb4400f0341d4853a656",
+    "src/systems/combatActionSystem.ts": "bfb1b5a4b74c7c4d85cad4b1f8210328",
     "src/systems/combatSignalSystem.ts": "3f02ed7ffe97441903205c19a1300da5",
     "src/systems/combatSystem.ts": "f4402537361e26b61c966914bd556eed",
     "src/systems/domainProgression.ts": "6d9cf14224698bd63515f52458821ce5",
@@ -6471,7 +6472,7 @@
     "src/systems/territorySystem.ts": "08415e36eb57a192a632d548c51e8a6a",
     "src/systems/transportSystem.ts": "b1c671d9ff9d3d93e8f585d3d565e497",
     "src/systems/turnSystem.ts": "c0bfd1048170b297caa5e3e64480b86d",
-    "src/systems/unitActivationSystem.ts": "18d0d0ee05dd68c1ae246bb1f985874b",
+    "src/systems/unitActivationSystem.ts": "f0e77be388ab5b1ba4a45130597ec028",
     "src/systems/veterancySystem.ts": "c207c7e1b5f33055f7133ef977115cca",
     "src/systems/villageCaptureSystem.ts": "6331a9dea332c97054f1e5d0fe72c1ea",
     "src/systems/villageSystem.ts": "4559174814564aefda8998d04ce8dcc7",
@@ -6532,11 +6533,13 @@
     "tests/warEcologySimulation.test.ts": "c628d36262302410bbcb15645cbc128a",
     "tests/warExhaustion.test.ts": "f5b89ca7e2eecf2ab5429d88d4110389",
     "tests/webGameController.test.ts": "fbc6b484f5e1b641ff85a07f1cafcfc1",
-    "tests/webGameSession.test.ts": "46a91fdbf0875691ebecdd15aec54392",
+    "tests/webGameSession.test.ts": "7b9cba7169d5f5e1b8a08986c3f6813a",
     "tests/webWorldViewModel.test.ts": "643986beaad3674b6d38800f64ac23a1",
     "tests/zoc.test.ts": "2b26a00bcfb19c55265d83c8c6114969",
-    "tsconfig.json": "7c2a92ecd21aa811787316dea8bf49dd",
+    "tsconfig.build.json": "7270b82da8397750f4cd32504eb4bb9f",
+    "tsconfig.json": "4821f2de89047bf5e8b690902f95c1fd",
     "tsconfig.test-runner.json": "f5c801efb8295c1e2dc37ed7dbc3178a",
+    "tsconfig.test.json": "0a41083c3383966282c9806d60ae6b28",
     "vite.config.ts": "4717cd4f09171d5bd27ea88c0df6f78d",
     "vitest-env.d.ts": "349a22abda966e99a4c114d2d694871f",
     "vitest.config.test.ts": "01d5ab2e95a248f3b648f7e8903088fd",
@@ -6636,7 +6639,7 @@
     "web/src/game/phaser/assets/keys.ts": "c720f17a89e5afc0474fb0a60b4cf44c",
     "web/src/game/phaser/createGame.ts": "28c3c4598eaf3b6131eb6b1c9013ecfd",
     "web/src/game/phaser/scenes/BootScene.ts": "4334a4efd47f1b77e8281a312e9c339c",
-    "web/src/game/phaser/scenes/MapScene.ts": "9f61da09d002acbdb00f3105a1f6409c",
+    "web/src/game/phaser/scenes/MapScene.ts": "3ad604c8b62c8d0aaa58b87b1eb1512f",
     "web/src/game/phaser/system/PathRenderer.ts": "6abcf7794ddf839ccf0994e9dae8a0f6",
     "web/src/game/phaser/systems/BorderRenderer.ts": "a9f294b957e2fe580f65fe8f1212fc96",
     "web/src/game/phaser/systems/combatAnimationScript.ts": "bd6b8dff9ebef86b4514897603ac3e47",
@@ -6660,7 +6663,7 @@
     "web/src/ui/BottomCommandBar.tsx": "e1fc6776c304a0d2fcdcbdc77ff7e27f",
     "web/src/ui/CapabilityBar.tsx": "b2c1828cfb5bc4165cc41c798e59f5fe",
     "web/src/ui/CapabilityPip.tsx": "2e43a045f5f375ebc528992f10a17b1c",
-    "web/src/ui/CombatDetailModal.tsx": "eb384278564a90598821fc0f932537d3",
+    "web/src/ui/CombatDetailModal.tsx": "2e960502905d4c9f404df3490a6a9d69",
     "web/src/ui/CombatLogPanel.tsx": "59c66a8dcb940cc2b24ee48956fa4d67",
     "web/src/ui/CombatTab.tsx": "2f7dacf5ef8690ba3932b0b4b0109735",
     "web/src/ui/CommandTray.tsx": "c7e9e6762965cf11eb8805eb833c39c2",

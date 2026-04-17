@@ -6356,7 +6356,7 @@
   },
   "_metadata": {
     "version": "2.0.0",
-    "last_run": "2026-04-16T22:35:23.934941Z",
+    "last_run": "2026-04-16T22:43:22.575045Z",
     "root": "C:\\Users\\fosbo\\war-civ-v2",
     "file_count": 155
   },
@@ -6370,7 +6370,7 @@
     "docs/difficulty-reference.md": "d3d31f0b724d67589692f0da07e52ca2",
     "IMPLEMENTATION_PLAN.md": "aebc2df235a7bacc34c8265dcd8d9f97",
     "package-lock.json": "5eaf0320f9b6920ac35408741ab09edb",
-    "package.json": "d15b78d7c8bb854f11b83d4b2cc17fbe",
+    "package.json": "4b5f78ee8016298bb5bd25ab18cf8214",
     "scripts/evaluateBalance.ts": "ee192ce33719910c456b0151d18d52d0",
     "scripts/exportReplay.ts": "83b43c9308e1365df1b07c41ebb73ea4",
     "scripts/manual-vitest-runner.mjs": "963be1380b0a9250b40413cf2ee8d70e",

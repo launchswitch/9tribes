@@ -2,8 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type Phaser from 'phaser';
 import type { GameController } from '../game/controller/GameController';
 import type { ClientState } from '../game/types/clientState';
-import type { PendingCombat } from '../game/controller/GameSession';
-import type { UnitView } from '../game/types/worldView';
 import type { SaveGameSummary } from './savegames';
 import { createGame } from '../game/phaser/createGame';
 
@@ -23,7 +21,9 @@ import { DebugOverlay } from '../ui/DebugOverlay';
 import { ReportsOverlay } from '../ui/ReportsOverlay';
 import { KnowledgeGainedModalProvider, useLearnDetector, useKnowledgeModal } from '../ui/KnowledgeGainedModal';
 import { CombatLogPanel } from '../ui/CombatLogPanel';
-import { getDestroyedPlayerVillages, playCombatSoundForPendingCombat, playSessionDeltaSounds } from './audio/sfxManager';
+import { useCombatBridge } from './hooks/useCombatBridge';
+import { useSessionAudio } from './hooks/useSessionAudio';
+import { useEscapeHandler } from './hooks/useEscapeHandler';
 
 const params = new URLSearchParams(window.location.search);
 const USE_V2_LAYOUT = params.get('layout') !== 'legacy';
@@ -86,9 +86,6 @@ function KnowledgeGainedShellContent({
   onSaveGame,
 }: ShellContentProps) {
   const { showKnowledgeGained } = useKnowledgeModal();
-  const [combatLocked, setCombatLocked] = useState(false);
-  const [pendingVillageDestroyedAlert, setPendingVillageDestroyedAlert] = useState<string[] | null>(null);
-  const previousStateRef = useRef<ClientState | null>(null);
 
   // Stable callbacks for panel open/close (avoid re-triggering auto-open effects)
   const handleInspectorOpen = useCallback(() => onSetInspectorOpen(true), [onSetInspectorOpen]);
@@ -102,104 +99,25 @@ function KnowledgeGainedShellContent({
     showKnowledgeGained,
   );
 
-  useEffect(() => {
-    const destroyedVillages = getDestroyedPlayerVillages(previousStateRef.current, state);
-    if (destroyedVillages.length > 0) {
-      setPendingVillageDestroyedAlert(destroyedVillages);
-    }
-    playSessionDeltaSounds(previousStateRef.current, state);
-    previousStateRef.current = state;
-  }, [state]);
+  const { combatLocked } = useCombatBridge(controller, gameRef);
+  useSessionAudio(state, combatLocked);
 
-  useEffect(() => {
-    if (combatLocked || !pendingVillageDestroyedAlert || pendingVillageDestroyedAlert.length === 0) {
-      return;
-    }
-
-    const villageSummary = pendingVillageDestroyedAlert.join(', ');
-    const message = pendingVillageDestroyedAlert.length === 1
-      ? `A village has been destroyed: ${villageSummary}.`
-      : `Villages have been destroyed: ${villageSummary}.`;
-    window.alert(message);
-    setPendingVillageDestroyedAlert(null);
-  }, [combatLocked, pendingVillageDestroyedAlert]);
-
-  // Register combat-pending callback to bridge React -> Phaser animation
-  useEffect(() => {
-    if (!gameRef.current) return;
-
-    const game = gameRef.current;
-    const scene = game.scene.getScene('MapScene') as import('../game/phaser/scenes/MapScene').MapScene | undefined;
-    if (!scene) return;
-
-    controller.onCombatPending((pending: PendingCombat) => {
-      const currentState = controller.getState();
-      const attacker = currentState.world.units.find((u: UnitView) => u.id === pending.attackerId);
-      const defender = currentState.world.units.find((u: UnitView) => u.id === pending.defenderId);
-      if (!attacker || !defender) {
-        // Fallback: apply immediately if we can't find the units
-        controller.applyPendingCombat();
-        return;
-      }
-
-      // AI-vs-AI combats get instant mode; anything involving a human gets full animation
-      const isInstant = !controller.isCombatInvolvesHuman(attacker.factionId, defender.factionId);
-      if (!isInstant) {
-        playCombatSoundForPendingCombat(pending, attacker);
-      }
-
-      // Pan camera to show AI-initiated combat (player isn't already looking at it)
-      const aiInitiated = !isInstant && !attacker.isActiveFaction;
-
-      setCombatLocked(true);
-      scene.startCombatAnimation(
-        {
-          attackerDamage: pending.result.attackerDamage,
-          defenderDamage: pending.result.defenderDamage,
-          attackerDestroyed: pending.result.attackerDestroyed,
-          defenderDestroyed: pending.result.defenderDestroyed,
-          attackerRouted: pending.result.attackerRouted,
-          defenderRouted: pending.result.defenderRouted,
-          attackerFled: pending.result.attackerFled,
-          defenderFled: pending.result.defenderFled,
-        },
-        attacker,
-        defender,
-        () => {
-          controller.applyPendingCombat();
-          setCombatLocked(false);
-        },
-        isInstant, // instant mode for AI-vs-AI, full animation otherwise
-        aiInitiated, // pan camera to show AI-initiated combat
-      );
-    });
-
-    return () => {
-      // Cleanup: cancel any in-progress animation
-      scene?.cancelCombatAnimation();
-      if (controller.isCombatInProgress()) {
-        controller.applyPendingCombat();
-        setCombatLocked(false);
-      }
-    };
-  }, [controller, gameRef.current]);
+  useEscapeHandler({
+    activeOverlay,
+    helpOpen,
+    researchOpen,
+    inspectorOpen,
+    combatLogOpen,
+    debugVisible,
+    onSetActiveOverlay,
+    onSetHelpOpen,
+    onSetResearchOpen,
+    onSetInspectorOpen,
+    onSetCombatLogOpen,
+    onSetDebugVisible,
+  });
 
   const activeFaction = state.world.factions.find((f) => f.id === state.activeFactionId);
-
-  // Global Escape handler: close any open side panel / overlay
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      if (activeOverlay) { onSetActiveOverlay(null); return; }
-      if (helpOpen) { onSetHelpOpen(false); return; }
-      if (researchOpen) { onSetResearchOpen(false); return; }
-      if (inspectorOpen) { onSetInspectorOpen(false); return; }
-      if (combatLogOpen) { onSetCombatLogOpen(false); return; }
-      if (debugVisible) { onSetDebugVisible(false); return; }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [activeOverlay, helpOpen, researchOpen, inspectorOpen, combatLogOpen, debugVisible, onSetActiveOverlay, onSetHelpOpen, onSetResearchOpen, onSetInspectorOpen, onSetCombatLogOpen, onSetDebugVisible]);
   const turnBannerData = state.playFeedback?.lastTurnChange;
 
   const handleMenuAction = (action: string) => {
