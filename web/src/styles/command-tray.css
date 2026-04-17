@@ -1,0 +1,261 @@
+/* ═══════════════════════════════════════
+   [NEW] CommandTray (ct-*)
+   ═══════════════════════════════════════ */
+
+.ct-root {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  height: var(--command-tray-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: var(--panel-glass);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+}
+
+.ct-segment {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ct-unit-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ct-detail {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.ct-mode-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.ct-mode-btn:hover {
+  background: var(--bg-soft);
+}
+
+.ct-mode-btn--active {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.ct-btn-end-turn {
+  padding: 6px 16px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.ct-btn-end-turn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.ct-btn-end-turn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--bg-soft);
+  color: var(--muted);
+}
+
+.ct-btn-codify {
+  padding: 6px 14px;
+  border: 1px solid #00e5ff;
+  border-radius: 6px;
+  background: rgba(0, 229, 255, 0.12);
+  color: #00e5ff;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.ct-btn-codify:hover {
+  background: rgba(0, 229, 255, 0.22);
+  border-color: #00e5ff;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.3);
+}
+
+.ct-btn-codify:active {
+  background: rgba(0, 229, 255, 0.32);
+}
+
+.ct-codify-feedback {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: #00e5ff;
+  font-weight: 500;
+}
+
+.ct-knowledge-hint {
+  display: block;
+  margin-top: 2px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #00e5ff;
+  font-weight: 500;
+  background: rgba(0, 229, 255, 0.08);
+}
+
+.ct-replay-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.ct-replay-btn:hover {
+  background: var(--bg-soft);
+}
+
+.ct-timeline-slider {
+  width: 200px;
+  accent-color: var(--accent);
+}
+
+.ct-turn-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+  min-width: 60px;
+}
+
+/* ═══════════════════════════════════════
+   [NEW] TurnBanner (tb-*)
+   ═══════════════════════════════════════ */
+
+.tb-root {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  padding: 20px 40px;
+  border-radius: 16px;
+  border-left: 4px solid var(--tb-color, var(--accent));
+  background: rgba(23, 19, 14, 0.88);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  pointer-events: none;
+  animation: tb-appear 200ms ease-out, tb-disappear 400ms ease 1400ms forwards;
+}
+
+@keyframes tb-appear {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes tb-disappear {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.tb-kicker {
+  margin: 0 0 4px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.tb-faction {
+  margin: 0 0 4px;
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tb-round {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ═══════════════════════════════════════
+   [NEW] EventToast (evt-*)
+   ═══════════════════════════════════════ */
+
+.evt-root {
+  position: absolute;
+  bottom: calc(var(--command-tray-height) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.evt-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: rgba(214, 163, 75, 0.12);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(214, 163, 75, 0.3);
+  border-radius: 8px;
+  animation: evt-in 200ms ease-out;
+  white-space: nowrap;
+}
+
+@keyframes evt-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.evt-round {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.evt-item p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+

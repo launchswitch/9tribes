@@ -1,0 +1,215 @@
+/* ═══════════════════════════════════════
+   [NEW] Game Shell (V2) — Full-viewport overlay
+   ═══════════════════════════════════════ */
+
+.game-shell--v2 {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+.game-shell--v2 .game-shell__canvas-host {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.game-shell--v2 .game-shell__canvas-host canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ═══════════════════════════════════════
+   [NEW] GameMenuBar (gmb-*)
+   ═══════════════════════════════════════ */
+
+.gmb-root {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  height: var(--menubar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: rgba(23, 19, 14, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.gmb-root::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gmb-faction-color, var(--accent));
+}
+
+.gmb-menus {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gmb-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gmb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--bg-soft);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  border: none;
+  cursor: default;
+}
+
+.gmb-chip--research {
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.gmb-chip--research:hover {
+  background: var(--panel-glass-hover);
+}
+
+.gmb-chip--supply {
+  cursor: help;
+}
+.gmb-chip--deficit {
+  color: var(--danger, #e55);
+  border-color: var(--danger, #e55333);
+}
+.gmb-chip--deficit > span:last-child {
+  color: var(--danger, #e55);
+  font-weight: 700;
+}
+
+.gmb-chip-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.gmb-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.gmb-btn-end-turn {
+  padding: 6px 16px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 150ms ease, background 150ms ease;
+}
+
+.gmb-btn-end-turn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.gmb-btn-end-turn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--bg-soft);
+  color: var(--muted);
+}
+
+/* ═══════════════════════════════════════
+   [NEW] DropdownMenu (dd-*)
+   ═══════════════════════════════════════ */
+
+.dd-root {
+  position: relative;
+}
+
+.dd-trigger {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.dd-trigger:hover,
+.dd-trigger--open {
+  background: var(--bg-soft);
+}
+
+.dd-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 35;
+  min-width: 180px;
+  margin-top: 4px;
+  padding: 4px 0;
+  background: rgba(30, 24, 18, 0.96);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--panel-shadow);
+}
+
+.dd-item {
+  display: block;
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+
+.dd-item:hover:not(:disabled) {
+  background: var(--bg-soft);
+}
+
+.dd-item:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.dd-divider {
+  margin: 4px 8px;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+

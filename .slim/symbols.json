@@ -237,115 +237,6 @@
         }
       ]
     },
-    "web/src/game/types/replay.ts": {
-      "exports": [
-        {
-          "name": "ReplayBundle",
-          "kind": "type",
-          "line": 1,
-          "signature": "export type ReplayBundle = {",
-          "isDefault": false
-        },
-        {
-          "name": "ReplayHex",
-          "kind": "type",
-          "line": 16,
-          "signature": "export type ReplayHex = {",
-          "isDefault": false
-        },
-        {
-          "name": "ReplayFactionSummary",
-          "kind": "type",
-          "line": 23,
-          "signature": "export type ReplayFactionSummary = {",
-          "isDefault": false
-        },
-        {
-          "name": "ReplayTurn",
-          "kind": "type",
-          "line": 37,
-          "signature": "export type ReplayTurn = {",
-          "isDefault": false
-        },
-        {
-          "name": "ReplaySnapshot",
-          "kind": "type",
-          "line": 48,
-          "signature": "export type ReplaySnapshot = {",
-          "isDefault": false
-        },
-        {
-          "name": "ReplayFactionState",
-          "kind": "type",
-          "line": 58,
-          "signature": "export type ReplayFactionState = {",
-          "isDefault": false
-        },
-        {
-          "name": "ReplayUnit",
-          "kind": "type",
-          "line": 66,
-          "signature": "export type ReplayUnit = {",
-          "isDefault": false
-        },
-        {
-          "name": "ReplayCity",
-          "kind": "type",
-          "line": 81,
-          "signature": "export type ReplayCity = {",
-          "isDefault": false
-        },
-        {
-          "name": "ReplayVillage",
-          "kind": "type",
-          "line": 94,
-          "signature": "export type ReplayVillage = {",
-          "isDefault": false
-        },
-        {
-          "name": "ReplayTripleStack",
-          "kind": "type",
-          "line": 102,
-          "signature": "export type ReplayTripleStack = {",
-          "isDefault": false
-        },
-        {
-          "name": "ReplayCombatEvent",
-          "kind": "type",
-          "line": 109,
-          "signature": "export type ReplayCombatEvent = {",
-          "isDefault": false
-        },
-        {
-          "name": "ReplaySiegeEvent",
-          "kind": "type",
-          "line": 146,
-          "signature": "export type ReplaySiegeEvent = {",
-          "isDefault": false
-        },
-        {
-          "name": "ReplayAiIntentEvent",
-          "kind": "type",
-          "line": 158,
-          "signature": "export type ReplayAiIntentEvent = {",
-          "isDefault": false
-        },
-        {
-          "name": "ReplayFactionStrategyEvent",
-          "kind": "type",
-          "line": 170,
-          "signature": "export type ReplayFactionStrategyEvent = {",
-          "isDefault": false
-        },
-        {
-          "name": "ReplayVictory",
-          "kind": "type",
-          "line": 178,
-          "signature": "export type ReplayVictory = {",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/ui/CombatTab.tsx": {
       "exports": [
         {
@@ -5834,31 +5725,6 @@
         }
       ]
     },
-    "web/src/game/controller/GameSession.ts": {
-      "exports": [
-        {
-          "name": "PendingCombat",
-          "kind": "interface",
-          "line": 117,
-          "signature": "export interface PendingCombat {",
-          "isDefault": false
-        },
-        {
-          "name": "SessionSaveSnapshot",
-          "kind": "type",
-          "line": 133,
-          "signature": "export type SessionSaveSnapshot = {",
-          "isDefault": false
-        },
-        {
-          "name": "GameSession",
-          "kind": "class",
-          "line": 145,
-          "signature": "export class GameSession {",
-          "isDefault": false
-        }
-      ]
-    },
     "src/systems/movementSystem.ts": {
       "exports": [
         {
@@ -5998,52 +5864,6 @@
           "kind": "function",
           "line": 50,
           "signature": "export function MenuClient() {",
-          "isDefault": false
-        }
-      ]
-    },
-    "web/src/game/view-model/worldViewModel.ts": {
-      "exports": [
-        {
-          "name": "buildWorldViewModel",
-          "kind": "function",
-          "line": 114,
-          "signature": "export function buildWorldViewModel(source: WorldViewSource): WorldViewModel {",
-          "isDefault": false
-        },
-        {
-          "name": "buildHudViewModel",
-          "kind": "function",
-          "line": 120,
-          "signature": "export function buildHudViewModel( source: ReplayBundle | GameState, turnIndex: number, mode: ClientMode, selected: ClientSelection, hoveredKey: string | null, world: WorldViewModel, registry?: RulesRegistry, liveCombatEvents?: ReplayCombatEvent[], ): HudViewModel {",
-          "isDefault": false
-        },
-        {
-          "name": "buildDebugViewModel",
-          "kind": "function",
-          "line": 135,
-          "signature": "export function buildDebugViewModel( turn: ReplayTurn | null, events: Array<{",
-          "isDefault": false
-        },
-        {
-          "name": "getCombatSummary",
-          "kind": "function",
-          "line": 144,
-          "signature": "export function getCombatSummary(event: ReplayCombatEvent) {",
-          "isDefault": false
-        },
-        {
-          "name": "getIntentSummary",
-          "kind": "function",
-          "line": 149,
-          "signature": "export function getIntentSummary(intent: ReplayAiIntentEvent, factions: ReplayFactionSummary[]) {",
-          "isDefault": false
-        },
-        {
-          "name": "buildResearchInspectorViewModel",
-          "kind": "function",
-          "line": 1257,
-          "signature": "export function buildResearchInspectorViewModel( state: GameState, registry: RulesRegistry, ): ResearchInspectorViewModel | null {",
           "isDefault": false
         }
       ]
@@ -6218,17 +6038,6 @@
         }
       ]
     },
-    "web/src/ui/CombatDetailModal.tsx": {
-      "exports": [
-        {
-          "name": "CombatDetailModal",
-          "kind": "function",
-          "line": 57,
-          "signature": "export function CombatDetailModal({",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/game/phaser/scenes/MapScene.ts": {
       "exports": [
         {
@@ -6352,11 +6161,132 @@
           "isDefault": false
         }
       ]
+    },
+    "web/src/game/controller/GameSession.ts": {
+      "exports": [
+        {
+          "name": "SessionSaveSnapshot",
+          "kind": "type",
+          "line": 124,
+          "signature": "export type SessionSaveSnapshot = {",
+          "isDefault": false
+        },
+        {
+          "name": "GameSession",
+          "kind": "class",
+          "line": 136,
+          "signature": "export class GameSession {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/types/replay.ts": {
+      "exports": [
+        {
+          "name": "ReplayHex",
+          "kind": "type",
+          "line": 28,
+          "signature": "export type ReplayHex = import('../../../../src/replay/types.js').ReplayMapHex;",
+          "isDefault": false
+        },
+        {
+          "name": "ReplaySnapshot",
+          "kind": "type",
+          "line": 29,
+          "signature": "export type ReplaySnapshot = import('../../../../src/replay/types.js').ReplayTurnSnapshot;",
+          "isDefault": false
+        },
+        {
+          "name": "ReplayFactionState",
+          "kind": "type",
+          "line": 30,
+          "signature": "export type ReplayFactionState = import('../../../../src/replay/types.js').ReplayTurnFactionState;",
+          "isDefault": false
+        },
+        {
+          "name": "ReplayUnit",
+          "kind": "type",
+          "line": 31,
+          "signature": "export type ReplayUnit = import('../../../../src/replay/types.js').ReplayTurnUnit;",
+          "isDefault": false
+        },
+        {
+          "name": "ReplayCity",
+          "kind": "type",
+          "line": 32,
+          "signature": "export type ReplayCity = import('../../../../src/replay/types.js').ReplayTurnCity;",
+          "isDefault": false
+        },
+        {
+          "name": "ReplayVillage",
+          "kind": "type",
+          "line": 33,
+          "signature": "export type ReplayVillage = import('../../../../src/replay/types.js').ReplayTurnVillage;",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/view-model/worldViewModel.ts": {
+      "exports": [
+        {
+          "name": "buildWorldViewModel",
+          "kind": "function",
+          "line": 83,
+          "signature": "export function buildWorldViewModel(source: WorldViewSource): WorldViewModel {",
+          "isDefault": false
+        },
+        {
+          "name": "buildHudViewModel",
+          "kind": "function",
+          "line": 89,
+          "signature": "export function buildHudViewModel( source: ReplayBundle | GameState, turnIndex: number, mode: ClientMode, selected: ClientSelection, hoveredKey: string | null, world: WorldViewModel, registry?: RulesRegistry, liveCombatEvents?: ReplayCombatEvent[], ): HudViewModel {",
+          "isDefault": false
+        },
+        {
+          "name": "buildDebugViewModel",
+          "kind": "function",
+          "line": 104,
+          "signature": "export function buildDebugViewModel( turn: ReplayTurn | null, events: Array<{",
+          "isDefault": false
+        },
+        {
+          "name": "getCombatSummary",
+          "kind": "function",
+          "line": 113,
+          "signature": "export function getCombatSummary(event: ReplayCombatEvent) {",
+          "isDefault": false
+        },
+        {
+          "name": "getIntentSummary",
+          "kind": "function",
+          "line": 118,
+          "signature": "export function getIntentSummary(intent: ReplayAiIntentEvent, factions: ReplayFactionSummary[]) {",
+          "isDefault": false
+        },
+        {
+          "name": "buildResearchInspectorViewModel",
+          "kind": "reexport",
+          "line": 123,
+          "signature": "export { buildResearchInspectorViewModel };",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/ui/CombatDetailModal.tsx": {
+      "exports": [
+        {
+          "name": "CombatDetailModal",
+          "kind": "function",
+          "line": 9,
+          "signature": "export function CombatDetailModal({",
+          "isDefault": false
+        }
+      ]
     }
   },
   "_metadata": {
     "version": "2.0.0",
-    "last_run": "2026-04-16T22:43:22.575045Z",
+    "last_run": "2026-04-17T11:00:34.910214Z",
     "root": "C:\\Users\\fosbo\\war-civ-v2",
     "file_count": 155
   },
@@ -6632,7 +6562,7 @@
     "web/src/data/help-content.ts": "3bada6f6741839e4feb30bdcbd1bdfab",
     "web/src/data/pair-synergies.json": "2afe2d5d501e178ae2e48e95bada97cb",
     "web/src/game/controller/GameController.ts": "1f3e3bc5bd57fb75fe47a489a9021e15",
-    "web/src/game/controller/GameSession.ts": "06448623073c2b868fff7a812b4dc6d3",
+    "web/src/game/controller/GameSession.ts": "ff7b32594e2b9c8ae041dace6b44d724",
     "web/src/game/fixtures/curatedPlaytest.ts": "2ec4a692efd41c09f00e7f045287b593",
     "web/src/game/phaser/assets/assetManifest.ts": "e979288e8b60260c21f605bda7ba8e86",
     "web/src/game/phaser/assets/freelandSpec.ts": "55c8f3a716564cdac029d23ce6cb5ee4",
@@ -6655,15 +6585,15 @@
     "web/src/game/phaser/systems/UnitRenderer.ts": "49c3d6d655858c23645f4de6bade3eda",
     "web/src/game/types/clientState.ts": "c3756af2e96e519c59be12538866a2ef",
     "web/src/game/types/playState.ts": "6a29a87c772ed0231cc07ae52533f430",
-    "web/src/game/types/replay.ts": "c69ac336af611bafaefb160a4b6b73bf",
+    "web/src/game/types/replay.ts": "3bc9d7514f79ed8049641ee185c6e7f8",
     "web/src/game/types/worldView.ts": "36eb4a1b1428dbe2bcb5f7d79732f905",
-    "web/src/game/view-model/worldViewModel.ts": "8f0e68b4a55c2afcb6b62699b2d63a2b",
+    "web/src/game/view-model/worldViewModel.ts": "a1d184923f07cda1cc393f55ffe3cfa4",
     "web/src/main.tsx": "eef67a0a05496ed6617a65265a3ae204",
     "web/src/styles.css": "a20b8c36b032552c2067d61a643f7566",
     "web/src/ui/BottomCommandBar.tsx": "e1fc6776c304a0d2fcdcbdc77ff7e27f",
     "web/src/ui/CapabilityBar.tsx": "b2c1828cfb5bc4165cc41c798e59f5fe",
     "web/src/ui/CapabilityPip.tsx": "2e43a045f5f375ebc528992f10a17b1c",
-    "web/src/ui/CombatDetailModal.tsx": "2e960502905d4c9f404df3490a6a9d69",
+    "web/src/ui/CombatDetailModal.tsx": "5073b323eea7355b0b9a44a58f1d583a",
     "web/src/ui/CombatLogPanel.tsx": "59c66a8dcb940cc2b24ee48956fa4d67",
     "web/src/ui/CombatTab.tsx": "2f7dacf5ef8690ba3932b0b4b0109735",
     "web/src/ui/CommandTray.tsx": "c7e9e6762965cf11eb8805eb833c39c2",

@@ -1,0 +1,271 @@
+/* ═══════════════════════════════════════
+   [NEW] ReportsOverlay (rpt-*)
+   ═══════════════════════════════════════ */
+
+.rpt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  background: rgba(23, 19, 14, 0.88);
+  backdrop-filter: blur(4px);
+  animation: rpt-in 200ms ease-out;
+}
+
+@keyframes rpt-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.rpt-card {
+  width: min(720px, 92vw);
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--panel-glass);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius-float);
+  box-shadow: var(--panel-shadow-heavy);
+}
+
+.rpt-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rpt-close {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.rpt-close:hover {
+  color: var(--text);
+}
+
+.rpt-title {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.rpt-body {
+  padding: 16px 20px;
+}
+
+.rpt-faction-list,
+.rpt-supply-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rpt-faction-row,
+.rpt-supply-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(40, 32, 24, 0.5);
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+}
+
+.rpt-faction-row strong,
+.rpt-supply-row strong {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.rpt-faction-stats {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.rpt-combat-list,
+.rpt-intent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rpt-combat-entry,
+.rpt-intent-entry {
+  padding: 10px 12px;
+  background: rgba(40, 32, 24, 0.5);
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+}
+
+.rpt-combat-entry p,
+.rpt-intent-entry strong {
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* ═══════════════════════════════════════
+   [NEW] DebugOverlay (dbg-*)
+   ═══════════════════════════════════════ */
+
+.dbg-root {
+  position: absolute;
+  bottom: calc(var(--command-tray-height) + 12px);
+  left: 12px;
+  z-index: 20;
+  width: 280px;
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--panel-glass);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius-float);
+  box-shadow: var(--panel-shadow);
+  padding: 10px;
+}
+
+.dbg-heading {
+  margin: 0 0 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.dbg-empty {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.dbg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dbg-entry {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(227, 196, 136, 0.08);
+}
+
+.dbg-entry:last-child {
+  border-bottom: none;
+}
+
+.dbg-entry-round {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--accent);
+  flex-shrink: 0;
+  min-width: 36px;
+}
+
+.dbg-entry-msg {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+/* ═══════════════════════════════════════
+   [NEW] Shared Utilities
+   ═══════════════════════════════════════ */
+
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 13px;
+}
+
+.meta-row span {
+  color: var(--muted);
+}
+
+.meta-row strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.quiet-copy {
+  margin: 8px 0;
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.panel-kicker {
+  margin: 0 0 2px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+/* ═══════════════════════════════════════
+   [NEW] Responsive Overrides (V2)
+   ═══════════════════════════════════════ */
+
+@media (max-width: 1199px) {
+  .ci-root--open {
+    width: var(--inspector-width-narrow);
+  }
+}
+
+@media (max-width: 899px) {
+  .ci-root {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100% !important;
+    height: 50vh;
+    transform: translateY(100%);
+    border-left: none;
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .ci-root--open {
+    transform: translateY(0);
+  }
+
+  .ct-root {
+    display: none;
+  }
+}
+
+@media (max-width: 599px) {
+  .gmb-menus {
+    gap: 0;
+  }
+
+  .gmb-chip--round,
+  .gmb-chip--research {
+    display: none;
+  }
+
+  .ci-root {
+    height: 70vh;
+  }
+}
+

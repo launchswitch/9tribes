@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  color-scheme: dark;
+  --bg: #17130e;
+  --bg-elevated: rgba(40, 32, 24, 0.82);
+  --bg-soft: rgba(82, 65, 47, 0.35);
+  --border: rgba(227, 196, 136, 0.24);
+  --text: #f6ebcf;
+  --muted: #c7b792;
+  --accent: #d6a34b;
+  --danger: #f2643d;
+  --shadow: 0 24px 60px rgba(0, 0, 0, 0.34);
+
+  /* ── Panel glass system ── */
+  --panel-glass: rgba(23, 19, 14, 0.88);
+  --panel-glass-hover: rgba(30, 24, 18, 0.92);
+  --panel-blur: blur(16px);
+  --panel-border: rgba(227, 196, 136, 0.18);
+  --panel-radius-float: 14px;
+  --panel-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --panel-shadow-heavy: 0 24px 64px rgba(0, 0, 0, 0.5);
+
+  /* ── Layout dimensions ── */
+  --menubar-height: 48px;
+  --command-tray-height: 56px;
+  --inspector-width: 320px;
+  --inspector-width-narrow: 280px;
+
+  /* ── Animation curves ── */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-slide: 280ms;
+  --duration-fade: 200ms;
+  --duration-toast: 2400ms;
+  --duration-banner: 1800ms;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(148, 105, 43, 0.24), transparent 32%),
+    linear-gradient(180deg, #231b13 0%, #17130e 45%, #120f0c 100%);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+}
+
+button,
+select,
+input {
+  font: inherit;
+}
+
+button,
+select {
+  border: 1px solid var(--border);
+  background: rgba(94, 71, 42, 0.34);
+  color: var(--text);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.client-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  font-size: 1.1rem;
+}
+

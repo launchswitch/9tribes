@@ -1,0 +1,23 @@
+// vitest.config.ts
+import { defineConfig } from "file:///sessions/festive-lucid-galileo/mnt/war-civ-v2/node_modules/vitest/dist/config.js";
+var vitest_config_default = defineConfig({
+  test: {
+    environment: "node",
+    globals: true,
+    include: ["tests/**/*.test.ts"],
+    // Web-dependent tests require jsdom environment — exclude from node runs
+    // balanceHarness excluded from default run (use npm run test:balance)
+    exclude: [
+      "tests/webGameSession.test.ts",
+      "tests/webGameController.test.ts",
+      "tests/webWorldViewModel.test.ts",
+      "tests/curatedPlaytest.test.ts",
+      "tests/liveSessionParity.test.ts",
+      "tests/balanceHarness.test.ts"
+    ]
+  }
+});
+export {
+  vitest_config_default as default
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsidml0ZXN0LmNvbmZpZy50cyJdLAogICJzb3VyY2VzQ29udGVudCI6IFsiY29uc3QgX192aXRlX2luamVjdGVkX29yaWdpbmFsX2Rpcm5hbWUgPSBcIi9zZXNzaW9ucy9mZXN0aXZlLWx1Y2lkLWdhbGlsZW8vbW50L3dhci1jaXYtdjJcIjtjb25zdCBfX3ZpdGVfaW5qZWN0ZWRfb3JpZ2luYWxfZmlsZW5hbWUgPSBcIi9zZXNzaW9ucy9mZXN0aXZlLWx1Y2lkLWdhbGlsZW8vbW50L3dhci1jaXYtdjIvdml0ZXN0LmNvbmZpZy50c1wiO2NvbnN0IF9fdml0ZV9pbmplY3RlZF9vcmlnaW5hbF9pbXBvcnRfbWV0YV91cmwgPSBcImZpbGU6Ly8vc2Vzc2lvbnMvZmVzdGl2ZS1sdWNpZC1nYWxpbGVvL21udC93YXItY2l2LXYyL3ZpdGVzdC5jb25maWcudHNcIjtpbXBvcnQgeyBkZWZpbmVDb25maWcgfSBmcm9tICd2aXRlc3QvY29uZmlnJztcblxuZXhwb3J0IGRlZmF1bHQgZGVmaW5lQ29uZmlnKHtcbiAgdGVzdDoge1xuICAgIGVudmlyb25tZW50OiAnbm9kZScsXG4gICAgZ2xvYmFsczogdHJ1ZSxcbiAgICBpbmNsdWRlOiBbJ3Rlc3RzLyoqLyoudGVzdC50cyddLFxuICAgIC8vIFdlYi1kZXBlbmRlbnQgdGVzdHMgcmVxdWlyZSBqc2RvbSBlbnZpcm9ubWVudCBcdTIwMTQgZXhjbHVkZSBmcm9tIG5vZGUgcnVuc1xuICAgIC8vIGJhbGFuY2VIYXJuZXNzIGV4Y2x1ZGVkIGZyb20gZGVmYXVsdCBydW4gKHVzZSBucG0gcnVuIHRlc3Q6YmFsYW5jZSlcbiAgICBleGNsdWRlOiBbXG4gICAgICAndGVzdHMvd2ViR2FtZVNlc3Npb24udGVzdC50cycsXG4gICAgICAndGVzdHMvd2ViR2FtZUNvbnRyb2xsZXIudGVzdC50cycsXG4gICAgICAndGVzdHMvd2ViV29ybGRWaWV3TW9kZWwudGVzdC50cycsXG4gICAgICAndGVzdHMvY3VyYXRlZFBsYXl0ZXN0LnRlc3QudHMnLFxuICAgICAgJ3Rlc3RzL2xpdmVTZXNzaW9uUGFyaXR5LnRlc3QudHMnLFxuICAgICAgJ3Rlc3RzL2JhbGFuY2VIYXJuZXNzLnRlc3QudHMnLFxuICAgIF0sXG4gIH0sXG59KTtcbiJdLAogICJtYXBwaW5ncyI6ICI7QUFBZ1UsU0FBUyxvQkFBb0I7QUFFN1YsSUFBTyx3QkFBUSxhQUFhO0FBQUEsRUFDMUIsTUFBTTtBQUFBLElBQ0osYUFBYTtBQUFBLElBQ2IsU0FBUztBQUFBLElBQ1QsU0FBUyxDQUFDLG9CQUFvQjtBQUFBO0FBQUE7QUFBQSxJQUc5QixTQUFTO0FBQUEsTUFDUDtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsTUFDQTtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsSUFDRjtBQUFBLEVBQ0Y7QUFDRixDQUFDOyIsCiAgIm5hbWVzIjogW10KfQo=

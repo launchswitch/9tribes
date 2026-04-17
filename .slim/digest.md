@@ -355,3 +355,16 @@ No significant changes detected.
 ### Dependency Changes
 
 No significant changes detected.
+
+---
+
+## Digest — 2026-04-17T11:00:34.910214Z
+
+### Modified Files
+- `web/src/game/controller/GameSession.ts` — -1 exports (PendingCombat)
+- `web/src/game/types/replay.ts` — -9 exports (ReplayAiIntentEvent, ReplayBundle, ReplayCombatEvent, ReplayFactionStrategyEvent, ReplayFactionSummary); ~6 signatures (ReplayCity, ReplayFactionState, ReplayHex, ReplaySnapshot, ReplayUnit)
+- `web/src/game/view-model/worldViewModel.ts` — ~1 signatures (buildResearchInspectorViewModel)
+
+### Dependency Changes
+- `web/src/game/controller/GameSession.ts` — 85 dependencies
+- `web/src/game/view-model/worldViewModel.ts` — 42 dependencies

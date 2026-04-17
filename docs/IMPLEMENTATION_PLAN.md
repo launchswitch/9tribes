@@ -579,7 +579,7 @@ Reduce stylesheet sprawl and feature-style duplication.
 - no duplicated style blocks for the same feature
 - no single global CSS file acting as the only stylesheet dump
 
-## Phase 7: Hardening and Regression Guardrails
+## Phase 7: Hardening and Regression Guardrails — COMPLETED (2026-04-17)
 
 ### Objective
 
@@ -587,24 +587,31 @@ Make future drift difficult.
 
 ### Tasks
 
-- Add tests or assertions for canonical replay/combat event shape
-- Expand architecture boundary tests to cover shared contract usage where practical
-- Add tests around the React/Phaser combat bridge if the harness permits
-- Ensure CI covers:
-  - root build
-  - web build
-  - test suite
-  - architecture tests
+- [x] Add tests or assertions for canonical replay/combat event shape
+- [x] Expand architecture boundary tests to cover shared contract usage where practical
+- [x] Add tests around the React/Phaser combat bridge if the harness permits
+- [x] Ensure CI covers root build, web build, test suite, architecture tests (CI already existed from Phase 0)
 
-### Suggested guardrails
+### Guardrails implemented
 
-- A test that ensures the web layer uses canonical replay types instead of a local divergent mirror
-- A targeted test for live combat event shape used by the UI
-- A test around `GameSession` combat preview/apply handoff if possible
+- `tests/architectureBoundaries.test.ts` expanded from 3 to 7 tests:
+  - Web replay types must re-export from canonical `src/replay/types.ts` only (no local interface definitions)
+  - `combatSession.ts` must construct all required `ReplayCombatEvent` fields
+  - `GameSession.applyResolvedCombat` must patch post-apply fields (`attackerHpAfter`, `defenderHpAfter`, nested `hpAfter`, `triggeredEffects`)
+  - `CombatDetailModal` and `CombatLogPanel` must import from canonical re-export path
+- `tests/combatEventContract.test.ts` created (6 tests):
+  - Simulation trace combat events: all fields present with correct types (top-level, breakdown, modifiers, morale, outcome, triggeredEffects)
+  - Exported replay combat events match trace events structurally
+  - `buildPendingCombat` produces a valid `ReplayCombatEvent` when called with real preview data
+  - Trace–replay type parity: `TraceCombatEvent` ↔ `ReplayCombatEvent`, `TraceCombatBreakdown` ↔ `ReplayCombatBreakdown`, `TraceCombatModifiers` ↔ `ReplayCombatModifiers` must have identical field names
+
+### Additional fix
+
+- Fixed unclosed CSS comment in `web/src/styles/synergy.css` (line 653) that was blocking web build
 
 ### Exit criteria
 
-- Future contract drift would fail fast in CI
+- [x] Future contract drift would fail fast in CI
 
 ## Recommended Work Breakdown
 
