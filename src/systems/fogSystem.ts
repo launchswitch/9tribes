@@ -79,6 +79,11 @@ export function calculateVisibility(state: GameState, factionId: FactionId): Fac
   for (const unitId of faction.unitIds) {
     const unit = state.units.get(unitId);
     if (unit && unit.hp > 0) {
+      if (unit.factionId !== factionId) {
+        // eslint-disable-next-line no-console
+        console.warn('[fog-stale]', factionId, 'unitIds contains', unitId, 'now owned by', unit.factionId, 'at', unit.position);
+        continue;
+      }
       const prototype = state.prototypes.get(unit.prototypeId);
       const role = prototype?.derivedStats?.role;
       const isMounted = role === 'mounted';
@@ -94,6 +99,11 @@ export function calculateVisibility(state: GameState, factionId: FactionId): Fac
   for (const cityId of faction.cityIds) {
     const city = state.cities.get(cityId);
     if (city) {
+      if (city.factionId !== factionId) {
+        // eslint-disable-next-line no-console
+        console.warn('[fog-stale]', factionId, 'cityIds contains', cityId, 'now owned by', city.factionId, 'at', city.position);
+        continue;
+      }
       const visibleHexes = getHexesInRange(city.position, CITY_VISIBILITY_RADIUS);
       for (const hex of visibleHexes) {
         newVisibleKeys.add(hexToKey(hex));
@@ -105,6 +115,11 @@ export function calculateVisibility(state: GameState, factionId: FactionId): Fac
   for (const villageId of faction.villageIds) {
     const village = state.villages.get(villageId);
     if (village) {
+      if (village.factionId !== factionId) {
+        // eslint-disable-next-line no-console
+        console.warn('[fog-stale]', factionId, 'villageIds contains', villageId, 'now owned by', village.factionId, 'at', village.position);
+        continue;
+      }
       const visibleHexes = getHexesInRange(village.position, VILLAGE_VISIBILITY_RADIUS);
       for (const hex of visibleHexes) {
         newVisibleKeys.add(hexToKey(hex));
