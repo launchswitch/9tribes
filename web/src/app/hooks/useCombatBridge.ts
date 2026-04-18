@@ -33,6 +33,13 @@ export function useCombatBridge(
         return;
       }
 
+      // Skip animation entirely if neither participant is visible to the player —
+      // otherwise AI-vs-AI fights leak through the fog as cloned sprites.
+      if (!attacker.visible && !defender.visible) {
+        controller.applyPendingCombat();
+        return;
+      }
+
       // AI-vs-AI combats get instant mode; anything involving a human gets full animation
       const isInstant = !controller.isCombatInvolvesHuman(attacker.factionId, defender.factionId);
       if (!isInstant) {

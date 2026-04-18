@@ -79,11 +79,6 @@ export function calculateVisibility(state: GameState, factionId: FactionId): Fac
   for (const unitId of faction.unitIds) {
     const unit = state.units.get(unitId);
     if (unit && unit.hp > 0) {
-      if (unit.factionId !== factionId) {
-        // eslint-disable-next-line no-console
-        console.warn('[fog-stale]', factionId, 'unitIds contains', unitId, 'now owned by', unit.factionId, 'at', unit.position);
-        continue;
-      }
       const prototype = state.prototypes.get(unit.prototypeId);
       const role = prototype?.derivedStats?.role;
       const isMounted = role === 'mounted';
@@ -99,11 +94,6 @@ export function calculateVisibility(state: GameState, factionId: FactionId): Fac
   for (const cityId of faction.cityIds) {
     const city = state.cities.get(cityId);
     if (city) {
-      if (city.factionId !== factionId) {
-        // eslint-disable-next-line no-console
-        console.warn('[fog-stale]', factionId, 'cityIds contains', cityId, 'now owned by', city.factionId, 'at', city.position);
-        continue;
-      }
       const visibleHexes = getHexesInRange(city.position, CITY_VISIBILITY_RADIUS);
       for (const hex of visibleHexes) {
         newVisibleKeys.add(hexToKey(hex));
@@ -115,36 +105,10 @@ export function calculateVisibility(state: GameState, factionId: FactionId): Fac
   for (const villageId of faction.villageIds) {
     const village = state.villages.get(villageId);
     if (village) {
-      if (village.factionId !== factionId) {
-        // eslint-disable-next-line no-console
-        console.warn('[fog-stale]', factionId, 'villageIds contains', villageId, 'now owned by', village.factionId, 'at', village.position);
-        continue;
-      }
       const visibleHexes = getHexesInRange(village.position, VILLAGE_VISIBILITY_RADIUS);
       for (const hex of visibleHexes) {
         newVisibleKeys.add(hexToKey(hex));
       }
-    }
-  }
-
-  // TEMP DEBUG: dump what's granting LOS at suspect hexes for frost_wardens
-  if (factionId === ('frost_wardens' as FactionId)) {
-    const suspect = ['29,7', '28,6', '30,7', '29,8'];
-    if (suspect.some((k) => newVisibleKeys.has(k))) {
-      const livingUnits = Array.from(faction.unitIds)
-        .map((id) => state.units.get(id))
-        .filter((u): u is NonNullable<typeof u> => !!u && u.hp > 0)
-        .map((u) => ({ id: u.id, pos: u.position, proto: u.prototypeId }));
-      const cityList = Array.from(faction.cityIds)
-        .map((id) => state.cities.get(id))
-        .filter((c): c is NonNullable<typeof c> => !!c)
-        .map((c) => ({ id: c.id, pos: c.position }));
-      const villageList = Array.from(faction.villageIds)
-        .map((id) => state.villages.get(id))
-        .filter((v): v is NonNullable<typeof v> => !!v)
-        .map((v) => ({ id: v.id, pos: v.position }));
-      // eslint-disable-next-line no-console
-      console.log('[fog-grants] frost_wardens', JSON.stringify({ units: livingUnits, cities: cityList, villages: villageList }));
     }
   }
 
