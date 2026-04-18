@@ -121,8 +121,8 @@ export function captureVillage(
   const previousFactionId = village.factionId;
   const previousFaction = state.factions.get(previousFactionId);
 
-  // Get greedy bonus from registry (default 3)
-  const greedyBonus = registry.getSignatureAbility(capturingFactionId)?.greedyBonus ?? 3;
+  // Get greedy bonus from registry (default 25)
+  const greedyBonus = registry.getSignatureAbility(capturingFactionId)?.greedyBonus ?? 25;
 
   // Get destroy setting from registry (default true)
   const destroySetting = registry.getSignatureAbility(capturingFactionId)?.villageCaptureDestroys ?? true;

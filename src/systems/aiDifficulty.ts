@@ -102,6 +102,10 @@ export interface AiDifficultyProfile {
     explorationCenterBiasDecayPerRound: number;
     noEnemySeenOffensivePenalty: number;
     knownStartPositions: boolean;
+    lastStandEnabled: boolean;
+    lastStandRecallTurns: number;
+    lastStandDigInTurns: number;
+    lastStandCounterTurns: number;
   };
 }
 
@@ -207,6 +211,10 @@ const EASY_PROFILE: AiDifficultyProfile = {
     explorationCenterBiasDecayPerRound: 0.03,
     noEnemySeenOffensivePenalty: -0.5,
     knownStartPositions: false,
+    lastStandEnabled: false,
+    lastStandRecallTurns: 0,
+    lastStandDigInTurns: 0,
+    lastStandCounterTurns: 0,
   },
 };
 
@@ -277,16 +285,16 @@ const NORMAL_PROFILE: AiDifficultyProfile = {
     coordinatorEnabled: true,
     multiAxisEnabled: true,
     multiAxisGroupCount: 2,
-    multiAxisPrimaryShare: 0.65,
-    multiAxisFlankShare: 0.35,
+    multiAxisPrimaryShare: 0.70,
+    multiAxisFlankShare: 0.30,
     multiAxisHarassShare: 0,
-    multiAxisMinGroupSize: 2,
+    multiAxisMinGroupSize: 3,
     multiAxisStaggerTurns: 2,
     coordinatorMinSupplyRatio: 0.8,
     coordinatorMinIdleNearHome: 1,
     coordinatorMinActiveArmy: 2,
     coordinatorHunterShare: 0.75,
-    coordinatorHunterFloor: 2,
+    coordinatorHunterFloor: 3,
     villageDetourTolerance: 3,
     villageCityDistanceLimit: 8,
     learnLoopEnabled: true,
@@ -312,6 +320,10 @@ const NORMAL_PROFILE: AiDifficultyProfile = {
     explorationCenterBiasDecayPerRound: 0.04,
     noEnemySeenOffensivePenalty: -0.5,
     knownStartPositions: true,
+    lastStandEnabled: true,
+    lastStandRecallTurns: 1,
+    lastStandDigInTurns: 4,
+    lastStandCounterTurns: 3,
   },
 };
 
@@ -417,6 +429,10 @@ const HARD_PROFILE: AiDifficultyProfile = {
     explorationCenterBiasDecayPerRound: 0.03,
     noEnemySeenOffensivePenalty: 0,
     knownStartPositions: true,
+    lastStandEnabled: false,
+    lastStandRecallTurns: 0,
+    lastStandDigInTurns: 0,
+    lastStandCounterTurns: 0,
   },
 };
 

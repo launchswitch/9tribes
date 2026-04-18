@@ -25,6 +25,8 @@ export interface AttackCandidateScoreInput {
   distancePenalty?: number;
   isSiegeVsCity?: boolean;
   isSiegeVsFort?: boolean;
+  /** Flanking bonus from allied units adjacent to the defender (0.15 per ally). */
+  flankingBonus?: number;
 }
 
 export interface MoveCandidateScoreInput {
@@ -93,6 +95,10 @@ export function scoreAttackCandidate(input: AttackCandidateScoreInput): number {
   score -= input.distancePenalty ?? 0;
   if (input.isSiegeVsCity) score += 12;
   if (input.isSiegeVsFort) score += 6;
+  // Flanking: prefer targets already surrounded by allies (+15% damage per ally → ~3 score per ally)
+  if (input.flankingBonus && input.flankingBonus > 0) {
+    score += input.flankingBonus * 20; // 0.15 per ally → 3 points per ally
+  }
   return score;
 }
 

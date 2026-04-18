@@ -14,6 +14,7 @@ import {
   countFriendlyUnitsNearHex,
   getNearestFriendlyDistanceToHex,
 } from './helpers.js';
+import { calculateFlankingBonus } from '../zocSystem.js';
 
 export function findBestTargetChoice(
   state: GameState,
@@ -116,6 +117,12 @@ export function findBestTargetChoice(
           extraScore += friendlySupport > 0 ? -4 : -18;
         }
 
+        // Calculate flanking bonus: AI should prefer targets it's already flanking
+        // Fortifications negate flanking in combat preview — match that gate here
+        const flankingBonus = (actingUnit && !attackingIntoFort)
+          ? calculateFlankingBonus(actingUnit, unit, state)
+          : 0;
+
         const score = scoreAttackCandidate({
           roleEffectiveness: roleMod,
           weaponEffectiveness: weaponMod,
@@ -124,6 +131,7 @@ export function findBestTargetChoice(
           targetRouted: unit.routed,
           strategicTargetScore: strategicScore,
           extraScore,
+          flankingBonus,
         });
 
         if (score > bestScore) {
@@ -245,6 +253,12 @@ export function findBestRangedTarget(
         ) {
           continue;
         }
+        // Calculate flanking bonus: AI should prefer targets it's already flanking
+        // Fortifications negate flanking in combat preview — match that gate here
+        const flankingBonus = (actingUnit && !defenderOnFort)
+          ? calculateFlankingBonus(actingUnit, unit, state)
+          : 0;
+
         const score = scoreAttackCandidate({
           roleEffectiveness: roleMod,
           weaponEffectiveness: weaponMod,
@@ -257,6 +271,7 @@ export function findBestRangedTarget(
           distancePenalty: dist * 0.5,
           isSiegeVsCity: isSiege && isOnCity,
           isSiegeVsFort: isSiege && defenderOnFort,
+          flankingBonus,
         });
 
         if (score > bestScore) {

@@ -19,15 +19,6 @@ export type TerrainType =
   | 'mountain'
   | 'ocean';
 
-// Terrain definition with game mechanics
-export interface TerrainDef {
-  id: TerrainType;
-  name: string;
-  movementCost: number;  // Movement points required to enter
-  defenseBonus: number;  // Defense multiplier bonus
-  passable?: boolean;    // If false, non-naval units cannot enter
-}
-
 // Individual map tile
 export interface Tile {
   position: TileCoord;

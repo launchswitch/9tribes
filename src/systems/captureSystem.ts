@@ -107,7 +107,7 @@ export function attemptCapture(
   if (!captureParams && greedyAbility) {
     const chance = greedyAbility.greedyCaptureChance ?? 0.5;
     const cooldown = greedyAbility.greedyCaptureCooldown ?? 4;
-    const hpFraction = greedyAbility.greedyCaptureHpFraction ?? 0.4;
+    const hpFraction = greedyAbility.greedyCaptureHpFraction ?? 0.5;
     captureParams = { chance, cooldown, hpFraction };
   }
 

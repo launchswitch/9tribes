@@ -28,6 +28,9 @@ export function applyDifficultyCoordinator(
   if (!difficultyProfile.strategy.coordinatorEnabled) {
     return [];
   }
+  if (posture === 'last_stand') {
+    return ['coordinator=skipped:last_stand'];
+  }
   const coordinatorLabel = difficultyProfile.difficulty;
 
   const faction = state.factions.get(factionId);

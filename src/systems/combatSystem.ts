@@ -8,7 +8,7 @@ import type { TerrainDef, RulesRegistry } from '../data/registry/types.js';
 import type { RNGState } from '../core/rng.js';
 import { getRoleEffectiveness } from '../data/roleEffectiveness.js';
 import { getWeaponEffectiveness } from '../data/weaponEffectiveness.js';
-import { calculateMoraleLoss, TRIUMPH_MORALE_BONUS } from './moraleSystem.js';
+import { calculateMoraleLoss, TRIUMPH_MORALE_BONUS, MORALE_CONFIG } from './moraleSystem.js';
 import { collectCombatSignals } from './combatSignalSystem.js';
 import { rngNextFloat } from '../core/rng.js';
 
@@ -148,6 +148,7 @@ export function resolveCombat(
   stealthChargeMultiplier: number = 0,
   accuracyDebuff: number = 0,
   forestFirstStrike: boolean = false,
+  armorPenetration: number = 0,
 ): CombatResult {
   // 1. Calculate base stats
   const attackerAttack = calculateAttack(attacker, attackerPrototype, attackerVeteranBonus);
@@ -171,12 +172,13 @@ export function resolveCombat(
   //    positional play — a flanked rear attack is devastating, not just additive.
   //    Role, weapon, and other situational bonuses remain additive.
   const stealthAmbushBonus = isStealthed ? 0.50 : 0;
-  const baseMultiplier = 1 + roleMod + weaponMod + situationalAttackModifier + ambushAttackBonus + hiddenAttackBonus + stealthAmbushBonus + stealthChargeMultiplier;
+  const desperateMultiplier = attacker.routed ? MORALE_CONFIG.DESPERATE_ATTACK_PENALTY : 1;
+  const baseMultiplier = desperateMultiplier + roleMod + weaponMod + situationalAttackModifier + ambushAttackBonus + hiddenAttackBonus + stealthAmbushBonus + stealthChargeMultiplier;
   const positionalMultiplier = (1 + flankingBonus) * (1 + rearAttackBonus);
   const attackStrength = Math.round(
     attackerAttack * baseMultiplier * positionalMultiplier
   );
-  const defenseStrength = Math.round(defenderDefense * (1 + braceDefenseBonus) * (1 - accuracyDebuff));
+  const defenseStrength = Math.round(defenderDefense * (1 + braceDefenseBonus) * (1 - accuracyDebuff) * (1 - armorPenetration));
 
   // 6. Calculate defender damage (attacker hits defender first)
   // charge_shield: if attacker has charge shield, defender takes 0 damage from first hit

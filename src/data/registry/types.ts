@@ -7,7 +7,6 @@ export interface TerrainDef {
   id: string;
   name: string;
   movementCost: number;
-  defenseBonus: number;
   defenseModifier?: number; // percentage-based defense bonus (e.g., 0.25 = +25%)
   passable?: boolean; // defaults to true if not specified
   navalOnly?: boolean; // if true, only naval movementClass can traverse
@@ -95,6 +94,7 @@ export interface ResearchNodeDef {
   qualitativeEffect?: {
     type: string;
     description: string;
+    nativeDescription?: string;
     effect: Record<string, unknown>;
   };
 }
@@ -104,12 +104,6 @@ export type ResearchUnlock =
   | { type: 'chassis'; id: string }
   | { type: 'improvement'; id: string }
   | { type: 'recipe'; id: string };
-
-export interface CapabilityDomainDef {
-  id: string;
-  name: string;
-  description: string;
-}
 
 export interface HybridRecipeDef {
   id: string;
@@ -209,9 +203,7 @@ export interface SignatureAbilityParams {
   summon?: SummonConfig;
   summonDuration?: number;
   cooldownDuration?: number;
-  bulwarkDefenseBonus?: number;
   venomDamagePerTurn?: number;
-  forestHealRate?: number;
   hitAndRun?: boolean;
   tidalAssaultBonus?: number;
   sneakAttackBonus?: number;
@@ -256,10 +248,6 @@ export interface RulesRegistry {
   getResearchDomain(domainId: string): ResearchDomainDef | undefined;
   getResearchNode(domainId: string, nodeId: string): ResearchNodeDef | undefined;
   getAllResearchDomains(): ResearchDomainDef[];
-
-  // Capabilities
-  getCapabilityDomain(domainId: string): CapabilityDomainDef | undefined;
-  getAllCapabilityDomains(): CapabilityDomainDef[];
 
   // Hybrid recipes
   getHybridRecipe(recipeId: string): HybridRecipeDef | undefined;

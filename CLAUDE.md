@@ -43,7 +43,7 @@ Two separate combat resolution paths exist. **Any combat mechanic must be added 
 | AI/Autonomous simulation | `src/systems/warEcologySimulation.ts` | Runs all AI and autonomous turns end-to-end |
 | Player-facing live-play | `web/src/game/controller/GameSession.ts` | Player executes actions; splits into `resolveAttack()` (math) then `applyResolvedCombat()` (mutation after animation) |
 
-**What drifts between paths:** siege gating, retreat/hit-and-run, learn-by-kill, sacrifice feedback, capture behavior, combat audio, multi-axis attacks, kill-shot bonuses.
+**What drifts between paths:** siege gating, retreat/hit-and-run, learn-by-kill, sacrifice feedback, capture behavior, combat audio, kill-shot bonuses.
 
 If AI uses a feature but the player doesn't → check `applyResolvedCombat()` — it's probably missing there.
 

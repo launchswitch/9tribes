@@ -6,6 +6,7 @@ import { canUseAmbush, canUseBrace, getTerrainAt, hasAdjacentEnemy } from '../..
 import { resolveCapabilityDoctrine } from '../../../../src/systems/capabilityDoctrine.js';
 import { deriveResourceIncome, getSupplyDeficit } from '../../../../src/systems/economySystem.js';
 import { getValidMoves } from '../../../../src/systems/movementSystem.js';
+import { getVictoryStatus } from '../../../../src/systems/warEcologySimulation.js';
 import { getHexOwner } from '../../../../src/systems/territorySystem.js';
 import { canBoardTransport, getUnitTransport, getValidDisembarkHexes } from '../../../../src/systems/transportSystem.js';
 import { calculateProductionPenalty, calculateMoralePenalty } from '../../../../src/systems/warExhaustionSystem.js';
@@ -310,7 +311,7 @@ function buildPlayHudViewModel(
   return {
     title: 'Live Session',
     subtitle: `Seed ${state.seed} · round ${state.round} · turn ${state.turnNumber}`,
-    victoryLabel: 'In progress',
+    victoryLabel: describeVictoryLabel(state),
     activeFactionName: activeFaction?.name ?? 'No active faction',
     phaseLabel: 'Command',
     selectedTitle: selectionInfo.title,
@@ -510,6 +511,14 @@ function buildPlayFactions(state: GameState): FactionView[] {
     homeCityId: faction.homeCityId,
     learnedDomains: faction.learnedDomains ?? [],
   }));
+}
+
+function describeVictoryLabel(state: GameState): string {
+  const victory = getVictoryStatus(state);
+  if (victory.victoryType === 'unresolved') return 'In progress';
+  if (victory.victoryType === 'elimination') return `${state.factions.get(victory.winnerFactionId!)?.name ?? 'Unknown'} — Elimination`;
+  if (victory.victoryType === 'domination') return `${state.factions.get(victory.winnerFactionId!)?.name ?? 'Unknown'} — Domination`;
+  return 'In progress';
 }
 
 function buildHexVisibilityMap(state: GameState, playerFactionId: string | null): Map<string, 'visible' | 'explored' | 'hidden'> {

@@ -10,7 +10,6 @@ describe('loadRulesRegistry', () => {
     expect(typeof registry.getTerrain).toBe('function');
     expect(typeof registry.getChassis).toBe('function');
     expect(typeof registry.getComponent).toBe('function');
-    expect(typeof registry.getCapabilityDomain).toBe('function');
     expect(typeof registry.getHybridRecipe).toBe('function');
     expect(typeof registry.getFactionAiBaseline).toBe('function');
     expect(typeof registry.getDomainAiDoctrine).toBe('function');
@@ -196,11 +195,6 @@ describe('Research', () => {
 });
 
 describe('Capabilities and Recipes', () => {
-  it('exposes core capability domains', () => {
-    const domain = registry.getCapabilityDomain('woodcraft');
-    expect(domain?.name).toBe('Woodcraft');
-  });
-
   // Hybrid recipes now expose visible domain-count progression gates.
   it('includes ice_defenders hybrid recipe with mid-tier domain progression metadata', () => {
     const recipe = registry.getHybridRecipe('ice_defenders');

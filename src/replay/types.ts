@@ -232,7 +232,7 @@ export interface ReplayAiIntentEvent {
 export interface ReplayFactionStrategyEvent {
   round: number;
   factionId: string;
-  posture: 'offensive' | 'balanced' | 'defensive' | 'recovery' | 'siege' | 'exploration';
+  posture: 'offensive' | 'balanced' | 'defensive' | 'recovery' | 'siege' | 'exploration' | 'last_stand';
   primaryObjective: string;
   primaryEnemyFactionId?: string;
   primaryCityObjectiveId?: string;

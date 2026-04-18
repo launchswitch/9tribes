@@ -61,3 +61,5 @@ nul
 nul  
 nul 
 *.timestamp-*.mjs
+.aionrs/sessions
+.slim/

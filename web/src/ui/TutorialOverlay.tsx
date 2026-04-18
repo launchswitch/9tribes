@@ -8,7 +8,7 @@ type StepContent = {
 const CONTENT: Partial<Record<TutorialStep, StepContent>> = {
   welcome: {
     title: 'Welcome to 9 Tribes',
-    body: 'The objective of the game is to conquer 60% of the Tribes on the map. In this game, war pushes your culture forward: both units and special abilities are unlocked through battle. Combine technological and cultural advance for surprising combos and units. Good luck!',
+    body: 'There are two ways to win: eliminate all rival tribes, or control over half the cities on the map. In this game, war pushes your culture forward: both units and special abilities are unlocked through battle. Combine technological and cultural advance for surprising combos and units. Good luck!',
   },
   build_city: {
     title: 'Found Your First City',

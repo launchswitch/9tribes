@@ -115,11 +115,12 @@ export function applyEnvironmentalDamage(
     }
 
     if (unit.poisoned && !safeInSettlement) {
-      const poisonDamage = unit.poisonStacks > 0 ? unit.poisonStacks * doctrine.poisonDamagePerStack : (
+      const basePoisonDamage = unit.poisonStacks > 0 ? unit.poisonStacks * doctrine.poisonDamagePerStack : (
         unit.poisonedBy
           ? registry.getSignatureAbility(unit.poisonedBy)?.venomDamagePerTurn ?? 1
           : 1
       );
+      const poisonDamage = doctrine.poisonBonusEnabled ? Math.round(basePoisonDamage * 1.5) : basePoisonDamage;
       updatedUnit = { ...updatedUnit, hp: Math.max(0, updatedUnit.hp - poisonDamage) };
       log(trace, `${faction.name} ${current.prototypes.get(unit.prototypeId)?.name ?? 'unit'} suffers poison (${poisonDamage} dmg, ${unit.poisonStacks} stacks)`);
       died = updatedUnit.hp <= 0;
@@ -148,11 +149,6 @@ export function applyEnvironmentalDamage(
       }
       log(trace, `${faction.name} ${current.prototypes.get(unit.prototypeId)?.name ?? 'unit'} suffers frostbite (${updatedUnit.frostbiteStacks ?? 0} dmg)`);
       died = updatedUnit.hp <= 0;
-    }
-
-    if (safeInSettlement && updatedUnit.poisoned) {
-      updatedUnit = { ...updatedUnit, poisoned: false, poisonedBy: undefined, poisonStacks: 0 };
-      log(trace, `${faction.name} ${current.prototypes.get(unit.prototypeId)?.name ?? 'unit'} is cleansed of poison`);
     }
 
     if (died) {

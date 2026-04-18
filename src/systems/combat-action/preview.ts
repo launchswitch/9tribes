@@ -314,6 +314,7 @@ export function previewCombatAction(
     attackerSynergyResult.stealthChargeMultiplier,
     attackerSynergyResult.sandstormAccuracyDebuff,
     forestFirstStrike,
+    attackerDoctrine?.armorPenetrationEnabled ? 0.5 : 0,
   );
 
   let totalKnockbackDistance = result.defenderKnockedBack ? result.knockbackDistance : 0;

@@ -39,7 +39,6 @@ export { getSynergyEngine, calculateSynergyAttackBonus, calculateSynergyDefenseB
 
 import { recordSnapshot, maybeRecordEndSnapshot } from './simulation/traceRecorder.js';
 import { getVictoryStatus, getAliveFactions } from './simulation/victory.js';
-import { occupiesFriendlySettlement } from './simulation/environmentalEffects.js';
 import { processFactionPhases } from './simulation/factionTurnEffects.js';
 
 
@@ -123,15 +122,6 @@ export function runWarEcologySimulation(
       const weMap = new Map(current.warExhaustion);
       weMap.set(factionId, decayedWE);
       current = { ...current, warExhaustion: weMap };
-    }
-
-    // Clear poison at friendly settlements
-    for (const [, unit] of current.units) {
-      if (unit.poisoned && occupiesFriendlySettlement(current, unit)) {
-        const unitsMap = new Map(current.units);
-        unitsMap.set(unit.id, { ...unit, poisoned: false, poisonStacks: 0 });
-        current = { ...current, units: unitsMap };
-      }
     }
 
     maybeRecordEndSnapshot(current, trace);

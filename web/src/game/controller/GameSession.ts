@@ -1,4 +1,5 @@
 import { buildMvpScenario } from '../../../../src/game/buildMvpScenario.js';
+import { MVP_SCENARIO_CONFIG } from '../../../../src/game/scenarios/mvp.js';
 import type { GameState, UnitId } from '../../../../src/game/types.js';
 import { createCityId } from '../../../../src/core/ids.js';
 import { hexDistance, hexToKey } from '../../../../src/core/grid.js';
@@ -118,6 +119,7 @@ interface GameSessionOptions {
   mapMode?: MapGenerationMode;
   mapSize?: 'small' | 'medium' | 'large';
   selectedFactions?: string[];
+  maxRounds?: number;
 }
 
 export type SessionSaveSnapshot = {
@@ -137,6 +139,7 @@ export class GameSession {
   private readonly registry: RulesRegistry;
   private readonly humanControlledFactionIds: Set<string>;
   private readonly difficulty: DifficultyLevel;
+  private readonly maxRounds: number;
   private readonly mapMode?: MapGenerationMode;
   private readonly mapSize?: 'small' | 'medium' | 'large';
   private readonly selectedFactions?: string[];
@@ -173,6 +176,7 @@ export class GameSession {
   ) {
     this.registry = registry;
     this.difficulty = options.difficulty ?? 'easy';
+    this.maxRounds = options.maxRounds ?? MVP_SCENARIO_CONFIG.roundsToWin;
     this.mapMode = options.mapMode;
     this.mapSize = options.mapSize;
     this.selectedFactions = options.selectedFactions;
@@ -222,6 +226,14 @@ export class GameSession {
 
   getPrimaryHumanFactionId(): string | null {
     return Array.from(this.humanControlledFactionIds)[0] ?? null;
+  }
+
+  getDifficulty(): DifficultyLevel {
+    return this.difficulty;
+  }
+
+  getMaxRounds(): number {
+    return this.maxRounds;
   }
 
   getSaveSnapshot(): SessionSaveSnapshot {

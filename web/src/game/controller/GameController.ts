@@ -324,7 +324,11 @@ export class GameController {
         victory: {
           winnerFactionId: victory.winnerFactionId,
           victoryType: victory.victoryType,
+          controlledCities: victory.controlledCities,
+          totalCities: sessionState.cities.size > 0 ? sessionState.cities.size : null,
         },
+        difficulty: session.getDifficulty(),
+        maxRounds: session.getMaxRounds(),
         absorbedDomains: [...feedback.absorbedDomains],
         aiProcessing: feedback.aiProcessing,
       },

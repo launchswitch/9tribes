@@ -41,9 +41,8 @@ export interface SignatureAbilityOverride {
   };
   summonDuration?: number;
   cooldownDuration?: number;
-  bulwarkDefenseBonus?: number;
   venomDamagePerTurn?: number;
-  forestHealRate?: number;
+  tidalAssaultBonus?: number;
   hitAndRun?: boolean;
   sneakAttackBonus?: number;
   desertSwarmThreshold?: number;
@@ -74,10 +73,10 @@ const FACTION_OVERRIDE_KEYS = new Set(['capabilitySeeds']);
 const SCENARIO_OVERRIDE_KEYS = new Set(['roundsToWin', 'mapWidth', 'mapHeight']);
 const SIGNATURE_ABILITY_OVERRIDE_KEYS = new Set([
   'endlessStride', 'stampedeBonus', 'summon',
-  'summonDuration', 'cooldownDuration', 'bulwarkDefenseBonus', 'venomDamagePerTurn',
-  'forestHealRate', 'hitAndRun', 'sneakAttackBonus',
+  'summonDuration', 'cooldownDuration', 'venomDamagePerTurn',
+  'hitAndRun', 'sneakAttackBonus',
   'desertSwarmThreshold', 'desertSwarmAttackBonus', 'desertSwarmDefenseMultiplier',
-  'wallDefenseMultiplier',
+  'wallDefenseMultiplier', 'tidalAssaultBonus',
 ]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {

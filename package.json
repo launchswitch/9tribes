@@ -11,6 +11,7 @@
     "test:balance": "vitest run --config vitest.config.test.ts tests/balanceHarness.test.ts",
     "balance:harness": "tsx scripts/runBalanceHarness.ts",
     "balance:harness:stratified": "tsx scripts/runBalanceHarness.ts --stratified",
+    "balance:validate-normal": "tsx scripts/runBalanceHarness.ts --validate",
     "balance:evaluate": "tsx scripts/evaluateBalance.ts",
     "balance:validate": "tsx scripts/validateBalanceCandidate.ts",
     "web:dev": "npm --prefix web run dev",

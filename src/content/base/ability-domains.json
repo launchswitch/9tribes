@@ -54,7 +54,7 @@
     "tidal_warfare": {
       "id": "tidal_warfare",
       "name": "Tidal Warfare",
-      "nativeFaction": "river_kingdom",
+      "nativeFaction": "plains_riders",
       "tags": ["naval", "shock"],
       "baseEffect": {
         "type": "zone_control",

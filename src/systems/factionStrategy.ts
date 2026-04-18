@@ -1,7 +1,13 @@
 import type { FactionId, UnitId, CityId, HexCoord } from '../types.js';
 import type { AiPersonalitySnapshot } from './aiPersonality.js';
 
-export type FactionPosture = 'offensive' | 'balanced' | 'defensive' | 'recovery' | 'siege' | 'exploration';
+export type FactionPosture = 'offensive' | 'balanced' | 'defensive' | 'recovery' | 'siege' | 'exploration' | 'last_stand';
+
+export interface LastStandState {
+  phase: 'recall' | 'dig_in' | 'counter';
+  startRound: number;
+  targetCityId?: CityId;
+}
 
 export type UnitAssignment =
   | 'main_army'
@@ -94,5 +100,8 @@ export interface FactionStrategy {
   researchPriorities: ResearchPriority[];
   hybridGoal: HybridGoal;
   absorptionGoal: AbsorptionGoal;
+  peakArmySize: number;
+  peakCityCount: number;
+  lastStandState?: LastStandState;
   debugReasons: string[];
 }

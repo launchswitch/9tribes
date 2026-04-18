@@ -22,9 +22,7 @@
     "summonDuration": 7,
     "cooldownDuration": 3
   },
-  "hill_clan": {
-    "bulwarkDefenseBonus": 0.25
-  },
+  "hill_clan": {},
   "jungle_clan": {
     "venomDamagePerTurn": 3,
     "summon": {
@@ -40,9 +38,7 @@
     "summonDuration": 5,
     "cooldownDuration": 5
   },
-  "druid_circle": {
-    "forestHealRate": 3
-  },
+  "druid_circle": {},
   "steppe_clan": {
     "hitAndRun": true,
     "summon": {
@@ -59,6 +55,7 @@
     "cooldownDuration": 5
   },
   "coral_people": {
+    "tidalAssaultBonus": 0.2,
     "greedyBonus": 25,
     "villageCaptureDestroys": true,
     "villageCaptureCooldownRounds": 3,

@@ -270,6 +270,162 @@
 }
 
 /* ═══════════════════════════════════════
+   Victory Overlay (vic-*)
+   ═══════════════════════════════════════ */
+
+.vic-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(23, 19, 14, 0.82);
+  backdrop-filter: blur(6px);
+  animation: vic-in 300ms ease-out both;
+}
+
+@keyframes vic-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.vic-card {
+  width: min(440px, 92vw);
+  background: var(--panel-glass);
+  backdrop-filter: var(--panel-blur);
+  border: 1px solid var(--border);
+  border-top: 3px solid #d4a843;
+  border-radius: var(--panel-radius-float);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5), 0 0 80px rgba(212, 168, 67, 0.15);
+  animation: vic-card-in 400ms var(--ease-out-expo) both;
+}
+
+@keyframes vic-card-in {
+  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.vic-header {
+  padding: 24px 24px 0;
+  text-align: center;
+}
+
+.vic-title {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: #d4a843;
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 12px rgba(212, 168, 67, 0.3);
+}
+
+.vic-body {
+  padding: 16px 24px;
+}
+
+.vic-description {
+  margin: 0 0 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  text-align: center;
+}
+
+.vic-score-block {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 0;
+  margin-bottom: 14px;
+  background: rgba(212, 168, 67, 0.08);
+  border: 1px solid rgba(212, 168, 67, 0.2);
+  border-radius: 10px;
+}
+
+.vic-score-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.vic-score-value {
+  font-family: 'Fraunces', serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: #d4a843;
+}
+
+.vic-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vic-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  background: rgba(40, 32, 24, 0.4);
+  border-radius: 6px;
+}
+
+.vic-breakdown-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.vic-breakdown-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.vic-footer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px 20px;
+  border-top: 1px solid var(--panel-border);
+}
+
+.vic-btn {
+  padding: 9px 28px;
+  background: #d4a843;
+  color: #17130e;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 150ms ease, transform 100ms ease;
+}
+
+.vic-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.vic-btn--secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.vic-btn--secondary:hover {
+  background: rgba(227, 196, 136, 0.1);
+}
+
+/* ═══════════════════════════════════════
    Tutorial Overlay (tut-*)
    ═══════════════════════════════════════ */
 

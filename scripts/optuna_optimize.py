@@ -440,22 +440,6 @@ KNOBS = [
         1,
         6,
     ),
-    # --- Druid Circle: Forest Mending (HP healed on forest/jungle) ---
-    TrialConfig(
-        "forest_heal",
-        "float",
-        ("signatureAbilities", "druid_circle", "forestHealRate"),
-        1,
-        6,
-    ),
-    # --- Hill Clan: Bulwark (defense bonus from adjacent fortress units) ---
-    TrialConfig(
-        "bulwark_defense",
-        "float",
-        ("signatureAbilities", "hill_clan", "bulwarkDefenseBonus"),
-        0.1,
-        0.5,
-    ),
     # --- Plains Riders: Sneak Attack (river/swamp terrain attack bonus) ---
     TrialConfig(
         "sneak_attack",

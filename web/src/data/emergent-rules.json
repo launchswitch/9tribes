@@ -43,7 +43,7 @@
       },
       "effect": {
         "type": "permanent_stealth",
-        "terrainTypes": ["desert", "coast", "rough"],
+        "terrainTypes": ["desert", "coast", "hill"],
         "description": "Attacks from stealth in matching terrain type are permanent stealth — enemies never detect you regardless of proximity"
       }
     },

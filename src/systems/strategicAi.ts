@@ -6,6 +6,7 @@ import type {
   FactionPosture,
   FactionStrategy,
   HybridGoal,
+  LastStandState,
   ThreatAssessment,
   UnitStrategicIntent,
 } from './factionStrategy.js';
@@ -54,21 +55,74 @@ export function computeFactionStrategy(
   const economy = state.economy.get(factionId);
   const supplyDeficit = economy ? getSupplyDeficit(economy) : 0;
   const exhaustion = state.warExhaustion.get(factionId)?.exhaustionPoints ?? 0;
-  const postureDecision = determinePosture(
-    friendlyUnits.length,
-    enemyUnits.length,
-    threatenedCities,
-    exhaustion,
-    supplyDeficit,
-    fronts,
-    personality,
-    state.round,
-    difficultyProfile,
-    previousStrategy,
-  );
+
+  // --- Last stand trigger and phase management ---
+  const peakArmySize = Math.max(previousStrategy?.peakArmySize ?? 0, friendlyUnits.length);
+  let lastStandState = previousStrategy?.lastStandState;
+  const homeCity = faction.homeCityId ? state.cities.get(faction.homeCityId) : undefined;
+  const homeCityLost = homeCity ? homeCity.factionId !== factionId : false;
+  const ownedCityCount = [...state.cities.values()].filter(c => c.factionId === factionId).length;
+  const peakCityCount = Math.max(previousStrategy?.peakCityCount ?? 0, ownedCityCount);
+  const armyBelowPeak = peakArmySize >= 4 && friendlyUnits.length < 0.4 * peakArmySize;
+  const reducedToOneCity = ownedCityCount <= 1 && peakCityCount >= 2;
+
+  const shouldTriggerLastStand = difficultyProfile.strategy.lastStandEnabled
+    && !lastStandState
+    && (homeCityLost || armyBelowPeak || reducedToOneCity);
+
+  if (shouldTriggerLastStand) {
+    lastStandState = {
+      phase: 'recall',
+      startRound: state.round,
+      targetCityId: homeCityLost ? faction.homeCityId : undefined,
+    };
+  }
+
+  if (lastStandState) {
+    const elapsed = state.round - lastStandState.startRound;
+    const { lastStandRecallTurns, lastStandDigInTurns, lastStandCounterTurns } = difficultyProfile.strategy;
+    const totalDuration = lastStandRecallTurns + lastStandDigInTurns + lastStandCounterTurns;
+
+    if (elapsed >= totalDuration) {
+      lastStandState = undefined;
+    } else if (elapsed < lastStandRecallTurns) {
+      lastStandState = { ...lastStandState, phase: 'recall' };
+    } else if (elapsed < lastStandRecallTurns + lastStandDigInTurns) {
+      lastStandState = { ...lastStandState, phase: 'dig_in' };
+    } else {
+      lastStandState = { ...lastStandState, phase: 'counter' };
+    }
+
+    // Exit early if target city was recaptured
+    if (lastStandState?.targetCityId) {
+      const target = state.cities.get(lastStandState.targetCityId);
+      if (target && target.factionId === factionId) {
+        lastStandState = undefined;
+      }
+    }
+  }
+
+  const lastStandActive = Boolean(lastStandState);
+  // --- End last stand logic ---
+
+  const postureDecision = lastStandActive
+    ? { posture: 'last_stand' as FactionPosture, reasons: [`last_stand_triggered:${lastStandState!.phase}`] }
+    : determinePosture(
+        friendlyUnits.length,
+        enemyUnits.length,
+        threatenedCities,
+        exhaustion,
+        supplyDeficit,
+        fronts,
+        personality,
+        state.round,
+        difficultyProfile,
+        previousStrategy,
+      );
   const posture = postureDecision.posture;
   const primaryEnemyFactionId = choosePrimaryEnemyFaction(fronts, enemyUnits);
-  const primaryCityObjectiveId = choosePrimaryCityObjective(
+
+  let primaryCityObjectiveId = choosePrimaryCityObjective(
     fronts,
     threatenedCities,
     posture,
@@ -76,6 +130,12 @@ export function computeFactionStrategy(
     factionId,
     difficultyProfile,
   );
+
+  // Override objective for last stand counter phase
+  if (lastStandActive && lastStandState!.phase === 'counter' && lastStandState!.targetCityId) {
+    primaryCityObjectiveId = lastStandState!.targetCityId;
+  }
+
   const primaryFrontAnchor = choosePrimaryFrontAnchor(fronts, threatenedCities, posture);
   const focusTargetDecision = chooseFocusTargets(
     state,
@@ -105,6 +165,7 @@ export function computeFactionStrategy(
     retreatAnchors,
     difficultyProfile,
     previousStrategy,
+    lastStandState,
   );
   const debugReasons = buildDebugReasons(
     posture,
@@ -138,6 +199,9 @@ export function computeFactionStrategy(
     researchPriorities: [],
     hybridGoal,
     absorptionGoal,
+    peakArmySize,
+    peakCityCount,
+    lastStandState,
     debugReasons,
   };
 }
@@ -167,6 +231,9 @@ function createEmptyStrategy(round: number, factionId: FactionId): FactionStrate
       nearExposureDomainIds: [],
       finishOffPriority: false,
     },
+    peakArmySize: 0,
+    peakCityCount: 0,
+    lastStandState: undefined,
     debugReasons: [],
   };
 }

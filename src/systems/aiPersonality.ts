@@ -398,6 +398,8 @@ export function scorePosture(
       return snapshot.scalars.siegeBias * 4 + localAdvantage * 1.5 - threatenedCities;
     case 'exploration':
       return snapshot.scalars.exploreBias * 4 + snapshot.scalars.mobilityBias * 2 - fronts;
+    case 'last_stand':
+      return snapshot.scalars.defenseBias * 5 + snapshot.scalars.caution * 3 + threatenedCities * 3;
     case 'balanced':
     default:
       return snapshot.scalars.cohesion * 3 + snapshot.scalars.opportunism * 1.5;

@@ -39,7 +39,7 @@ export const helpContent: HelpContent = {
     title: 'Quick Start',
     body: `
 <h3>Welcome, Commander</h3>
-<p>You're looking at a war map populated by rival factions. Your goal: expand your territory, build cities, and crush the competition. Here's everything you need to play your first few turns.</p>
+<p>You're looking at a war map populated by rival factions. There are two ways to win: <strong>eliminate</strong> all rival tribes, or <strong>control over half the cities</strong> on the map (domination). Expand your territory, build cities, and crush the competition. Here's everything you need to play your first few turns.</p>
 
 <h3>Moving Units</h3>
 <p><strong>Click</strong> any of your units to select it. You'll see highlighted hexes showing where it can move. <strong>Right-click</strong> a highlighted hex (or click it directly) to send your unit there. Each unit has limited movement per turn — use it wisely.</p>

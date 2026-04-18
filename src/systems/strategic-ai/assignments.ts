@@ -1,6 +1,6 @@
 import type { GameState } from '../../game/types.js';
 import type { FactionId, HexCoord, UnitId, CityId } from '../../types.js';
-import type { FactionPosture, FactionStrategy, UnitStrategicIntent, UnitAssignment } from '../factionStrategy.js';
+import type { FactionPosture, FactionStrategy, UnitStrategicIntent, UnitAssignment, LastStandState } from '../factionStrategy.js';
 import type { AiPersonalitySnapshot } from '../aiPersonality.js';
 import type { AiDifficultyProfile } from '../aiDifficulty.js';
 import type { UnitWithPrototype, FocusTargetCandidate, FocusTargetBudget, SquadPlanEntry, AssignmentDecision, WeightedAssignmentContext } from './types.js';
@@ -275,6 +275,7 @@ export function assignUnitIntents(
   retreatAnchors: HexCoord[],
   difficultyProfile: AiDifficultyProfile,
   previousStrategy: FactionStrategy | undefined,
+  lastStandState?: LastStandState,
 ): AssignmentDecision {
   const intents: Record<string, UnitStrategicIntent> = {};
   const assignmentSamples: string[] = [];
@@ -283,6 +284,94 @@ export function assignUnitIntents(
   const primaryObjectiveCity = primaryCityObjectiveId ? state.cities.get(primaryCityObjectiveId) : undefined;
   const faction = state.factions.get(factionId);
   const homeCity = faction?.homeCityId ? state.cities.get(faction.homeCityId) : undefined;
+
+  if (posture === 'last_stand' && lastStandState) {
+    const nearestCity = retreatAnchors.length > 0
+      ? { position: retreatAnchors[0], id: ('nearest' as CityId) }
+      : undefined;
+    const allUnits = friendlyUnits;
+    const phase = lastStandState.phase;
+
+    for (const entry of allUnits) {
+      const isolationScore = nearestFriendlyDistance(state, entry.unit, factionId);
+
+      if (phase === 'recall') {
+        const target = nearestCity?.position ?? homeCity?.position ?? entry.unit.position;
+        intents[entry.unit.id] = {
+          assignment: 'defender',
+          waypointKind: 'friendly_city',
+          waypoint: target,
+          objectiveCityId: primaryCityObjectiveId,
+          objectiveUnitId: undefined,
+          anchor: target,
+          isolationScore,
+          isolated: false,
+          reason: `last_stand recall: converging on nearest city`,
+        };
+      } else if (phase === 'dig_in') {
+        const target = nearestCity?.position ?? homeCity?.position ?? entry.unit.position;
+        intents[entry.unit.id] = {
+          assignment: 'defender',
+          waypointKind: 'friendly_city',
+          waypoint: target,
+          objectiveCityId: primaryCityObjectiveId,
+          objectiveUnitId: undefined,
+          anchor: target,
+          threatenedCityId: primaryCityObjectiveId,
+          isolationScore,
+          isolated: false,
+          reason: `last_stand dig_in: defending city`,
+        };
+      } else {
+        const targetCity = lastStandState.targetCityId
+          ? state.cities.get(lastStandState.targetCityId)
+          : primaryObjectiveCity;
+        if (targetCity) {
+          intents[entry.unit.id] = {
+            assignment: 'main_army',
+            waypointKind: 'enemy_city',
+            waypoint: targetCity.position,
+            objectiveCityId: targetCity.id,
+            objectiveUnitId: undefined,
+            anchor: nearestCity?.position ?? homeCity?.position ?? entry.unit.position,
+            isolationScore,
+            isolated: false,
+            reason: `last_stand counter: retaking ${targetCity.id}`,
+          };
+        } else {
+          const target = nearestCity?.position ?? homeCity?.position ?? entry.unit.position;
+          intents[entry.unit.id] = {
+            assignment: 'defender',
+            waypointKind: 'friendly_city',
+            waypoint: target,
+            objectiveCityId: primaryCityObjectiveId,
+            objectiveUnitId: undefined,
+            anchor: target,
+            isolationScore,
+            isolated: false,
+            reason: `last_stand counter: no target, defending`,
+          };
+        }
+      }
+    }
+
+    const summaryCounts: Partial<Record<UnitAssignment, number>> = {};
+    for (const intent of Object.values(intents)) {
+      summaryCounts[intent.assignment] = (summaryCounts[intent.assignment] ?? 0) + 1;
+    }
+    const summary = (['main_army', 'raider', 'defender', 'siege_force', 'reserve', 'recovery', 'return_to_sacrifice'] as UnitAssignment[])
+      .filter((a) => (summaryCounts[a] ?? 0) > 0)
+      .map((a) => `${a}:${summaryCounts[a]}`)
+      .join(',');
+
+    return {
+      intents,
+      reasons: [
+        `last_stand_phase=${phase}`,
+        `assignment_mix=${summary}`,
+      ],
+    };
+  }
   const focusTargetBudgets = buildSoftTargetBudgets(
     friendlyUnits.length,
     focusTargetCandidates,

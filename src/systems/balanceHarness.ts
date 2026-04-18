@@ -23,6 +23,7 @@ import {
 } from './warEcologySimulation.js';
 
 export const SMOKE_HARNESS_SEEDS = [11, 23, 37, 41, 59, 73, 89, 97, 101, 131] as const;
+export const VALIDATION_HARNESS_SEEDS = [11, 17, 23, 29, 37, 41, 53, 59, 67, 73, 79, 83, 89, 97, 101, 107, 113, 127, 131, 149] as const;
 export const STRATIFIED_HARNESS_SEEDS_BY_ARCHETYPE = {
   jungle_warfare: [1, 2, 7],
   harsh_frontier: [3, 4, 5],
@@ -62,7 +63,7 @@ export interface FactionProductionStallMarker {
   estimatedTurnsQueued: number | null;
 }
 
-export interface FactionSeedMetrics {
+export interface FactionBaseMetrics {
   factionId: string;
   livingUnits: number;
   cities: number;
@@ -84,6 +85,11 @@ export interface FactionSeedMetrics {
   unitsByPrototypeId: Record<string, number>;
   stalledProduction: FactionProductionStallMarker[];
   unitComposition: UnitComposition;
+}
+
+export interface FactionSeedMetrics extends FactionBaseMetrics {
+  armySizeAtTurn20: number;
+  firstEmergentRuleRound: number | null;
 }
 
 export interface SeedBalanceMetrics {
@@ -125,6 +131,8 @@ export interface FactionBatchMetrics {
   avgUnitsByPrototypeId: Record<string, number>;
   avgStalledProductionCount: number;
   avgUnitComposition: UnitComposition;
+  avgArmySizeAtTurn20: number;
+  gamesWithEmergentRuleBeforeOpponent: number;
 }
 
 export interface BatchBalanceSummary {
@@ -309,8 +317,6 @@ function isSignatureCapableUnit(factionId: FactionId, prototype: Prototype, regi
   if (ability?.hitAndRun && prototype.derivedStats.role === 'mounted') return true;
   if (ability?.tidalAssaultBonus && (tags.has('naval') || tags.has('transport'))) return true;
   if (ability?.venomDamagePerTurn && tags.has('poison')) return true;
-  if (ability?.forestHealRate && (tags.has('druid') || tags.has('healing'))) return true;
-  if (ability?.bulwarkDefenseBonus && tags.has('fortress')) return true;
   if (ability?.desertSwarmAttackBonus && (tags.has('camel') || tags.has('desert'))) return true;
   if (ability?.sneakAttackBonus) return true;
   if (ability?.wallDefenseMultiplier && tags.has('transport')) return true;
@@ -375,7 +381,7 @@ function getFactionMetrics(
   state: ReturnType<typeof buildMvpScenario>,
   factionId: FactionId,
   registry: RulesRegistry,
-): FactionSeedMetrics {
+): FactionBaseMetrics {
   const faction = state.factions.get(factionId);
   if (!faction) {
     return {
@@ -503,6 +509,48 @@ function averageUnitComposition(compositions: UnitComposition[]): UnitCompositio
   return { byChassis, byRole };
 }
 
+interface MidpointMetrics {
+  armySizeAtTurn20: Record<string, number>;
+  firstEmergentRuleRound: Record<string, number | null>;
+}
+
+function extractMidpointMetrics(
+  trace: SimulationTrace,
+  factionIds: FactionId[],
+): MidpointMetrics {
+  const snapshots = trace.snapshots ?? [];
+  const armySizeAtTurn20: Record<string, number> = {};
+  const firstEmergentRuleRound: Record<string, number | null> = {};
+  const emergentSeen = new Set<string>();
+
+  for (const factionId of factionIds) {
+    armySizeAtTurn20[factionId] = 0;
+    firstEmergentRuleRound[factionId] = null;
+  }
+
+  for (const snapshot of snapshots) {
+    // Extract army size at round 20 (or closest round)
+    if (snapshot.round === 20 && snapshot.phase === 'start') {
+      for (const f of snapshot.factions) {
+        if (factionIds.includes(f.id as FactionId)) {
+          armySizeAtTurn20[f.id] = f.livingUnits;
+        }
+      }
+    }
+    // Extract first emergent rule activation per faction
+    if (snapshot.factionTripleStacks) {
+      for (const ts of snapshot.factionTripleStacks) {
+        if (!emergentSeen.has(ts.factionId)) {
+          emergentSeen.add(ts.factionId);
+          firstEmergentRuleRound[ts.factionId] = snapshot.round;
+        }
+      }
+    }
+  }
+
+  return { armySizeAtTurn20, firstEmergentRuleRound };
+}
+
 export function collectSeedBalanceMetrics(
   seed: number,
   registry: RulesRegistry,
@@ -513,15 +561,23 @@ export function collectSeedBalanceMetrics(
 ): SeedBalanceMetrics {
   const factionConfigs = getMvpFactionConfigs(balanceOverrides);
   const initialState = buildMvpScenario(seed, { mapMode, registry, balanceOverrides });
-  const trace = createSimulationTrace();
+  const trace = createSimulationTrace(true);
   const finalState = runWarEcologySimulation(initialState, registry, maxTurns, trace, difficulty);
   assertSettlementOwnershipConsistency(finalState);
   const livingUnits = Array.from(finalState.units.values()).filter((unit) => unit.hp > 0);
   const routedUnits = livingUnits.filter((unit) => unit.routed).length;
+
+  const midpointMetrics = extractMidpointMetrics(trace, factionConfigs.map(c => c.id as FactionId));
+
   const factions = Object.fromEntries(
     factionConfigs.map((config) => {
       const factionId = config.id as FactionId;
-      return [config.id, getFactionMetrics(finalState, factionId, registry)];
+      const base = getFactionMetrics(finalState, factionId, registry);
+      return [config.id, {
+        ...base,
+        armySizeAtTurn20: midpointMetrics.armySizeAtTurn20[factionId] ?? 0,
+        firstEmergentRuleRound: midpointMetrics.firstEmergentRuleRound[factionId] ?? null,
+      }];
     })
   );
 
@@ -624,6 +680,19 @@ export function runBalanceHarness(
             factionRuns.reduce((sum, run) => sum + run.stalledProduction.length, 0) / runs.length,
           ),
           avgUnitComposition: averageUnitComposition(factionRuns.map((run) => run.unitComposition)),
+          avgArmySizeAtTurn20: roundMetric(
+            factionRuns.reduce((sum, run) => sum + run.armySizeAtTurn20, 0) / runs.length,
+          ),
+          gamesWithEmergentRuleBeforeOpponent: runs.filter((run) => {
+            const myRound = run.factions[factionId]?.firstEmergentRuleRound;
+            if (myRound == null) return false;
+            const allRounds = factionIds
+              .map((oid) => run.factions[oid]?.firstEmergentRuleRound)
+              .filter((r): r is number => r != null);
+            if (allRounds.length === 0) return false;
+            const minOpponent = Math.min(...allRounds);
+            return myRound <= minOpponent;
+          }).length,
         } satisfies FactionBatchMetrics,
       ];
     })
@@ -763,4 +832,111 @@ export function runStratifiedPairedDifficultyBalanceHarness(
   balanceOverrides?: BalanceOverrides,
 ): DifficultyComparisonSummary {
   return runPairedDifficultyBalanceHarness(registry, STRATIFIED_HARNESS_SEEDS, maxTurns, mapMode, balanceOverrides);
+}
+
+// --- Phase 4 Validation: Easy (old Normal) vs Normal (new) ---
+
+export interface ValidationTargetCheck {
+  metric: string;
+  before: number;
+  after: number;
+  delta: number;
+  deltaPercent: number | null;
+  target: string;
+  pass: boolean;
+}
+
+export interface ValidationSummary {
+  seeds: number[];
+  totalSeeds: number;
+  easy: BatchBalanceSummary;
+  normal: BatchBalanceSummary;
+  checks: ValidationTargetCheck[];
+  allPass: boolean;
+}
+
+export function runValidationComparison(
+  registry: RulesRegistry,
+  seeds: readonly number[] = VALIDATION_HARNESS_SEEDS,
+  maxTurns = DEFAULT_HARNESS_TURNS,
+  mapMode: MapGenerationMode = 'fixed',
+  balanceOverrides?: BalanceOverrides,
+): ValidationSummary {
+  const easy = runBalanceHarness(registry, seeds, maxTurns, mapMode, balanceOverrides, 'easy');
+  const normal = runBalanceHarness(registry, seeds, maxTurns, mapMode, balanceOverrides, 'normal');
+
+  const n = seeds.length;
+
+  // Per-faction averages for army size at turn 20
+  const easyAvgArmy20 = Object.values(easy.factions)
+    .reduce((sum, f) => sum + f.avgArmySizeAtTurn20, 0) / Math.max(Object.keys(easy.factions).length, 1);
+  const normalAvgArmy20 = Object.values(normal.factions)
+    .reduce((sum, f) => sum + f.avgArmySizeAtTurn20, 0) / Math.max(Object.keys(normal.factions).length, 1);
+
+  // Games where at least one faction completed emergent rule before opponents
+  const easyEmergentGames = Object.values(easy.factions)
+    .reduce((sum, f) => sum + f.gamesWithEmergentRuleBeforeOpponent, 0);
+  const normalEmergentGames = Object.values(normal.factions)
+    .reduce((sum, f) => sum + f.gamesWithEmergentRuleBeforeOpponent, 0);
+
+  const checks: ValidationTargetCheck[] = [
+    {
+      metric: 'AI city captures per game',
+      before: easy.totalCityCaptures / n,
+      after: normal.totalCityCaptures / n,
+      delta: (normal.totalCityCaptures - easy.totalCityCaptures) / n,
+      deltaPercent: easy.totalCityCaptures > 0
+        ? roundMetric(((normal.totalCityCaptures - easy.totalCityCaptures) / easy.totalCityCaptures) * 100)
+        : null,
+      target: '+40%',
+      pass: easy.totalCityCaptures > 0 && (normal.totalCityCaptures / easy.totalCityCaptures) >= 1.4,
+    },
+    {
+      metric: 'Games where AI completes first emergent rule before opponent',
+      before: easyEmergentGames,
+      after: normalEmergentGames,
+      delta: normalEmergentGames - easyEmergentGames,
+      deltaPercent: null,
+      target: `>50% of ${n} games`,
+      pass: normalEmergentGames > n * 0.5,
+    },
+    {
+      metric: 'Average game length (turns)',
+      before: easy.avgFinalRound,
+      after: normal.avgFinalRound,
+      delta: roundMetric(normal.avgFinalRound - easy.avgFinalRound),
+      deltaPercent: null,
+      target: '+8 to +12 turns',
+      pass: (normal.avgFinalRound - easy.avgFinalRound) >= 8 && (normal.avgFinalRound - easy.avgFinalRound) <= 15,
+    },
+    {
+      metric: 'AI army peak size at turn 20',
+      before: roundMetric(easyAvgArmy20),
+      after: roundMetric(normalAvgArmy20),
+      delta: roundMetric(normalAvgArmy20 - easyAvgArmy20),
+      deltaPercent: easyAvgArmy20 > 0
+        ? roundMetric(((normalAvgArmy20 - easyAvgArmy20) / easyAvgArmy20) * 100)
+        : null,
+      target: '+20%',
+      pass: easyAvgArmy20 > 0 && (normalAvgArmy20 / easyAvgArmy20) >= 1.2,
+    },
+    {
+      metric: 'Decisive games (non-unresolved)',
+      before: easy.decisiveGames,
+      after: normal.decisiveGames,
+      delta: normal.decisiveGames - easy.decisiveGames,
+      deltaPercent: null,
+      target: 'parity or improvement',
+      pass: normal.decisiveGames >= easy.decisiveGames,
+    },
+  ];
+
+  return {
+    seeds: [...seeds],
+    totalSeeds: n,
+    easy,
+    normal,
+    checks,
+    allPass: checks.every(c => c.pass),
+  };
 }

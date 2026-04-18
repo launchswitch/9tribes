@@ -93,6 +93,7 @@ function createPlayController() {
   const useFreshBootstrap = search.get('bootstrap') === 'fresh' || hasMenuLaunchParams;
   const seed = Number(search.get('seed') ?? '42');
   const difficulty = parseDifficultyParam(search.get('difficulty'));
+  const maxRounds = parseRoundsParam(search.get('rounds'));
   const playerFactionId = search.get('player')?.trim() || 'steppe_clan';
   const selectedFactions = parseFactionList(search.get('tribes'));
   const mapMode = parseMapModeParam(search.get('map'));
@@ -118,6 +119,7 @@ function createPlayController() {
     {
       humanControlledFactionIds: [playerFactionId],
       difficulty,
+      maxRounds,
       mapMode,
       mapSize,
       selectedFactions,
@@ -146,6 +148,12 @@ function parseMapSizeParam(value: string | null): 'small' | 'medium' | 'large' {
     return value;
   }
   return 'medium';
+}
+
+function parseRoundsParam(value: string | null): number | undefined {
+  if (!value) return undefined;
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : undefined;
 }
 
 function parseFactionList(value: string | null): string[] | undefined {

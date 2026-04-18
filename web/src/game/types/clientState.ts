@@ -1,5 +1,6 @@
 import type { ReplayCombatEvent } from './replay';
 import type { AttackTargetView, HexCoord, PathPreviewNodeView, ReachableHexView, WorldViewModel } from './worldView';
+import type { DifficultyLevel } from '../../../../src/systems/aiDifficulty.js';
 import type { VictoryType } from '../../../../src/systems/warEcologySimulation.js';
 
 export type ClientMode = 'play';
@@ -242,8 +243,12 @@ export type PlayFeedbackState = {
     | {
         winnerFactionId: string | null;
         victoryType: VictoryType;
+        controlledCities: number | null;
+        totalCities: number | null;
       }
     | null;
+  difficulty: DifficultyLevel;
+  maxRounds: number;
   absorbedDomains: string[];
   aiProcessing: boolean;
 };

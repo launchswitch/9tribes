@@ -45,27 +45,7 @@ export function rotateUnitToward(unit: Unit, target: HexCoord): Unit {
   return { ...unit, facing };
 }
 
-export function getImprovementBonus(state: GameState, pos: HexCoord): number {
-  // Check improvements first (e.g. field forts)
-  for (const [, improvement] of state.improvements) {
-    if (improvement.position.q === pos.q && improvement.position.r === pos.r) {
-      return improvement.defenseBonus ?? 0;
-    }
-  }
-  // Cities give +100% defense
-  for (const [, city] of state.cities) {
-    if (city.position.q === pos.q && city.position.r === pos.r) {
-      return 1;
-    }
-  }
-  // Villages give +50% defense
-  for (const [, village] of state.villages) {
-    if (village.position.q === pos.q && village.position.r === pos.r) {
-      return 0.5;
-    }
-  }
-  return 0;
-}
+export { getImprovementBonus } from '../combat-action/helpers.js';
 
 export function getImprovementAtHex(state: GameState, pos: HexCoord) {
   for (const [, improvement] of state.improvements) {

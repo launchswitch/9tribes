@@ -35,9 +35,6 @@ export const UNIT_COSTS: Record<string, number> = {
   elephant_frame: 36,
 };
 
-// City base production yield per turn
-const CITY_BASE_PRODUCTION = 3;
-
 /**
  * Queue a unit for production in a city.
  */
@@ -518,5 +515,5 @@ export function removeFromQueue(city: City, index: number): City {
  * Get the city's total production yield per turn.
  */
 export function getCityProductionYield(city: City): number {
-  return CITY_BASE_PRODUCTION;
+  return 2;
 }

@@ -9,7 +9,6 @@ import type {
   ImprovementDef,
   ResearchDomainDef,
   ResearchNodeDef,
-  CapabilityDomainDef,
   HybridRecipeDef,
   TerrainYieldDef,
   AiProfilesDef,
@@ -22,7 +21,6 @@ import componentsData from '../../content/base/components.json';
 import veteranLevelsData from '../../content/base/veteran-levels.json';
 import improvementsData from '../../content/base/improvements.json';
 import researchData from '../../content/base/research.json';
-import capabilityDomainsData from '../../content/base/capability-domains.json';
 import hybridRecipesData from '../../content/base/hybrid-recipes.json';
 import economyData from '../../content/base/economy.json';
 import aiProfilesData from '../../content/base/ai-profiles.json';
@@ -40,7 +38,6 @@ export function loadRulesRegistry(overrides?: BalanceOverrides): RulesRegistry {
   const veteranLevels = cloneData(veteranLevelsData) as Record<string, VeteranLevelDef>;
   const improvements = cloneData(improvementsData) as Record<string, ImprovementDef>;
   const research = cloneData(researchData) as Record<string, ResearchDomainDef>;
-  const capabilityDomains = cloneData(capabilityDomainsData) as Record<string, CapabilityDomainDef>;
   const hybridRecipes = cloneData(hybridRecipesData) as Record<string, HybridRecipeDef>;
   const terrainYields = cloneData(economyData) as Record<string, TerrainYieldDef>;
   const aiProfiles = cloneData(aiProfilesData) as AiProfilesDef;
@@ -136,14 +133,6 @@ export function loadRulesRegistry(overrides?: BalanceOverrides): RulesRegistry {
     },
     getAllResearchDomains(): ResearchDomainDef[] {
       return Object.values(research);
-    },
-
-    // Capabilities
-    getCapabilityDomain(domainId: string): CapabilityDomainDef | undefined {
-      return capabilityDomains[domainId];
-    },
-    getAllCapabilityDomains(): CapabilityDomainDef[] {
-      return Object.values(capabilityDomains);
     },
 
     // Hybrid recipes

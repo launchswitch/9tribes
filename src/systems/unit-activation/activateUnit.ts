@@ -414,7 +414,7 @@ export function activateUnit(
     const greedyAbility = registry.getSignatureAbility(factionId);
     const captureParams = getCaptureParams(prototype, registry);
     // Use component's capture chance; fall back to signature ability for non-component sources
-    const nonCombatChance = captureParams?.chance ?? greedyAbility?.greedyNonCombatCaptureChance ?? 0.5;
+    const nonCombatChance = captureParams?.chance ?? greedyAbility?.greedyNonCombatCaptureChance ?? 0.4;
     const hpFraction = captureParams?.hpFraction ?? greedyAbility?.greedyCaptureHpFraction ?? 0.5;
     const captureCooldown = captureParams?.cooldown ?? greedyAbility?.greedyCaptureCooldown ?? 4;
 

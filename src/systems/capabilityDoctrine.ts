@@ -59,10 +59,6 @@ export interface ResearchDoctrine {
   autoCaptureEnabled: boolean;         // slaving_t3 — wounded enemies below 25% HP are auto-captured
   armorPenetrationEnabled: boolean;    // heavy_hitter_t3 — ignore 50% armor, units cannot be displaced
   natureHealingRegenBonus: number;     // nature_healing_t1/T3 — +1 HP/turn, or +3 HP/turn for native T3
-
-  // Hill combat modifiers
-  hillDefenseModifier: number;        // bonus defense when defending on hills
-  hillAttackDefensePierce: number;     // how much to pierce defender's hill defense modifier
 }
 
 /**
@@ -166,10 +162,6 @@ export function resolveResearchDoctrine(
       : hasNode('nature_healing_t1')
         ? 1
         : 0,
-
-    // Hill combat modifiers
-    hillDefenseModifier: 0.15,
-    hillAttackDefensePierce: 0.25,
   };
 }
 

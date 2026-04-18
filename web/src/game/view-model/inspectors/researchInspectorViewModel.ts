@@ -70,7 +70,9 @@ export function buildResearchInspectorViewModel(
         prerequisites: nodeDef.prerequisites ?? [],
         prerequisiteNames: [],
         unlocks: [],
-        qualitativeEffect: nodeDef.qualitativeEffect?.description ?? null,
+        qualitativeEffect: isNative
+          ? (nodeDef.qualitativeEffect?.nativeDescription ?? nodeDef.qualitativeEffect?.description ?? null)
+          : (nodeDef.qualitativeEffect?.description ?? null),
         estimatedTurns,
         domain: domainId,
         isNative,

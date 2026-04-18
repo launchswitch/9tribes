@@ -1,6 +1,6 @@
 // Tests for world/map modules
 
-import { TERRAIN_DEFINITIONS, getTerrainDef } from '../src/world/map/terrain';
+import TERRAIN_DEFINITIONS from '../src/content/base/terrains.json';
 import { createMap } from '../src/world/map/createMap';
 import { getTile, getTileByKey, hasTile } from '../src/world/map/getTile';
 import { generateMvpMap } from '../src/world/generation/generateMvpMap';
@@ -15,8 +15,8 @@ const START_REQUESTS = MVP_FACTION_CONFIGS.map((config) => ({
   terrainBias: config.terrainBias,
 }));
 
-describe('terrain.ts', () => {
-  it('TERRAIN_DEFINITIONS has core terrain types including river, swamp, and mountain', () => {
+describe('terrains.json', () => {
+  it('has core terrain types including river, swamp, and mountain', () => {
     expect(TERRAIN_DEFINITIONS).toHaveProperty('plains');
     expect(TERRAIN_DEFINITIONS).toHaveProperty('forest');
     expect(TERRAIN_DEFINITIONS).toHaveProperty('jungle');
@@ -26,44 +26,35 @@ describe('terrain.ts', () => {
     expect(TERRAIN_DEFINITIONS).toHaveProperty('mountain');
   });
 
-  it('getTerrainDef returns correct definitions for each type', () => {
-    expect(getTerrainDef('plains')).toEqual(TERRAIN_DEFINITIONS.plains);
-    expect(getTerrainDef('forest')).toEqual(TERRAIN_DEFINITIONS.forest);
-    expect(getTerrainDef('jungle')).toEqual(TERRAIN_DEFINITIONS.jungle);
-    expect(getTerrainDef('hill')).toEqual(TERRAIN_DEFINITIONS.hill);
-    expect(getTerrainDef('swamp')).toEqual(TERRAIN_DEFINITIONS.swamp);
-    expect(getTerrainDef('mountain')).toEqual(TERRAIN_DEFINITIONS.mountain);
-  });
-
-  it('plains has movementCost 1, defenseBonus 0', () => {
-    const plains = getTerrainDef('plains');
+  it('plains has movementCost 1, defenseModifier 0', () => {
+    const plains = TERRAIN_DEFINITIONS.plains;
     expect(plains.movementCost).toBe(1);
-    expect(plains.defenseBonus).toBe(0);
+    expect(plains.defenseModifier).toBe(0);
   });
 
-  it('forest has movementCost 2, defenseBonus 1', () => {
-    const forest = getTerrainDef('forest');
+  it('forest has movementCost 2, defenseModifier 0.25', () => {
+    const forest = TERRAIN_DEFINITIONS.forest;
     expect(forest.movementCost).toBe(2);
-    expect(forest.defenseBonus).toBe(1);
+    expect(forest.defenseModifier).toBe(0.25);
   });
 
-  it('hill has movementCost 2, defenseBonus 1', () => {
-    const hill = getTerrainDef('hill');
+  it('hill has movementCost 2, defenseModifier 0.5', () => {
+    const hill = TERRAIN_DEFINITIONS.hill;
     expect(hill.movementCost).toBe(2);
-    expect(hill.defenseBonus).toBe(1);
+    expect(hill.defenseModifier).toBe(0.5);
   });
 
-  it('jungle has movementCost 3, defenseBonus 2', () => {
-    const jungle = getTerrainDef('jungle');
+  it('jungle has movementCost 3, defenseModifier 0.25', () => {
+    const jungle = TERRAIN_DEFINITIONS.jungle;
     expect(jungle.movementCost).toBe(3);
-    expect(jungle.defenseBonus).toBe(2);
+    expect(jungle.defenseModifier).toBe(0.25);
   });
 
   it('mountain is impassable terrain', () => {
-    const mountain = getTerrainDef('mountain');
+    const mountain = TERRAIN_DEFINITIONS.mountain;
     expect(mountain.movementCost).toBe(999);
     expect(mountain.passable).toBe(false);
-    expect(mountain.defenseBonus).toBe(2);
+    expect(mountain.defenseModifier).toBe(0.75);
   });
 });
 

@@ -9,6 +9,9 @@ export function summarizePrimaryObjective(
   primaryCityObjectiveId: CityId | undefined,
   primaryEnemyFactionId: FactionId | undefined,
 ): string {
+  if (posture === 'last_stand') {
+    return primaryCityObjectiveId ? `retake ${primaryCityObjectiveId}` : 'rally for last stand';
+  }
   if ((posture === 'defensive' || posture === 'recovery') && threatenedCities[0]) {
     return `defend ${threatenedCities[0].cityId}`;
   }

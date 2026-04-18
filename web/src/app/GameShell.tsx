@@ -26,6 +26,7 @@ import { useSessionAudio } from './hooks/useSessionAudio';
 import { useEscapeHandler } from './hooks/useEscapeHandler';
 import { useTutorial } from './hooks/useTutorial';
 import { TutorialOverlay } from '../ui/TutorialOverlay';
+import { VictoryOverlay } from '../ui/VictoryOverlay';
 
 const params = new URLSearchParams(window.location.search);
 const USE_V2_LAYOUT = params.get('layout') !== 'legacy';
@@ -102,6 +103,10 @@ function KnowledgeGainedShellContent({
   const { combatLocked } = useCombatBridge(controller, gameRef);
   useSessionAudio(state, combatLocked);
   const tutorial = useTutorial(state);
+  const [victoryDismissed, setVictoryDismissed] = useState(false);
+
+  const playerWon = state.playFeedback?.victory?.winnerFactionId === state.playFeedback?.playerFactionId
+    && state.playFeedback?.victory?.victoryType !== 'unresolved';
 
   useEscapeHandler({
     activeOverlay,
@@ -257,6 +262,18 @@ function KnowledgeGainedShellContent({
 
       {tutorial.popupVisible ? (
         <TutorialOverlay step={tutorial.step} onDismiss={tutorial.onDismiss} />
+      ) : null}
+
+      {playerWon && !victoryDismissed && state.playFeedback?.victory ? (
+        <VictoryOverlay
+          victoryType={state.playFeedback.victory.victoryType}
+          controlledCities={state.playFeedback.victory.controlledCities}
+          totalCities={state.playFeedback.victory.totalCities}
+          rounds={state.turn}
+          maxRounds={state.playFeedback.maxRounds}
+          difficulty={state.playFeedback.difficulty}
+          onDismiss={() => setVictoryDismissed(true)}
+        />
       ) : null}
     </div>
   );
