@@ -160,6 +160,7 @@ export function activateUnit(
       anchorDistance,
       targetEnemySupport,
       targetInCity,
+      assignment: unitIntent?.assignment,
     });
     return shouldEngageTarget(strategy?.personality, { attackScore, retreatRisk });
   };

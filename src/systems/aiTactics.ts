@@ -55,6 +55,8 @@ export interface RetreatRiskInput {
   targetEnemySupport?: number;
   /** Whether the target is inside a city (city defense bonus makes attacks riskier) */
   targetInCity?: boolean;
+  /** Unit assignment — siege/assault units get reduced city retreat pressure */
+  assignment?: UnitAssignment;
 }
 
 export interface EngageTargetGateInput {
@@ -146,8 +148,10 @@ export function computeRetreatRisk(input: RetreatRiskInput): number {
   const anchorPressure = input.anchorDistance > 4 ? 0.2 : 0;
   // Defender support: extra risk when the target has nearby allies that can reinforce/counterattack
   const supportPressure = (input.targetEnemySupport ?? 0) * 0.18;
-  // City defense: attacking into a city is inherently riskier
-  const cityPressure = input.targetInCity ? 0.25 : 0;
+  // City defense: attacking into a city is inherently riskier,
+  // but siege/assault units must hold the encirclement — ignore city pressure for them
+  const isSiegeAssignment = input.assignment === 'siege_force' || input.assignment === 'main_army';
+  const cityPressure = (input.targetInCity && !isSiegeAssignment) ? 0.25 : 0;
   return Math.min(1.25, hpPressure + enemyPressure + isolationPressure + anchorPressure + supportPressure + cityPressure);
 }
 

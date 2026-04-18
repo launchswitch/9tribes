@@ -163,6 +163,8 @@ describe('coordinator squad stamping', () => {
       ...baseProfile,
       strategy: {
         ...baseProfile.strategy,
+        multiAxisEnabled: true,
+        multiAxisGroupCount: 2,
         multiAxisMinGroupSize: 2,
         strategicFogCheat: true,
       },
