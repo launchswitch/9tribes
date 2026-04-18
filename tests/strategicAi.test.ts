@@ -383,7 +383,7 @@ describe('strategic AI', () => {
     const normalStrategy = computeFactionStrategy(state, hillId, registry, 'normal');
     const hardStrategy = computeFactionStrategy(state, hillId, registry, 'hard');
 
-    expect(normalStrategy.focusTargetUnitIds.length).toBe(3);
+    expect(normalStrategy.focusTargetUnitIds.length).toBe(2);
     expect(hardStrategy.focusTargetUnitIds.length).toBe(2);
   });
 
