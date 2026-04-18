@@ -127,6 +127,27 @@ export function calculateVisibility(state: GameState, factionId: FactionId): Fac
     }
   }
 
+  // TEMP DEBUG: dump what's granting LOS at suspect hexes for frost_wardens
+  if (factionId === ('frost_wardens' as FactionId)) {
+    const suspect = ['29,7', '28,6', '30,7', '29,8'];
+    if (suspect.some((k) => newVisibleKeys.has(k))) {
+      const livingUnits = Array.from(faction.unitIds)
+        .map((id) => state.units.get(id))
+        .filter((u): u is NonNullable<typeof u> => !!u && u.hp > 0)
+        .map((u) => ({ id: u.id, pos: u.position, proto: u.prototypeId }));
+      const cityList = Array.from(faction.cityIds)
+        .map((id) => state.cities.get(id))
+        .filter((c): c is NonNullable<typeof c> => !!c)
+        .map((c) => ({ id: c.id, pos: c.position }));
+      const villageList = Array.from(faction.villageIds)
+        .map((id) => state.villages.get(id))
+        .filter((v): v is NonNullable<typeof v> => !!v)
+        .map((v) => ({ id: v.id, pos: v.position }));
+      // eslint-disable-next-line no-console
+      console.log('[fog-grants] frost_wardens LOS at suspect hex. Units:', livingUnits, 'Cities:', cityList, 'Villages:', villageList);
+    }
+  }
+
   // 4. Merge with previous fog state
   const previousFogState = state.fogState?.get(factionId);
   const previousVisibility = previousFogState?.hexVisibility ?? new Map();
