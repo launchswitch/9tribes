@@ -221,9 +221,19 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
         role: prototype?.derivedStats.role,
         spriteKey: getSpriteKeyForUnit(unit.factionId, prototype?.name ?? unit.prototypeId, chassisId, prototype?.sourceRecipeId),
         facing: unit.facing ?? 0,
-        visible: unit.factionId === source.playerFactionId
-          ? (hexVisibility.get(hexToKey(unit.position)) ?? 'hidden') !== 'hidden'
-          : (hexVisibility.get(hexToKey(unit.position)) ?? 'hidden') === 'visible',
+        visible: (() => {
+          const isFriendly = unit.factionId === source.playerFactionId;
+          const lvl = hexVisibility.get(hexToKey(unit.position)) ?? 'hidden';
+          const v = isFriendly ? lvl !== 'hidden' : lvl === 'visible';
+          if (!isFriendly && v) {
+            // eslint-disable-next-line no-console
+            console.log('[fog-leak]', unit.id, 'faction=', unit.factionId, 'pos=', unit.position,
+              'lvl=', lvl, 'player=', source.playerFactionId,
+              'fogStateKeys=', [...(state.fogState?.keys() ?? [])],
+              'activeFactionId=', state.activeFactionId);
+          }
+          return v;
+        })(),
         veteranLevel: unit.veteranLevel,
         xp: unit.xp,
         nativeDomain: faction?.nativeDomain,
