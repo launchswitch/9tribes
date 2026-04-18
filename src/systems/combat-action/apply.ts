@@ -129,7 +129,7 @@ export function applyCombatAction(
     status: preview.result.defenderDestroyed ? 'spent' : defender.status,
   };
 
-  if (preview.attackerWasStealthed && nextAttacker.hp > 0) {
+  if (preview.attackerWasStealthed && attacker.isStealthed && nextAttacker.hp > 0) {
     const isDesertStealth = attackerDoctrine?.permanentStealthEnabled === true
       && preview.details.attackerTerrainId === 'desert';
     const isEmergentTerrainStealth = preview.details.emergentPermanentStealthTerrains.length > 0

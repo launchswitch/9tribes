@@ -392,6 +392,7 @@
         "qualitativeEffect": {
           "type": "stealth_reveal",
           "description": "Stealth units reveal stealthed enemies within 2 hexes",
+          "nativeDescription": "Stealthed units cloak adjacent allies, and cloaked attacks gain +50% attack",
           "effect": { "stealthRevealRange": 2 }
         }
       }

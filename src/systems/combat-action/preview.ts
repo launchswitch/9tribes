@@ -24,6 +24,7 @@ import {
   applyCombatSynergies,
   type CombatContext,
 } from '../synergyEffects.js';
+import { isUnitEffectivelyStealthed } from '../fogSystem.js';
 import {
   calculateSynergyAttackBonus,
   calculateSynergyDefenseBonus,
@@ -92,7 +93,7 @@ export function previewCombatAction(
   const braceTriggered = defender.preparedAbility === 'brace'
     && (attackerPrototype.derivedStats.role === 'mounted' || (attackerPrototype.derivedStats.range ?? 1) <= 1);
   const ambushAttackBonus = attacker.preparedAbility === 'ambush' ? 0.15 : 0;
-  const attackerWasStealthed = attacker.isStealthed ?? false;
+  const attackerWasStealthed = isUnitEffectivelyStealthed(state, attacker);
   let chargeAttackBonus = isChargeAttack && !braceTriggered ? 0.15 : 0;
   let sneakAttackTriggered = false;
   let stampedeTriggered = false;
@@ -256,9 +257,9 @@ export function previewCombatAction(
       defenderHp: enemyUnit.hp,
       terrain: state.map?.tiles.get(hexToKey(unit.position))?.terrain ?? 'plains',
       isCharge: unit.id === attacker.id ? isChargeAttack : false,
-      isStealthAttack: unit.id === attacker.id ? attackerWasStealthed : (unit.isStealthed ?? false),
+      isStealthAttack: unit.id === attacker.id ? attackerWasStealthed : isUnitEffectivelyStealthed(state, unit),
       isRetreat: false,
-      isStealthed: unit.isStealthed ?? false,
+      isStealthed: isUnitEffectivelyStealthed(state, unit),
       position: { x: unit.position.q, y: unit.position.r },
       attackerPosition: { x: unit.position.q, y: unit.position.r },
       defenderPosition: { x: enemyUnit.position.q, y: enemyUnit.position.r },

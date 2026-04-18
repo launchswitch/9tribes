@@ -268,9 +268,10 @@ export const helpContent: HelpContent = {
       color: '#4f86c6',
       nativeDomain: 'river_stealth',
       homeBiome: 'River',
-      intro: 'The River People treat waterways like roads — except these roads let them appear anywhere along the bank without warning. Their River Assault passive gives their units combat bonuses near rivers, and their stealth in water terrain means enemies often don\'t see them coming until arrows are already flying. Their signature Ancient Alligator is a nightmare amphibious predator that can strike from water onto land, turning every river crossing into a potential ambush point. They\'re the faction that makes you nervous every time there\'s water on the map.',
+      intro: 'The River People treat waterways like roads — except these roads let them appear anywhere along the bank without warning. Their River Assault passive gives their units combat bonuses near rivers, and their River Stealth transcendence now lets true stealth units cloak nearby allies for surprise strikes. Their signature Ancient Alligator is a nightmare amphibious predator that can strike from water onto land, turning every river crossing into a potential ambush point. They\'re the faction that makes you nervous every time there\'s water on the map.',
       strengths: [
         'River corridors give you unmatched mobility and surprise. You can move forces along waterways faster than anyone, and your stealth means defenders rarely spot you in time.',
+        'Once River Stealth reaches Tier 3, a single hidden scout can cloak adjacent allies and hand them full sneak-attack pressure. Your front line stops telegraphing which unit is actually dangerous.',
         'Cities split by waterways are incredibly vulnerable to you. Strike from the river side while the defender\'s attention is on land approaches — classic double-envelopment.',
         'Your River Assault passive means even routine fights near water tip in your favor. Try to keep engagements close to rivers whenever possible.',
       ],
@@ -278,7 +279,7 @@ export const helpContent: HelpContent = {
         'Getting dragged into dry, inland fights strips away your biggest advantages. Without water nearby, you\'re fighting on even ground — and "even" isn\'t where you want to be.',
         'Opponents who recognize your river dependency can bait you into unfavorable terrain. Don\'t chase too far from water just because you\'re winning.',
       ],
-      tip: 'Map out river networks early — they\'re your highway system. Use them to reposition forces rapidly and strike where enemies least expect. The Ancient Alligator excels at river crossing ambushes: hide one in a river hex near a crossing point and let enemies walk into it.',
+      tip: 'Map out river networks early — they\'re your highway system. Once you hit River Stealth Tier 3, keep one real stealth unit tucked behind your lead attackers so it cloaks the whole contact point. The Ancient Alligator still excels at river crossing ambushes: hide one in a river hex near a crossing point and let enemies walk into it.',
     },
     {
       id: 'frost_wardens',

@@ -5,6 +5,7 @@ import type { FactionId, GameState, Unit } from '../../../../src/game/types.js';
 import { canUseAmbush, canUseBrace, getTerrainAt, hasAdjacentEnemy } from '../../../../src/systems/abilitySystem.js';
 import { resolveCapabilityDoctrine } from '../../../../src/systems/capabilityDoctrine.js';
 import { deriveResourceIncome, getSupplyDeficit } from '../../../../src/systems/economySystem.js';
+import { isUnitEffectivelyStealthed } from '../../../../src/systems/fogSystem.js';
 import { getValidMoves } from '../../../../src/systems/movementSystem.js';
 import { getVictoryStatus } from '../../../../src/systems/warEcologySimulation.js';
 import { getHexOwner } from '../../../../src/systems/territorySystem.js';
@@ -228,7 +229,7 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
         xp: unit.xp,
         nativeDomain: faction?.nativeDomain,
         learnedAbilities: unit.learnedAbilities?.map((a) => a.domainId),
-        isStealthed: unit.isStealthed,
+        isStealthed: isUnitEffectivelyStealthed(state, unit),
         poisoned: (unit.poisoned || (unit.poisonStacks ?? 0) > 0) || undefined,
         morale: unit.morale,
         routed: unit.routed || undefined,

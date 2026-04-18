@@ -290,6 +290,53 @@ describe('strategic AI', () => {
     expect(visibleEnemyIds).toContain(enemyId);
   });
 
+  it('native river stealth t3 cloaks adjacent allies from enemy fog consumers', () => {
+    let state = buildMvpScenario(42);
+    trimState(state, ['hill_clan', 'steppe_clan']);
+    const hillId = 'hill_clan' as never;
+    const steppeId = 'steppe_clan' as never;
+    const hillFaction = state.factions.get(hillId)!;
+    const hillResearch = state.research.get(hillId)!;
+    const sourceId = hillFaction.unitIds[0];
+    const allyId = hillFaction.unitIds[1];
+    const enemyId = state.factions.get(steppeId)!.unitIds[0];
+    const source = state.units.get(sourceId)!;
+    const ally = state.units.get(allyId)!;
+    const enemy = state.units.get(enemyId)!;
+    const sourcePrototype = state.prototypes.get(source.prototypeId)!;
+
+    hillFaction.nativeDomain = 'river_stealth';
+    hillFaction.learnedDomains = ['river_stealth'];
+    hillResearch.completedNodes.push('river_stealth_t1' as never, 'river_stealth_t2' as never, 'river_stealth_t3' as never);
+    state.prototypes.set(source.prototypeId, {
+      ...sourcePrototype,
+      tags: [...new Set([...(sourcePrototype.tags ?? []), 'stealth'])],
+    });
+    state.units.set(sourceId, {
+      ...source,
+      position: { q: 5, r: 5 },
+      isStealthed: true,
+      turnsSinceStealthBreak: 0,
+    });
+    state.units.set(allyId, {
+      ...ally,
+      position: { q: 6, r: 5 },
+      isStealthed: false,
+      turnsSinceStealthBreak: 0,
+    });
+    state.units.set(enemyId, {
+      ...enemy,
+      position: { q: 8, r: 5 },
+      isStealthed: false,
+      turnsSinceStealthBreak: 0,
+    });
+
+    state = updateFogState(state, steppeId);
+
+    const visibleEnemyIds = getVisibleEnemyUnits(state, steppeId).map(({ unit }) => unit.id);
+    expect(visibleEnemyIds).not.toContain(allyId);
+  });
+
   it('detects fronts and threatened cities near enemy pressure', () => {
     let state = buildMvpScenario(42);
     trimState(state, ['hill_clan', 'steppe_clan']);

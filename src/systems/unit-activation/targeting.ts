@@ -5,6 +5,7 @@ import { getWeaponEffectiveness } from '../../data/weaponEffectiveness.js';
 import type { GameState } from '../../game/types.js';
 import type { FactionId, HexCoord, UnitId } from '../../types.js';
 import { isUnitRiverStealthed } from '../factionIdentitySystem.js';
+import { isUnitEffectivelyStealthed } from '../fogSystem.js';
 import { getUnitIntent } from '../strategicAi.js';
 import { scoreAttackCandidate, scoreStrategicTarget } from '../aiTactics.js';
 
@@ -52,7 +53,7 @@ export function findBestTargetChoice(
         if (isUnitRiverStealthed(targetFaction, targetTerrain)) continue;
 
         // Stealth-tagged units with isStealthed=true are invisible to AI targeting
-        if (unit.isStealthed) continue;
+        if (isUnitEffectivelyStealthed(state, unit)) continue;
 
         const targetRole = targetPrototype.derivedStats.role;
         const targetMovementClass = registry.getChassis(targetPrototype.chassisId)?.movementClass ?? 'infantry';
@@ -189,7 +190,7 @@ export function findBestRangedTarget(
         if (isUnitRiverStealthed(targetFaction, targetTerrain)) continue;
 
         // Stealth-tagged units with isStealthed=true are invisible
-        if (unit.isStealthed) continue;
+        if (isUnitEffectivelyStealthed(state, unit)) continue;
 
         const targetRole = targetPrototype.derivedStats.role;
         const targetMovementClass = registry.getChassis(targetPrototype.chassisId)?.movementClass ?? 'infantry';

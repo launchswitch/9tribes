@@ -468,3 +468,41 @@ No significant changes detected.
 - `src/systems/unit-activation/targeting.ts` imports: src/core/grid.ts (getHexesInRange, getNeighbors, hexDistance), src/data/registry/types.ts (RulesRegistry), src/data/roleEffectiveness.ts (getRoleEffectiveness), src/data/weaponEffectiveness.ts (getWeaponEffectiveness), src/game/types.ts (GameState)
 - `src/systems/unit-activation/transport.ts` imports: src/core/grid.ts (hexDistance, hexToKey), src/data/registry/types.ts (RulesRegistry), src/game/types.ts (GameState), src/types.ts (HexCoord, UnitId), src/systems/movementSystem.ts (moveUnit, getValidMoves)
 - `src/systems/unit-activation/types.ts` imports: src/game/types.ts (GameState), src/systems/combat-action/types.ts (CombatActionPreview), src/types.ts (FactionId), src/systems/warEcologySimulation.ts (SimulationTrace, TraceAiIntentEvent, TraceCombatEffect)
+
+---
+
+## Digest — 2026-04-18T14:46:02.835238Z
+
+### New Files
+- `src/systems/strategic-ai/rendezvous.ts` — 10 exports: RENDEZVOUS_OFFSET_HEXES, RENDEZVOUS_READY_DISTANCE, HOLD_DEFENSE_RADIUS, SquadPhase, SquadRole, ... (+5 more)
+- `web/src/app/hooks/useTutorial.ts` — 3 exports: TutorialStep, TutorialState, useTutorial
+- `web/src/ui/TutorialOverlay.tsx` — 1 exports: TutorialOverlay
+- `web/src/ui/VictoryOverlay.tsx` — 2 exports: computeScore, VictoryOverlay
+
+### Removed Files
+- `web/src/game/types/replay.ts` — 6 exports lost: ReplayHex, ReplaySnapshot, ReplayFactionState, ReplayUnit, ReplayCity, ... (+1 more)
+
+### Modified Files
+- `src/data/registry/types.ts` — -1 exports (CapabilityDomainDef)
+- `src/systems/balanceHarness.ts` — +5 exports (FactionBaseMetrics, VALIDATION_HARNESS_SEEDS, ValidationSummary, ValidationTargetCheck, runValidationComparison); ~1 signatures (FactionSeedMetrics)
+- `src/systems/captureSystem.ts` — ~1 signatures (attemptCapture)
+- `src/systems/factionStrategy.ts` — +1 exports (LastStandState); ~1 signatures (FactionPosture)
+- `src/systems/synergyEffects.ts` — -3 exports (MovementContext, MovementResult, applyMovementSynergies)
+- `src/world/map/types.ts` — -1 exports (TerrainDef)
+- `web/src/game/types/clientState.ts` — ~1 signatures (ClientMode)
+- `web/src/game/view-model/worldViewModel.ts` — -1 exports (getIntentSummary); ~3 signatures (buildDebugViewModel, buildHudViewModel, buildWorldViewModel)
+- `web/src/ui/SynergyChip.tsx` — +1 exports (domainBenefit)
+
+### Dependency Changes
+- `src/systems/strategic-ai/rendezvous.ts` imports: src/types.ts (CityId, FactionId, HexCoord), src/game/types.ts (GameState), src/systems/factionStrategy.ts (FactionStrategy, UnitStrategicIntent), src/core/grid.ts (getHexesInRange, hexDistance, hexToKey), src/systems/strategic-ai/helpers.ts (isAggressiveAssignment)
+- `web/src/app/hooks/useTutorial.ts` imports: web/src/game/types/clientState.ts (ClientState)
+- `web/src/ui/TutorialOverlay.tsx` imports: web/src/app/hooks/useTutorial.ts (TutorialStep)
+- `web/src/ui/VictoryOverlay.tsx` imports: src/systems/aiDifficulty.ts (DifficultyLevel), src/systems/warEcologySimulation.ts (VictoryType)
+- `src/systems/balanceHarness.ts` — 17 dependencies
+- `src/systems/captureSystem.ts` — 11 dependencies
+- `src/systems/factionStrategy.ts` — 3 dependencies
+- `src/systems/synergyEffects.ts` — 1 dependencies
+- `src/world/map/types.ts` — 2 dependencies
+- `web/src/game/types/clientState.ts` — 4 dependencies
+- `web/src/game/view-model/worldViewModel.ts` — 60 dependencies
+- `web/src/ui/SynergyChip.tsx` — 6 dependencies

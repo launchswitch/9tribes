@@ -124,6 +124,58 @@ describe('R1: forcedMarchEnabled — no cooldown on first charge', () => {
   });
 });
 
+describe('R5: stealthCloakAuraEnabled - stealthed units cloak adjacent allies', () => {
+  it('lets an adjacent ally attack as cloaked and gain the stealth ambush bonus', () => {
+    const { state, lionsUnitId, jungleUnitId, lionsId } = setupTwoUnits();
+
+    const baselinePreview = previewCombatAction(state, registry, lionsUnitId, jungleUnitId);
+    expect(baselinePreview).toBeTruthy();
+    expect(baselinePreview!.attackerWasStealthed).toBe(false);
+
+    state.factions.set(lionsId as never, {
+      ...state.factions.get(lionsId as never)!,
+      nativeDomain: 'river_stealth',
+      learnedDomains: ['river_stealth'],
+    });
+    addResearchNodes(state, lionsId, ['river_stealth_t1', 'river_stealth_t2', 'river_stealth_t3']);
+
+    const attackerBase = state.units.get(lionsUnitId)!;
+    const attackerPrototype = state.prototypes.get(attackerBase.prototypeId as never)!;
+    const sourcePrototypeId = 'cloak_source_proto' as never;
+    state.prototypes.set(sourcePrototypeId, {
+      ...attackerPrototype,
+      id: sourcePrototypeId,
+      tags: [...new Set([...(attackerPrototype.tags ?? []), 'stealth'])],
+    });
+
+    const sourceUnitId = 'cloak_source_unit' as never;
+    state.units.set(sourceUnitId, {
+      ...attackerBase,
+      id: sourceUnitId,
+      prototypeId: sourcePrototypeId,
+      position: { q: 10, r: 8 },
+      isStealthed: true,
+      turnsSinceStealthBreak: 0,
+      attacksRemaining: 1,
+      movesRemaining: 1,
+    });
+    state.factions.set(lionsId as never, {
+      ...state.factions.get(lionsId as never)!,
+      unitIds: [...state.factions.get(lionsId as never)!.unitIds, sourceUnitId],
+    });
+
+    const cloakedPreview = previewCombatAction(state, registry, lionsUnitId, jungleUnitId);
+    expect(cloakedPreview).toBeTruthy();
+    expect(cloakedPreview!.attackerWasStealthed).toBe(true);
+    expect(cloakedPreview!.result.defenderDamage).toBeGreaterThan(baselinePreview!.result.defenderDamage);
+
+    const result = applyCombatAction(state, registry, cloakedPreview!);
+    const attackerAfter = result.state.units.get(lionsUnitId)!;
+    expect(attackerAfter.isStealthed).toBe(false);
+    expect(attackerAfter.turnsSinceStealthBreak).toBe(0);
+  });
+});
+
 describe('combat cleanup', () => {
   it('removes defenders that hit zero hp from pursuit aftermath damage', () => {
     const { state, lionsUnitId, jungleUnitId, lionsId } = setupTwoUnits();
