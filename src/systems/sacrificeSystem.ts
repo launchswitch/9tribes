@@ -7,6 +7,7 @@ import type { Faction, FactionId } from '../game/types.js';
 import type { RulesRegistry } from '../data/registry/types.js';
 import type { SimulationTrace } from './warEcologySimulation.js';
 import type { UnitId, ResearchNodeId } from '../types.js';
+import { hexDistance } from '../core/grid.js';
 import { SynergyEngine } from './synergyEngine.js';
 import { getDomainProgression } from './domainProgression.js';
 import pairSynergiesData from '../content/base/pair-synergies.json' assert { type: 'json' };
@@ -53,8 +54,8 @@ export function canSacrifice(unit: Unit, faction: Faction, state: GameState): bo
     return false;
   }
 
-  // Unit must be on the home city hex
-  if (unit.position.q !== homeCity.position.q || unit.position.r !== homeCity.position.r) {
+  // Unit must be within hex distance 1 of home city
+  if (hexDistance(unit.position, homeCity.position) > 1) {
     return false;
   }
 
@@ -105,8 +106,13 @@ export function performSacrifice(
   log(trace, `${getUnitName(unit, state)} SACRIFICED at ${faction.name} capital!`);
   log(trace, `  Transferred domains: ${learnedDomains.join(', ')}`);
 
-  // Step 1: Remove unit from the game
-  let current = removeUnit(state, unitId, factionId);
+  // Step 1: Keep unit but strip learned abilities (non-destructive sacrifice)
+  const units = new Map(state.units);
+  units.set(unitId, {
+    ...unit,
+    learnedAbilities: [],
+  });
+  let current: GameState = { ...state, units };
 
   // Step 2: Add learned domains to faction (if not already present)
   const newLearnedDomains = [...faction.learnedDomains];

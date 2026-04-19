@@ -11,10 +11,10 @@ import { rngNextFloat } from '../core/rng.js';
 import { hexDistance } from '../core/grid.js';
 
 const LEARN_CHANCE_BY_VETERAN_LEVEL: Record<string, number> = {
-  green: 0.10,
-  seasoned: 0.18,
-  veteran: 0.24,
-  elite: 0.35,
+  green: 0.25,
+  seasoned: 0.40,
+  veteran: 0.55,
+  elite: 0.70,
 };
 const MAX_LEARNED_ABILITIES = 3;
 
@@ -35,7 +35,7 @@ export interface LearnFromCityCaptureResult {
 
 /**
  * Calculate the learn chance based on veteran's level.
- * Green: 10%, Seasoned: 18%, Veteran: 24%, Elite: 35%
+ * Green: 25%, Seasoned: 40%, Veteran: 55%, Elite: 70%
  */
 function calculateLearnChance(veteranLevel: string): number {
   return LEARN_CHANCE_BY_VETERAN_LEVEL[veteranLevel] ?? LEARN_CHANCE_BY_VETERAN_LEVEL.green;

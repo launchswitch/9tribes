@@ -16,18 +16,35 @@ import {
 import { getCitySiteBonuses, getSettlementOccupancyBlocker } from './citySiteSystem.js';
 
 const BASE_VILLAGE_SPAWN_GAP = 4;
+const VILLAGES_PER_CITY_CAP = 6;
 
 export type VillageSpawnReadiness = {
   eligible: boolean;
   cityExists: boolean;
   cooldownMet: boolean;
   validSpawnHex: boolean;
+  villageCapMet: boolean;
   latestVillageRound: number | null;
   roundsUntilCooldownReady: number;
 };
 
 function getVillageSpawnInterval(state: GameState, city: City): number {
   return Math.max(1, BASE_VILLAGE_SPAWN_GAP - getCitySiteBonuses(city, state.map).villageCooldownReduction);
+}
+
+/**
+ * Count villages within a city's territory radius belonging to the same faction.
+ */
+export function countVillagesInCityTerritory(state: GameState, city: City): number {
+  const hexes = getHexesInRange(city.position, city.territoryRadius);
+  const hexSet = new Set(hexes.map(h => `${h.q},${h.r}`));
+  let count = 0;
+  for (const village of state.villages.values()) {
+    if (village.factionId === city.factionId && hexSet.has(`${village.position.q},${village.position.r}`)) {
+      count++;
+    }
+  }
+  return count;
 }
 
 /**
@@ -53,6 +70,7 @@ export function getVillageSpawnReadiness(
       cityExists: false,
       cooldownMet: false,
       validSpawnHex: false,
+      villageCapMet: false,
       latestVillageRound: null,
       roundsUntilCooldownReady: 0,
     };
@@ -63,12 +81,15 @@ export function getVillageSpawnReadiness(
   const roundsSinceLastSpawn = latestVillageRound === null ? state.round : state.round - latestVillageRound;
   const cooldownMet = roundsSinceLastSpawn >= requiredCooldownGap;
   const validSpawnHex = registry ? findVillageSpawnHexForCity(state, city, registry) !== null : false;
+  const villageCount = countVillagesInCityTerritory(state, city);
+  const villageCapMet = villageCount < VILLAGES_PER_CITY_CAP;
 
   return {
-    eligible: cooldownMet && validSpawnHex,
+    eligible: cooldownMet && validSpawnHex && villageCapMet,
     cityExists: true,
     cooldownMet,
     validSpawnHex,
+    villageCapMet,
     latestVillageRound,
     roundsUntilCooldownReady: cooldownMet ? 0 : Math.max(0, requiredCooldownGap - roundsSinceLastSpawn),
   };
@@ -249,4 +270,24 @@ export function destroyVillage(state: GameState, villageId: VillageId): GameStat
     villages: newVillages,
     factions: newFactions,
   }, factionId);
+}
+
+/**
+ * Destroy all villages within a city's territory radius.
+ * Used when a city is razed to clean up its supporting villages.
+ */
+export function destroyVillagesInCityTerritory(state: GameState, city: City): GameState {
+  const hexes = getHexesInRange(city.position, city.territoryRadius);
+  const hexSet = new Set(hexes.map(h => `${h.q},${h.r}`));
+  const toDestroy: VillageId[] = [];
+  for (const village of state.villages.values()) {
+    if (hexSet.has(`${village.position.q},${village.position.r}`)) {
+      toDestroy.push(village.id);
+    }
+  }
+  let result = state;
+  for (const villageId of toDestroy) {
+    result = destroyVillage(result, villageId);
+  }
+  return result;
 }

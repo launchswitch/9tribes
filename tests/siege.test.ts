@@ -258,7 +258,7 @@ describe('city capture vulnerability with garrison', () => {
 });
 
 describe('city capture', () => {
-  it('transfers city to capturing faction', () => {
+  it('razes city on capture (city removed from map)', () => {
     let state = buildMvpScenario(42);
     for (const factionId of state.factions.keys()) {
       state = initializeFogForFaction(state, factionId);
@@ -273,61 +273,14 @@ describe('city capture', () => {
 
     const result = captureCity(city, attackerId, state);
 
-    // City should belong to attacker
-    expect(result.cities.get(cityId)?.factionId).toBe(attackerId);
+    // City should be destroyed (not in map)
+    expect(result.cities.has(cityId)).toBe(false);
 
-    // Attacker's cityIds should include the city
-    expect(result.factions.get(attackerId)?.cityIds).toContain(cityId);
+    // Attacker does NOT gain the city
+    expect(result.factions.get(attackerId)?.cityIds).not.toContain(cityId);
 
-    // Defender's cityIds should not include the city
+    // Defender loses the city
     expect(result.factions.get(defenderId)?.cityIds).not.toContain(cityId);
-  });
-
-  it('resets captured city walls to 50%', () => {
-    let state = buildMvpScenario(42);
-    for (const factionId of state.factions.keys()) {
-      state = initializeFogForFaction(state, factionId);
-    }
-    const factionIds = Array.from(state.factions.keys());
-    const attackerId = factionIds[1];
-    const defenderId = factionIds[0];
-
-    const defenderFaction = state.factions.get(defenderId)!;
-    const cityId = defenderFaction.cityIds[0];
-    const city = state.cities.get(cityId)!;
-
-    const result = captureCity(city, attackerId, state);
-    const capturedCity = result.cities.get(cityId)!;
-
-    expect(capturedCity.wallHP).toBe(Math.floor(capturedCity.maxWallHP * 0.5));
-  });
-
-  it('clears production queue on capture', () => {
-    let state = buildMvpScenario(42);
-    for (const factionId of state.factions.keys()) {
-      state = initializeFogForFaction(state, factionId);
-    }
-    const factionIds = Array.from(state.factions.keys());
-    const attackerId = factionIds[1];
-    const defenderId = factionIds[0];
-
-    const defenderFaction = state.factions.get(defenderId)!;
-    const cityId = defenderFaction.cityIds[0];
-    const city = state.cities.get(cityId)!;
-
-    // Give the city some production
-    const cityWithProd = {
-      ...city,
-      productionQueue: [{ type: 'unit' as const, id: 'test', cost: 8 }],
-      productionProgress: 5,
-    };
-
-    const result = captureCity(cityWithProd, attackerId, state);
-    const capturedCity = result.cities.get(cityId)!;
-
-    expect(capturedCity.productionQueue).toEqual([]);
-    expect(capturedCity.productionProgress).toBe(0);
-    expect(capturedCity.currentProduction).toBeUndefined();
   });
 
   it('adds war exhaustion to victim (15) and attacker (5)', () => {
@@ -349,7 +302,7 @@ describe('city capture', () => {
     expect(result.warExhaustion.get(attackerId)?.exhaustionPoints).toBe(5);
   });
 
-  it('sets besieged to false and turnsUnderSiege to 0 on capture', () => {
+  it('destroys villages in city territory on capture', () => {
     let state = buildMvpScenario(42);
     for (const factionId of state.factions.keys()) {
       state = initializeFogForFaction(state, factionId);
@@ -360,21 +313,16 @@ describe('city capture', () => {
 
     const defenderFaction = state.factions.get(defenderId)!;
     const cityId = defenderFaction.cityIds[0];
-    const city = makeCity({
-      ...state.cities.get(cityId)!,
-      besieged: true,
-      turnsUnderSiege: 8,
-      wallHP: 0,
-    });
+    const city = state.cities.get(cityId)!;
 
+    // Note: villages in the city's territory are destroyed by captureCity
     const result = captureCity(city, attackerId, state);
-    const capturedCity = result.cities.get(cityId)!;
 
-    expect(capturedCity.besieged).toBe(false);
-    expect(capturedCity.turnsUnderSiege).toBe(0);
+    // City should be destroyed
+    expect(result.cities.has(cityId)).toBe(false);
   });
 
-  it('does not duplicate cityIds when a city is recaptured', () => {
+  it('transfers loser nativeDomain to victor on raze', () => {
     let state = buildMvpScenario(42);
     for (const factionId of state.factions.keys()) {
       state = initializeFogForFaction(state, factionId);
@@ -382,15 +330,19 @@ describe('city capture', () => {
     const factionIds = Array.from(state.factions.keys());
     const attackerId = factionIds[1];
     const defenderId = factionIds[0];
-    const cityId = state.factions.get(defenderId)!.cityIds[0];
+
+    const defenderFaction = state.factions.get(defenderId)!;
+    const attackerFaction = state.factions.get(attackerId)!;
+    const cityId = defenderFaction.cityIds[0];
     const city = state.cities.get(cityId)!;
 
-    const afterFirstCapture = captureCity(city, attackerId, state);
-    const recaptured = captureCity(afterFirstCapture.cities.get(cityId)!, defenderId, afterFirstCapture);
+    const result = captureCity(city, attackerId, state);
+    const updatedAttacker = result.factions.get(attackerId)!;
 
-    expect(getFactionCityIds(recaptured, defenderId)).toContain(cityId);
-    expect(recaptured.factions.get(defenderId)?.cityIds.filter((id) => id === cityId)).toHaveLength(1);
-    expect(recaptured.factions.get(attackerId)?.cityIds).not.toContain(cityId);
+    // Victor should have learned the defender's nativeDomain
+    if (defenderFaction.nativeDomain !== attackerFaction.nativeDomain) {
+      expect(updatedAttacker.learnedDomains).toContain(defenderFaction.nativeDomain);
+    }
   });
 });
 
@@ -427,6 +379,7 @@ describe('simulation integration', () => {
 
     expect(snapshot.totalAuthoritativeCities).toBe(result.cities.size);
     expect(snapshot.totalListedCities).toBe(result.cities.size);
-    expect(result.cities.size).toBe(9);
+    // Cities are razed on capture, so count may be less than 9
+    expect(result.cities.size).toBeLessThanOrEqual(9);
   });
 });

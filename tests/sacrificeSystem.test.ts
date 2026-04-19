@@ -30,5 +30,11 @@ describe('sacrifice progression', () => {
     expect(updatedResearch.completedNodes.includes('fortress_t1' as never)).toBe(true);
     expect(updatedResearch.completedNodes.includes('fortress_t2' as never)).toBe(false);
     expect(updatedResearch.completedNodes.includes('fortress_t3' as never)).toBe(false);
+
+    // Non-destructive sacrifice: unit survives with abilities stripped
+    const survivingUnit = next.units.get(unitId);
+    expect(survivingUnit).toBeDefined();
+    expect(survivingUnit!.learnedAbilities).toEqual([]);
+    expect(survivingUnit!.hp).toBeGreaterThan(0);
   });
 });

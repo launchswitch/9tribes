@@ -4,8 +4,10 @@
 import type { GameState } from '../game/types.js';
 import type { FactionId } from '../types.js';
 import type { Faction } from '../features/factions/types.js';
+import type { RulesRegistry } from '../data/registry/types.js';
 import abilityDomainsData from '../content/base/ability-domains.json' with { type: 'json' };
 import pairSynergiesData from '../content/base/pair-synergies.json' with { type: 'json' };
+import { autoCompleteResearchForDomains } from './sacrificeSystem.js';
 
 // Domain tags to domain ID mapping (built from ability-domains.json)
 type DomainConfig = {
@@ -20,7 +22,7 @@ const DOMAINS = abilityDomainsData.domains as Record<string, DomainConfig>;
 
 // Exposure thresholds: how many points needed to learn each successive domain
 // Index 0 = first foreign domain (after native), index 1 = second, index 2 = third
-const EXPOSURE_THRESHOLDS = [100, 150, 200] as const;
+const EXPOSURE_THRESHOLDS = [10, 20, 35] as const;
 
 // Maximum number of domains a faction can learn (including native)
 export const MAX_LEARNED_DOMAINS = 3;
@@ -96,7 +98,8 @@ export function gainExposure(
   factionId: FactionId,
   domainId: string,
   amount: number,
-  trace?: { lines: string[] }
+  trace?: { lines: string[] },
+  registry?: RulesRegistry
 ): GameState {
   const faction = state.factions.get(factionId);
   if (!faction) return state;
@@ -127,13 +130,14 @@ export function gainExposure(
 
   // If newly learned, update learnedDomains and clear exposure
   let newLearnedDomains = faction.learnedDomains;
+  let autoCompletedState = state;
   if (isNowLearned && !wasLearned) {
     newLearnedDomains = [...faction.learnedDomains, domainId];
-    
+
     // Get the domain name for logging
     const domainName = DOMAINS[domainId]?.name ?? domainId;
     const sourceFactionNative = DOMAINS[domainId]?.nativeFaction ?? 'unknown';
-    
+
     trace?.lines.push(`${faction.name} has learned ${domainName} from ${sourceFactionNative} through exposure!`);
 
     // Check for synergy with existing learned domains
@@ -150,18 +154,23 @@ export function gainExposure(
         break; // Only log once per new domain learned
       }
     }
+
+    // H-3-4-1: Auto-complete T1 research when exposure learns a domain
+    if (registry) {
+      autoCompletedState = autoCompleteResearchForDomains(state, factionId, [domainId], registry, trace as import('./warEcologySimulation.js').SimulationTrace | undefined);
+    }
   }
 
-  // Update faction state
-  const factions = new Map(state.factions);
+  // Update faction state (use autoCompletedState if research was updated)
+  const factions = new Map(autoCompletedState.factions);
   factions.set(factionId, {
-    ...faction,
+    ...(autoCompletedState.factions.get(factionId) ?? faction),
     exposureProgress: newExposureProgress,
     learnedDomains: newLearnedDomains,
   });
 
   return {
-    ...state,
+    ...autoCompletedState,
     factions,
   };
 }

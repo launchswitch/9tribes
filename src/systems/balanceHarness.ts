@@ -14,6 +14,7 @@ import {
 } from './factionOwnershipSystem.js';
 import { calculatePrototypeCost, getDomainIdsByTags } from './knowledgeSystem.js';
 import { getAvailableProductionPrototypes, getCityProductionYield, getPrototypeCostType, getUnitCost } from './productionSystem.js';
+import { getDomainProgression } from './domainProgression.js';
 import {
   createSimulationTrace,
   getVictoryStatus,
@@ -85,6 +86,12 @@ export interface FactionBaseMetrics {
   unitsByPrototypeId: Record<string, number>;
   stalledProduction: FactionProductionStallMarker[];
   unitComposition: UnitComposition;
+  learnedDomainCount: number;
+  t1DomainCount: number;
+  t2DomainCount: number;
+  t3DomainCount: number;
+  activeTripleStack: string | null;
+  unitsWithLearnedAbilities: number;
 }
 
 export interface FactionSeedMetrics extends FactionBaseMetrics {
@@ -133,6 +140,12 @@ export interface FactionBatchMetrics {
   avgUnitComposition: UnitComposition;
   avgArmySizeAtTurn20: number;
   gamesWithEmergentRuleBeforeOpponent: number;
+  avgLearnedDomainCount: number;
+  avgT1DomainCount: number;
+  avgT2DomainCount: number;
+  avgT3DomainCount: number;
+  gamesWithActiveTripleStack: number;
+  avgUnitsWithLearnedAbilities: number;
 }
 
 export interface BatchBalanceSummary {
@@ -207,8 +220,8 @@ function countTraceEvents(trace: SimulationTrace): SeedEventCounts {
     villagesRazored: trace.lines.filter((line) => line.includes('razed')).length,
     siegesStarted: trace.lines.filter((line) => line.includes('is now besieged')).length,
     siegeBreaks: trace.lines.filter((line) => line.includes('siege broken')).length,
-    codificationsStarted: trace.lines.filter((line) => line.includes('starts codifying')).length,
-    codificationsCompleted: trace.lines.filter((line) => line.includes(' codified ')).length,
+    codificationsStarted: trace.lines.filter((line) => line.includes('starts research on')).length,
+    codificationsCompleted: trace.lines.filter((line) => line.includes('Codified ')).length,
     poisonTicks: trace.lines.filter((line) => line.includes('suffers poison')).length,
     jungleAttrition: trace.lines.filter((line) => line.includes('suffers jungle attrition')).length,
     villageCaptures: trace.lines.filter((line) => line.includes('CAPTURED village')).length,
@@ -406,6 +419,12 @@ function getFactionMetrics(
       unitsByPrototypeId: {},
       stalledProduction: [],
       unitComposition: { byChassis: {}, byRole: {} },
+      learnedDomainCount: 0,
+      t1DomainCount: 0,
+      t2DomainCount: 0,
+      t3DomainCount: 0,
+      activeTripleStack: null,
+      unitsWithLearnedAbilities: 0,
     };
   }
 
@@ -437,6 +456,12 @@ function getFactionMetrics(
 
   const unitComposition = collectUnitComposition(state, livingUnits);
 
+  const research = state.research.get(factionId);
+  const progression = getDomainProgression(faction, research);
+  const unitsWithLearnedAbilities = livingUnits.filter((unit) =>
+    (unit.learnedAbilities?.length ?? 0) > 0
+  ).length;
+
   return {
     factionId,
     livingUnits: livingUnits.length,
@@ -467,6 +492,12 @@ function getFactionMetrics(
     unitsByPrototypeId,
     stalledProduction: getStalledProductionMetrics(state, factionId),
     unitComposition,
+    learnedDomainCount: progression.learnedDomainCount,
+    t1DomainCount: progression.t1Domains.length,
+    t2DomainCount: progression.t2Domains.length,
+    t3DomainCount: progression.t3Domains.length,
+    activeTripleStack: faction.activeTripleStack?.name ?? null,
+    unitsWithLearnedAbilities,
   };
 }
 
@@ -693,6 +724,12 @@ export function runBalanceHarness(
             const minOpponent = Math.min(...allRounds);
             return myRound <= minOpponent;
           }).length,
+          avgLearnedDomainCount: roundMetric(factionRuns.reduce((sum, run) => sum + run.learnedDomainCount, 0) / runs.length),
+          avgT1DomainCount: roundMetric(factionRuns.reduce((sum, run) => sum + run.t1DomainCount, 0) / runs.length),
+          avgT2DomainCount: roundMetric(factionRuns.reduce((sum, run) => sum + run.t2DomainCount, 0) / runs.length),
+          avgT3DomainCount: roundMetric(factionRuns.reduce((sum, run) => sum + run.t3DomainCount, 0) / runs.length),
+          gamesWithActiveTripleStack: runs.filter((run) => run.factions[factionId]?.activeTripleStack != null).length,
+          avgUnitsWithLearnedAbilities: roundMetric(factionRuns.reduce((sum, run) => sum + run.unitsWithLearnedAbilities, 0) / runs.length),
         } satisfies FactionBatchMetrics,
       ];
     })

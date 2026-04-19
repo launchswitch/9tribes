@@ -8,6 +8,7 @@ import { getDomainProgression } from '../domainProgression.js';
 import { MAX_LEARNED_DOMAINS } from '../knowledgeSystem.js';
 import { getSynergyEngine } from '../synergyRuntime.js';
 import { getFactionCityIds, syncAllFactionSettlementIds } from '../factionOwnershipSystem.js';
+import { destroyVillagesInCityTerritory } from '../villageSystem.js';
 
 export function maybeAbsorbFaction(
   state: GameState,
@@ -87,18 +88,14 @@ export function maybeAbsorbFaction(
     }
   }
 
+  // Raze defeated faction's cities and destroy their villages
+  let razeState = current;
   const newCities = new Map(current.cities);
   for (const cityId of getFactionCityIds(current, defeatedFactionId)) {
     const city = current.cities.get(cityId);
     if (city) {
-      newCities.set(cityId, { ...city, factionId: victorFactionId, turnsSinceCapture: 0 });
-    }
-  }
-
-  const newVillages = new Map(current.villages);
-  for (const village of current.villages.values()) {
-    if (village.factionId === defeatedFactionId) {
-      newVillages.set(village.id, { ...village, factionId: victorFactionId });
+      razeState = destroyVillagesInCityTerritory(razeState, city);
+      newCities.delete(cityId);
     }
   }
 
@@ -111,9 +108,8 @@ export function maybeAbsorbFaction(
 
   return {
     state: syncAllFactionSettlementIds({
-      ...current,
+      ...razeState,
       cities: newCities,
-      villages: newVillages,
       factions: newFactions,
     }),
     absorbedDomains,

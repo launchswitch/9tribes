@@ -16,6 +16,8 @@ import {
   canCompleteCurrentProduction,
   completeProduction,
   getAvailableProductionPrototypes,
+  getProjectedSupplyDemandWithPrototype,
+  isSettlerPrototype,
   queueUnit,
 } from '../productionSystem.js';
 import { chooseStrategicProduction } from '../aiProductionStrategy.js';
@@ -54,6 +56,7 @@ import { evaluateAndSpawnVillage } from '../villageSystem.js';
 import { isCityEncircled, isEncirclementBroken } from '../territorySystem.js';
 import { applyEcologyPressure, applyForceCompositionPressure } from '../capabilitySystem.js';
 import { getDomainProgression } from '../domainProgression.js';
+import { gainExposure } from '../knowledgeSystem.js';
 import {
   computeFactionStrategy,
 } from '../strategicAi.js';
@@ -639,6 +642,21 @@ export function processFactionPhases(
     if (!updatedCity.currentProduction && updatedCity.productionQueue.length === 0 && !updatedCity.besieged) {
       const choice = chooseStrategicProduction(current, factionId, strategy, registry, difficulty);
       if (choice) {
+        // Supply gate: don't produce military units if projected demand would exceed income.
+        // Settlers are exempt (they cost villages, not supply upkeep).
+        const prototype = current.prototypes.get(choice.prototypeId as never);
+        const isSettler = prototype && isSettlerPrototype(prototype);
+        if (!isSettler) {
+          const economy = current.economy.get(factionId);
+          if (economy && prototype) {
+            const projectedDemand = getProjectedSupplyDemandWithPrototype(current, factionId, prototype, registry);
+            if (projectedDemand > economy.supplyIncome) {
+              log(trace, `${faction.name} skipped ${choice.chassisId} — supply capped (${projectedDemand.toFixed(1)} demand > ${economy.supplyIncome.toFixed(1)} income)`);
+              citiesMap.set(cityId, updatedCity);
+              continue;
+            }
+          }
+        }
         updatedCity = queueUnit(updatedCity, choice.prototypeId, choice.chassisId, choice.cost, choice.costType);
         log(trace, `${faction.name} queued ${choice.chassisId} at ${updatedCity.name} (${choice.reason})`);
       }
@@ -773,6 +791,32 @@ export function processFactionPhases(
     unitsMap.set(unitIdStr as UnitId, updatedUnit);
   }
   current = { ...current, units: unitsMap };
+
+  // H-1-2-2: Gain exposure from proximity to enemy units
+  const exposureFaction = current.factions.get(factionId);
+  if (exposureFaction) {
+    // Collect unique enemy native domains seen by friendly units within distance 2
+    const seenEnemyDomains = new Map<string, number>(); // domainId -> contact count
+    for (const fid of exposureFaction.unitIds) {
+      const fUnit = current.units.get(fid as UnitId);
+      if (!fUnit || fUnit.hp <= 0) continue;
+      for (const [enemyId, enemyUnit] of current.units) {
+        if (enemyUnit.factionId === factionId || enemyUnit.hp <= 0) continue;
+        if (hexDistance(fUnit.position, enemyUnit.position) <= 2) {
+          const enemyFaction = current.factions.get(enemyUnit.factionId);
+          if (enemyFaction) {
+            const domain = enemyFaction.nativeDomain;
+            seenEnemyDomains.set(domain, (seenEnemyDomains.get(domain) ?? 0) + 1);
+          }
+        }
+      }
+    }
+    for (const [domainId, contactCount] of seenEnemyDomains) {
+      // No cap — rapid domain learning during heavy combat (H-2-4-5)
+      const amount = contactCount;
+      current = gainExposure(current, factionId, domainId, amount, trace, registry);
+    }
+  }
 
   const refreshedFactionForSacrifice = current.factions.get(factionId);
   if (refreshedFactionForSacrifice) {

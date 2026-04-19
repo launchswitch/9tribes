@@ -241,8 +241,8 @@ export function resolveCombat(
   // 9. Check for rout
   const defenderNewMorale = defender.morale - defenderMoraleLoss;
   const attackerNewMorale = attacker.morale - attackerMoraleLoss;
-  const defenderRouted = !defenderDestroyed && defenderNewMorale <= 25;
-  const attackerRouted = !attackerDestroyed && attackerNewMorale <= 25;
+  const defenderRouted = !defenderDestroyed && defenderNewMorale <= MORALE_CONFIG.ROUT_THRESHOLD;
+  const attackerRouted = !attackerDestroyed && attackerNewMorale <= MORALE_CONFIG.ROUT_THRESHOLD;
 
   // 9b. Cavalry flee: mounted units route at 50% HP (can run away faster)
   // Elephants flee at 35% HP — stubborn war animals but not invincible

@@ -63,3 +63,4 @@ nul
 *.timestamp-*.mjs
 .aionrs/sessions
 .slim/
+.thinking-machine/

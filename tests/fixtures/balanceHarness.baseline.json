@@ -1,402 +1,457 @@
 {
-  "summary": {
-    "seeds": [
-      11,
-      23,
-      37,
-      41,
-      59,
-      73,
-      89,
-      97,
-      101,
-      131
-    ],
-    "maxTurns": 150,
-    "mapMode": "fixed",
-    "totalSeeds": 10,
-    "decisiveGames": 0,
-    "unresolvedGames": 10,
-    "avgFinalRound": 151,
-    "avgLivingUnits": 46.6,
-    "avgRoutedUnits": 1.4,
-    "avgTotalWarExhaustion": 950.64,
-    "totalBattles": 1129,
-    "totalKills": 293,
-    "totalCityCaptures": 25,
-    "totalVillagesRazored": 35,
-    "totalSiegesStarted": 55,
-    "totalSiegeBreaks": 29,
-    "totalCodificationsStarted": 1358,
-    "totalCodificationsCompleted": 1328,
-    "totalPoisonTicks": 56,
-    "totalJungleAttrition": 10,
-    "totalVillageCaptures": 0,
-    "totalUnitCaptures": 8,
-    "mapArchetypes": {
-      "harsh_frontier": 3,
-      "coastal": 7
-    },
-    "factions": {
-      "jungle_clan": {
-        "factionId": "jungle_clan",
-        "wins": 0,
-        "avgLivingUnits": 7.7,
-        "avgCities": 1.4,
-        "avgVillages": 5.3,
-        "avgWarExhaustion": 109.67,
-        "avgCapabilityTotal": 50755.929,
-        "avgUnlockedRecipes": 2,
-        "avgRoutedUnits": 0.1,
-        "avgSignatureUnits": 3.2,
-        "avgHomeTerrainUnits": 1.8,
-        "avgUnitComposition": {
-          "byChassis": {
-            "ranged_frame": 5.3,
-            "infantry_frame": 2.2,
-            "cavalry_frame": 0.1,
-            "serpent_frame": 0.1
-          },
-          "byRole": {
-            "ranged": 5.3,
-            "melee": 2.3,
-            "mounted": 0.1
-          }
-        }
-      },
-      "druid_circle": {
-        "factionId": "druid_circle",
-        "wins": 0,
-        "avgLivingUnits": 5.2,
-        "avgCities": 1,
-        "avgVillages": 2.3,
-        "avgWarExhaustion": 127.24,
-        "avgCapabilityTotal": 85625.422,
-        "avgUnlockedRecipes": 2,
-        "avgRoutedUnits": 0.1,
-        "avgSignatureUnits": 1.8,
-        "avgHomeTerrainUnits": 3.7,
-        "avgUnitComposition": {
-          "byChassis": {
-            "ranged_frame": 1.8,
-            "infantry_frame": 3.4
-          },
-          "byRole": {
-            "ranged": 1.8,
-            "melee": 3.4
-          }
-        }
-      },
-      "steppe_clan": {
-        "factionId": "steppe_clan",
-        "wins": 0,
-        "avgLivingUnits": 1.4,
-        "avgCities": 0.5,
-        "avgVillages": 1.8,
-        "avgWarExhaustion": 11.33,
-        "avgCapabilityTotal": 4761.053,
-        "avgUnlockedRecipes": 1.9,
-        "avgRoutedUnits": 0.1,
-        "avgSignatureUnits": 0.2,
-        "avgHomeTerrainUnits": 0.9,
-        "avgUnitComposition": {
-          "byChassis": {
-            "cavalry_frame": 0.5,
-            "infantry_frame": 0.7,
-            "warlord_frame": 0.2
-          },
-          "byRole": {
-            "mounted": 0.5,
-            "melee": 0.9
-          }
-        }
-      },
-      "hill_clan": {
-        "factionId": "hill_clan",
-        "wins": 0,
-        "avgLivingUnits": 5.2,
-        "avgCities": 1,
-        "avgVillages": 1.3,
-        "avgWarExhaustion": 31,
-        "avgCapabilityTotal": 32266.396,
-        "avgUnlockedRecipes": 3,
-        "avgRoutedUnits": 0.6,
-        "avgSignatureUnits": 2.9,
-        "avgHomeTerrainUnits": 5.2,
-        "avgUnitComposition": {
-          "byChassis": {
-            "infantry_frame": 2.3,
-            "catapult_frame": 2.9
-          },
-          "byRole": {
-            "melee": 2.3,
-            "ranged": 2.9
-          }
-        }
-      },
-      "coral_people": {
-        "factionId": "coral_people",
-        "wins": 0,
-        "avgLivingUnits": 0.5,
-        "avgCities": 0.1,
-        "avgVillages": 0.3,
-        "avgWarExhaustion": 0,
-        "avgCapabilityTotal": 3201.926,
-        "avgUnlockedRecipes": 0,
-        "avgRoutedUnits": 0,
-        "avgSignatureUnits": 0,
-        "avgHomeTerrainUnits": 0.2,
-        "avgUnitComposition": {
-          "byChassis": {
-            "ranged_naval_frame": 0.2,
-            "camel_frame": 0.1,
-            "infantry_frame": 0.2
-          },
-          "byRole": {
-            "ranged": 0.2,
-            "mounted": 0.1,
-            "melee": 0.2
-          }
-        }
-      },
-      "desert_nomads": {
-        "factionId": "desert_nomads",
-        "wins": 0,
-        "avgLivingUnits": 3,
-        "avgCities": 0.8,
-        "avgVillages": 3.3,
-        "avgWarExhaustion": 0,
-        "avgCapabilityTotal": 37295.41,
-        "avgUnlockedRecipes": 1.7,
-        "avgRoutedUnits": 0,
-        "avgSignatureUnits": 1.2,
-        "avgHomeTerrainUnits": 0,
-        "avgUnitComposition": {
-          "byChassis": {
-            "ranged_frame": 1.8,
-            "camel_frame": 1.2
-          },
-          "byRole": {
-            "ranged": 1.8,
-            "mounted": 1.2
-          }
-        }
-      },
-      "savannah_lions": {
-        "factionId": "savannah_lions",
-        "wins": 0,
-        "avgLivingUnits": 6.2,
-        "avgCities": 1,
-        "avgVillages": 3.2,
-        "avgWarExhaustion": 134.14,
-        "avgCapabilityTotal": 11471.028,
-        "avgUnlockedRecipes": 1,
-        "avgRoutedUnits": 0,
-        "avgSignatureUnits": 0.8,
-        "avgHomeTerrainUnits": 3,
-        "avgUnitComposition": {
-          "byChassis": {
-            "ranged_frame": 3.9,
-            "infantry_frame": 1.3,
-            "elephant_frame": 0.8,
-            "lion_frame": 0.2
-          },
-          "byRole": {
-            "ranged": 3.9,
-            "melee": 1.5,
-            "mounted": 0.8
-          }
-        }
-      },
-      "plains_riders": {
-        "factionId": "plains_riders",
-        "wins": 0,
-        "avgLivingUnits": 10.8,
-        "avgCities": 2.1,
-        "avgVillages": 3.6,
-        "avgWarExhaustion": 324.76,
-        "avgCapabilityTotal": 41059.871,
-        "avgUnlockedRecipes": 2,
-        "avgRoutedUnits": 0.3,
-        "avgSignatureUnits": 5,
-        "avgHomeTerrainUnits": 0.7,
-        "avgUnitComposition": {
-          "byChassis": {
-            "ranged_frame": 6.5,
-            "infantry_frame": 3.8,
-            "alligator_frame": 0.4,
-            "ranged_naval_frame": 0.1
-          },
-          "byRole": {
-            "ranged": 6.6,
-            "melee": 4.2
-          }
-        }
-      },
-      "frost_wardens": {
-        "factionId": "frost_wardens",
-        "wins": 0,
-        "avgLivingUnits": 6.6,
-        "avgCities": 1.1,
-        "avgVillages": 1.5,
-        "avgWarExhaustion": 212.5,
-        "avgCapabilityTotal": 140335.858,
-        "avgUnlockedRecipes": 2,
-        "avgRoutedUnits": 0.2,
-        "avgSignatureUnits": 3,
-        "avgHomeTerrainUnits": 1.9,
-        "avgUnitComposition": {
-          "byChassis": {
-            "ranged_frame": 5,
-            "infantry_frame": 1.3,
-            "polar_bear_frame": 0.3
-          },
-          "byRole": {
-            "ranged": 5,
-            "melee": 1.6
-          }
-        }
-      }
-    }
+  "seeds": [
+    11,
+    23,
+    37,
+    41,
+    59,
+    73,
+    89,
+    97,
+    101,
+    131
+  ],
+  "maxTurns": 150,
+  "mapMode": "fixed",
+  "totalSeeds": 10,
+  "decisiveGames": 0,
+  "unresolvedGames": 10,
+  "avgFinalRound": 151,
+  "avgLivingUnits": 67.8,
+  "avgRoutedUnits": 0.9,
+  "avgTotalWarExhaustion": 1121.8,
+  "totalBattles": 928,
+  "totalKills": 458,
+  "totalCityCaptures": 11,
+  "totalVillagesRazored": 0,
+  "totalSiegesStarted": 48,
+  "totalSiegeBreaks": 36,
+  "totalCodificationsStarted": 421,
+  "totalCodificationsCompleted": 124,
+  "totalPoisonTicks": 128,
+  "totalJungleAttrition": 629,
+  "totalVillageCaptures": 0,
+  "totalUnitCaptures": 1,
+  "mapArchetypes": {
+    "harsh_frontier": 2,
+    "coastal": 8
   },
-  "tolerances": {
-    "decisiveGames": 2,
-    "unresolvedGames": 2,
-    "avgFinalRound": 5,
-    "avgLivingUnits": 10,
-    "avgRoutedUnits": 2,
-    "avgTotalWarExhaustion": 200,
-    "totalBattles": 150,
-    "totalKills": 50,
-    "totalCityCaptures": 15,
-    "totalVillagesRazored": 15,
-    "totalSiegesStarted": 20,
-    "totalSiegeBreaks": 15,
-    "totalCodificationsStarted": 50,
-    "totalCodificationsCompleted": 50,
-    "totalPoisonTicks": 30,
-    "totalJungleAttrition": 50,
-    "totalVillageCaptures": 10,
-    "totalUnitCaptures": 10,
-    "mapArchetypes": {},
-    "factions": {
-      "jungle_clan": {
-        "wins": 1,
-        "avgLivingUnits": 3,
-        "avgCities": 1,
-        "avgVillages": 1,
-        "avgWarExhaustion": 50,
-        "avgCapabilityTotal": 50000,
-        "avgUnlockedRecipes": 3,
-        "avgRoutedUnits": 1,
-        "avgSignatureUnits": 3,
-        "avgHomeTerrainUnits": 3,
-        "avgUnitComposition": {}
+  "factions": {
+    "jungle_clan": {
+      "factionId": "jungle_clan",
+      "wins": 0,
+      "avgLivingUnits": 8.5,
+      "avgCities": 0.9,
+      "avgVillages": 5.4,
+      "avgWarExhaustion": 76.6,
+      "avgCapabilityTotal": 23073.253,
+      "avgUnlockedRecipes": 0,
+      "avgRoutedUnits": 0,
+      "avgSignatureUnits": 8.5,
+      "avgSignatureCapableUnits": 8.5,
+      "avgHybridUnits": 0,
+      "avgHomeTerrainUnits": 2.4,
+      "avgSupplyIncome": 11.475,
+      "avgSupplyDemand": 8.6,
+      "avgSupplyUtilizationRatio": 0.62,
+      "avgHighestAvailableProductionCost": 48,
+      "avgHighestFieldedProductionCost": 24,
+      "avgAverageFieldedProductionCost": 23.599,
+      "avgUnitsByPrototypeId": {
+        "prototype_3": 7.6,
+        "prototype_2": 0.9
       },
-      "druid_circle": {
-        "wins": 1,
-        "avgLivingUnits": 3,
-        "avgCities": 1,
-        "avgVillages": 1,
-        "avgWarExhaustion": 50,
-        "avgCapabilityTotal": 50000,
-        "avgUnlockedRecipes": 3,
-        "avgRoutedUnits": 1,
-        "avgSignatureUnits": 3,
-        "avgHomeTerrainUnits": 3,
-        "avgUnitComposition": {}
+      "avgStalledProductionCount": 0.8,
+      "avgUnitComposition": {
+        "byChassis": {
+          "ranged_frame": 7.6,
+          "infantry_frame": 0.9
+        },
+        "byRole": {
+          "ranged": 7.6,
+          "melee": 0.9
+        }
       },
-      "steppe_clan": {
-        "wins": 1,
-        "avgLivingUnits": 3,
-        "avgCities": 1,
-        "avgVillages": 1,
-        "avgWarExhaustion": 50,
-        "avgCapabilityTotal": 5000,
-        "avgUnlockedRecipes": 3,
-        "avgRoutedUnits": 1,
-        "avgSignatureUnits": 3,
-        "avgHomeTerrainUnits": 3,
-        "avgUnitComposition": {}
+      "avgArmySizeAtTurn20": 5.3,
+      "gamesWithEmergentRuleBeforeOpponent": 8,
+      "avgLearnedDomainCount": 2.8,
+      "avgT1DomainCount": 2.8,
+      "avgT2DomainCount": 2.7,
+      "avgT3DomainCount": 2.7,
+      "gamesWithActiveTripleStack": 10,
+      "avgUnitsWithLearnedAbilities": 0.9
+    },
+    "druid_circle": {
+      "factionId": "druid_circle",
+      "wins": 0,
+      "avgLivingUnits": 9.7,
+      "avgCities": 1,
+      "avgVillages": 6,
+      "avgWarExhaustion": 0.1,
+      "avgCapabilityTotal": 122015.396,
+      "avgUnlockedRecipes": 0,
+      "avgRoutedUnits": 0.1,
+      "avgSignatureUnits": 8.3,
+      "avgSignatureCapableUnits": 8.3,
+      "avgHybridUnits": 0.5,
+      "avgHomeTerrainUnits": 9.3,
+      "avgSupplyIncome": 11.45,
+      "avgSupplyDemand": 9.7,
+      "avgSupplyUtilizationRatio": 0.848,
+      "avgHighestAvailableProductionCost": 36.5,
+      "avgHighestFieldedProductionCost": 31.7,
+      "avgAverageFieldedProductionCost": 21.538,
+      "avgUnitsByPrototypeId": {
+        "prototype_5": 7.8,
+        "prototype_6": 1.4,
+        "druid_circle_healing_druids": 0.5
       },
-      "hill_clan": {
-        "wins": 1,
-        "avgLivingUnits": 3,
-        "avgCities": 1,
-        "avgVillages": 1,
-        "avgWarExhaustion": 50,
-        "avgCapabilityTotal": 50000,
-        "avgUnlockedRecipes": 3,
-        "avgRoutedUnits": 1,
-        "avgSignatureUnits": 3,
-        "avgHomeTerrainUnits": 3,
-        "avgUnitComposition": {}
+      "avgStalledProductionCount": 0.6,
+      "avgUnitComposition": {
+        "byChassis": {
+          "infantry_frame": 7.8,
+          "ranged_frame": 1.9
+        },
+        "byRole": {
+          "melee": 7.8,
+          "ranged": 1.9
+        }
       },
-      "coral_people": {
-        "wins": 1,
-        "avgLivingUnits": 3,
-        "avgCities": 1,
-        "avgVillages": 1,
-        "avgWarExhaustion": 50,
-        "avgCapabilityTotal": 5000,
-        "avgUnlockedRecipes": 3,
-        "avgRoutedUnits": 1,
-        "avgSignatureUnits": 3,
-        "avgHomeTerrainUnits": 3,
-        "avgUnitComposition": {}
+      "avgArmySizeAtTurn20": 6,
+      "gamesWithEmergentRuleBeforeOpponent": 0,
+      "avgLearnedDomainCount": 2.2,
+      "avgT1DomainCount": 2.2,
+      "avgT2DomainCount": 2.2,
+      "avgT3DomainCount": 2.1,
+      "gamesWithActiveTripleStack": 9,
+      "avgUnitsWithLearnedAbilities": 1.2
+    },
+    "steppe_clan": {
+      "factionId": "steppe_clan",
+      "wins": 0,
+      "avgLivingUnits": 7.2,
+      "avgCities": 0,
+      "avgVillages": 0,
+      "avgWarExhaustion": 1043.5,
+      "avgCapabilityTotal": 12780.34,
+      "avgUnlockedRecipes": 0,
+      "avgRoutedUnits": 0.7,
+      "avgSignatureUnits": 0,
+      "avgSignatureCapableUnits": 1.4,
+      "avgHybridUnits": 1.4,
+      "avgHomeTerrainUnits": 0.4,
+      "avgSupplyIncome": 0,
+      "avgSupplyDemand": 7.9,
+      "avgSupplyUtilizationRatio": 0,
+      "avgHighestAvailableProductionCost": 46.8,
+      "avgHighestFieldedProductionCost": 44.4,
+      "avgAverageFieldedProductionCost": 27.759,
+      "avgUnitsByPrototypeId": {
+        "prototype_8": 2.2,
+        "prototype_9": 3.6,
+        "steppe_clan_steppe_raiders": 1.4
       },
-      "desert_nomads": {
-        "wins": 1,
-        "avgLivingUnits": 3,
-        "avgCities": 1,
-        "avgVillages": 1,
-        "avgWarExhaustion": 50,
-        "avgCapabilityTotal": 50000,
-        "avgUnlockedRecipes": 3,
-        "avgRoutedUnits": 1,
-        "avgSignatureUnits": 3,
-        "avgHomeTerrainUnits": 3,
-        "avgUnitComposition": {}
+      "avgStalledProductionCount": 0,
+      "avgUnitComposition": {
+        "byChassis": {
+          "infantry_frame": 2.2,
+          "ranged_frame": 3.6,
+          "cavalry_frame": 1.4
+        },
+        "byRole": {
+          "melee": 2.2,
+          "ranged": 3.6,
+          "mounted": 1.4
+        }
       },
-      "savannah_lions": {
-        "wins": 1,
-        "avgLivingUnits": 3,
-        "avgCities": 1,
-        "avgVillages": 1,
-        "avgWarExhaustion": 50,
-        "avgCapabilityTotal": 20000,
-        "avgUnlockedRecipes": 3,
-        "avgRoutedUnits": 1,
-        "avgSignatureUnits": 3,
-        "avgHomeTerrainUnits": 3,
-        "avgUnitComposition": {}
+      "avgArmySizeAtTurn20": 5.9,
+      "gamesWithEmergentRuleBeforeOpponent": 1,
+      "avgLearnedDomainCount": 2.8,
+      "avgT1DomainCount": 2.8,
+      "avgT2DomainCount": 2.7,
+      "avgT3DomainCount": 2.7,
+      "gamesWithActiveTripleStack": 10,
+      "avgUnitsWithLearnedAbilities": 0.6
+    },
+    "hill_clan": {
+      "factionId": "hill_clan",
+      "wins": 0,
+      "avgLivingUnits": 5.8,
+      "avgCities": 0.9,
+      "avgVillages": 5.4,
+      "avgWarExhaustion": 1.6,
+      "avgCapabilityTotal": 30973.139,
+      "avgUnlockedRecipes": 0,
+      "avgRoutedUnits": 0,
+      "avgSignatureUnits": 4.6,
+      "avgSignatureCapableUnits": 4.6,
+      "avgHybridUnits": 3.9,
+      "avgHomeTerrainUnits": 5.8,
+      "avgSupplyIncome": 10.9,
+      "avgSupplyDemand": 8.4,
+      "avgSupplyUtilizationRatio": 0.742,
+      "avgHighestAvailableProductionCost": 48,
+      "avgHighestFieldedProductionCost": 43.2,
+      "avgAverageFieldedProductionCost": 22.12,
+      "avgUnitsByPrototypeId": {
+        "prototype_12": 1.2,
+        "hill_clan_fortress_archer": 1.6,
+        "hill_clan_catapult": 2.3,
+        "prototype_11": 0.7
       },
-      "plains_riders": {
-        "wins": 1,
-        "avgLivingUnits": 3,
-        "avgCities": 1,
-        "avgVillages": 1,
-        "avgWarExhaustion": 50,
-        "avgCapabilityTotal": 50000,
-        "avgUnlockedRecipes": 3,
-        "avgRoutedUnits": 1,
-        "avgSignatureUnits": 3,
-        "avgHomeTerrainUnits": 3,
-        "avgUnitComposition": {}
+      "avgStalledProductionCount": 0.5,
+      "avgUnitComposition": {
+        "byChassis": {
+          "ranged_frame": 2.8,
+          "catapult_frame": 2.3,
+          "infantry_frame": 0.7
+        },
+        "byRole": {
+          "ranged": 5.1,
+          "melee": 0.7
+        }
       },
-      "frost_wardens": {
-        "wins": 1,
-        "avgLivingUnits": 3,
-        "avgCities": 1,
-        "avgVillages": 1,
-        "avgWarExhaustion": 50,
-        "avgCapabilityTotal": 100000,
-        "avgUnlockedRecipes": 3,
-        "avgRoutedUnits": 1,
-        "avgSignatureUnits": 3,
-        "avgHomeTerrainUnits": 3,
-        "avgUnitComposition": {}
-      }
+      "avgArmySizeAtTurn20": 3.7,
+      "gamesWithEmergentRuleBeforeOpponent": 10,
+      "avgLearnedDomainCount": 3,
+      "avgT1DomainCount": 3,
+      "avgT2DomainCount": 2.9,
+      "avgT3DomainCount": 2.8,
+      "gamesWithActiveTripleStack": 10,
+      "avgUnitsWithLearnedAbilities": 1.6
+    },
+    "coral_people": {
+      "factionId": "coral_people",
+      "wins": 0,
+      "avgLivingUnits": 0.9,
+      "avgCities": 0.6,
+      "avgVillages": 3.6,
+      "avgWarExhaustion": 0,
+      "avgCapabilityTotal": 1076.331,
+      "avgUnlockedRecipes": 0,
+      "avgRoutedUnits": 0,
+      "avgSignatureUnits": 0,
+      "avgSignatureCapableUnits": 0.3,
+      "avgHybridUnits": 0,
+      "avgHomeTerrainUnits": 0,
+      "avgSupplyIncome": 12.79,
+      "avgSupplyDemand": 1.3,
+      "avgSupplyUtilizationRatio": 0.101,
+      "avgHighestAvailableProductionCost": 24,
+      "avgHighestFieldedProductionCost": 14.4,
+      "avgAverageFieldedProductionCost": 13.8,
+      "avgUnitsByPrototypeId": {
+        "prototype_14": 0.3,
+        "prototype_15": 0.6
+      },
+      "avgStalledProductionCount": 0.6,
+      "avgUnitComposition": {
+        "byChassis": {
+          "infantry_frame": 0.3,
+          "ranged_frame": 0.6
+        },
+        "byRole": {
+          "melee": 0.3,
+          "ranged": 0.6
+        }
+      },
+      "avgArmySizeAtTurn20": 1.9,
+      "gamesWithEmergentRuleBeforeOpponent": 2,
+      "avgLearnedDomainCount": 1.8,
+      "avgT1DomainCount": 1.8,
+      "avgT2DomainCount": 1.7,
+      "avgT3DomainCount": 1.5,
+      "gamesWithActiveTripleStack": 7,
+      "avgUnitsWithLearnedAbilities": 0
+    },
+    "desert_nomads": {
+      "factionId": "desert_nomads",
+      "wins": 0,
+      "avgLivingUnits": 8.7,
+      "avgCities": 1,
+      "avgVillages": 6,
+      "avgWarExhaustion": 0,
+      "avgCapabilityTotal": 14938.774,
+      "avgUnlockedRecipes": 0,
+      "avgRoutedUnits": 0,
+      "avgSignatureUnits": 7.7,
+      "avgSignatureCapableUnits": 7.7,
+      "avgHybridUnits": 3,
+      "avgHomeTerrainUnits": 2.3,
+      "avgSupplyIncome": 14,
+      "avgSupplyDemand": 12.55,
+      "avgSupplyUtilizationRatio": 0.897,
+      "avgHighestAvailableProductionCost": 40.8,
+      "avgHighestFieldedProductionCost": 38.4,
+      "avgAverageFieldedProductionCost": 32.49,
+      "avgUnitsByPrototypeId": {
+        "prototype_17": 1,
+        "prototype_18": 4.7,
+        "desert_nomads_camel_lancers": 3
+      },
+      "avgStalledProductionCount": 0.2,
+      "avgUnitComposition": {
+        "byChassis": {
+          "ranged_frame": 1,
+          "camel_frame": 7.7
+        },
+        "byRole": {
+          "ranged": 1,
+          "mounted": 7.7
+        }
+      },
+      "avgArmySizeAtTurn20": 5,
+      "gamesWithEmergentRuleBeforeOpponent": 0,
+      "avgLearnedDomainCount": 1.9,
+      "avgT1DomainCount": 1.9,
+      "avgT2DomainCount": 1.7,
+      "avgT3DomainCount": 1.7,
+      "gamesWithActiveTripleStack": 6,
+      "avgUnitsWithLearnedAbilities": 0.2
+    },
+    "savannah_lions": {
+      "factionId": "savannah_lions",
+      "wins": 0,
+      "avgLivingUnits": 8.1,
+      "avgCities": 1,
+      "avgVillages": 6,
+      "avgWarExhaustion": 0,
+      "avgCapabilityTotal": 19540.098,
+      "avgUnlockedRecipes": 0,
+      "avgRoutedUnits": 0.1,
+      "avgSignatureUnits": 0.3,
+      "avgSignatureCapableUnits": 0.3,
+      "avgHybridUnits": 5.7,
+      "avgHomeTerrainUnits": 3.5,
+      "avgSupplyIncome": 13.5,
+      "avgSupplyDemand": 10.65,
+      "avgSupplyUtilizationRatio": 0.789,
+      "avgHighestAvailableProductionCost": 43.2,
+      "avgHighestFieldedProductionCost": 38.4,
+      "avgAverageFieldedProductionCost": 23.098,
+      "avgUnitsByPrototypeId": {
+        "prototype_21": 2.2,
+        "savannah_lions_war_chariot": 5.4,
+        "savannah_lions_war_elephants": 0.3,
+        "prototype_20": 0.2
+      },
+      "avgStalledProductionCount": 0.6,
+      "avgUnitComposition": {
+        "byChassis": {
+          "ranged_frame": 2.2,
+          "chariot_frame": 5.4,
+          "elephant_frame": 0.3,
+          "infantry_frame": 0.2
+        },
+        "byRole": {
+          "ranged": 2.2,
+          "mounted": 5.7,
+          "melee": 0.2
+        }
+      },
+      "avgArmySizeAtTurn20": 5.5,
+      "gamesWithEmergentRuleBeforeOpponent": 1,
+      "avgLearnedDomainCount": 2.4,
+      "avgT1DomainCount": 2.4,
+      "avgT2DomainCount": 2.4,
+      "avgT3DomainCount": 2.4,
+      "gamesWithActiveTripleStack": 10,
+      "avgUnitsWithLearnedAbilities": 1
+    },
+    "plains_riders": {
+      "factionId": "plains_riders",
+      "wins": 0,
+      "avgLivingUnits": 10.2,
+      "avgCities": 1,
+      "avgVillages": 6,
+      "avgWarExhaustion": 0,
+      "avgCapabilityTotal": 100068.64,
+      "avgUnlockedRecipes": 0,
+      "avgRoutedUnits": 0,
+      "avgSignatureUnits": 8.1,
+      "avgSignatureCapableUnits": 10.2,
+      "avgHybridUnits": 2.1,
+      "avgHomeTerrainUnits": 2.3,
+      "avgSupplyIncome": 11.5,
+      "avgSupplyDemand": 10.45,
+      "avgSupplyUtilizationRatio": 0.909,
+      "avgHighestAvailableProductionCost": 52.2,
+      "avgHighestFieldedProductionCost": 39.8,
+      "avgAverageFieldedProductionCost": 26.398,
+      "avgUnitsByPrototypeId": {
+        "prototype_24": 0.4,
+        "prototype_23": 7.6,
+        "plains_riders_river_priest": 2.1,
+        "plains_riders_alligator_frame": 0.1
+      },
+      "avgStalledProductionCount": 0.2,
+      "avgUnitComposition": {
+        "byChassis": {
+          "naval_frame": 0.4,
+          "infantry_frame": 7.6,
+          "ranged_frame": 2.1,
+          "alligator_frame": 0.1
+        },
+        "byRole": {
+          "melee": 8.1,
+          "ranged": 2.1
+        }
+      },
+      "avgArmySizeAtTurn20": 5.9,
+      "gamesWithEmergentRuleBeforeOpponent": 2,
+      "avgLearnedDomainCount": 2.4,
+      "avgT1DomainCount": 2.4,
+      "avgT2DomainCount": 2.4,
+      "avgT3DomainCount": 2.3,
+      "gamesWithActiveTripleStack": 9,
+      "avgUnitsWithLearnedAbilities": 0.2
+    },
+    "frost_wardens": {
+      "factionId": "frost_wardens",
+      "wins": 0,
+      "avgLivingUnits": 8.7,
+      "avgCities": 1,
+      "avgVillages": 6,
+      "avgWarExhaustion": 0,
+      "avgCapabilityTotal": 8264.742,
+      "avgUnlockedRecipes": 0,
+      "avgRoutedUnits": 0,
+      "avgSignatureUnits": 8.7,
+      "avgSignatureCapableUnits": 8.7,
+      "avgHybridUnits": 2.1,
+      "avgHomeTerrainUnits": 2.5,
+      "avgSupplyIncome": 11.5,
+      "avgSupplyDemand": 9.1,
+      "avgSupplyUtilizationRatio": 0.792,
+      "avgHighestAvailableProductionCost": 48,
+      "avgHighestFieldedProductionCost": 48,
+      "avgAverageFieldedProductionCost": 26.425,
+      "avgUnitsByPrototypeId": {
+        "prototype_27": 1.4,
+        "frost_wardens_ice_defenders": 1.9,
+        "prototype_26": 5.2,
+        "frost_wardens_polar_priest": 0.2
+      },
+      "avgStalledProductionCount": 0.6,
+      "avgUnitComposition": {
+        "byChassis": {
+          "ranged_frame": 3.3,
+          "infantry_frame": 5.2,
+          "heavy_infantry_frame": 0.2
+        },
+        "byRole": {
+          "ranged": 3.3,
+          "melee": 5.4
+        }
+      },
+      "avgArmySizeAtTurn20": 6,
+      "gamesWithEmergentRuleBeforeOpponent": 0,
+      "avgLearnedDomainCount": 2.1,
+      "avgT1DomainCount": 2.1,
+      "avgT2DomainCount": 2.1,
+      "avgT3DomainCount": 2.1,
+      "gamesWithActiveTripleStack": 10,
+      "avgUnitsWithLearnedAbilities": 0
     }
   }
 }

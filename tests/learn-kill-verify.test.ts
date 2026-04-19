@@ -36,7 +36,7 @@ describe('Learn-by-Kill RNG verification', () => {
     for (const v of vals) expect(v).toBeLessThan(1);
   });
 
-  it('green units should learn ~10% of the time over 10000 trials', () => {
+  it('green units should learn ~25% of the time over 10000 trials', () => {
     let learns = 0;
     for (let s = 0; s < 10000; s++) {
       const r = createRNG(s + 50000);
@@ -45,12 +45,12 @@ describe('Learn-by-Kill RNG verification', () => {
       if (result.learned) learns++;
     }
     const pct = learns / 100;
-    console.log(`GREEN (expect ~10%): ${learns}/10000 = ${pct.toFixed(1)}%`);
-    expect(pct).toBeGreaterThan(8);
-    expect(pct).toBeLessThan(12);
+    console.log(`GREEN (expect ~25%): ${learns}/10000 = ${pct.toFixed(1)}%`);
+    expect(pct).toBeGreaterThan(22);
+    expect(pct).toBeLessThan(28);
   });
 
-  it('veteran units should learn ~24% of the time over 10000 trials', () => {
+  it('veteran units should learn ~55% of the time over 10000 trials', () => {
     let learns = 0;
     const vetUnit = { ...greenUnit, veteranLevel: 'veteran' };
     for (let s = 0; s < 10000; s++) {
@@ -60,9 +60,9 @@ describe('Learn-by-Kill RNG verification', () => {
       if (result.learned) learns++;
     }
     const pct = learns / 100;
-    console.log(`VETERAN (expect ~24%): ${learns}/10000 = ${pct.toFixed(1)}%`);
-    expect(pct).toBeGreaterThan(21);
-    expect(pct).toBeLessThan(27);
+    console.log(`VETERAN (expect ~55%): ${learns}/10000 = ${pct.toFixed(1)}%`);
+    expect(pct).toBeGreaterThan(52);
+    expect(pct).toBeLessThan(58);
   });
 
   it('sequential kills with seed 42 - show actual outcomes', () => {
@@ -71,14 +71,14 @@ describe('Learn-by-Kill RNG verification', () => {
     let unit = { ...greenUnit, learnedAbilities: [] as any[] };
 
     const lr1 = tryLearnFromKill(unit, enemy1, st, seqRng);
-    console.log(`Seed 42 Kill #1 (green, 10%): learned=${lr1.learned} domain=${lr1.domainId}`);
+    console.log(`Seed 42 Kill #1 (green, 25%): learned=${lr1.learned} domain=${lr1.domainId}`);
     if (lr1.learned) unit = lr1.unit;
 
     const lr2 = tryLearnFromKill(unit, enemy2, st, seqRng);
-    console.log(`Seed 42 Kill #2 (green, 10%): learned=${lr2.learned} domain=${lr2.domainId}`);
+    console.log(`Seed 42 Kill #2 (green, 25%): learned=${lr2.learned} domain=${lr2.domainId}`);
 
     // Log what we'd need for both to succeed
-    console.log('\nFor BOTH kills to succeed at green (10%), probability = 1%');
+    console.log('\nFor BOTH kills to succeed at green (25%), probability = 6.25%');
   });
 
   it('XP progression should take ~2 kills per level', () => {

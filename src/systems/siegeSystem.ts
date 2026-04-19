@@ -13,6 +13,8 @@ import {
 } from './warExhaustionSystem.js';
 import { syncFactionSettlementIds } from './factionOwnershipSystem.js';
 import { tryLearnFromCityCapture } from './learnByKillSystem.js';
+import { destroyVillagesInCityTerritory } from './villageSystem.js';
+import { MAX_LEARNED_DOMAINS } from './knowledgeSystem.js';
 
 export const SIEGE_CONFIG = {
   WALL_DAMAGE_PER_TURN: 20,
@@ -150,7 +152,8 @@ export function captureCity(
 }
 
 /**
- * Execute city capture with detailed result (including domain learning feedback).
+ * Execute city capture: raze the city (destroy it), destroy its villages,
+ * transfer the loser's nativeDomain to the victor.
  */
 export function captureCityWithResult(
   city: City,
@@ -159,25 +162,15 @@ export function captureCityWithResult(
 ): CaptureCityResult {
   const oldOwnerFactionId = city.factionId;
 
-  // Transfer city
-  const capturedCity: City = {
-    ...city,
-    factionId: newOwnerFactionId,
-    wallHP: Math.floor(city.maxWallHP * SIEGE_CONFIG.CAPTURED_WALL_HP_PERCENT / 100),
-    besieged: false,
-    turnsUnderSiege: 0,
-    productionQueue: [],
-    productionProgress: 0,
-    currentProduction: undefined,
-    turnsSinceCapture: 0,
-  };
+  // Destroy villages in the city's territory before removing the city
+  let currentState = destroyVillagesInCityTerritory(state, city);
 
-  // Update cities map
-  const cities = new Map(state.cities);
-  cities.set(city.id, capturedCity);
+  // Remove city from the map entirely (raze)
+  const cities = new Map(currentState.cities);
+  cities.delete(city.id);
 
-  // Update faction city lists
-  const factions = new Map(state.factions);
+  // Update faction city lists — old owner loses the city, victor does NOT gain it
+  const factions = new Map(currentState.factions);
 
   const oldFaction = factions.get(oldOwnerFactionId);
   if (oldFaction) {
@@ -187,16 +180,8 @@ export function captureCityWithResult(
     });
   }
 
-  const newFaction = factions.get(newOwnerFactionId);
-  if (newFaction) {
-    factions.set(newOwnerFactionId, {
-      ...newFaction,
-      cityIds: [...new Set([...newFaction.cityIds, city.id])],
-    });
-  }
-
   // Update war exhaustion
-  const warExhaustion = new Map(state.warExhaustion);
+  const warExhaustion = new Map(currentState.warExhaustion);
 
   const victimWE = warExhaustion.get(oldOwnerFactionId);
   if (victimWE) {
@@ -214,21 +199,43 @@ export function captureCityWithResult(
     );
   }
 
-  let nextState = {
-    ...state,
+  currentState = {
+    ...currentState,
     cities,
     factions,
     warExhaustion,
   };
 
-  nextState = syncFactionSettlementIds(nextState, oldOwnerFactionId);
-  nextState = syncFactionSettlementIds(nextState, newOwnerFactionId);
+  currentState = syncFactionSettlementIds(currentState, oldOwnerFactionId);
+  currentState = syncFactionSettlementIds(currentState, newOwnerFactionId);
 
   // Try domain learning: adjacent capturing unit receives the old owner's nativeDomain (100%)
-  const learnResult = tryLearnFromCityCapture(city, newOwnerFactionId, nextState);
+  const learnResult = tryLearnFromCityCapture(city, newOwnerFactionId, currentState);
+
+  // Faction-level domain transfer: victor gains the loser's nativeDomain
+  const victorFaction = learnResult.state.factions.get(newOwnerFactionId);
+  const loserFaction = learnResult.state.factions.get(oldOwnerFactionId);
+  if (victorFaction && loserFaction) {
+    const loserDomain = loserFaction.nativeDomain;
+    const alreadyHas =
+      loserDomain === victorFaction.nativeDomain ||
+      victorFaction.learnedDomains.includes(loserDomain);
+    if (!alreadyHas && victorFaction.learnedDomains.length < MAX_LEARNED_DOMAINS - 1) {
+      const updatedFactions = new Map(learnResult.state.factions);
+      updatedFactions.set(newOwnerFactionId, {
+        ...victorFaction,
+        learnedDomains: [...victorFaction.learnedDomains, loserDomain],
+      });
+      currentState = { ...learnResult.state, factions: updatedFactions };
+    } else {
+      currentState = learnResult.state;
+    }
+  } else {
+    currentState = learnResult.state;
+  }
 
   return {
-    state: learnResult.state,
+    state: currentState,
     learnedDomain: learnResult.learned
       ? { unitId: learnResult.unitId!, domainId: learnResult.domainId!, fromFactionId: learnResult.fromFactionId! }
       : undefined,

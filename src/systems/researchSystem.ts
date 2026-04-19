@@ -24,7 +24,7 @@ export function createResearchState(factionId: FactionId, nativeDomain?: string)
     activeNodeId: null,
     progressByNodeId: {},
     completedNodes,
-    researchPerTurn: 4,
+    researchPerTurn: 8,
     recentCodifiedDomainIds: [],
   };
 }
@@ -106,7 +106,7 @@ export function getDomainTier(
     activeNodeId: null,
     progressByNodeId: {},
     completedNodes: completedNodes as ResearchNodeId[],
-    researchPerTurn: 4,
+    researchPerTurn: 8,
   });
 }
 
@@ -218,4 +218,4 @@ export function setResearchRate(
   };
 }
 
-// Base research rate is 4 XP/turn. Bonus calculations removed — use flat rate.
+// Base research rate is 8 XP/turn. Bonus calculations removed — use flat rate.
