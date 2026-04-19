@@ -17,7 +17,7 @@ describe('capability doctrine thresholds', () => {
     const venomT2Research = createResearchState('jungle_clan' as never);
     venomT2Research.completedNodes.push('venom_t1' as never, 'venom_t2' as never);
     const venomT2 = resolveResearchDoctrine(venomT2Research);
-    expect(venomT2.poisonDamagePerStack).toBe(4);
+    expect(venomT2.poisonDamagePerStack).toBe(2);
 
     // venom_t3 completed - poison move penalty
     const venomT3Research = createResearchState('jungle_clan' as never);

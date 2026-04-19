@@ -24,7 +24,7 @@
   },
   "hill_clan": {},
   "jungle_clan": {
-    "venomDamagePerTurn": 3,
+    "venomDamagePerTurn": 1,
     "summon": {
       "chassisId": "serpent_frame",
       "terrainTypes": ["jungle"],

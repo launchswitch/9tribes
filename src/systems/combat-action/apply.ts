@@ -415,7 +415,7 @@ export function applyCombatAction(
     updatedDefender = applyPoisonDoT(
       updatedDefender,
       (attackerDoctrine?.poisonStacksOnHit ?? 1) + extraStacks,
-      attackerDoctrine?.poisonDamagePerStack ?? 3,
+      attackerDoctrine?.poisonDamagePerStack ?? 1,
       3,
     );
     updatedDefender = { ...updatedDefender, poisonedBy: attacker.factionId } as Unit;

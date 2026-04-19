@@ -506,3 +506,18 @@ No significant changes detected.
 - `web/src/game/types/clientState.ts` — 4 dependencies
 - `web/src/game/view-model/worldViewModel.ts` — 60 dependencies
 - `web/src/ui/SynergyChip.tsx` — 6 dependencies
+
+---
+
+## Digest — 2026-04-19T00:52:53.365085Z
+
+### New Files
+- `docs/RENDEZVOUS-SPEC.md` — 8 exports: UnitStrategicIntent, SquadPhase, SquadState, FactionStrategy, RENDEZVOUS_OFFSET_HEXES, ... (+3 more)
+
+### Modified Files
+- `src/systems/combat-action/helpers.ts` — +1 exports (pruneDeadUnits)
+- `src/systems/fogSystem.ts` — +2 exports (isUnitCloakedByRiverStealthAura, isUnitEffectivelyStealthed)
+
+### Dependency Changes
+- `src/systems/combat-action/helpers.ts` — 16 dependencies
+- `src/systems/fogSystem.ts` — 14 dependencies

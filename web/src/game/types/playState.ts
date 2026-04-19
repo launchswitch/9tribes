@@ -10,6 +10,11 @@ import type { GameMap, MapGenerationMode, Tile } from '../../../../src/world/map
 
 type SerializedEntries<T> = Array<[string, T]>;
 
+type SerializedFactionFogState = {
+  hexVisibility: SerializedEntries<FactionFogState extends { hexVisibility: Map<string, infer V> } ? V : never>;
+  lastSeen: SerializedEntries<FactionFogState extends { lastSeen: Map<string, infer V> } ? V : never>;
+};
+
 export type SerializedGameMap = Omit<GameMap, 'tiles'> & {
   tiles: SerializedEntries<Tile>;
 };
@@ -50,7 +55,7 @@ export type SerializedGameState = Omit<
   contaminatedHexes: string[];
   transportMap: SerializedEntries<{ transportId: string; embarkedUnitIds: string[] }>;
   villageCaptureCooldowns: SerializedEntries<{ position: string; capturedByFactionId: FactionId; capturedRound: number }>;
-  fogState: SerializedEntries<FactionFogState>;
+  fogState: SerializedEntries<SerializedFactionFogState>;
   rngState: RNGState;
 };
 
@@ -88,7 +93,13 @@ export function serializeGameState(state: GameState): SerializedGameState {
     contaminatedHexes: Array.from(state.contaminatedHexes.values()),
     transportMap: Array.from(state.transportMap.entries()),
     villageCaptureCooldowns: Array.from(state.villageCaptureCooldowns.entries()),
-    fogState: Array.from(state.fogState.entries()),
+    fogState: Array.from(state.fogState.entries()).map(([fid, fs]) => [
+      fid,
+      {
+        hexVisibility: Array.from(fs.hexVisibility.entries()),
+        lastSeen: Array.from(fs.lastSeen.entries()),
+      },
+    ]),
   };
 }
 
@@ -118,6 +129,16 @@ export function deserializeGameState(payload: SerializedGameState): GameState {
     contaminatedHexes: new Set(payload.contaminatedHexes),
     transportMap: toTypedMap(payload.transportMap as any),
     villageCaptureCooldowns: toTypedMap(payload.villageCaptureCooldowns as any),
-    fogState: Array.isArray(payload.fogState) ? toTypedMap(payload.fogState) : new Map(),
+    fogState: Array.isArray(payload.fogState)
+      ? new Map(
+          payload.fogState.map(([fid, fs]) => [
+            fid,
+            {
+              hexVisibility: Array.isArray(fs?.hexVisibility) ? new Map(fs.hexVisibility) : new Map(),
+              lastSeen: Array.isArray(fs?.lastSeen) ? new Map(fs.lastSeen) : new Map(),
+            },
+          ]),
+        )
+      : new Map(),
   };
 }

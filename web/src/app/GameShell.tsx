@@ -20,6 +20,7 @@ import { TurnBanner } from '../ui/TurnBanner';
 import { DebugOverlay } from '../ui/DebugOverlay';
 import { ReportsOverlay } from '../ui/ReportsOverlay';
 import { KnowledgeGainedModalProvider, useLearnDetector, useKnowledgeModal } from '../ui/KnowledgeGainedModal';
+import { TechDiscoveryModalProvider, useTechDiscoveryDetector, useTechDiscoveryModal } from '../ui/TechDiscoveryModal';
 import { CombatLogPanel } from '../ui/CombatLogPanel';
 import { useCombatBridge } from './hooks/useCombatBridge';
 import { useSessionAudio } from './hooks/useSessionAudio';
@@ -87,6 +88,7 @@ function KnowledgeGainedShellContent({
   onSaveGame,
 }: ShellContentProps) {
   const { showKnowledgeGained } = useKnowledgeModal();
+  const { showTechDiscovery } = useTechDiscoveryModal();
 
   // Stable callbacks for panel open/close (avoid re-triggering auto-open effects)
   const handleInspectorOpen = useCallback(() => onSetInspectorOpen(true), [onSetInspectorOpen]);
@@ -98,6 +100,11 @@ function KnowledgeGainedShellContent({
     state.world.factions,
     state.playFeedback?.playerFactionId ?? null,
     showKnowledgeGained,
+  );
+
+  useTechDiscoveryDetector(
+    state.playFeedback?.lastResearchCompletion ?? null,
+    showTechDiscovery,
   );
 
   const { combatLocked } = useCombatBridge(controller, gameRef);
@@ -366,6 +373,7 @@ export function GameShell({ controller, onRestartSession, onSaveGame }: GameShel
   if (USE_V2_LAYOUT) {
     return (
       <KnowledgeGainedModalProvider>
+        <TechDiscoveryModalProvider>
         <KnowledgeGainedShellContent
           controller={controller}
           state={state}
@@ -393,6 +401,7 @@ export function GameShell({ controller, onRestartSession, onSaveGame }: GameShel
           onRestartSession={onRestartSession}
           onSaveGame={onSaveGame}
         />
+        </TechDiscoveryModalProvider>
       </KnowledgeGainedModalProvider>
     );
   }

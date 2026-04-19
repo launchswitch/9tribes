@@ -235,9 +235,9 @@ describe('R2: poisonBonusEnabled — +50% poison damage multiplier', () => {
       state.factions.get(jungleId as never),
     );
     expect(doctrine.poisonBonusEnabled).toBe(true);
-    expect(doctrine.poisonDamagePerStack).toBe(4); // venom_t2
+    expect(doctrine.poisonDamagePerStack).toBe(2); // venom_t2
 
-    // Poison a unit: 2 stacks × 4 dmg/stack = 8 base, × 1.5 = 12
+    // Poison a unit: 2 stacks × 2 dmg/stack = 4 base, × 1.5 = 6
     const unit = state.units.get(jungleUnitId)!;
     const hpBefore = 50;
     state.units.set(jungleUnitId, {
@@ -250,8 +250,8 @@ describe('R2: poisonBonusEnabled — +50% poison damage multiplier', () => {
 
     const newState = applyEnvironmentalDamage(state, jungleId as never, registry);
     const updatedUnit = newState.units.get(jungleUnitId)!;
-    // 2 stacks × 4 dmgPerStack = 8, × 1.5 = Math.round(12) = 12
-    expect(updatedUnit.hp).toBe(hpBefore - 12);
+    // 2 stacks × 2 dmgPerStack = 4, × 1.5 = Math.round(6) = 6
+    expect(updatedUnit.hp).toBe(hpBefore - 6);
   });
 
   it('applies normal poison tick damage when poisonBonusEnabled is false', () => {
@@ -272,8 +272,8 @@ describe('R2: poisonBonusEnabled — +50% poison damage multiplier', () => {
 
     const newState = applyEnvironmentalDamage(state, jungleId as never, registry);
     const updatedUnit = newState.units.get(jungleUnitId)!;
-    // 2 stacks × 4 dmgPerStack = 8, no multiplier
-    expect(updatedUnit.hp).toBe(hpBefore - 8);
+    // 2 stacks × 2 dmgPerStack = 4, no multiplier
+    expect(updatedUnit.hp).toBe(hpBefore - 4);
   });
 });
 

@@ -285,9 +285,26 @@ export class GameSession {
         this.state = this.executeMoveQueues(this.state);
         if (this.state.activeFactionId) {
           const activeFactionId = this.state.activeFactionId;
+          const preResearch = this.state.research.get(activeFactionId as never);
+          const activeNodeId = preResearch?.activeNodeId ?? null;
+          const preCompletedCount = preResearch?.completedNodes.length ?? 0;
           this.state = runFactionPhase(this.state, activeFactionId as never, this.registry, {
             difficulty: this.difficulty,
           });
+          if (activeNodeId && this.isHumanControlledFaction(activeFactionId)) {
+            const postResearch = this.state.research.get(activeFactionId as never);
+            if ((postResearch?.completedNodes.length ?? 0) > preCompletedCount) {
+              const domainId = activeNodeId.split('_t')[0];
+              const nodeDef = this.registry.getResearchNode(domainId, activeNodeId);
+              if (nodeDef) {
+                this.feedback.lastResearchCompletion = {
+                  nodeId: activeNodeId,
+                  nodeName: nodeDef.name,
+                  tier: nodeDef.tier ?? 1,
+                };
+              }
+            }
+          }
         }
         this.feedback.lastMove = null;
         this.state = this.refreshFog(advanceTurn(this.state));

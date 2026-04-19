@@ -7,7 +7,7 @@ import { getDomainProgression } from './domainProgression.js';
 export interface ResearchDoctrine {
   // Quantitative effects derived from research tier
   poisonStacksOnHit: number;       // venom_t1 -> 2, else 1
-  poisonDamagePerStack: number;    // venom_t2 -> 4, else 3
+  poisonDamagePerStack: number;    // venom_t2 -> 2, else 1
   poisonMovePenalty: number;       // venom_t3 -> 1, else 0
 
   // Tier 1 qualitative effects
@@ -107,7 +107,7 @@ export function resolveResearchDoctrine(
   return {
     // Quantitative effects
     poisonStacksOnHit: hasNode('venom_t1') ? 2 : 1,
-    poisonDamagePerStack: hasNode('venom_t2') ? 4 : 3,
+    poisonDamagePerStack: hasNode('venom_t2') ? 2 : 1,
     poisonMovePenalty: hasNode('venom_t3') ? 1 : 0,
 
     // Tier 1 qualitative effects

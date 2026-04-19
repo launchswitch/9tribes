@@ -330,7 +330,7 @@ describe('alternating activation simulation', () => {
     // Healing: infantry (maxHp=11) on plains gets floor(11 * 0.05) = 0 HP healing.
     // jungle_clan ignores jungle attrition (per passiveTrait='jungle_stalkers').
     // steppe_clan on jungle hex takes 1 jungle attrition damage.
-    // Poison: jungle_clan venomDamagePerTurn=3 (no poisonStacks on unit, so uses default 1).
+    // Poison: no poisonStacks on unit, no poisonedBy → fallback 1 dmg.
     // jungle ends at 6 (no jungle attrition). steppe ends at 4 (poison 1 + jungle 1).
     expect(result.units.get(jungleUnitId)?.hp).toBe(6);
     expect(result.units.get(steppeUnitId)?.hp).toBe(4);

@@ -24,8 +24,8 @@ Auto-generated contract summaries for complex subsystems. See `.slim/symbols.jso
 
 - INPUT: GameState, FactionId, RulesRegistry, optional SimulationTrace + AiDifficultyProfile
 - OUTPUT: GameState (new, immutable)
-- SIDE EFFECTS: Orchestrates entire AI faction turn: fog update, strategy, triple-synergy, ecology pressure, research, production, economy, environmental damage, summon/warlord abilities, healing/refresh, sacrifice, village spawn, siege, war exhaustion
-- INVARIANTS: Must be called once per faction per round. Triple-stack resolved before production/healing. Warlord aura radius-3, +10 morale, cavalry/mounted only. Summon cycle: summoned→expires→cooldown→re-summon. Dead units skipped in loop.
+- SIDE EFFECTS: Orchestrates entire AI faction turn: fog update, strategy, triple-synergy, exposure gains, research (8 XP/turn), production, economy, environmental damage, summon/warlord abilities, healing/refresh, sacrifice (non-destructive), village spawn, siege, war exhaustion
+- INVARIANTS: Must be called once per faction per round. Triple-stack resolved before production/healing. Exposure thresholds [10,20,35] for successive foreign domains. Research rate 8 XP/turn. Sacrifice strips learned abilities but keeps unit alive (range 1 hex from home city). Warlord aura radius-3, +10 morale, cavalry/mounted only. Summon cycle: summoned→expires→cooldown→re-summon. Dead units skipped in loop.
 - CALLERS: warEcologySimulation.ts
 
 ## Simulation — Trace Recorder (`src/systems/simulation/traceRecorder.ts`)
@@ -41,7 +41,7 @@ Auto-generated contract summaries for complex subsystems. See `.slim/symbols.jso
 - INPUT: GameState
 - OUTPUT: getVictoryStatus → VictoryStatus {winnerFactionId, victoryType, controlledCities, dominationThreshold}; getAliveFactions → Set<FactionId>
 - SIDE EFFECTS: None (pure)
-- INVARIANTS: Alive = any unit with hp>0 OR any non-besieged city. Elimination = exactly 1 alive. Domination = >= ceil(totalCities * 0.55). Besieged cities don't count for elimination check.
+- INVARIANTS: Alive = any unit with hp>0 OR any non-besieged city. Elimination = exactly 1 alive. Domination = >= ceil(totalCities * 0.40). Besieged cities don't count for elimination check.
 - CALLERS: warEcologySimulation.ts
 
 ## Combat Action — Apply (`src/systems/combat-action/apply.ts`)
@@ -64,9 +64,57 @@ Auto-generated contract summaries for complex subsystems. See `.slim/symbols.jso
 
 - INPUT: GameState, victorFactionId, defeatedFactionId, RulesRegistry
 - OUTPUT: {state: GameState, absorbedDomains: string[]}
-- SIDE EFFECTS: Returns new GameState. Transfers contact, combat records, domains (capped MAX_LEARNED_DOMAINS), auto-completes T1 research, re-evaluates domain progression/triple, transfers cities/villages.
-- INVARIANTS: Only fires when defeated faction has zero living units. Duplicate domains filtered, native domain excluded. Absorbed cities get turnsSinceCapture: 0. Defeated faction's cityIds and villageIds cleared.
+- SIDE EFFECTS: Returns new GameState. Transfers contact, combat records, domains (capped MAX_LEARNED_DOMAINS), auto-completes T1 research, re-evaluates domain progression/triple. Razes defeated faction's cities and destroys their villages (does NOT transfer ownership).
+- INVARIANTS: Only fires when defeated faction has zero living units. Duplicate domains filtered, native domain excluded. Defeated faction's cities are deleted from the map; their villages are destroyed via destroyVillagesInCityTerritory.
 - CALLERS: combat-action/apply.ts
+
+## Sacrifice System (`src/systems/sacrificeSystem.ts`)
+
+- INPUT: unit, faction, state, RulesRegistry, optional SimulationTrace
+- OUTPUT: canSacrifice → boolean; performSacrifice → GameState; autoCompleteResearchForDomains → GameState
+- SIDE EFFECTS: Returns new GameState. Non-destructive: strips unit's learnedAbilities (keeps unit alive). Adds learned domains to faction, auto-completes T1 research, re-evaluates triple synergy.
+- INVARIANTS: Sacrifice range = hexDistance(unit, homeCity) <= 1. Home city must not be besieged. Unit must have learnedAbilities. MAX_LEARNED_DOMAINS cap on faction domains. SynergyEngine is module-level singleton.
+- CALLERS: warEcologySimulation.ts, factionTurnEffects.ts, knowledgeSystem.ts
+
+## Knowledge System (`src/systems/knowledgeSystem.ts`)
+
+- INPUT: GameState, FactionId, domainId, amount, optional trace + registry
+- OUTPUT: gainExposure → GameState; getNextExposureThreshold → number; isForeignDomain → boolean; checkDomainLearned → string|null
+- SIDE EFFECTS: Returns new GameState. Accumulates exposure progress, learns domains on threshold crossing, auto-completes T1 research if registry provided.
+- INVARIANTS: EXPOSURE_THRESHOLDS = [10, 20, 35]. MAX_LEARNED_DOMAINS = 3 (including native). Early return if at cap or domain is native/already-learned. Threshold index = foreign domain count.
+- CALLERS: factionTurnEffects.ts, balanceHarness.ts
+
+## Learn-by-Kill System (`src/systems/learnByKillSystem.ts`)
+
+- INPUT: attacker Unit, defender Unit, GameState, RNGState, optional trace
+- OUTPUT: tryLearnFromKill → {unit, learned, domainId?, fromFactionId?}; tryLearnFromCityCapture → {state, learned, unitId?, domainId?}
+- SIDE EFFECTS: tryLearnFromKill returns new Unit (no state write). tryLearnFromCityCapture returns new GameState.
+- INVARIANTS: Learn chances: Green 25%, Seasoned 40%, Veteran 55%, Elite 70%. Domain learned = defender's faction nativeDomain. Max 3 learned abilities per unit. City capture learning is 100% (no RNG). Same-faction kills never learn.
+- CALLERS: combat-action/apply.ts, siegeSystem.ts
+
+## Siege System (`src/systems/siegeSystem.ts`)
+
+- INPUT: City, FactionId, GameState
+- OUTPUT: captureCityWithResult → {state, learnedDomain?}; degradeWalls → City; isCityVulnerable → boolean; getCapturingFaction → FactionId|null
+- SIDE EFFECTS: captureCityWithResult returns new GameState. RAZES city (deletes from map), destroys city's villages, applies war exhaustion, triggers domain learning.
+- INVARIANTS: Wall damage 20/turn (10 coastal). Repair 3/turn when not besieged. Vulnerable = wallHP<=0 AND encircled AND no garrison. City capture = raze, not transfer — victor does NOT gain the city. Faction-level domain transfer on capture (loser's nativeDomain to victor). VILLAGES_PER_CITY_CAP = 6.
+- CALLERS: combat-action/apply.ts, factionTurnEffects.ts, sessionUtils.ts
+
+## Village System (`src/systems/villageSystem.ts`)
+
+- INPUT: GameState, City, FactionId, HexCoord, RulesRegistry
+- OUTPUT: destroyVillagesInCityTerritory → GameState; destroyVillage → GameState; spawnVillage → GameState; evaluateAndSpawnVillage → GameState
+- SIDE EFFECTS: Returns new GameState. Deletes village entries, updates faction villageIds, syncs settlement IDs.
+- INVARIANTS: VILLAGES_PER_CITY_CAP = 6. BASE_VILLAGE_SPAWN_GAP = 4 rounds. destroyVillagesInCityTerritory destroys villages of ANY faction within city.territoryRadius (positional check).
+- CALLERS: siegeSystem.ts, factionAbsorption.ts, factionTurnEffects.ts
+
+## Synergy Engine (`src/systems/synergyEngine.ts`)
+
+- INPUT: pair-eligible domain IDs, emergent-eligible domain IDs, unit tags
+- OUTPUT: resolveFactionTriple → ActiveTripleStack|null; resolveUnitPairs → ActiveSynergy[]; getDomainSynergyScore → number
+- SIDE EFFECTS: None (pure computation).
+- INVARIANTS: Triple-stack gate requires emergentEligibleDomains.length >= 2. Emergent rules match by domain-category conditions (terrain+combat+mobility, healing+defensive+offensive, etc). Pair synergies require both domains at T3. Domain tuple padded to 3 elements if needed.
+- CALLERS: sacrificeSystem.ts, synergyRuntime.ts
 
 ## Combat Action — Helpers (`src/systems/combat-action/helpers.ts`)
 
