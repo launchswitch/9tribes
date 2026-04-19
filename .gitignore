@@ -64,3 +64,4 @@ nul
 .aionrs/sessions
 .slim/
 .thinking-machine/
+.aider*
