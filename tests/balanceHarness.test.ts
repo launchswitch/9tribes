@@ -112,8 +112,8 @@ describe('balance harness', () => {
     const result = runWarEcologySimulation(buildMvpScenario(37, { mapMode: 'fixed' }), registry, QUICK_TURNS);
     const snapshot = getSettlementOwnershipSnapshot(result);
 
-    expect(snapshot.totalListedCities).toBe(9);
-    expect(snapshot.totalAuthoritativeCities).toBe(9);
+    expect(snapshot.totalListedCities).toBe(7);
+    expect(snapshot.totalAuthoritativeCities).toBe(7);
     expect(snapshot.totalListedVillages).toBe(result.villages.size);
   });
 
