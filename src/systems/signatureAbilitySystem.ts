@@ -253,11 +253,12 @@ export function applyPoisonDoT(
   damagePerTurn: number,
   duration: number
 ): Unit {
-  const newPoisonStacks = Math.min(target.poisonStacks + stacks, 5); // Cap at 5 stacks
+  const newPoisonStacks = Math.min(target.poisonStacks + stacks, 2); // Cap at 2 stacks
   return {
     ...target,
     poisonStacks: newPoisonStacks,
     poisoned: newPoisonStacks > 0,
+    poisonTurnsRemaining: duration, // Refresh to full duration
   };
 }
 

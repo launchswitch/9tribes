@@ -406,6 +406,7 @@ function applySummonAbility(
           poisoned: false,
           enteredZoCThisActivation: false,
           poisonStacks: 0,
+          poisonTurnsRemaining: 0,
           isStealthed: false,
           turnsSinceStealthBreak: 0,
           learnedAbilities: [],
@@ -775,6 +776,7 @@ export function processFactionPhases(
       hp: Math.min(unit.maxHp, unit.hp + healRate),
       poisoned: safeInSettlement ? false : unit.poisoned,
       poisonStacks: safeInSettlement ? 0 : unit.poisonStacks,
+      poisonTurnsRemaining: safeInSettlement ? 0 : unit.poisonTurnsRemaining,
       enteredZoCThisActivation: false,
     };
 

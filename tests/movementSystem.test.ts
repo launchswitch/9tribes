@@ -53,6 +53,7 @@ function getFactionUnitByMovementClass(
     poisoned: false,
     enteredZoCThisActivation: false,
     poisonStacks: 0,
+    poisonTurnsRemaining: 0,
     isStealthed: false,
     turnsSinceStealthBreak: 0,
     learnedAbilities: [],

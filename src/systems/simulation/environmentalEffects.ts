@@ -112,7 +112,7 @@ export function applyEnvironmentalDamage(
     let died = false;
 
     if (unit.poisoned && safeInSettlement) {
-      updatedUnit = { ...updatedUnit, poisoned: false, poisonedBy: undefined, poisonStacks: 0 };
+      updatedUnit = { ...updatedUnit, poisoned: false, poisonedBy: undefined, poisonStacks: 0, poisonTurnsRemaining: 0 };
     }
 
     if (unit.poisoned && !safeInSettlement) {
@@ -124,6 +124,17 @@ export function applyEnvironmentalDamage(
       const poisonDamage = doctrine.poisonBonusEnabled ? Math.round(basePoisonDamage * 1.5) : basePoisonDamage;
       updatedUnit = { ...updatedUnit, hp: Math.max(0, updatedUnit.hp - poisonDamage) };
       log(trace, `${faction.name} ${current.prototypes.get(unit.prototypeId)?.name ?? 'unit'} suffers poison (${poisonDamage} dmg, ${unit.poisonStacks} stacks)`);
+
+      // Decrement poison duration (unless persistence enabled via venom_t1)
+      if (!doctrine.poisonPersistenceEnabled) {
+        const remaining = (updatedUnit.poisonTurnsRemaining ?? 1) - 1;
+        if (remaining <= 0) {
+          updatedUnit = { ...updatedUnit, poisoned: false, poisonedBy: undefined, poisonStacks: 0, poisonTurnsRemaining: 0 };
+        } else {
+          updatedUnit = { ...updatedUnit, poisonTurnsRemaining: remaining };
+        }
+      }
+
       died = updatedUnit.hp <= 0;
     }
 

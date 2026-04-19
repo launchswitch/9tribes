@@ -233,7 +233,7 @@ export class SynergyEngine {
     pairEligibleDomains: string[],
     emergentEligibleDomains: string[],
   ): ActiveTripleStack | null {
-    if (emergentEligibleDomains.length < 2) {
+    if (emergentEligibleDomains.length < 3) {
       return null;
     }
 
@@ -252,9 +252,11 @@ export class SynergyEngine {
 
     const tripleName = this.generateTripleName(emergentEligibleDomains, pairIds);
 
-    const domainTriple: [string, string, string] = emergentEligibleDomains.length >= 3
-      ? [emergentEligibleDomains[0], emergentEligibleDomains[1], emergentEligibleDomains[2]]
-      : [emergentEligibleDomains[0], emergentEligibleDomains[1], emergentEligibleDomains[0]];
+    const domainTriple: [string, string, string] = [
+      emergentEligibleDomains[0],
+      emergentEligibleDomains[1],
+      emergentEligibleDomains[2],
+    ];
 
     return {
       domains: domainTriple,

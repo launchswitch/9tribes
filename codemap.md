@@ -113,7 +113,7 @@ Auto-generated contract summaries for complex subsystems. See `.slim/symbols.jso
 - INPUT: pair-eligible domain IDs, emergent-eligible domain IDs, unit tags
 - OUTPUT: resolveFactionTriple → ActiveTripleStack|null; resolveUnitPairs → ActiveSynergy[]; getDomainSynergyScore → number
 - SIDE EFFECTS: None (pure computation).
-- INVARIANTS: Triple-stack gate requires emergentEligibleDomains.length >= 2. Emergent rules match by domain-category conditions (terrain+combat+mobility, healing+defensive+offensive, etc). Pair synergies require both domains at T3. Domain tuple padded to 3 elements if needed.
+- INVARIANTS: Triple-stack gate requires emergentEligibleDomains.length >= 3. Emergent rules match by domain-category conditions (terrain+combat+mobility, healing+defensive+offensive, etc). Pair synergies require both domains at T3.
 - CALLERS: sacrificeSystem.ts, synergyRuntime.ts
 
 ## Combat Action — Helpers (`src/systems/combat-action/helpers.ts`)

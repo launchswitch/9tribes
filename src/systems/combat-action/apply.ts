@@ -411,10 +411,9 @@ export function applyCombatAction(
     || (attackerDoctrine?.toxicBulwarkEnabled === true);
   let poisonApplied = false;
   if (!preview.result.defenderDestroyed && preview.result.defenderDamage > 0 && canInflictPoison && updatedDefender) {
-    const extraStacks = attackerDoctrine?.poisonPersistenceEnabled ? 1 : 0;
     updatedDefender = applyPoisonDoT(
       updatedDefender,
-      (attackerDoctrine?.poisonStacksOnHit ?? 1) + extraStacks,
+      attackerDoctrine?.poisonStacksOnHit ?? 1,
       attackerDoctrine?.poisonDamagePerStack ?? 1,
       3,
     );

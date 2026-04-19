@@ -140,8 +140,11 @@ describe('progression pipeline constants', () => {
       expect(engine.resolveFactionTriple(['venom'], ['venom'])).toBeNull();
     });
 
-    it('does not gate on exactly 3 — accepts >=2 emergent-eligible domains', () => {
-      // With 3 domains that match a rule, the engine should not reject
+    it('returns null for only 2 emergent-eligible domains (requires exactly 3)', () => {
+      expect(engine.resolveFactionTriple(['fortress', 'venom'], ['fortress', 'venom'])).toBeNull();
+    });
+
+    it('resolves triple stack with 3 emergent-eligible domains', () => {
       const result = engine.resolveFactionTriple(
         ['fortress', 'venom', 'nature_healing'],
         ['fortress', 'venom', 'nature_healing'],

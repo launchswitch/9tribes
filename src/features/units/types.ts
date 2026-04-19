@@ -43,6 +43,7 @@ export interface Unit {
   preparedAbilityExpiresOnRound?: number;
   enteredZoCThisActivation?: boolean;
   poisonStacks: number;
+  poisonTurnsRemaining: number; // Turns left before poison expires; 0 = not poisoned
   isStealthed: boolean;
   turnsSinceStealthBreak: number;
   hillDugIn?: boolean;

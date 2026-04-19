@@ -245,6 +245,7 @@ describe('R2: poisonBonusEnabled — +50% poison damage multiplier', () => {
       hp: hpBefore,
       poisoned: true,
       poisonStacks: 2,
+      poisonTurnsRemaining: 3,
       poisonedBy: jungleId,
     });
 
@@ -267,6 +268,7 @@ describe('R2: poisonBonusEnabled — +50% poison damage multiplier', () => {
       hp: hpBefore,
       poisoned: true,
       poisonStacks: 2,
+      poisonTurnsRemaining: 3,
       poisonedBy: jungleId,
     });
 

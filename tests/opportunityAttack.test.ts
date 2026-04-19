@@ -59,6 +59,7 @@ function makeUnit(overrides: Partial<any> = {}) {
     morale: 100,
     routed: false,
     poisonStacks: 0,
+    poisonTurnsRemaining: 0,
     isStealthed: false,
     turnsSinceStealthBreak: 0,
     enteredZoCThisActivation: false,

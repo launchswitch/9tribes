@@ -419,7 +419,7 @@ function scoreNormalEmergentBreadth(
   if (!difficultyProfile.adaptiveAi) return 0;
   if (candidate.tier !== 2) return 0;
   if (progression.emergentEligibleDomains.includes(candidate.domainId)) return 0;
-  if (progression.t2Domains.length >= 2) return 0;
+    if (progression.t2Domains.length >= 3) return 0;
   return difficultyProfile.research.emergentBreadthWeight;
 }
 

@@ -239,6 +239,7 @@ export function applyHealingForFaction(
       morale: recoverMorale(unit),
       poisoned: safeInSettlement ? false : unit.poisoned,
       poisonStacks: safeInSettlement ? 0 : unit.poisonStacks,
+      poisonTurnsRemaining: safeInSettlement ? 0 : unit.poisonTurnsRemaining,
     };
 
     unitsMap.set(unitIdStr as UnitId, refreshedUnit);
