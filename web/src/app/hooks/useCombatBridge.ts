@@ -50,7 +50,7 @@ export function useCombatBridge(
       const aiInitiated = !isInstant && !attacker.isActiveFaction;
 
       if (pending.result.attackerDamage > 0) {
-        console.warn(`[combat-bridge] attacker took ${pending.result.attackerDamage} damage — attackerFaction=${pending.attackerFactionId} defenderFaction=${pending.defenderFactionId} attackerName=${attacker.name} defenderName=${defender.name}`);
+        console.warn(`[combat-bridge] attacker took ${pending.result.attackerDamage} damage — attackerFaction=${attacker.factionId} defenderFaction=${defender.factionId} attackerName=${attacker.prototypeName} defenderName=${defender.prototypeName}`);
       }
       setCombatLocked(true);
       scene.startCombatAnimation(

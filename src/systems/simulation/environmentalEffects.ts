@@ -1,5 +1,5 @@
 import type { GameState, Unit } from '../../game/types.js';
-import type { FactionId, HexCoord, UnitId } from '../../types.js';
+import type { FactionId, HexCoord, PrototypeId, UnitId } from '../../types.js';
 import { hexToKey, hexDistance, getNeighbors } from '../../core/grid.js';
 import { resolveResearchDoctrine } from '../capabilityDoctrine.js';
 import { getHealingBonus } from '../factionIdentitySystem.js';
@@ -118,7 +118,7 @@ export function applyEnvironmentalDamage(
     if (unit.poisoned && !safeInSettlement) {
       // Serpent God (serpent_frame) deals 3 poison dmg/turn; other jungle units use faction's venomDamagePerTurn
       const isSerpentGod = unit.poisonSourcePrototypeId
-        && current.prototypes.get(unit.poisonSourcePrototypeId)?.chassisId === 'serpent_frame';
+        && current.prototypes.get(unit.poisonSourcePrototypeId as PrototypeId)?.chassisId === 'serpent_frame';
       const basePoisonDamage = unit.poisonStacks > 0 ? unit.poisonStacks * doctrine.poisonDamagePerStack : (
         isSerpentGod
           ? 3
