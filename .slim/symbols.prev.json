@@ -167,45 +167,6 @@
         }
       ]
     },
-    "web/src/game/types/playState.ts": {
-      "exports": [
-        {
-          "name": "SerializedGameMap",
-          "kind": "type",
-          "line": 13,
-          "signature": "export type SerializedGameMap = Omit<GameMap, 'tiles'> & {",
-          "isDefault": false
-        },
-        {
-          "name": "SerializedGameState",
-          "kind": "type",
-          "line": 17,
-          "signature": "export type SerializedGameState = Omit<",
-          "isDefault": false
-        },
-        {
-          "name": "PlayStateSource",
-          "kind": "type",
-          "line": 57,
-          "signature": "export type PlayStateSource =",
-          "isDefault": false
-        },
-        {
-          "name": "serializeGameState",
-          "kind": "function",
-          "line": 67,
-          "signature": "export function serializeGameState(state: GameState): SerializedGameState {",
-          "isDefault": false
-        },
-        {
-          "name": "deserializeGameState",
-          "kind": "function",
-          "line": 95,
-          "signature": "export function deserializeGameState(payload: SerializedGameState): GameState {",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/ui/TurnBanner.tsx": {
       "exports": [
         {
@@ -238,87 +199,6 @@
           "kind": "function",
           "line": 26,
           "signature": "export function getRoleEffectiveness(attackerRole: string, defenderRole: string): number {",
-          "isDefault": false
-        }
-      ]
-    },
-    "src/systems/citySiteSystem.ts": {
-      "exports": [
-        {
-          "name": "CITY_SITE_PRODUCTION_BONUS",
-          "kind": "const",
-          "line": 12,
-          "signature": "export const CITY_SITE_PRODUCTION_BONUS",
-          "isDefault": false
-        },
-        {
-          "name": "CITY_SITE_SUPPLY_BONUS",
-          "kind": "const",
-          "line": 13,
-          "signature": "export const CITY_SITE_SUPPLY_BONUS",
-          "isDefault": false
-        },
-        {
-          "name": "CITY_SITE_VILLAGE_COOLDOWN_REDUCTION",
-          "kind": "const",
-          "line": 14,
-          "signature": "export const CITY_SITE_VILLAGE_COOLDOWN_REDUCTION",
-          "isDefault": false
-        },
-        {
-          "name": "SettlementOccupancyBlocker",
-          "kind": "type",
-          "line": 16,
-          "signature": "export type SettlementOccupancyBlocker = 'city' | 'village' | 'improvement' | null;",
-          "isDefault": false
-        },
-        {
-          "name": "EMPTY_CITY_SITE_BONUSES",
-          "kind": "const",
-          "line": 18,
-          "signature": "export const EMPTY_CITY_SITE_BONUSES: CitySiteBonuses",
-          "isDefault": false
-        },
-        {
-          "name": "evaluateCitySiteBonuses",
-          "kind": "function",
-          "line": 29,
-          "signature": "export function evaluateCitySiteBonuses( map: GameMap | undefined, position: HexCoord, territoryRadius = 2, ): CitySiteBonuses {",
-          "isDefault": false
-        },
-        {
-          "name": "getCitySiteBonuses",
-          "kind": "function",
-          "line": 74,
-          "signature": "export function getCitySiteBonuses( city: Pick<City, 'position' | 'territoryRadius' | 'siteBonuses'>, map: GameMap | undefined, ): CitySiteBonuses {",
-          "isDefault": false
-        },
-        {
-          "name": "createCitySiteBonuses",
-          "kind": "function",
-          "line": 83,
-          "signature": "export function createCitySiteBonuses( map: GameMap | undefined, position: HexCoord, territoryRadius = 2, ): CitySiteBonuses {",
-          "isDefault": false
-        },
-        {
-          "name": "getFactionVillageCooldownReduction",
-          "kind": "function",
-          "line": 91,
-          "signature": "export function getFactionVillageCooldownReduction( state: GameState, factionId: FactionId, ): number {",
-          "isDefault": false
-        },
-        {
-          "name": "getSettlementOccupancyBlocker",
-          "kind": "function",
-          "line": 107,
-          "signature": "export function getSettlementOccupancyBlocker( state: GameState, position: HexCoord, ): SettlementOccupancyBlocker {",
-          "isDefault": false
-        },
-        {
-          "name": "formatSettlementOccupancyBlocker",
-          "kind": "function",
-          "line": 132,
-          "signature": "export function formatSettlementOccupancyBlocker( blocker: SettlementOccupancyBlocker, ): string | undefined {",
           "isDefault": false
         }
       ]
@@ -543,31 +423,6 @@
         }
       ]
     },
-    "web/src/ui/KnowledgeGainedModal.tsx": {
-      "exports": [
-        {
-          "name": "useKnowledgeModal",
-          "kind": "function",
-          "line": 107,
-          "signature": "export function useKnowledgeModal() {",
-          "isDefault": false
-        },
-        {
-          "name": "useLearnDetector",
-          "kind": "function",
-          "line": 121,
-          "signature": "export function useLearnDetector( units: Array<{",
-          "isDefault": false
-        },
-        {
-          "name": "KnowledgeGainedModalProvider",
-          "kind": "function",
-          "line": 171,
-          "signature": "export function KnowledgeGainedModalProvider({",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/game/phaser/systems/TerrainCompositor.ts": {
       "exports": [
         {
@@ -728,24 +583,6 @@
         }
       ]
     },
-    "src/game/buildMvpScenario.ts": {
-      "exports": [
-        {
-          "name": "BuildMvpScenarioOptions",
-          "kind": "interface",
-          "line": 82,
-          "signature": "export interface BuildMvpScenarioOptions {",
-          "isDefault": false
-        },
-        {
-          "name": "buildMvpScenario",
-          "kind": "function",
-          "line": 134,
-          "signature": "export function buildMvpScenario(seed: number, options: BuildMvpScenarioOptions = {",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/ui/ResearchWindow.tsx": {
       "exports": [
         {
@@ -818,59 +655,6 @@
           "kind": "function",
           "line": 83,
           "signature": "export function evaluateBalanceRequest(request: BalanceEvaluationRequest): BalanceEvaluationResult {",
-          "isDefault": false
-        }
-      ]
-    },
-    "src/systems/aiProductionStrategy.ts": {
-      "exports": [
-        {
-          "name": "ProductionDecision",
-          "kind": "interface",
-          "line": 24,
-          "signature": "export interface ProductionDecision {",
-          "isDefault": false
-        },
-        {
-          "name": "getSupplyMargin",
-          "kind": "function",
-          "line": 82,
-          "signature": "export function getSupplyMargin(economy: {",
-          "isDefault": false
-        },
-        {
-          "name": "getProjectedSupplyMarginAfterBuild",
-          "kind": "function",
-          "line": 86,
-          "signature": "export function getProjectedSupplyMarginAfterBuild( state: GameState, factionId: FactionId, prototype: Pick<Prototype, 'chassisId'>, registry: RulesRegistry, ): number {",
-          "isDefault": false
-        },
-        {
-          "name": "scoreSupplyEfficiency",
-          "kind": "function",
-          "line": 97,
-          "signature": "export function scoreSupplyEfficiency(prototype: Pick<Prototype, 'chassisId'> & {",
-          "isDefault": false
-        },
-        {
-          "name": "scoreForceProjectionValue",
-          "kind": "function",
-          "line": 110,
-          "signature": "export function scoreForceProjectionValue( prototype: {",
-          "isDefault": false
-        },
-        {
-          "name": "rankProductionPriorities",
-          "kind": "function",
-          "line": 139,
-          "signature": "export function rankProductionPriorities( state: GameState, factionId: FactionId, strategy: FactionStrategy, registry: RulesRegistry, difficulty?: DifficultyLevel, ): ProductionPriority[] {",
-          "isDefault": false
-        },
-        {
-          "name": "chooseStrategicProduction",
-          "kind": "function",
-          "line": 343,
-          "signature": "export function chooseStrategicProduction( state: GameState, factionId: FactionId, strategy: FactionStrategy, registry: RulesRegistry, difficulty?: DifficultyLevel, ): ProductionDecision | null {",
           "isDefault": false
         }
       ]
@@ -1542,31 +1326,6 @@
         }
       ]
     },
-    "src/features/units/types.ts": {
-      "exports": [
-        {
-          "name": "HistoryEntry",
-          "kind": "interface",
-          "line": 6,
-          "signature": "export interface HistoryEntry {",
-          "isDefault": false
-        },
-        {
-          "name": "LearnedAbility",
-          "kind": "interface",
-          "line": 16,
-          "signature": "export interface LearnedAbility {",
-          "isDefault": false
-        },
-        {
-          "name": "Unit",
-          "kind": "interface",
-          "line": 22,
-          "signature": "export interface Unit {",
-          "isDefault": false
-        }
-      ]
-    },
     "vite.config.ts": {
       "exports": [
         {
@@ -1782,157 +1541,6 @@
         }
       ]
     },
-    "src/systems/signatureAbilitySystem.ts": {
-      "exports": [
-        {
-          "name": "getAbilityDomains",
-          "kind": "function",
-          "line": 24,
-          "signature": "export function getAbilityDomains(): Record<string, AbilityDomain> {",
-          "isDefault": false
-        },
-        {
-          "name": "getDomainForTag",
-          "kind": "function",
-          "line": 29,
-          "signature": "export function getDomainForTag(tag: string): AbilityDomain | null {",
-          "isDefault": false
-        },
-        {
-          "name": "unitHasTag",
-          "kind": "function",
-          "line": 40,
-          "signature": "export function unitHasTag(unit: Unit, state: GameState, tag: string): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "isElephantUnit",
-          "kind": "function",
-          "line": 55,
-          "signature": "export function isElephantUnit(prototype: {",
-          "isDefault": false
-        },
-        {
-          "name": "hasFortressTraining",
-          "kind": "function",
-          "line": 62,
-          "signature": "export function hasFortressTraining( unitId: string, state: GameState, registry: RulesRegistry ): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "isOnTundra",
-          "kind": "function",
-          "line": 83,
-          "signature": "export function isOnTundra(state: GameState, unit: Unit): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "isWaterTerrain",
-          "kind": "function",
-          "line": 91,
-          "signature": "export function isWaterTerrain(terrainId: string): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "isLandTerrain",
-          "kind": "function",
-          "line": 98,
-          "signature": "export function isLandTerrain(terrainId: string): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "getBulwarkDefenseBonus",
-          "kind": "function",
-          "line": 106,
-          "signature": "export function getBulwarkDefenseBonus( defender: Unit, state: GameState, registry: RulesRegistry, baseBonus: number = 0 ): number {",
-          "isDefault": false
-        },
-        {
-          "name": "findRetreatHex",
-          "kind": "function",
-          "line": 136,
-          "signature": "export function findRetreatHex( unit: Unit, state: GameState ): HexCoord | null {",
-          "isDefault": false
-        },
-        {
-          "name": "applyKnockback",
-          "kind": "function",
-          "line": 176,
-          "signature": "export function applyKnockback( state: GameState, attacker: Unit, defender: Unit, distance: number = 1 ): HexCoord | null {",
-          "isDefault": false
-        },
-        {
-          "name": "applyStrikeFirst",
-          "kind": "function",
-          "line": 224,
-          "signature": "export function applyStrikeFirst( attacker: Unit, defender: Unit, isCharge: boolean, defenderDestroyed: boolean ): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "applyPoisonDoT",
-          "kind": "function",
-          "line": 250,
-          "signature": "export function applyPoisonDoT( target: Unit, stacks: number, damagePerTurn: number, duration: number ): Unit {",
-          "isDefault": false
-        },
-        {
-          "name": "resolveStealth",
-          "kind": "function",
-          "line": 269,
-          "signature": "export function resolveStealth(unit: Unit, prototypeTags: string[]): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "getStealthAmbushBonus",
-          "kind": "function",
-          "line": 287,
-          "signature": "export function getStealthAmbushBonus(): number {",
-          "isDefault": false
-        },
-        {
-          "name": "breakStealth",
-          "kind": "function",
-          "line": 297,
-          "signature": "export function breakStealth(unit: Unit): Unit {",
-          "isDefault": false
-        },
-        {
-          "name": "tickStealthCooldown",
-          "kind": "function",
-          "line": 309,
-          "signature": "export function tickStealthCooldown(unit: Unit): Unit {",
-          "isDefault": false
-        },
-        {
-          "name": "enterStealth",
-          "kind": "function",
-          "line": 320,
-          "signature": "export function enterStealth(unit: Unit, prototypeTags: string[]): Unit {",
-          "isDefault": false
-        },
-        {
-          "name": "getNatureHealingAura",
-          "kind": "function",
-          "line": 330,
-          "signature": "export function getNatureHealingAura(): {",
-          "isDefault": false
-        },
-        {
-          "name": "getTidalCoastDebuff",
-          "kind": "function",
-          "line": 342,
-          "signature": "export function getTidalCoastDebuff(): number {",
-          "isDefault": false
-        },
-        {
-          "name": "getStampedeDistance",
-          "kind": "function",
-          "line": 351,
-          "signature": "export function getStampedeDistance(): number {",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/game/phaser/systems/FogRenderer.ts": {
       "exports": [
         {
@@ -2076,17 +1684,6 @@
           "kind": "function",
           "line": 86,
           "signature": "export function getTerrainDef(terrainType: TerrainType): TerrainDef {",
-          "isDefault": false
-        }
-      ]
-    },
-    "web/src/ui/ResearchTree.tsx": {
-      "exports": [
-        {
-          "name": "ResearchTree",
-          "kind": "function",
-          "line": 26,
-          "signature": "export function ResearchTree({",
           "isDefault": false
         }
       ]
@@ -2426,28 +2023,6 @@
           "kind": "function",
           "line": 33,
           "signature": "export function HelpPanel({",
-          "isDefault": false
-        }
-      ]
-    },
-    "web/src/ui/ResearchTab.tsx": {
-      "exports": [
-        {
-          "name": "ResearchTab",
-          "kind": "function",
-          "line": 26,
-          "signature": "export function ResearchTab() {",
-          "isDefault": false
-        }
-      ]
-    },
-    "web/src/ui/ResearchDetail.tsx": {
-      "exports": [
-        {
-          "name": "ResearchDetail",
-          "kind": "function",
-          "line": 19,
-          "signature": "export function ResearchDetail({",
           "isDefault": false
         }
       ]
@@ -2860,31 +2435,6 @@
           "kind": "function",
           "line": 25,
           "signature": "export function findPath( gameState: GameState, unitId: UnitId, destination: HexCoord, map: GameMap, rulesRegistry: RulesRegistry, ): PathfinderResult | null {",
-          "isDefault": false
-        }
-      ]
-    },
-    "src/systems/aiResearchStrategy.ts": {
-      "exports": [
-        {
-          "name": "ResearchDecision",
-          "kind": "interface",
-          "line": 23,
-          "signature": "export interface ResearchDecision {",
-          "isDefault": false
-        },
-        {
-          "name": "rankResearchPriorities",
-          "kind": "function",
-          "line": 622,
-          "signature": "export function rankResearchPriorities( state: GameState, factionId: FactionId, strategy: FactionStrategy, registry: RulesRegistry, difficulty?: DifficultyLevel, ): ResearchPriority[] {",
-          "isDefault": false
-        },
-        {
-          "name": "chooseStrategicResearch",
-          "kind": "function",
-          "line": 728,
-          "signature": "export function chooseStrategicResearch( state: GameState, factionId: FactionId, strategy: FactionStrategy, registry: RulesRegistry, difficulty?: DifficultyLevel, ): ResearchDecision | null {",
           "isDefault": false
         }
       ]
@@ -3354,17 +2904,6 @@
         }
       ]
     },
-    "web/src/game/phaser/scenes/MapScene.ts": {
-      "exports": [
-        {
-          "name": "MapScene",
-          "kind": "class",
-          "line": 16,
-          "signature": "export class MapScene extends Phaser.Scene {",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/ui/CombatDetailModal.tsx": {
       "exports": [
         {
@@ -3625,17 +3164,6 @@
         }
       ]
     },
-    "web/src/app/hooks/useEscapeHandler.ts": {
-      "exports": [
-        {
-          "name": "useEscapeHandler",
-          "kind": "function",
-          "line": 7,
-          "signature": "export function useEscapeHandler(deps: {",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/game/controller/sessionUtils.ts": {
       "exports": [
         {
@@ -3735,17 +3263,6 @@
         }
       ]
     },
-    "src/systems/strategic-ai/learnLoopCoordinator.ts": {
-      "exports": [
-        {
-          "name": "applyDifficultyLearnAndSacrificeCoordinator",
-          "kind": "function",
-          "line": 16,
-          "signature": "export function applyDifficultyLearnAndSacrificeCoordinator( state: GameState, factionId: FactionId, friendlyUnits: UnitWithPrototype[], intents: Record<string, UnitStrategicIntent>, targetCity: City | undefined, difficultyProfile: AiDifficultyProfile, ): string[] {",
-          "isDefault": false
-        }
-      ]
-    },
     "src/systems/strategic-ai/fronts.ts": {
       "exports": [
         {
@@ -3774,129 +3291,6 @@
           "kind": "function",
           "line": 83,
           "signature": "export function detectFronts( state: GameState, factionId: FactionId, threatenedCities: ThreatAssessment[], difficultyProfile: AiDifficultyProfile, ): FrontLine[] {",
-          "isDefault": false
-        }
-      ]
-    },
-    "src/systems/strategic-ai/objectives.ts": {
-      "exports": [
-        {
-          "name": "choosePrimaryEnemyFaction",
-          "kind": "function",
-          "line": 17,
-          "signature": "export function choosePrimaryEnemyFaction(fronts: FrontLine[], enemyUnits: UnitWithPrototype[]): FactionId | undefined {",
-          "isDefault": false
-        },
-        {
-          "name": "choosePrimaryCityObjective",
-          "kind": "function",
-          "line": 24,
-          "signature": "export function choosePrimaryCityObjective( fronts: FrontLine[], threatenedCities: ThreatAssessment[], posture: FactionPosture, state?: GameState, factionId?: FactionId, difficultyProfile?: AiDifficultyProfile, ): CityId | undefined {",
-          "isDefault": false
-        },
-        {
-          "name": "choosePrimaryFrontAnchor",
-          "kind": "function",
-          "line": 96,
-          "signature": "export function choosePrimaryFrontAnchor( fronts: FrontLine[], threatenedCities: ThreatAssessment[], posture: FactionPosture, ): HexCoord | undefined {",
-          "isDefault": false
-        },
-        {
-          "name": "chooseFocusTargets",
-          "kind": "function",
-          "line": 107,
-          "signature": "export function chooseFocusTargets( state: GameState, factionId: FactionId, primaryCityObjectiveId: CityId | undefined, fronts: FrontLine[], posture: FactionPosture, personality: AiPersonalitySnapshot, difficultyProfile: AiDifficultyProfile, ): FocusTargetDecision {",
-          "isDefault": false
-        },
-        {
-          "name": "buildRegroupAnchors",
-          "kind": "function",
-          "line": 177,
-          "signature": "export function buildRegroupAnchors( state: GameState, factionId: FactionId, fronts: FrontLine[], threatenedCities: ThreatAssessment[], ): HexCoord[] {",
-          "isDefault": false
-        },
-        {
-          "name": "getFriendlyCityAnchors",
-          "kind": "function",
-          "line": 193,
-          "signature": "export function getFriendlyCityAnchors(state: GameState, factionId: FactionId): HexCoord[] {",
-          "isDefault": false
-        },
-        {
-          "name": "findDirectedExplorationWaypoint",
-          "kind": "function",
-          "line": 201,
-          "signature": "export function findDirectedExplorationWaypoint( state: GameState, factionId: FactionId, origin: HexCoord, difficultyProfile: AiDifficultyProfile, ): HexCoord | null {",
-          "isDefault": false
-        },
-        {
-          "name": "getStrategicEnemyPressure",
-          "kind": "function",
-          "line": 250,
-          "signature": "export function getStrategicEnemyPressure( state: GameState, factionId: FactionId, position: HexCoord, radius: number, difficultyProfile: AiDifficultyProfile, ): number {",
-          "isDefault": false
-        },
-        {
-          "name": "getHarassmentSuitability",
-          "kind": "function",
-          "line": 268,
-          "signature": "export function getHarassmentSuitability(entry: UnitWithPrototype, factionId: FactionId): number {",
-          "isDefault": false
-        },
-        {
-          "name": "chooseAdaptivePressureCity",
-          "kind": "function",
-          "line": 298,
-          "signature": "export function chooseAdaptivePressureCity( state: GameState, factionId: FactionId, origin: HexCoord, excludedCityId: CityId, difficultyProfile: AiDifficultyProfile, excludedCityIds: Set<CityId> = new Set(), ): City | undefined {",
-          "isDefault": false
-        },
-        {
-          "name": "chooseEconomicDenialObjective",
-          "kind": "function",
-          "line": 340,
-          "signature": "export function chooseEconomicDenialObjective( state: GameState, factionId: FactionId, origin: HexCoord, difficultyProfile: AiDifficultyProfile, options: {",
-          "isDefault": false
-        },
-        {
-          "name": "chooseVillageFirstHunterTarget",
-          "kind": "function",
-          "line": 456,
-          "signature": "export function chooseVillageFirstHunterTarget( state: GameState, factionId: FactionId, homePosition: HexCoord, targetCity: City, difficultyProfile: AiDifficultyProfile, ): Village | undefined {",
-          "isDefault": false
-        },
-        {
-          "name": "getNearestEnemyCity",
-          "kind": "function",
-          "line": 499,
-          "signature": "export function getNearestEnemyCity( state: GameState, factionId: FactionId, origin: HexCoord, ): City | undefined {",
-          "isDefault": false
-        },
-        {
-          "name": "getSecondNearestEnemyCity",
-          "kind": "function",
-          "line": 519,
-          "signature": "export function getSecondNearestEnemyCity( state: GameState, factionId: FactionId, origin: HexCoord, excludedCityId: CityId, ): City | undefined {",
-          "isDefault": false
-        },
-        {
-          "name": "findNearestCoastalEnemyObjective",
-          "kind": "function",
-          "line": 547,
-          "signature": "export function findNearestCoastalEnemyObjective( state: GameState, factionId: FactionId, origin: HexCoord, ): {",
-          "isDefault": false
-        },
-        {
-          "name": "buildSoftTargetBudgets",
-          "kind": "function",
-          "line": 568,
-          "signature": "export function buildSoftTargetBudgets( unitCount: number, candidates: FocusTargetCandidate[], personality: AiPersonalitySnapshot, difficultyProfile: AiDifficultyProfile, ): FocusTargetBudget[] {",
-          "isDefault": false
-        },
-        {
-          "name": "selectFocusTargetCandidate",
-          "kind": "function",
-          "line": 594,
-          "signature": "export function selectFocusTargetCandidate( state: GameState, unit: import('../../game/types.js').Unit, budgets: FocusTargetBudget[], stats: {",
           "isDefault": false
         }
       ]
@@ -4411,17 +3805,6 @@
         }
       ]
     },
-    "web/src/app/hooks/useCombatBridge.ts": {
-      "exports": [
-        {
-          "name": "useCombatBridge",
-          "kind": "function",
-          "line": 13,
-          "signature": "export function useCombatBridge( controller: GameController, gameRef: React.RefObject<import('phaser').Game | null>, ) {",
-          "isDefault": false
-        }
-      ]
-    },
     "src/systems/synergyEffects.ts": {
       "exports": [
         {
@@ -4810,17 +4193,6 @@
         }
       ]
     },
-    "src/systems/healingSystem.ts": {
-      "exports": [
-        {
-          "name": "applyHealingForFaction",
-          "kind": "function",
-          "line": 138,
-          "signature": "export function applyHealingForFaction( gameState: GameState, factionId: FactionId, _registry: RulesRegistry, ): GameState {",
-          "isDefault": false
-        }
-      ]
-    },
     "src/balance/types.ts": {
       "exports": [
         {
@@ -4881,17 +4253,6 @@
         }
       ]
     },
-    "web/src/ui/CommandTray.tsx": {
-      "exports": [
-        {
-          "name": "CommandTray",
-          "kind": "function",
-          "line": 19,
-          "signature": "export function CommandTray({",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/game/view-model/inspectors/researchInspectorViewModel.ts": {
       "exports": [
         {
@@ -4917,56 +4278,6 @@
           "kind": "function",
           "line": 58,
           "signature": "export function VictoryOverlay({",
-          "isDefault": false
-        }
-      ]
-    },
-    "src/systems/aiDifficulty.ts": {
-      "exports": [
-        {
-          "name": "DifficultyLevel",
-          "kind": "type",
-          "line": 1,
-          "signature": "export type DifficultyLevel = 'easy' | 'normal' | 'hard';",
-          "isDefault": false
-        },
-        {
-          "name": "AiDifficultyProfile",
-          "kind": "interface",
-          "line": 3,
-          "signature": "export interface AiDifficultyProfile {",
-          "isDefault": false
-        },
-        {
-          "name": "getAiDifficultyProfile",
-          "kind": "function",
-          "line": 445,
-          "signature": "export function getAiDifficultyProfile(difficulty?: DifficultyLevel): AiDifficultyProfile {",
-          "isDefault": false
-        },
-        {
-          "name": "usesAdaptiveAiBehavior",
-          "kind": "function",
-          "line": 449,
-          "signature": "export function usesAdaptiveAiBehavior(difficulty?: DifficultyLevel): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "usesNormalAiBehavior",
-          "kind": "function",
-          "line": 456,
-          "signature": "export function usesNormalAiBehavior(difficulty?: DifficultyLevel): boolean {",
-          "isDefault": false
-        }
-      ]
-    },
-    "src/systems/strategic-ai/assignments.ts": {
-      "exports": [
-        {
-          "name": "assignUnitIntents",
-          "kind": "function",
-          "line": 266,
-          "signature": "export function assignUnitIntents( state: GameState, factionId: FactionId, friendlyUnits: UnitWithPrototype[], posture: FactionPosture, personality: AiPersonalitySnapshot, threatenedCities: ThreatAssessment[], primaryCityObjectiveId: CityId | undefined, primaryFrontAnchor: HexCoord | undefined, focu",
           "isDefault": false
         }
       ]
@@ -5077,175 +4388,6 @@
         }
       ]
     },
-    "web/src/ui/SynergyChip.tsx": {
-      "exports": [
-        {
-          "name": "domainGlyph",
-          "kind": "function",
-          "line": 53,
-          "signature": "export function domainGlyph(domainId: string): string {",
-          "isDefault": false
-        },
-        {
-          "name": "domainColor",
-          "kind": "function",
-          "line": 57,
-          "signature": "export function domainColor(domainId: string): string {",
-          "isDefault": false
-        },
-        {
-          "name": "domainDisplayName",
-          "kind": "function",
-          "line": 61,
-          "signature": "export function domainDisplayName(domainId: string): string {",
-          "isDefault": false
-        },
-        {
-          "name": "domainBenefit",
-          "kind": "function",
-          "line": 65,
-          "signature": "export function domainBenefit(domainId: string): string {",
-          "isDefault": false
-        },
-        {
-          "name": "SynergyChip",
-          "kind": "function",
-          "line": 253,
-          "signature": "export function SynergyChip({",
-          "isDefault": false
-        }
-      ]
-    },
-    "web/src/game/types/clientState.ts": {
-      "exports": [
-        {
-          "name": "ClientMode",
-          "kind": "type",
-          "line": 6,
-          "signature": "export type ClientMode = 'play';",
-          "isDefault": false
-        },
-        {
-          "name": "ClientSelection",
-          "kind": "type",
-          "line": 8,
-          "signature": "export type ClientSelection =",
-          "isDefault": false
-        },
-        {
-          "name": "CameraState",
-          "kind": "type",
-          "line": 15,
-          "signature": "export type CameraState = {",
-          "isDefault": false
-        },
-        {
-          "name": "HudViewModel",
-          "kind": "type",
-          "line": 19,
-          "signature": "export type HudViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "SettlementSiteTraitViewModel",
-          "kind": "type",
-          "line": 57,
-          "signature": "export type SettlementSiteTraitViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "SettlementBonusSummaryViewModel",
-          "kind": "type",
-          "line": 65,
-          "signature": "export type SettlementBonusSummaryViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "SettlementPreviewViewModel",
-          "kind": "type",
-          "line": 72,
-          "signature": "export type SettlementPreviewViewModel = SettlementBonusSummaryViewModel & {",
-          "isDefault": false
-        },
-        {
-          "name": "CityInspectorViewModel",
-          "kind": "type",
-          "line": 81,
-          "signature": "export type CityInspectorViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "DebugViewModel",
-          "kind": "type",
-          "line": 173,
-          "signature": "export type DebugViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "ClientActionState",
-          "kind": "type",
-          "line": 177,
-          "signature": "export type ClientActionState = {",
-          "isDefault": false
-        },
-        {
-          "name": "PlayFeedbackState",
-          "kind": "type",
-          "line": 192,
-          "signature": "export type PlayFeedbackState = {",
-          "isDefault": false
-        },
-        {
-          "name": "ResearchNodeViewState",
-          "kind": "type",
-          "line": 258,
-          "signature": "export type ResearchNodeViewState =",
-          "isDefault": false
-        },
-        {
-          "name": "ResearchNodeViewModel",
-          "kind": "type",
-          "line": 265,
-          "signature": "export type ResearchNodeViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "CapabilityPipViewModel",
-          "kind": "type",
-          "line": 287,
-          "signature": "export type CapabilityPipViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "ResearchRateBreakdown",
-          "kind": "type",
-          "line": 298,
-          "signature": "export type ResearchRateBreakdown = {",
-          "isDefault": false
-        },
-        {
-          "name": "ResearchInspectorViewModel",
-          "kind": "type",
-          "line": 304,
-          "signature": "export type ResearchInspectorViewModel = {",
-          "isDefault": false
-        },
-        {
-          "name": "ClientState",
-          "kind": "type",
-          "line": 318,
-          "signature": "export type ClientState = {",
-          "isDefault": false
-        },
-        {
-          "name": "GameAction",
-          "kind": "type",
-          "line": 335,
-          "signature": "export type GameAction =",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/ui/RightInspector.tsx": {
       "exports": [
         {
@@ -5275,17 +4417,6 @@
           "kind": "function",
           "line": 10,
           "signature": "export function PlayClient() {",
-          "isDefault": false
-        }
-      ]
-    },
-    "web/src/ui/GameMenuBar.tsx": {
-      "exports": [
-        {
-          "name": "GameMenuBar",
-          "kind": "function",
-          "line": 49,
-          "signature": "export function GameMenuBar({",
           "isDefault": false
         }
       ]
@@ -5590,17 +4721,6 @@
         }
       ]
     },
-    "web/src/app/GameShell.tsx": {
-      "exports": [
-        {
-          "name": "GameShell",
-          "kind": "function",
-          "line": 288,
-          "signature": "export function GameShell({",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/app/routes/MenuClient.tsx": {
       "exports": [
         {
@@ -5707,74 +4827,6 @@
         }
       ]
     },
-    "src/systems/strategicAi.ts": {
-      "exports": [
-        {
-          "name": "computeFactionStrategy",
-          "kind": "function",
-          "line": 37,
-          "signature": "export function computeFactionStrategy( state: GameState, factionId: FactionId, registry: RulesRegistry, difficulty?: DifficultyLevel, ): FactionStrategy {",
-          "isDefault": false
-        },
-        {
-          "name": "getUnitIntent",
-          "kind": "function",
-          "line": 308,
-          "signature": "export function getUnitIntent(strategy: FactionStrategy | undefined, unitId: UnitId): UnitStrategicIntent | undefined {",
-          "isDefault": false
-        },
-        {
-          "name": "scoreStrategicTerrain",
-          "kind": "function",
-          "line": 312,
-          "signature": "export function scoreStrategicTerrain( state: GameState, factionId: FactionId, hex: HexCoord, ): number {",
-          "isDefault": false
-        },
-        {
-          "name": "getNearbySupportScore",
-          "kind": "function",
-          "line": 322,
-          "signature": "export function getNearbySupportScore( state: GameState, factionId: FactionId, hex: HexCoord, ): number {",
-          "isDefault": false
-        },
-        {
-          "name": "isThreatenedCityHex",
-          "kind": "function",
-          "line": 336,
-          "signature": "export function isThreatenedCityHex( state: GameState, strategy: FactionStrategy | undefined, hex: HexCoord, ): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "getNearestFriendlyCity",
-          "kind": "function",
-          "line": 348,
-          "signature": "export function getNearestFriendlyCity( state: GameState, factionId: FactionId, origin: HexCoord, ) {",
-          "isDefault": false
-        }
-      ]
-    },
-    "src/systems/strategic-ai/difficultyCoordinator.ts": {
-      "exports": [
-        {
-          "name": "applyDifficultyCoordinator",
-          "kind": "function",
-          "line": 20,
-          "signature": "export function applyDifficultyCoordinator( state: GameState, factionId: FactionId, friendlyUnits: UnitWithPrototype[], intents: Record<string, UnitStrategicIntent>, posture: FactionPosture, difficultyProfile: AiDifficultyProfile, previousStrategy: FactionStrategy | undefined, ): string[] {",
-          "isDefault": false
-        }
-      ]
-    },
-    "web/src/game/controller/GameController.ts": {
-      "exports": [
-        {
-          "name": "GameController",
-          "kind": "class",
-          "line": 18,
-          "signature": "export class GameController {",
-          "isDefault": false
-        }
-      ]
-    },
     "src/systems/villageCaptureSystem.ts": {
       "exports": [
         {
@@ -5860,52 +4912,6 @@
           "kind": "function",
           "line": 150,
           "signature": "export function findBestRangedTarget( state: GameState, unitId: UnitId, position: HexCoord, friendlyFactionId: FactionId, myPrototype: {",
-          "isDefault": false
-        }
-      ]
-    },
-    "src/systems/capabilityDoctrine.ts": {
-      "exports": [
-        {
-          "name": "ResearchDoctrine",
-          "kind": "interface",
-          "line": 7,
-          "signature": "export interface ResearchDoctrine {",
-          "isDefault": false
-        },
-        {
-          "name": "hasCompletedResearchNodes",
-          "kind": "function",
-          "line": 68,
-          "signature": "export function hasCompletedResearchNodes( researchState: ResearchState | undefined, requiredResearchNodes: string[] | undefined ): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "meetsRecipeResearchRequirements",
-          "kind": "function",
-          "line": 80,
-          "signature": "export function meetsRecipeResearchRequirements( recipe: HybridRecipeDef, researchState: ResearchState | undefined ): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "resolveResearchDoctrine",
-          "kind": "function",
-          "line": 93,
-          "signature": "export function resolveResearchDoctrine( researchState: ResearchState | undefined, faction?: Pick<Faction, 'nativeDomain' | 'learnedDomains'>, ): ResearchDoctrine {",
-          "isDefault": false
-        },
-        {
-          "name": "resolveCapabilityDoctrine",
-          "kind": "const",
-          "line": 174,
-          "signature": "export const resolveCapabilityDoctrine",
-          "isDefault": false
-        },
-        {
-          "name": "prototypeHasComponent",
-          "kind": "function",
-          "line": 179,
-          "signature": "export function prototypeHasComponent(prototype: Prototype, componentId: string): boolean {",
           "isDefault": false
         }
       ]
@@ -6026,45 +5032,6 @@
           "kind": "type",
           "line": 142,
           "signature": "export type WorldViewModel = {",
-          "isDefault": false
-        }
-      ]
-    },
-    "src/systems/simulation/environmentalEffects.ts": {
-      "exports": [
-        {
-          "name": "HEALING_CONFIG",
-          "kind": "const",
-          "line": 13,
-          "signature": "export const HEALING_CONFIG",
-          "isDefault": false
-        },
-        {
-          "name": "getHealRate",
-          "kind": "function",
-          "line": 20,
-          "signature": "export function getHealRate(unit: {",
-          "isDefault": false
-        },
-        {
-          "name": "getTerrainAt",
-          "kind": "function",
-          "line": 50,
-          "signature": "export function getTerrainAt(state: GameState, pos: HexCoord): string {",
-          "isDefault": false
-        },
-        {
-          "name": "occupiesFriendlySettlement",
-          "kind": "function",
-          "line": 54,
-          "signature": "export function occupiesFriendlySettlement(state: GameState, unit: Unit): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "applyEnvironmentalDamage",
-          "kind": "function",
-          "line": 88,
-          "signature": "export function applyEnvironmentalDamage( state: GameState, factionId: FactionId, registry: RulesRegistry, trace?: SimulationTrace ): GameState {",
           "isDefault": false
         }
       ]
@@ -6203,17 +5170,6 @@
         }
       ]
     },
-    "src/systems/combat-action/apply.ts": {
-      "exports": [
-        {
-          "name": "applyCombatAction",
-          "kind": "function",
-          "line": 44,
-          "signature": "export function applyCombatAction( state: GameState, registry: RulesRegistry, preview: CombatActionPreview, ): CombatActionApplyResult {",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/ui/CombatLogPanel.tsx": {
       "exports": [
         {
@@ -6341,17 +5297,6 @@
         }
       ]
     },
-    "web/src/ui/ContextInspector.tsx": {
-      "exports": [
-        {
-          "name": "ContextInspector",
-          "kind": "function",
-          "line": 35,
-          "signature": "export function ContextInspector({",
-          "isDefault": false
-        }
-      ]
-    },
     "src/systems/movementSystem.ts": {
       "exports": [
         {
@@ -6391,24 +5336,6 @@
         }
       ]
     },
-    "web/src/game/controller/GameSession.ts": {
-      "exports": [
-        {
-          "name": "SessionSaveSnapshot",
-          "kind": "type",
-          "line": 125,
-          "signature": "export type SessionSaveSnapshot = {",
-          "isDefault": false
-        },
-        {
-          "name": "GameSession",
-          "kind": "class",
-          "line": 137,
-          "signature": "export class GameSession {",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/game/view-model/worldViewModel.ts": {
       "exports": [
         {
@@ -6444,56 +5371,6 @@
           "kind": "reexport",
           "line": 95,
           "signature": "export { buildResearchInspectorViewModel };",
-          "isDefault": false
-        }
-      ]
-    },
-    "web/src/ui/TutorialOverlay.tsx": {
-      "exports": [
-        {
-          "name": "TutorialOverlay",
-          "kind": "function",
-          "line": 48,
-          "signature": "export function TutorialOverlay({",
-          "isDefault": false
-        }
-      ]
-    },
-    "web/src/data/help-content.ts": {
-      "exports": [
-        {
-          "name": "HelpSection",
-          "kind": "interface",
-          "line": 5,
-          "signature": "export interface HelpSection {",
-          "isDefault": false
-        },
-        {
-          "name": "TribeProfile",
-          "kind": "interface",
-          "line": 11,
-          "signature": "export interface TribeProfile {",
-          "isDefault": false
-        },
-        {
-          "name": "SynergyGuideEntry",
-          "kind": "interface",
-          "line": 23,
-          "signature": "export interface SynergyGuideEntry {",
-          "isDefault": false
-        },
-        {
-          "name": "HelpContent",
-          "kind": "interface",
-          "line": 28,
-          "signature": "export interface HelpContent {",
-          "isDefault": false
-        },
-        {
-          "name": "helpContent",
-          "kind": "const",
-          "line": 36,
-          "signature": "export const helpContent: HelpContent",
           "isDefault": false
         }
       ]
@@ -6575,66 +5452,6 @@
           "kind": "function",
           "line": 211,
           "signature": "export function setResearchRate( state: ResearchState, rate: number ): ResearchState {",
-          "isDefault": false
-        }
-      ]
-    },
-    "src/systems/synergyEngine.ts": {
-      "exports": [
-        {
-          "name": "DomainConfig",
-          "kind": "interface",
-          "line": 3,
-          "signature": "export interface DomainConfig {",
-          "isDefault": false
-        },
-        {
-          "name": "PairSynergyConfig",
-          "kind": "interface",
-          "line": 11,
-          "signature": "export interface PairSynergyConfig {",
-          "isDefault": false
-        },
-        {
-          "name": "EmergentRuleConfig",
-          "kind": "interface",
-          "line": 20,
-          "signature": "export interface EmergentRuleConfig {",
-          "isDefault": false
-        },
-        {
-          "name": "SynergyEffect",
-          "kind": "type",
-          "line": 30,
-          "signature": "export type SynergyEffect =",
-          "isDefault": false
-        },
-        {
-          "name": "EmergentEffect",
-          "kind": "type",
-          "line": 81,
-          "signature": "export type EmergentEffect =",
-          "isDefault": false
-        },
-        {
-          "name": "ActiveSynergy",
-          "kind": "interface",
-          "line": 94,
-          "signature": "export interface ActiveSynergy {",
-          "isDefault": false
-        },
-        {
-          "name": "ActiveTripleStack",
-          "kind": "interface",
-          "line": 101,
-          "signature": "export interface ActiveTripleStack {",
-          "isDefault": false
-        },
-        {
-          "name": "SynergyEngine",
-          "kind": "class",
-          "line": 108,
-          "signature": "export class SynergyEngine {",
           "isDefault": false
         }
       ]
@@ -6777,105 +5594,6 @@
         }
       ]
     },
-    "src/systems/siegeSystem.ts": {
-      "exports": [
-        {
-          "name": "SIEGE_CONFIG",
-          "kind": "const",
-          "line": 19,
-          "signature": "export const SIEGE_CONFIG",
-          "isDefault": false
-        },
-        {
-          "name": "degradeWalls",
-          "kind": "function",
-          "line": 29,
-          "signature": "export function degradeWalls(city: City, isCoastalWalls = false): City {",
-          "isDefault": false
-        },
-        {
-          "name": "repairWalls",
-          "kind": "function",
-          "line": 43,
-          "signature": "export function repairWalls(city: City): City {",
-          "isDefault": false
-        },
-        {
-          "name": "getWallDefenseBonus",
-          "kind": "function",
-          "line": 58,
-          "signature": "export function getWallDefenseBonus(state: GameState, position: {",
-          "isDefault": false
-        },
-        {
-          "name": "hasDefendingGarrison",
-          "kind": "function",
-          "line": 76,
-          "signature": "export function hasDefendingGarrison(city: City, state: GameState): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "isCityVulnerable",
-          "kind": "function",
-          "line": 89,
-          "signature": "export function isCityVulnerable(city: City, state: GameState): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "getCapturingFaction",
-          "kind": "function",
-          "line": 97,
-          "signature": "export function getCapturingFaction( city: City, state: GameState ): FactionId | null {",
-          "isDefault": false
-        },
-        {
-          "name": "CaptureCityResult",
-          "kind": "interface",
-          "line": 137,
-          "signature": "export interface CaptureCityResult {",
-          "isDefault": false
-        },
-        {
-          "name": "captureCity",
-          "kind": "function",
-          "line": 146,
-          "signature": "export function captureCity( city: City, newOwnerFactionId: FactionId, state: GameState ): GameState {",
-          "isDefault": false
-        },
-        {
-          "name": "captureCityWithResult",
-          "kind": "function",
-          "line": 158,
-          "signature": "export function captureCityWithResult( city: City, newOwnerFactionId: FactionId, state: GameState ): CaptureCityResult {",
-          "isDefault": false
-        }
-      ]
-    },
-    "src/systems/sacrificeSystem.ts": {
-      "exports": [
-        {
-          "name": "canSacrifice",
-          "kind": "function",
-          "line": 40,
-          "signature": "export function canSacrifice(unit: Unit, faction: Faction, state: GameState): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "performSacrifice",
-          "kind": "function",
-          "line": 80,
-          "signature": "export function performSacrifice( unitId: UnitId, factionId: FactionId, state: GameState, registry: RulesRegistry, trace?: SimulationTrace ): GameState {",
-          "isDefault": false
-        },
-        {
-          "name": "autoCompleteResearchForDomains",
-          "kind": "function",
-          "line": 208,
-          "signature": "export function autoCompleteResearchForDomains( state: GameState, factionId: FactionId, domainIds: string[], registry: RulesRegistry, trace?: SimulationTrace ): GameState {",
-          "isDefault": false
-        }
-      ]
-    },
     "src/systems/territorySystem.ts": {
       "exports": [
         {
@@ -6922,42 +5640,6 @@
         }
       ]
     },
-    "src/systems/simulation/factionTurnEffects.ts": {
-      "exports": [
-        {
-          "name": "processFactionPhases",
-          "kind": "function",
-          "line": 535,
-          "signature": "export function processFactionPhases( state: GameState, factionId: FactionId, registry: RulesRegistry, trace?: SimulationTrace, difficulty?: DifficultyLevel, ): GameState {",
-          "isDefault": false
-        }
-      ]
-    },
-    "src/systems/unit-activation/activateUnit.ts": {
-      "exports": [
-        {
-          "name": "maybeExpirePreparedAbility",
-          "kind": "function",
-          "line": 53,
-          "signature": "export function maybeExpirePreparedAbility(unit: Unit, round: number, state: GameState): Unit {",
-          "isDefault": false
-        },
-        {
-          "name": "activateUnit",
-          "kind": "function",
-          "line": 69,
-          "signature": "export function activateUnit( state: GameState, unitId: UnitId, registry: RulesRegistry, options: UnitActivationOptions = {",
-          "isDefault": false
-        },
-        {
-          "name": "activateAiUnit",
-          "kind": "function",
-          "line": 606,
-          "signature": "export function activateAiUnit( state: GameState, unitId: UnitId, registry: RulesRegistry, options: UnitActivationOptions = {",
-          "isDefault": false
-        }
-      ]
-    },
     "src/systems/simulation/victory.ts": {
       "exports": [
         {
@@ -6972,140 +5654,6 @@
           "kind": "function",
           "line": 62,
           "signature": "export function getAliveFactions(state: GameState): Set<FactionId> {",
-          "isDefault": false
-        }
-      ]
-    },
-    "src/systems/villageSystem.ts": {
-      "exports": [
-        {
-          "name": "VillageSpawnReadiness",
-          "kind": "type",
-          "line": 21,
-          "signature": "export type VillageSpawnReadiness = {",
-          "isDefault": false
-        },
-        {
-          "name": "countVillagesInCityTerritory",
-          "kind": "function",
-          "line": 38,
-          "signature": "export function countVillagesInCityTerritory(state: GameState, city: City): number {",
-          "isDefault": false
-        },
-        {
-          "name": "canSpawnVillage",
-          "kind": "function",
-          "line": 53,
-          "signature": "export function canSpawnVillage( state: GameState, cityId: CityId, registry?: RulesRegistry, ): boolean {",
-          "isDefault": false
-        },
-        {
-          "name": "getVillageSpawnReadiness",
-          "kind": "function",
-          "line": 61,
-          "signature": "export function getVillageSpawnReadiness( state: GameState, cityId: CityId, registry?: RulesRegistry, ): VillageSpawnReadiness {",
-          "isDefault": false
-        },
-        {
-          "name": "findVillageSpawnHexForCity",
-          "kind": "function",
-          "line": 101,
-          "signature": "export function findVillageSpawnHexForCity( state: GameState, city: City, registry: RulesRegistry, ): HexCoord | null {",
-          "isDefault": false
-        },
-        {
-          "name": "spawnVillage",
-          "kind": "function",
-          "line": 151,
-          "signature": "export function spawnVillage( state: GameState, factionId: FactionId, position: HexCoord, _registry: RulesRegistry, sourceCityId?: CityId, ): GameState {",
-          "isDefault": false
-        },
-        {
-          "name": "evaluateAndSpawnVillage",
-          "kind": "function",
-          "line": 204,
-          "signature": "export function evaluateAndSpawnVillage( state: GameState, factionId: FactionId, registry: RulesRegistry, ): GameState {",
-          "isDefault": false
-        },
-        {
-          "name": "getVillageCount",
-          "kind": "function",
-          "line": 235,
-          "signature": "export function getVillageCount(state: GameState, factionId: FactionId): number {",
-          "isDefault": false
-        },
-        {
-          "name": "getVillageSpawnReadinessWithRegistry",
-          "kind": "function",
-          "line": 239,
-          "signature": "export function getVillageSpawnReadinessWithRegistry( state: GameState, cityId: CityId, registry: RulesRegistry, ): VillageSpawnReadiness {",
-          "isDefault": false
-        },
-        {
-          "name": "destroyVillage",
-          "kind": "function",
-          "line": 250,
-          "signature": "export function destroyVillage(state: GameState, villageId: VillageId): GameState {",
-          "isDefault": false
-        },
-        {
-          "name": "destroyVillagesInCityTerritory",
-          "kind": "function",
-          "line": 279,
-          "signature": "export function destroyVillagesInCityTerritory(state: GameState, city: City): GameState {",
-          "isDefault": false
-        }
-      ]
-    },
-    "src/systems/combatSystem.ts": {
-      "exports": [
-        {
-          "name": "CombatResult",
-          "kind": "interface",
-          "line": 15,
-          "signature": "export interface CombatResult {",
-          "isDefault": false
-        },
-        {
-          "name": "CombatModifier",
-          "kind": "interface",
-          "line": 58,
-          "signature": "export interface CombatModifier {",
-          "isDefault": false
-        },
-        {
-          "name": "resolveCombat",
-          "kind": "function",
-          "line": 122,
-          "signature": "export function resolveCombat( attacker: Unit, defender: Unit, attackerPrototype: Prototype, defenderPrototype: Prototype, attackerVeteranBonus: number, defenderVeteranBonus: number, attackerTerrain: TerrainDef | undefined, defenderTerrain: TerrainDef | undefined, defenderImprovementBonus: number, d",
-          "isDefault": false
-        },
-        {
-          "name": "getVeteranStatBonus",
-          "kind": "function",
-          "line": 313,
-          "signature": "export function getVeteranStatBonus(registry: RulesRegistry, veteranLevel: string): number {",
-          "isDefault": false
-        },
-        {
-          "name": "getVeteranDefenseBonus",
-          "kind": "function",
-          "line": 319,
-          "signature": "export function getVeteranDefenseBonus(registry: RulesRegistry, veteranLevel: string): number {",
-          "isDefault": false
-        },
-        {
-          "name": "getVeteranMoraleBonus",
-          "kind": "function",
-          "line": 325,
-          "signature": "export function getVeteranMoraleBonus(registry: RulesRegistry, veteranLevel: string): number {",
-          "isDefault": false
-        },
-        {
-          "name": "addBattleHistory",
-          "kind": "function",
-          "line": 331,
-          "signature": "export function addBattleHistory(unit: Unit, opponentId: string, won: boolean): void {",
           "isDefault": false
         }
       ]
@@ -7314,6 +5862,503 @@
         }
       ]
     },
+    "src/systems/aiResearchStrategy.ts": {
+      "exports": [
+        {
+          "name": "ResearchDecision",
+          "kind": "interface",
+          "line": 23,
+          "signature": "export interface ResearchDecision {",
+          "isDefault": false
+        },
+        {
+          "name": "rankResearchPriorities",
+          "kind": "function",
+          "line": 622,
+          "signature": "export function rankResearchPriorities( state: GameState, factionId: FactionId, strategy: FactionStrategy, registry: RulesRegistry, difficulty?: DifficultyLevel, ): ResearchPriority[] {",
+          "isDefault": false
+        },
+        {
+          "name": "chooseStrategicResearch",
+          "kind": "function",
+          "line": 728,
+          "signature": "export function chooseStrategicResearch( state: GameState, factionId: FactionId, strategy: FactionStrategy, registry: RulesRegistry, difficulty?: DifficultyLevel, ): ResearchDecision | null {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/healingSystem.ts": {
+      "exports": [
+        {
+          "name": "applyHealingForFaction",
+          "kind": "function",
+          "line": 138,
+          "signature": "export function applyHealingForFaction( gameState: GameState, factionId: FactionId, _registry: RulesRegistry, ): GameState {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/ui/TechDiscoveryModal.tsx": {
+      "exports": [
+        {
+          "name": "useTechDiscoveryModal",
+          "kind": "function",
+          "line": 41,
+          "signature": "export function useTechDiscoveryModal() {",
+          "isDefault": false
+        },
+        {
+          "name": "useTechDiscoveryDetector",
+          "kind": "function",
+          "line": 49,
+          "signature": "export function useTechDiscoveryDetector( lastResearchCompletion: {",
+          "isDefault": false
+        },
+        {
+          "name": "TechDiscoveryModalProvider",
+          "kind": "function",
+          "line": 70,
+          "signature": "export function TechDiscoveryModalProvider({",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/game/buildMvpScenario.ts": {
+      "exports": [
+        {
+          "name": "BuildMvpScenarioOptions",
+          "kind": "interface",
+          "line": 82,
+          "signature": "export interface BuildMvpScenarioOptions {",
+          "isDefault": false
+        },
+        {
+          "name": "buildMvpScenario",
+          "kind": "function",
+          "line": 134,
+          "signature": "export function buildMvpScenario(seed: number, options: BuildMvpScenarioOptions = {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/signatureAbilitySystem.ts": {
+      "exports": [
+        {
+          "name": "getAbilityDomains",
+          "kind": "function",
+          "line": 24,
+          "signature": "export function getAbilityDomains(): Record<string, AbilityDomain> {",
+          "isDefault": false
+        },
+        {
+          "name": "getDomainForTag",
+          "kind": "function",
+          "line": 29,
+          "signature": "export function getDomainForTag(tag: string): AbilityDomain | null {",
+          "isDefault": false
+        },
+        {
+          "name": "unitHasTag",
+          "kind": "function",
+          "line": 40,
+          "signature": "export function unitHasTag(unit: Unit, state: GameState, tag: string): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "isElephantUnit",
+          "kind": "function",
+          "line": 55,
+          "signature": "export function isElephantUnit(prototype: {",
+          "isDefault": false
+        },
+        {
+          "name": "hasFortressTraining",
+          "kind": "function",
+          "line": 62,
+          "signature": "export function hasFortressTraining( unitId: string, state: GameState, registry: RulesRegistry ): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "isOnTundra",
+          "kind": "function",
+          "line": 83,
+          "signature": "export function isOnTundra(state: GameState, unit: Unit): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "isWaterTerrain",
+          "kind": "function",
+          "line": 91,
+          "signature": "export function isWaterTerrain(terrainId: string): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "isLandTerrain",
+          "kind": "function",
+          "line": 98,
+          "signature": "export function isLandTerrain(terrainId: string): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "getBulwarkDefenseBonus",
+          "kind": "function",
+          "line": 106,
+          "signature": "export function getBulwarkDefenseBonus( defender: Unit, state: GameState, registry: RulesRegistry, baseBonus: number = 0 ): number {",
+          "isDefault": false
+        },
+        {
+          "name": "findRetreatHex",
+          "kind": "function",
+          "line": 136,
+          "signature": "export function findRetreatHex( unit: Unit, state: GameState ): HexCoord | null {",
+          "isDefault": false
+        },
+        {
+          "name": "applyKnockback",
+          "kind": "function",
+          "line": 176,
+          "signature": "export function applyKnockback( state: GameState, attacker: Unit, defender: Unit, distance: number = 1 ): HexCoord | null {",
+          "isDefault": false
+        },
+        {
+          "name": "applyStrikeFirst",
+          "kind": "function",
+          "line": 224,
+          "signature": "export function applyStrikeFirst( attacker: Unit, defender: Unit, isCharge: boolean, defenderDestroyed: boolean ): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "applyPoisonDoT",
+          "kind": "function",
+          "line": 250,
+          "signature": "export function applyPoisonDoT( target: Unit, stacks: number, damagePerTurn: number, duration: number ): Unit {",
+          "isDefault": false
+        },
+        {
+          "name": "resolveStealth",
+          "kind": "function",
+          "line": 270,
+          "signature": "export function resolveStealth(unit: Unit, prototypeTags: string[]): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "getStealthAmbushBonus",
+          "kind": "function",
+          "line": 288,
+          "signature": "export function getStealthAmbushBonus(): number {",
+          "isDefault": false
+        },
+        {
+          "name": "breakStealth",
+          "kind": "function",
+          "line": 298,
+          "signature": "export function breakStealth(unit: Unit): Unit {",
+          "isDefault": false
+        },
+        {
+          "name": "tickStealthCooldown",
+          "kind": "function",
+          "line": 310,
+          "signature": "export function tickStealthCooldown(unit: Unit): Unit {",
+          "isDefault": false
+        },
+        {
+          "name": "enterStealth",
+          "kind": "function",
+          "line": 321,
+          "signature": "export function enterStealth(unit: Unit, prototypeTags: string[]): Unit {",
+          "isDefault": false
+        },
+        {
+          "name": "getNatureHealingAura",
+          "kind": "function",
+          "line": 331,
+          "signature": "export function getNatureHealingAura(): {",
+          "isDefault": false
+        },
+        {
+          "name": "getTidalCoastDebuff",
+          "kind": "function",
+          "line": 343,
+          "signature": "export function getTidalCoastDebuff(): number {",
+          "isDefault": false
+        },
+        {
+          "name": "getStampedeDistance",
+          "kind": "function",
+          "line": 352,
+          "signature": "export function getStampedeDistance(): number {",
+          "isDefault": false
+        }
+      ]
+    },
+    "POISON_DAMAGE_INVESTIGATION.md": {
+      "exports": [
+        {
+          "name": "applyPoisonDoT",
+          "kind": "function",
+          "line": 102,
+          "signature": "export function applyPoisonDoT( target: Unit, stacks: number, abilityId?: AbilityId, ): Unit {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/synergyEngine.ts": {
+      "exports": [
+        {
+          "name": "DomainConfig",
+          "kind": "interface",
+          "line": 3,
+          "signature": "export interface DomainConfig {",
+          "isDefault": false
+        },
+        {
+          "name": "PairSynergyConfig",
+          "kind": "interface",
+          "line": 11,
+          "signature": "export interface PairSynergyConfig {",
+          "isDefault": false
+        },
+        {
+          "name": "EmergentRuleConfig",
+          "kind": "interface",
+          "line": 20,
+          "signature": "export interface EmergentRuleConfig {",
+          "isDefault": false
+        },
+        {
+          "name": "SynergyEffect",
+          "kind": "type",
+          "line": 30,
+          "signature": "export type SynergyEffect =",
+          "isDefault": false
+        },
+        {
+          "name": "EmergentEffect",
+          "kind": "type",
+          "line": 81,
+          "signature": "export type EmergentEffect =",
+          "isDefault": false
+        },
+        {
+          "name": "ActiveSynergy",
+          "kind": "interface",
+          "line": 94,
+          "signature": "export interface ActiveSynergy {",
+          "isDefault": false
+        },
+        {
+          "name": "ActiveTripleStack",
+          "kind": "interface",
+          "line": 101,
+          "signature": "export interface ActiveTripleStack {",
+          "isDefault": false
+        },
+        {
+          "name": "SynergyEngine",
+          "kind": "class",
+          "line": 108,
+          "signature": "export class SynergyEngine {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/capabilityDoctrine.ts": {
+      "exports": [
+        {
+          "name": "ResearchDoctrine",
+          "kind": "interface",
+          "line": 7,
+          "signature": "export interface ResearchDoctrine {",
+          "isDefault": false
+        },
+        {
+          "name": "hasCompletedResearchNodes",
+          "kind": "function",
+          "line": 68,
+          "signature": "export function hasCompletedResearchNodes( researchState: ResearchState | undefined, requiredResearchNodes: string[] | undefined ): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "meetsRecipeResearchRequirements",
+          "kind": "function",
+          "line": 80,
+          "signature": "export function meetsRecipeResearchRequirements( recipe: HybridRecipeDef, researchState: ResearchState | undefined ): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "resolveResearchDoctrine",
+          "kind": "function",
+          "line": 93,
+          "signature": "export function resolveResearchDoctrine( researchState: ResearchState | undefined, faction?: Pick<Faction, 'nativeDomain' | 'learnedDomains'>, ): ResearchDoctrine {",
+          "isDefault": false
+        },
+        {
+          "name": "resolveCapabilityDoctrine",
+          "kind": "const",
+          "line": 174,
+          "signature": "export const resolveCapabilityDoctrine",
+          "isDefault": false
+        },
+        {
+          "name": "prototypeHasComponent",
+          "kind": "function",
+          "line": 179,
+          "signature": "export function prototypeHasComponent(prototype: Prototype, componentId: string): boolean {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/types/playState.ts": {
+      "exports": [
+        {
+          "name": "SerializedGameMap",
+          "kind": "type",
+          "line": 18,
+          "signature": "export type SerializedGameMap = Omit<GameMap, 'tiles'> & {",
+          "isDefault": false
+        },
+        {
+          "name": "SerializedGameState",
+          "kind": "type",
+          "line": 22,
+          "signature": "export type SerializedGameState = Omit<",
+          "isDefault": false
+        },
+        {
+          "name": "PlayStateSource",
+          "kind": "type",
+          "line": 62,
+          "signature": "export type PlayStateSource =",
+          "isDefault": false
+        },
+        {
+          "name": "serializeGameState",
+          "kind": "function",
+          "line": 72,
+          "signature": "export function serializeGameState(state: GameState): SerializedGameState {",
+          "isDefault": false
+        },
+        {
+          "name": "deserializeGameState",
+          "kind": "function",
+          "line": 106,
+          "signature": "export function deserializeGameState(payload: SerializedGameState): GameState {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/ui/ResearchDetail.tsx": {
+      "exports": [
+        {
+          "name": "ResearchDetail",
+          "kind": "function",
+          "line": 19,
+          "signature": "export function ResearchDetail({",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/simulation/factionTurnEffects.ts": {
+      "exports": [
+        {
+          "name": "processFactionPhases",
+          "kind": "function",
+          "line": 534,
+          "signature": "export function processFactionPhases( state: GameState, factionId: FactionId, registry: RulesRegistry, trace?: SimulationTrace, difficulty?: DifficultyLevel, ): GameState {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/ui/SynergyChip.tsx": {
+      "exports": [
+        {
+          "name": "domainGlyph",
+          "kind": "function",
+          "line": 53,
+          "signature": "export function domainGlyph(domainId: string): string {",
+          "isDefault": false
+        },
+        {
+          "name": "domainColor",
+          "kind": "function",
+          "line": 57,
+          "signature": "export function domainColor(domainId: string): string {",
+          "isDefault": false
+        },
+        {
+          "name": "domainDisplayName",
+          "kind": "function",
+          "line": 61,
+          "signature": "export function domainDisplayName(domainId: string): string {",
+          "isDefault": false
+        },
+        {
+          "name": "domainBenefit",
+          "kind": "function",
+          "line": 65,
+          "signature": "export function domainBenefit(domainId: string): string {",
+          "isDefault": false
+        },
+        {
+          "name": "SynergyChip",
+          "kind": "function",
+          "line": 253,
+          "signature": "export function SynergyChip({",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/ui/GameMenuBar.tsx": {
+      "exports": [
+        {
+          "name": "GameMenuBar",
+          "kind": "function",
+          "line": 53,
+          "signature": "export function GameMenuBar({",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/simulation/environmentalEffects.ts": {
+      "exports": [
+        {
+          "name": "HEALING_CONFIG",
+          "kind": "const",
+          "line": 13,
+          "signature": "export const HEALING_CONFIG",
+          "isDefault": false
+        },
+        {
+          "name": "getHealRate",
+          "kind": "function",
+          "line": 20,
+          "signature": "export function getHealRate(unit: {",
+          "isDefault": false
+        },
+        {
+          "name": "getTerrainAt",
+          "kind": "function",
+          "line": 50,
+          "signature": "export function getTerrainAt(state: GameState, pos: HexCoord): string {",
+          "isDefault": false
+        },
+        {
+          "name": "occupiesFriendlySettlement",
+          "kind": "function",
+          "line": 54,
+          "signature": "export function occupiesFriendlySettlement(state: GameState, unit: Unit): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "applyEnvironmentalDamage",
+          "kind": "function",
+          "line": 88,
+          "signature": "export function applyEnvironmentalDamage( state: GameState, factionId: FactionId, registry: RulesRegistry, trace?: SimulationTrace ): GameState {",
+          "isDefault": false
+        }
+      ]
+    },
     "src/systems/productionSystem.ts": {
       "exports": [
         {
@@ -7485,20 +6530,1074 @@
           "isDefault": false
         }
       ]
+    },
+    "web/src/data/help-content.ts": {
+      "exports": [
+        {
+          "name": "HelpSection",
+          "kind": "interface",
+          "line": 5,
+          "signature": "export interface HelpSection {",
+          "isDefault": false
+        },
+        {
+          "name": "TribeProfile",
+          "kind": "interface",
+          "line": 11,
+          "signature": "export interface TribeProfile {",
+          "isDefault": false
+        },
+        {
+          "name": "SynergyGuideEntry",
+          "kind": "interface",
+          "line": 23,
+          "signature": "export interface SynergyGuideEntry {",
+          "isDefault": false
+        },
+        {
+          "name": "HelpContent",
+          "kind": "interface",
+          "line": 28,
+          "signature": "export interface HelpContent {",
+          "isDefault": false
+        },
+        {
+          "name": "helpContent",
+          "kind": "const",
+          "line": 36,
+          "signature": "export const helpContent: HelpContent",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/strategic-ai/learnLoopCoordinator.ts": {
+      "exports": [
+        {
+          "name": "applyDifficultyLearnAndSacrificeCoordinator",
+          "kind": "function",
+          "line": 16,
+          "signature": "export function applyDifficultyLearnAndSacrificeCoordinator( state: GameState, factionId: FactionId, friendlyUnits: UnitWithPrototype[], intents: Record<string, UnitStrategicIntent>, targetCity: City | undefined, difficultyProfile: AiDifficultyProfile, ): string[] {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/app/hooks/useUndoHandler.ts": {
+      "exports": [
+        {
+          "name": "useUndoHandler",
+          "kind": "function",
+          "line": 4,
+          "signature": "export function useUndoHandler(controller: GameController) {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/siegeSystem.ts": {
+      "exports": [
+        {
+          "name": "SIEGE_CONFIG",
+          "kind": "const",
+          "line": 21,
+          "signature": "export const SIEGE_CONFIG",
+          "isDefault": false
+        },
+        {
+          "name": "degradeWalls",
+          "kind": "function",
+          "line": 31,
+          "signature": "export function degradeWalls(city: City, isCoastalWalls = false): City {",
+          "isDefault": false
+        },
+        {
+          "name": "repairWalls",
+          "kind": "function",
+          "line": 45,
+          "signature": "export function repairWalls(city: City): City {",
+          "isDefault": false
+        },
+        {
+          "name": "getWallDefenseBonus",
+          "kind": "function",
+          "line": 60,
+          "signature": "export function getWallDefenseBonus(state: GameState, position: {",
+          "isDefault": false
+        },
+        {
+          "name": "hasDefendingGarrison",
+          "kind": "function",
+          "line": 78,
+          "signature": "export function hasDefendingGarrison(city: City, state: GameState): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "isCityVulnerable",
+          "kind": "function",
+          "line": 91,
+          "signature": "export function isCityVulnerable(city: City, state: GameState): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "getCapturingFaction",
+          "kind": "function",
+          "line": 99,
+          "signature": "export function getCapturingFaction( city: City, state: GameState ): FactionId | null {",
+          "isDefault": false
+        },
+        {
+          "name": "CaptureCityResult",
+          "kind": "interface",
+          "line": 139,
+          "signature": "export interface CaptureCityResult {",
+          "isDefault": false
+        },
+        {
+          "name": "captureCity",
+          "kind": "function",
+          "line": 148,
+          "signature": "export function captureCity( city: City, newOwnerFactionId: FactionId, state: GameState ): GameState {",
+          "isDefault": false
+        },
+        {
+          "name": "captureCityWithResult",
+          "kind": "function",
+          "line": 160,
+          "signature": "export function captureCityWithResult( city: City, newOwnerFactionId: FactionId, state: GameState ): CaptureCityResult {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/app/GameShell.tsx": {
+      "exports": [
+        {
+          "name": "GameShell",
+          "kind": "function",
+          "line": 312,
+          "signature": "export function GameShell({",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/citySiteSystem.ts": {
+      "exports": [
+        {
+          "name": "CITY_SITE_PRODUCTION_BONUS",
+          "kind": "const",
+          "line": 13,
+          "signature": "export const CITY_SITE_PRODUCTION_BONUS",
+          "isDefault": false
+        },
+        {
+          "name": "CITY_SITE_SUPPLY_BONUS",
+          "kind": "const",
+          "line": 14,
+          "signature": "export const CITY_SITE_SUPPLY_BONUS",
+          "isDefault": false
+        },
+        {
+          "name": "CITY_SITE_VILLAGE_COOLDOWN_REDUCTION",
+          "kind": "const",
+          "line": 15,
+          "signature": "export const CITY_SITE_VILLAGE_COOLDOWN_REDUCTION",
+          "isDefault": false
+        },
+        {
+          "name": "SettlementOccupancyBlocker",
+          "kind": "type",
+          "line": 17,
+          "signature": "export type SettlementOccupancyBlocker = 'city' | 'village' | 'improvement' | null;",
+          "isDefault": false
+        },
+        {
+          "name": "EMPTY_CITY_SITE_BONUSES",
+          "kind": "const",
+          "line": 19,
+          "signature": "export const EMPTY_CITY_SITE_BONUSES: CitySiteBonuses",
+          "isDefault": false
+        },
+        {
+          "name": "evaluateCitySiteBonuses",
+          "kind": "function",
+          "line": 30,
+          "signature": "export function evaluateCitySiteBonuses( map: GameMap | undefined, position: HexCoord, territoryRadius = 2, ): CitySiteBonuses {",
+          "isDefault": false
+        },
+        {
+          "name": "getCitySiteBonuses",
+          "kind": "function",
+          "line": 75,
+          "signature": "export function getCitySiteBonuses( city: Pick<City, 'position' | 'territoryRadius' | 'siteBonuses'>, map: GameMap | undefined, ): CitySiteBonuses {",
+          "isDefault": false
+        },
+        {
+          "name": "createCitySiteBonuses",
+          "kind": "function",
+          "line": 84,
+          "signature": "export function createCitySiteBonuses( map: GameMap | undefined, position: HexCoord, territoryRadius = 2, ): CitySiteBonuses {",
+          "isDefault": false
+        },
+        {
+          "name": "getFactionVillageCooldownReduction",
+          "kind": "function",
+          "line": 92,
+          "signature": "export function getFactionVillageCooldownReduction( state: GameState, factionId: FactionId, ): number {",
+          "isDefault": false
+        },
+        {
+          "name": "getSettlementOccupancyBlocker",
+          "kind": "function",
+          "line": 108,
+          "signature": "export function getSettlementOccupancyBlocker( state: GameState, position: HexCoord, ): SettlementOccupancyBlocker {",
+          "isDefault": false
+        },
+        {
+          "name": "formatSettlementOccupancyBlocker",
+          "kind": "function",
+          "line": 133,
+          "signature": "export function formatSettlementOccupancyBlocker( blocker: SettlementOccupancyBlocker, ): string | undefined {",
+          "isDefault": false
+        },
+        {
+          "name": "findBestCitySiteForFaction",
+          "kind": "function",
+          "line": 153,
+          "signature": "export function findBestCitySiteForFaction( state: GameState, factionId: FactionId, settlerPosition: HexCoord, options: {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/ui/ResearchTree.tsx": {
+      "exports": [
+        {
+          "name": "ResearchTree",
+          "kind": "function",
+          "line": 26,
+          "signature": "export function ResearchTree({",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/ui/KnowledgeGainedModal.tsx": {
+      "exports": [
+        {
+          "name": "useKnowledgeModal",
+          "kind": "function",
+          "line": 107,
+          "signature": "export function useKnowledgeModal() {",
+          "isDefault": false
+        },
+        {
+          "name": "useLearnDetector",
+          "kind": "function",
+          "line": 121,
+          "signature": "export function useLearnDetector( units: Array<{",
+          "isDefault": false
+        },
+        {
+          "name": "KnowledgeGainedModalProvider",
+          "kind": "function",
+          "line": 171,
+          "signature": "export function KnowledgeGainedModalProvider({",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/aiProductionStrategy.ts": {
+      "exports": [
+        {
+          "name": "ProductionDecision",
+          "kind": "interface",
+          "line": 24,
+          "signature": "export interface ProductionDecision {",
+          "isDefault": false
+        },
+        {
+          "name": "getSupplyMargin",
+          "kind": "function",
+          "line": 82,
+          "signature": "export function getSupplyMargin(economy: {",
+          "isDefault": false
+        },
+        {
+          "name": "getProjectedSupplyMarginAfterBuild",
+          "kind": "function",
+          "line": 86,
+          "signature": "export function getProjectedSupplyMarginAfterBuild( state: GameState, factionId: FactionId, prototype: Pick<Prototype, 'chassisId'>, registry: RulesRegistry, ): number {",
+          "isDefault": false
+        },
+        {
+          "name": "scoreSupplyEfficiency",
+          "kind": "function",
+          "line": 97,
+          "signature": "export function scoreSupplyEfficiency(prototype: Pick<Prototype, 'chassisId'> & {",
+          "isDefault": false
+        },
+        {
+          "name": "scoreForceProjectionValue",
+          "kind": "function",
+          "line": 110,
+          "signature": "export function scoreForceProjectionValue( prototype: {",
+          "isDefault": false
+        },
+        {
+          "name": "rankProductionPriorities",
+          "kind": "function",
+          "line": 139,
+          "signature": "export function rankProductionPriorities( state: GameState, factionId: FactionId, strategy: FactionStrategy, registry: RulesRegistry, difficulty?: DifficultyLevel, ): ProductionPriority[] {",
+          "isDefault": false
+        },
+        {
+          "name": "chooseStrategicProduction",
+          "kind": "function",
+          "line": 345,
+          "signature": "export function chooseStrategicProduction( state: GameState, factionId: FactionId, strategy: FactionStrategy, registry: RulesRegistry, difficulty?: DifficultyLevel, ): ProductionDecision | null {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/app/hooks/useEscapeHandler.ts": {
+      "exports": [
+        {
+          "name": "useEscapeHandler",
+          "kind": "function",
+          "line": 7,
+          "signature": "export function useEscapeHandler(deps: {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/villageSystem.ts": {
+      "exports": [
+        {
+          "name": "VillageSpawnReadiness",
+          "kind": "type",
+          "line": 21,
+          "signature": "export type VillageSpawnReadiness = {",
+          "isDefault": false
+        },
+        {
+          "name": "countVillagesInCityTerritory",
+          "kind": "function",
+          "line": 38,
+          "signature": "export function countVillagesInCityTerritory(state: GameState, city: City): number {",
+          "isDefault": false
+        },
+        {
+          "name": "canSpawnVillage",
+          "kind": "function",
+          "line": 53,
+          "signature": "export function canSpawnVillage( state: GameState, cityId: CityId, registry?: RulesRegistry, ): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "getVillageSpawnReadiness",
+          "kind": "function",
+          "line": 61,
+          "signature": "export function getVillageSpawnReadiness( state: GameState, cityId: CityId, registry?: RulesRegistry, ): VillageSpawnReadiness {",
+          "isDefault": false
+        },
+        {
+          "name": "findVillageSpawnHexForCity",
+          "kind": "function",
+          "line": 101,
+          "signature": "export function findVillageSpawnHexForCity( state: GameState, city: City, registry: RulesRegistry, ): HexCoord | null {",
+          "isDefault": false
+        },
+        {
+          "name": "spawnVillage",
+          "kind": "function",
+          "line": 154,
+          "signature": "export function spawnVillage( state: GameState, factionId: FactionId, position: HexCoord, registry: RulesRegistry, sourceCityId?: CityId, ): GameState {",
+          "isDefault": false
+        },
+        {
+          "name": "evaluateAndSpawnVillage",
+          "kind": "function",
+          "line": 207,
+          "signature": "export function evaluateAndSpawnVillage( state: GameState, factionId: FactionId, registry: RulesRegistry, ): GameState {",
+          "isDefault": false
+        },
+        {
+          "name": "getVillageCount",
+          "kind": "function",
+          "line": 238,
+          "signature": "export function getVillageCount(state: GameState, factionId: FactionId): number {",
+          "isDefault": false
+        },
+        {
+          "name": "getVillageSpawnReadinessWithRegistry",
+          "kind": "function",
+          "line": 242,
+          "signature": "export function getVillageSpawnReadinessWithRegistry( state: GameState, cityId: CityId, registry: RulesRegistry, ): VillageSpawnReadiness {",
+          "isDefault": false
+        },
+        {
+          "name": "destroyVillage",
+          "kind": "function",
+          "line": 253,
+          "signature": "export function destroyVillage(state: GameState, villageId: VillageId): GameState {",
+          "isDefault": false
+        },
+        {
+          "name": "destroyVillagesInCityTerritory",
+          "kind": "function",
+          "line": 282,
+          "signature": "export function destroyVillagesInCityTerritory(state: GameState, city: City): GameState {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/strategic-ai/objectives.ts": {
+      "exports": [
+        {
+          "name": "choosePrimaryEnemyFaction",
+          "kind": "function",
+          "line": 17,
+          "signature": "export function choosePrimaryEnemyFaction( fronts: FrontLine[], enemyUnits: UnitWithPrototype[], state?: GameState, factionId?: FactionId, ): FactionId | undefined {",
+          "isDefault": false
+        },
+        {
+          "name": "choosePrimaryCityObjective",
+          "kind": "function",
+          "line": 53,
+          "signature": "export function choosePrimaryCityObjective( fronts: FrontLine[], threatenedCities: ThreatAssessment[], posture: FactionPosture, state?: GameState, factionId?: FactionId, difficultyProfile?: AiDifficultyProfile, preferredEnemyFactionId?: FactionId, ): CityId | undefined {",
+          "isDefault": false
+        },
+        {
+          "name": "choosePrimaryFrontAnchor",
+          "kind": "function",
+          "line": 145,
+          "signature": "export function choosePrimaryFrontAnchor( fronts: FrontLine[], threatenedCities: ThreatAssessment[], posture: FactionPosture, ): HexCoord | undefined {",
+          "isDefault": false
+        },
+        {
+          "name": "chooseFocusTargets",
+          "kind": "function",
+          "line": 156,
+          "signature": "export function chooseFocusTargets( state: GameState, factionId: FactionId, primaryCityObjectiveId: CityId | undefined, fronts: FrontLine[], posture: FactionPosture, personality: AiPersonalitySnapshot, difficultyProfile: AiDifficultyProfile, ): FocusTargetDecision {",
+          "isDefault": false
+        },
+        {
+          "name": "buildRegroupAnchors",
+          "kind": "function",
+          "line": 226,
+          "signature": "export function buildRegroupAnchors( state: GameState, factionId: FactionId, fronts: FrontLine[], threatenedCities: ThreatAssessment[], ): HexCoord[] {",
+          "isDefault": false
+        },
+        {
+          "name": "getFriendlyCityAnchors",
+          "kind": "function",
+          "line": 242,
+          "signature": "export function getFriendlyCityAnchors(state: GameState, factionId: FactionId): HexCoord[] {",
+          "isDefault": false
+        },
+        {
+          "name": "findDirectedExplorationWaypoint",
+          "kind": "function",
+          "line": 250,
+          "signature": "export function findDirectedExplorationWaypoint( state: GameState, factionId: FactionId, origin: HexCoord, difficultyProfile: AiDifficultyProfile, ): HexCoord | null {",
+          "isDefault": false
+        },
+        {
+          "name": "getStrategicEnemyPressure",
+          "kind": "function",
+          "line": 299,
+          "signature": "export function getStrategicEnemyPressure( state: GameState, factionId: FactionId, position: HexCoord, radius: number, difficultyProfile: AiDifficultyProfile, ): number {",
+          "isDefault": false
+        },
+        {
+          "name": "getHarassmentSuitability",
+          "kind": "function",
+          "line": 317,
+          "signature": "export function getHarassmentSuitability(entry: UnitWithPrototype, factionId: FactionId): number {",
+          "isDefault": false
+        },
+        {
+          "name": "chooseAdaptivePressureCity",
+          "kind": "function",
+          "line": 347,
+          "signature": "export function chooseAdaptivePressureCity( state: GameState, factionId: FactionId, origin: HexCoord, excludedCityId: CityId, difficultyProfile: AiDifficultyProfile, excludedCityIds: Set<CityId> = new Set(), preferredEnemyFactionId?: FactionId, ): City | undefined {",
+          "isDefault": false
+        },
+        {
+          "name": "chooseEconomicDenialObjective",
+          "kind": "function",
+          "line": 392,
+          "signature": "export function chooseEconomicDenialObjective( state: GameState, factionId: FactionId, origin: HexCoord, difficultyProfile: AiDifficultyProfile, options: {",
+          "isDefault": false
+        },
+        {
+          "name": "chooseVillageFirstHunterTarget",
+          "kind": "function",
+          "line": 508,
+          "signature": "export function chooseVillageFirstHunterTarget( state: GameState, factionId: FactionId, homePosition: HexCoord, targetCity: City, difficultyProfile: AiDifficultyProfile, ): Village | undefined {",
+          "isDefault": false
+        },
+        {
+          "name": "getNearestEnemyCity",
+          "kind": "function",
+          "line": 551,
+          "signature": "export function getNearestEnemyCity( state: GameState, factionId: FactionId, origin: HexCoord, ): City | undefined {",
+          "isDefault": false
+        },
+        {
+          "name": "getSecondNearestEnemyCity",
+          "kind": "function",
+          "line": 571,
+          "signature": "export function getSecondNearestEnemyCity( state: GameState, factionId: FactionId, origin: HexCoord, excludedCityId: CityId, ): City | undefined {",
+          "isDefault": false
+        },
+        {
+          "name": "findNearestCoastalEnemyObjective",
+          "kind": "function",
+          "line": 599,
+          "signature": "export function findNearestCoastalEnemyObjective( state: GameState, factionId: FactionId, origin: HexCoord, ): {",
+          "isDefault": false
+        },
+        {
+          "name": "buildSoftTargetBudgets",
+          "kind": "function",
+          "line": 620,
+          "signature": "export function buildSoftTargetBudgets( unitCount: number, candidates: FocusTargetCandidate[], personality: AiPersonalitySnapshot, difficultyProfile: AiDifficultyProfile, ): FocusTargetBudget[] {",
+          "isDefault": false
+        },
+        {
+          "name": "selectFocusTargetCandidate",
+          "kind": "function",
+          "line": 646,
+          "signature": "export function selectFocusTargetCandidate( state: GameState, unit: import('../../game/types.js').Unit, budgets: FocusTargetBudget[], stats: {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/app/hooks/useCombatBridge.ts": {
+      "exports": [
+        {
+          "name": "useCombatBridge",
+          "kind": "function",
+          "line": 13,
+          "signature": "export function useCombatBridge( controller: GameController, gameRef: React.RefObject<import('phaser').Game | null>, ) {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/combatSystem.ts": {
+      "exports": [
+        {
+          "name": "CombatResult",
+          "kind": "interface",
+          "line": 15,
+          "signature": "export interface CombatResult {",
+          "isDefault": false
+        },
+        {
+          "name": "CombatModifier",
+          "kind": "interface",
+          "line": 58,
+          "signature": "export interface CombatModifier {",
+          "isDefault": false
+        },
+        {
+          "name": "resolveCombat",
+          "kind": "function",
+          "line": 122,
+          "signature": "export function resolveCombat( attacker: Unit, defender: Unit, attackerPrototype: Prototype, defenderPrototype: Prototype, attackerVeteranBonus: number, defenderVeteranBonus: number, attackerTerrain: TerrainDef | undefined, defenderTerrain: TerrainDef | undefined, defenderImprovementBonus: number, d",
+          "isDefault": false
+        },
+        {
+          "name": "getVeteranStatBonus",
+          "kind": "function",
+          "line": 316,
+          "signature": "export function getVeteranStatBonus(registry: RulesRegistry, veteranLevel: string): number {",
+          "isDefault": false
+        },
+        {
+          "name": "getVeteranDefenseBonus",
+          "kind": "function",
+          "line": 322,
+          "signature": "export function getVeteranDefenseBonus(registry: RulesRegistry, veteranLevel: string): number {",
+          "isDefault": false
+        },
+        {
+          "name": "getVeteranMoraleBonus",
+          "kind": "function",
+          "line": 328,
+          "signature": "export function getVeteranMoraleBonus(registry: RulesRegistry, veteranLevel: string): number {",
+          "isDefault": false
+        },
+        {
+          "name": "addBattleHistory",
+          "kind": "function",
+          "line": 334,
+          "signature": "export function addBattleHistory(unit: Unit, opponentId: string, won: boolean): void {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/phaser/scenes/MapScene.ts": {
+      "exports": [
+        {
+          "name": "MapScene",
+          "kind": "class",
+          "line": 16,
+          "signature": "export class MapScene extends Phaser.Scene {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/ui/TutorialOverlay.tsx": {
+      "exports": [
+        {
+          "name": "TutorialOverlay",
+          "kind": "function",
+          "line": 48,
+          "signature": "export function TutorialOverlay({",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/sacrificeSystem.ts": {
+      "exports": [
+        {
+          "name": "canSacrifice",
+          "kind": "function",
+          "line": 40,
+          "signature": "export function canSacrifice(unit: Unit, faction: Faction, state: GameState): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "performSacrifice",
+          "kind": "function",
+          "line": 80,
+          "signature": "export function performSacrifice( unitId: UnitId, factionId: FactionId, state: GameState, registry: RulesRegistry, trace?: SimulationTrace ): GameState {",
+          "isDefault": false
+        },
+        {
+          "name": "codifyDomainsForFaction",
+          "kind": "function",
+          "line": 135,
+          "signature": "export function codifyDomainsForFaction( state: GameState, factionId: FactionId, domainIds: string[], registry: RulesRegistry, trace?: SimulationTrace, ): GameState {",
+          "isDefault": false
+        },
+        {
+          "name": "autoCompleteResearchForDomains",
+          "kind": "function",
+          "line": 224,
+          "signature": "export function autoCompleteResearchForDomains( state: GameState, factionId: FactionId, domainIds: string[], registry: RulesRegistry, trace?: SimulationTrace ): GameState {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/ui/CommandTray.tsx": {
+      "exports": [
+        {
+          "name": "CommandTray",
+          "kind": "function",
+          "line": 18,
+          "signature": "export function CommandTray({",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/strategic-ai/difficultyCoordinator.ts": {
+      "exports": [
+        {
+          "name": "applyDifficultyCoordinator",
+          "kind": "function",
+          "line": 20,
+          "signature": "export function applyDifficultyCoordinator( state: GameState, factionId: FactionId, friendlyUnits: UnitWithPrototype[], intents: Record<string, UnitStrategicIntent>, posture: FactionPosture, difficultyProfile: AiDifficultyProfile, previousStrategy: FactionStrategy | undefined, ): string[] {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/strategic-ai/assignments.ts": {
+      "exports": [
+        {
+          "name": "assignUnitIntents",
+          "kind": "function",
+          "line": 268,
+          "signature": "export function assignUnitIntents( state: GameState, factionId: FactionId, friendlyUnits: UnitWithPrototype[], posture: FactionPosture, personality: AiPersonalitySnapshot, threatenedCities: ThreatAssessment[], primaryCityObjectiveId: CityId | undefined, primaryFrontAnchor: HexCoord | undefined, focu",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/combat-action/apply.ts": {
+      "exports": [
+        {
+          "name": "applyCombatAction",
+          "kind": "function",
+          "line": 45,
+          "signature": "export function applyCombatAction( state: GameState, registry: RulesRegistry, preview: CombatActionPreview, ): CombatActionApplyResult {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/ui/ResearchTab.tsx": {
+      "exports": [
+        {
+          "name": "ResearchTab",
+          "kind": "function",
+          "line": 26,
+          "signature": "export function ResearchTab() {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/features/units/types.ts": {
+      "exports": [
+        {
+          "name": "HistoryEntry",
+          "kind": "interface",
+          "line": 6,
+          "signature": "export interface HistoryEntry {",
+          "isDefault": false
+        },
+        {
+          "name": "LearnedAbility",
+          "kind": "interface",
+          "line": 16,
+          "signature": "export interface LearnedAbility {",
+          "isDefault": false
+        },
+        {
+          "name": "Unit",
+          "kind": "interface",
+          "line": 22,
+          "signature": "export interface Unit {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/unit-activation/activateUnit.ts": {
+      "exports": [
+        {
+          "name": "maybeExpirePreparedAbility",
+          "kind": "function",
+          "line": 57,
+          "signature": "export function maybeExpirePreparedAbility(unit: Unit, round: number, state: GameState): Unit {",
+          "isDefault": false
+        },
+        {
+          "name": "activateUnit",
+          "kind": "function",
+          "line": 73,
+          "signature": "export function activateUnit( state: GameState, unitId: UnitId, registry: RulesRegistry, options: UnitActivationOptions = {",
+          "isDefault": false
+        },
+        {
+          "name": "activateAiUnit",
+          "kind": "function",
+          "line": 701,
+          "signature": "export function activateAiUnit( state: GameState, unitId: UnitId, registry: RulesRegistry, options: UnitActivationOptions = {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/view-model/inspectors/terrainInspectorViewModel.ts": {
+      "exports": [
+        {
+          "name": "buildTerrainInspectorViewModel",
+          "kind": "function",
+          "line": 144,
+          "signature": "export function buildTerrainInspectorViewModel( state: GameState, registry: RulesRegistry, position: {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/ui/ContextInspector.tsx": {
+      "exports": [
+        {
+          "name": "ContextInspector",
+          "kind": "function",
+          "line": 35,
+          "signature": "export function ContextInspector({",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/controller/GameController.ts": {
+      "exports": [
+        {
+          "name": "GameController",
+          "kind": "class",
+          "line": 19,
+          "signature": "export class GameController {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/types/clientState.ts": {
+      "exports": [
+        {
+          "name": "ClientMode",
+          "kind": "type",
+          "line": 6,
+          "signature": "export type ClientMode = 'play';",
+          "isDefault": false
+        },
+        {
+          "name": "ClientSelection",
+          "kind": "type",
+          "line": 8,
+          "signature": "export type ClientSelection =",
+          "isDefault": false
+        },
+        {
+          "name": "CameraState",
+          "kind": "type",
+          "line": 15,
+          "signature": "export type CameraState = {",
+          "isDefault": false
+        },
+        {
+          "name": "HudViewModel",
+          "kind": "type",
+          "line": 19,
+          "signature": "export type HudViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "SettlementSiteTraitViewModel",
+          "kind": "type",
+          "line": 57,
+          "signature": "export type SettlementSiteTraitViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "SettlementBonusSummaryViewModel",
+          "kind": "type",
+          "line": 65,
+          "signature": "export type SettlementBonusSummaryViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "SettlementPreviewViewModel",
+          "kind": "type",
+          "line": 72,
+          "signature": "export type SettlementPreviewViewModel = SettlementBonusSummaryViewModel & {",
+          "isDefault": false
+        },
+        {
+          "name": "CityInspectorViewModel",
+          "kind": "type",
+          "line": 81,
+          "signature": "export type CityInspectorViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "DebugViewModel",
+          "kind": "type",
+          "line": 173,
+          "signature": "export type DebugViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "ClientActionState",
+          "kind": "type",
+          "line": 177,
+          "signature": "export type ClientActionState = {",
+          "isDefault": false
+        },
+        {
+          "name": "PlayFeedbackState",
+          "kind": "type",
+          "line": 193,
+          "signature": "export type PlayFeedbackState = {",
+          "isDefault": false
+        },
+        {
+          "name": "ResearchNodeViewState",
+          "kind": "type",
+          "line": 259,
+          "signature": "export type ResearchNodeViewState =",
+          "isDefault": false
+        },
+        {
+          "name": "ResearchNodeViewModel",
+          "kind": "type",
+          "line": 266,
+          "signature": "export type ResearchNodeViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "CapabilityPipViewModel",
+          "kind": "type",
+          "line": 288,
+          "signature": "export type CapabilityPipViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "ResearchRateBreakdown",
+          "kind": "type",
+          "line": 299,
+          "signature": "export type ResearchRateBreakdown = {",
+          "isDefault": false
+        },
+        {
+          "name": "ResearchInspectorViewModel",
+          "kind": "type",
+          "line": 305,
+          "signature": "export type ResearchInspectorViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "TerrainDomainPressureEntry",
+          "kind": "type",
+          "line": 319,
+          "signature": "export type TerrainDomainPressureEntry = {",
+          "isDefault": false
+        },
+        {
+          "name": "TerrainInspectorViewModel",
+          "kind": "type",
+          "line": 327,
+          "signature": "export type TerrainInspectorViewModel = {",
+          "isDefault": false
+        },
+        {
+          "name": "ClientState",
+          "kind": "type",
+          "line": 351,
+          "signature": "export type ClientState = {",
+          "isDefault": false
+        },
+        {
+          "name": "GameAction",
+          "kind": "type",
+          "line": 369,
+          "signature": "export type GameAction =",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/ui/TerrainPanel.tsx": {
+      "exports": [
+        {
+          "name": "TerrainPanel",
+          "kind": "function",
+          "line": 63,
+          "signature": "export function TerrainPanel({",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/strategicAi.ts": {
+      "exports": [
+        {
+          "name": "computeFactionStrategy",
+          "kind": "function",
+          "line": 37,
+          "signature": "export function computeFactionStrategy( state: GameState, factionId: FactionId, registry: RulesRegistry, difficulty?: DifficultyLevel, ): FactionStrategy {",
+          "isDefault": false
+        },
+        {
+          "name": "getUnitIntent",
+          "kind": "function",
+          "line": 309,
+          "signature": "export function getUnitIntent(strategy: FactionStrategy | undefined, unitId: UnitId): UnitStrategicIntent | undefined {",
+          "isDefault": false
+        },
+        {
+          "name": "scoreStrategicTerrain",
+          "kind": "function",
+          "line": 313,
+          "signature": "export function scoreStrategicTerrain( state: GameState, factionId: FactionId, hex: HexCoord, ): number {",
+          "isDefault": false
+        },
+        {
+          "name": "getNearbySupportScore",
+          "kind": "function",
+          "line": 323,
+          "signature": "export function getNearbySupportScore( state: GameState, factionId: FactionId, hex: HexCoord, ): number {",
+          "isDefault": false
+        },
+        {
+          "name": "isThreatenedCityHex",
+          "kind": "function",
+          "line": 337,
+          "signature": "export function isThreatenedCityHex( state: GameState, strategy: FactionStrategy | undefined, hex: HexCoord, ): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "getNearestFriendlyCity",
+          "kind": "function",
+          "line": 349,
+          "signature": "export function getNearestFriendlyCity( state: GameState, factionId: FactionId, origin: HexCoord, ) {",
+          "isDefault": false
+        }
+      ]
+    },
+    "src/systems/aiDifficulty.ts": {
+      "exports": [
+        {
+          "name": "DifficultyLevel",
+          "kind": "type",
+          "line": 1,
+          "signature": "export type DifficultyLevel = 'easy' | 'normal' | 'hard';",
+          "isDefault": false
+        },
+        {
+          "name": "AiDifficultyProfile",
+          "kind": "interface",
+          "line": 3,
+          "signature": "export interface AiDifficultyProfile {",
+          "isDefault": false
+        },
+        {
+          "name": "getAiDifficultyProfile",
+          "kind": "function",
+          "line": 453,
+          "signature": "export function getAiDifficultyProfile(difficulty?: DifficultyLevel): AiDifficultyProfile {",
+          "isDefault": false
+        },
+        {
+          "name": "usesAdaptiveAiBehavior",
+          "kind": "function",
+          "line": 457,
+          "signature": "export function usesAdaptiveAiBehavior(difficulty?: DifficultyLevel): boolean {",
+          "isDefault": false
+        },
+        {
+          "name": "usesNormalAiBehavior",
+          "kind": "function",
+          "line": 464,
+          "signature": "export function usesNormalAiBehavior(difficulty?: DifficultyLevel): boolean {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/controller/GameSession.ts": {
+      "exports": [
+        {
+          "name": "SessionSaveSnapshot",
+          "kind": "type",
+          "line": 125,
+          "signature": "export type SessionSaveSnapshot = {",
+          "isDefault": false
+        },
+        {
+          "name": "GameSession",
+          "kind": "class",
+          "line": 137,
+          "signature": "export class GameSession {",
+          "isDefault": false
+        }
+      ]
     }
   },
   "_metadata": {
     "version": "2.0.0",
-    "last_run": "2026-04-19T14:36:10.948545Z",
+    "last_run": "2026-04-20T11:00:26.436751Z",
     "root": "C:\\Users\\fosbo\\war-civ-v2",
-    "file_count": 195
+    "file_count": 200
   },
   "_file_hashes": {
-    ".gitignore": "6b97774f44d001eeeff278c9f991c242",
+    ".gitignore": "0174e7b5da1eab42b49ef6485ca23f54",
     "AGENTS.md": "9296da726dc4978e6e8f152f89a6409d",
+    "ATTACKS_OF_OPPORTUNITY_SEARCH.md": "ef2ac18ece5d5181c54f84050e9a3b14",
+    "BALANCE_HARNESS_RESULTS.md": "2308c7f1803ceb0ca7d32e12e9680ce9",
     "bun.lock": "fcec4f81b61207c211affdbf552aaedb",
     "CLAUDE.md": "9a8b2017ad4c8e37787f2122f892815d",
-    "codemap.md": "598f014ab00b13699ff81662072f0a4b",
+    "codemap.md": "b186617377ada2e09640818d9e980bad",
     "docs/AUDIT-2026-04-17.md": "fb7d46956ed3b2ef9411492ba7d28d42",
     "docs/AUDIT-NEXT.md": "432d43b29e8b20b713146e468bb3a727",
     "docs/claude-knowledge-dump.md": "cebf27e5aa349b6552dd0e7ac9b1d8d8",
@@ -7507,8 +7606,11 @@
     "docs/IMPLEMENTATION_PLAN.md": "b298e95ee387238bb170e2d88dd9848c",
     "docs/NORMAL-DIFFICULTY-PLAN.md": "51350c2423a50d5ac84e5328279b2288",
     "docs/RENDEZVOUS-SPEC.md": "85cedbd0c1d6199f1dc0a104244d2de1",
+    "launch_record.json": "1ee59d5c9e3c57f66aebf8ae585b8d08",
     "package-lock.json": "5eaf0320f9b6920ac35408741ab09edb",
     "package.json": "01907f51b52793a88d2b17529d58c959",
+    "POISON_DAMAGE_INVESTIGATION.md": "195279fa781bdaf2ac8fe1b2b493d149",
+    "progress.json": "e6279d3ba025ace551ece9a88d0266ce",
     "README.md": "7b2edfa66d206b7bb29711b37e01f138",
     "scripts/diagnoseSquads.ts": "f2aedcf1b4e221312012316021e02a0b",
     "scripts/evaluateBalance.ts": "ee192ce33719910c456b0151d18d52d0",
@@ -7521,11 +7623,13 @@
     "scripts/runSpecifiedTests.mjs": "76fa9a58c31de0d11384b98aab6a945c",
     "scripts/update-cartography.mjs": "b5c5f5d70a654e294417f20f82dbbf14",
     "scripts/validateBalanceCandidate.ts": "a4e505a5dd8692779706f4b9c559fada",
+    "session.json": "654dae264887db6c24c804a7e67c364d",
+    "session_snapshot.json": "654dae264887db6c24c804a7e67c364d",
     "src/.isolation-check.md": "b8a55c0807e5d6ed25297ea6db5aae43",
     "src/balance/evaluate.ts": "b066eee65924a4ade88efc11e5a09521",
     "src/balance/objective.ts": "b52b31ad1f4540cf69eb2b1086bae34b",
     "src/balance/types.ts": "2cc3eb90561b653333d2d02ff0a33e17",
-    "src/content/base/ability-domains.json": "5ad1ee0d93c0ab236c1cdc1df0685aab",
+    "src/content/base/ability-domains.json": "d7ce11eff8e1e08014146b27edf93e84",
     "src/content/base/ai-profiles.json": "4c5b506a124db37ddd7f5c2b5068de2f",
     "src/content/base/chassis.json": "a3230a8a12f92947c8ed76171653a3a4",
     "src/content/base/civilizations.json": "62cd5b314ff969c6bda7976af1ea0800",
@@ -7536,7 +7640,7 @@
     "src/content/base/improvements.json": "69b58e6fec2c7f897d7d6d7566ffe157",
     "src/content/base/pair-synergies.json": "2afe2d5d501e178ae2e48e95bada97cb",
     "src/content/base/research.json": "66d074b9741334fe1f8bb2f9f9f04014",
-    "src/content/base/signatureAbilities.json": "b4a8c21750974e1775048816195c0be5",
+    "src/content/base/signatureAbilities.json": "18bed01ab1b64c165bca810b9a838243",
     "src/content/base/terrains.json": "8e43a57244a2e6face467f84f3eb1e50",
     "src/content/base/veteran-levels.json": "21243accd63c1323a0457055f03f3b5a",
     "src/core/enums.ts": "d12c1edbae0183aa2bfd6bbf293625c7",
@@ -7559,9 +7663,9 @@
     "src/features/index.ts": "02489a415b2155502805493afc87ce93",
     "src/features/prototypes/types.ts": "e0603277738b91d270945f0c97c4ef9f",
     "src/features/research/types.ts": "381761f65178266ec9e47b977aa77e55",
-    "src/features/units/types.ts": "29a17c9c5ba41a47b48fc6ef195406ea",
+    "src/features/units/types.ts": "555e27dbecfa5771140769b45125cc79",
     "src/features/villages/types.ts": "b9f03fa71552574d8cabebdb94d77669",
-    "src/game/buildMvpScenario.ts": "b66e3606bbf035eed5ab707716f7c413",
+    "src/game/buildMvpScenario.ts": "b82bee72acfab560f33711a9acf1ec19",
     "src/game/createGameState.ts": "1a0b3b958dd51f5406c3b893c89f068d",
     "src/game/scenarios/mvp.ts": "701d42ebc55e455e05fc2574346c0e58",
     "src/game/types.ts": "ce0e060280ab81fdda752e378320ab41",
@@ -7569,17 +7673,17 @@
     "src/replay/exportReplay.ts": "4afc93409af7d3e1ede98ebf0baf2788",
     "src/replay/types.ts": "8db7f050030cca579ca9c39a6b46d34a",
     "src/systems/abilitySystem.ts": "bc187df3a27cd392b6dbc713f3a23e3e",
-    "src/systems/aiDifficulty.ts": "360e3a74771dd2b4f66919ae63de5d94",
+    "src/systems/aiDifficulty.ts": "7be13a55ef161a89d4ea7166ae014788",
     "src/systems/aiPersonality.ts": "c6017ae3537e7b915daeb3ca7fc6f02f",
-    "src/systems/aiProductionStrategy.ts": "4d3c9977be2c69cd8167f6b7c8f34a8e",
-    "src/systems/aiResearchStrategy.ts": "7813cee8252af8fc9ba0cc2a8a646a4a",
+    "src/systems/aiProductionStrategy.ts": "8fca6252583dacc0a5ecf020a9b07389",
+    "src/systems/aiResearchStrategy.ts": "16d08f03f38a651d0fa9cccf250b381b",
     "src/systems/aiTactics.ts": "10cbb460bc2960853848394f5e4149da",
     "src/systems/balanceHarness.ts": "bf714b785e4d0dfa51309c819b595683",
-    "src/systems/capabilityDoctrine.ts": "a931f01c4ee2eee480923003e88bb451",
+    "src/systems/capabilityDoctrine.ts": "8206fda64ab41f95d0537199eb21d835",
     "src/systems/capabilitySystem.ts": "80479650f06d36a36c64ead7ab27c61d",
     "src/systems/captureSystem.ts": "01454666353f205319fe8cb36c499062",
-    "src/systems/citySiteSystem.ts": "dab1ad05728e8ca57b9079bbbe9881aa",
-    "src/systems/combat-action/apply.ts": "83fdeeea2346b17202046707beba6d5a",
+    "src/systems/citySiteSystem.ts": "f7d21dc6455e1de7565b6502e4ef7b99",
+    "src/systems/combat-action/apply.ts": "cbc3b5ec8404b1b7e4c4b2f8e4a5076f",
     "src/systems/combat-action/factionAbsorption.ts": "77b4e1550dc9db999a216fbe33eb08d3",
     "src/systems/combat-action/helpers.ts": "cbdeeed3a83ad52d5122c4684b64e856",
     "src/systems/combat-action/labeling.ts": "8f74c44bc6d4385300679dd7e8df1208",
@@ -7587,7 +7691,7 @@
     "src/systems/combat-action/types.ts": "05e6ca49c918346fb6351d462079bdd7",
     "src/systems/combatActionSystem.ts": "51797026f11ddb6e57d5bfb714f8970b",
     "src/systems/combatSignalSystem.ts": "3f02ed7ffe97441903205c19a1300da5",
-    "src/systems/combatSystem.ts": "1665d8ce8ebf247afc7f9b516ae67705",
+    "src/systems/combatSystem.ts": "30f4e8e2953654e6d13b12792f788cb9",
     "src/systems/domainProgression.ts": "6d9cf14224698bd63515f52458821ce5",
     "src/systems/economySystem.ts": "7d5cab953b519ffed20e5c96297d64b6",
     "src/systems/factionIdentitySystem.ts": "3457c34237993a6e3ed368eebd0b061c",
@@ -7595,7 +7699,7 @@
     "src/systems/factionPhaseSystem.ts": "e613e47213644670764fc9eeedb043fe",
     "src/systems/factionStrategy.ts": "d8c208ad060e448116cee89b2dc30703",
     "src/systems/fogSystem.ts": "3831a683ae1ba1981ec0f134f1f3c5e1",
-    "src/systems/healingSystem.ts": "e01e7febea1894ecb7bad891ef721eca",
+    "src/systems/healingSystem.ts": "27515f7035814b8ebd0ed2f477d95543",
     "src/systems/historySystem.ts": "86477d2a4a0e6df5abfc557cb850efb3",
     "src/systems/hybridSystem.ts": "47afcc66b41bb54cdbbe643a0d7f877c",
     "src/systems/knowledgeSystem.ts": "47a39a8bedc747d3c1c9ac9fdefa86ec",
@@ -7605,35 +7709,35 @@
     "src/systems/occupancySystem.ts": "4ad1d73b25f4258903720a554b1f5591",
     "src/systems/opportunityAttackSystem.ts": "9e2fc5450c16a8cd5ffcbd48041fad19",
     "src/systems/pathfinder.ts": "e17417627c6b565c0e50d89ad6f847d5",
-    "src/systems/productionSystem.ts": "9f19df21276416870b1ec375f75dd29d",
+    "src/systems/productionSystem.ts": "e8c7a270445e0ed63ffe2bc3c24578e6",
     "src/systems/researchSystem.ts": "2bf1f48b2f70df670aad92d4db4ef07d",
-    "src/systems/sacrificeSystem.ts": "d4177676eabfe5b7695ea7f10cdb6f75",
-    "src/systems/siegeSystem.ts": "97dc402b486e37bee61adcb3d28c45ad",
-    "src/systems/signatureAbilitySystem.ts": "2c9dc87c734a673742e0d177f86b868f",
-    "src/systems/simulation/environmentalEffects.ts": "1f7d6fdcf1eb4d632156453bccce4fe7",
-    "src/systems/simulation/factionTurnEffects.ts": "8237f8a4c077dc4c4423b9702a1a006a",
+    "src/systems/sacrificeSystem.ts": "8817d56536aff0379e4123bb8b44146c",
+    "src/systems/siegeSystem.ts": "848aec20aa2f12123308c4a3ff8cd5f8",
+    "src/systems/signatureAbilitySystem.ts": "26ed6f38a0e5f55661214fe3de9d33cf",
+    "src/systems/simulation/environmentalEffects.ts": "8c39a85e1eb10d058e5311ffdd3f6e16",
+    "src/systems/simulation/factionTurnEffects.ts": "c55f040d2e5b03c7ad975534e1e34896",
     "src/systems/simulation/summarizeFaction.ts": "588d7640369f092a47914ef3fba1520a",
     "src/systems/simulation/traceRecorder.ts": "d6c1d92a9db5729b3c6e46f9419996be",
     "src/systems/simulation/traceTypes.ts": "c699caffb7cbe162b591cca2aad848c3",
     "src/systems/simulation/victory.ts": "78a91f6532a39b70efc791d3267489b1",
-    "src/systems/strategic-ai/assignments.ts": "3ea1a4b7e89fd8331c167e5609daeee7",
+    "src/systems/strategic-ai/assignments.ts": "03bb6bee74516335016b0826fac33d3e",
     "src/systems/strategic-ai/debugReasons.ts": "fb1c23dc95cf1dc5c4084fb686d4400c",
-    "src/systems/strategic-ai/difficultyCoordinator.ts": "045774dfc5e2575c17586769987ff6c3",
+    "src/systems/strategic-ai/difficultyCoordinator.ts": "fb1a60790c9baec9f50f5a8b0241120c",
     "src/systems/strategic-ai/fronts.ts": "a9c054b8d3f460d01eacfdca73524a79",
     "src/systems/strategic-ai/helpers.ts": "68e55f8af7ba2f9373c12af137e9e220",
-    "src/systems/strategic-ai/learnLoopCoordinator.ts": "4d042f7223fabf2341ad73666cdc4d84",
-    "src/systems/strategic-ai/objectives.ts": "d3978bbee6285edbbe4c4fb515ce7186",
+    "src/systems/strategic-ai/learnLoopCoordinator.ts": "43756158cc91df08cbd09a58d24c9156",
+    "src/systems/strategic-ai/objectives.ts": "f8bc6c84ab5675ec870933772b1df0b2",
     "src/systems/strategic-ai/posture.ts": "cde19c12f0a0a1ca4286f537fa6a04d4",
     "src/systems/strategic-ai/rendezvous.ts": "b5b5b03853c07daa6f7db19d521dae3a",
     "src/systems/strategic-ai/types.ts": "45fd26907c21d832143c9cb2195ae0a9",
-    "src/systems/strategicAi.ts": "6a9b5e5692ffb5de0680d93ca7ae1e01",
+    "src/systems/strategicAi.ts": "2c1feb64590d67501b7ceff90fb6eb10",
     "src/systems/synergyEffects.ts": "ca2efed5f49043823d3a737d1259a866",
-    "src/systems/synergyEngine.ts": "8d05255878f09abd979eef931f0a2244",
+    "src/systems/synergyEngine.ts": "4e3b89c0257c82aec5904c454703ab76",
     "src/systems/synergyRuntime.ts": "ada03cab5b30a8301d6311a04095379e",
     "src/systems/territorySystem.ts": "788baf2ee0edbf04cc68510a93f3475b",
     "src/systems/transportSystem.ts": "b1c671d9ff9d3d93e8f585d3d565e497",
     "src/systems/turnSystem.ts": "c0bfd1048170b297caa5e3e64480b86d",
-    "src/systems/unit-activation/activateUnit.ts": "8c58bb3cbb671cfd19fa5deab9b7b610",
+    "src/systems/unit-activation/activateUnit.ts": "f36228c0d926362c83b5385a111d87ff",
     "src/systems/unit-activation/fieldFort.ts": "38685d805328039b137d2e8bee836b9c",
     "src/systems/unit-activation/helpers.ts": "c102439efae24fc329444ef0f7620c68",
     "src/systems/unit-activation/movement.ts": "6b7257210bb71f6d0a8c5a982eab7201",
@@ -7643,7 +7747,7 @@
     "src/systems/unitActivationSystem.ts": "d9d80ada6e52a2bd6cc04658ba5b6115",
     "src/systems/veterancySystem.ts": "c207c7e1b5f33055f7133ef977115cca",
     "src/systems/villageCaptureSystem.ts": "c177f93260190e3bf0b6e75f0bea94a9",
-    "src/systems/villageSystem.ts": "09bf82708a17a6817e525b7e4f61a3b7",
+    "src/systems/villageSystem.ts": "29df91f12c6e42faff3ed00c9a2a63c2",
     "src/systems/warEcologySimulation.ts": "da694d84d45f7ef48ad825d77554adc5",
     "src/systems/warExhaustionSystem.ts": "84f220123be54689b992051379617f4c",
     "src/systems/xpSystem.ts": "ae4b3242599abd87b889f5abe60acf61",
@@ -7654,15 +7758,16 @@
     "src/world/map/createMap.ts": "64e0bb6484f2ace2648fcd0ce25d76be",
     "src/world/map/getTile.ts": "e74e0cbd588d7ef83600dd7c96476cba",
     "src/world/map/types.ts": "33a23129e42e27e3397b1c39d8b641c7",
+    "STEPPE_RESEARCH_BONUSES.md": "4213bfd35ae6f2ff51973c997466c239",
     "tests/.gitkeep": "d41d8cd98f00b204e9800998ecf8427e",
     "tests/adaptiveAiPhase2.test.ts": "5112f29db1329b0253e67522f259f211",
     "tests/adaptiveAiPhase3.test.ts": "ae41b66c890340d6fa8650cfdb9948a8",
     "tests/adaptiveAiPhase5.test.ts": "887d2a74cb8ef4469301a24870b6b854",
     "tests/aiTactics.test.ts": "88770be847e56941a4b9670c1352a605",
     "tests/architectureBoundaries.test.ts": "57fd5d408e5fb4dd53dfbee384fc6462",
-    "tests/balanceHarness.test.ts": "66c291d5b457c98011a250de2367c07c",
+    "tests/balanceHarness.test.ts": "721003d54ebdfab365312e34ccb920fe",
     "tests/balanceOptimization.test.ts": "efcee13cc51dfce0911a3412c8b0e72b",
-    "tests/capabilityDoctrine.test.ts": "190e7e4ca65a6343eeba1c9a3920e2cd",
+    "tests/capabilityDoctrine.test.ts": "f47407f50c48ad15fb2a97437bd8eae8",
     "tests/combat.test.ts": "f8fce51a5cb37cb09e2a95cde4f2f085",
     "tests/combatAnimationScript.test.ts": "7c4c882b5c928aeb817f82778b8c049a",
     "tests/combatEventContract.test.ts": "081f126cbd944ea1bf518df6f1aed1de",
@@ -7670,7 +7775,7 @@
     "tests/curatedPlaytest.test.ts": "c959554e9f54d78d3590b2cd5d1f109b",
     "tests/debug-fog-cheat.test.ts": "71a0e55faa2e456499c26f781dcb8557",
     "tests/debug_strategy.test.ts": "2c7fe58cb642dbd575748e71d56db2e8",
-    "tests/doctrineFlagEffects.test.ts": "81aa141aa9d19795bf82a81939e2e1bd",
+    "tests/doctrineFlagEffects.test.ts": "8410661ae69d55ed7469786728631508",
     "tests/economy.test.ts": "e0e301d0388838d4989b6a66ccd06510",
     "tests/emergentRules.test.ts": "7fd531515eac0b3ba85ad35856a6ddca",
     "tests/fixtures/balanceHarness.baseline.json": "65355a4fb6105c21be579b67194984e7",
@@ -7678,13 +7783,13 @@
     "tests/hex.test.ts": "a6c999eeee978abf8580ac4977151738",
     "tests/ids.test.ts": "bdc472081a3b7c12619f627a86a1863f",
     "tests/learn-kill-verify.test.ts": "3aa5a0649d28801f4801f7dd2f465d5e",
-    "tests/liveSessionParity.test.ts": "b3e6e2ff552b531e32b2669d98802546",
+    "tests/liveSessionParity.test.ts": "10586bad7d9a30dd15160aa50c433056",
     "tests/map.test.ts": "5eacc647e42104240fc81b03fd78a642",
-    "tests/movementSystem.test.ts": "1549efa39450a1fb010714314ade3ee7",
-    "tests/opportunityAttack.test.ts": "f8236bc65f7191ee54225fd6fcf879c9",
+    "tests/movementSystem.test.ts": "8f1e910e9334d32ce68a0c1fc38dfaf5",
+    "tests/opportunityAttack.test.ts": "7b5a3cf04133d53040b30690df9077e8",
     "tests/production.test.ts": "5b43d84dd9ee436744847966b205584d",
     "tests/productionSystem.test.ts": "7610770b22007ffd62b7cf8caae05fe4",
-    "tests/progressionPipeline.test.ts": "476eac3e156c258c866f74d4b065c64f",
+    "tests/progressionPipeline.test.ts": "9d1c89252ec6bf7583ba1ebca92a78b4",
     "tests/prototype.test.ts": "cf650b8c8216e573c936c74a7f5c8e57",
     "tests/rendezvous.test.ts": "a2761388fa13da1330f34b1749a591f7",
     "tests/replay.test.ts": "256781d2a8eed36cf3b6adde72db395b",
@@ -7699,17 +7804,20 @@
     "tests/territory.test.ts": "bdaa12b6d5007ddea7e9fce02de33c2b",
     "tests/tsconfig.json": "c376a3af9265d07d44ba071cc29ff4fe",
     "tests/turnSystem.test.ts": "c1740b822b69c00219db7ef7f74cf109",
-    "tests/villageDestruction.test.ts": "e9dc35c8640076909b20906146d3bd0c",
-    "tests/warEcologySimulation.test.ts": "d271dfdb37d267b77371bd371ad8cedb",
+    "tests/villageDestruction.test.ts": "27b1fe4d3ac0a55ea04d2d6ddbdcc97b",
+    "tests/warEcologySimulation.test.ts": "93c9d63662e5b368a9861623b904a7b4",
     "tests/warExhaustion.test.ts": "f5b89ca7e2eecf2ab5429d88d4110389",
     "tests/webGameController.test.ts": "fbc6b484f5e1b641ff85a07f1cafcfc1",
-    "tests/webGameSession.test.ts": "820c43f154df036850a04745d93949d6",
+    "tests/webGameSession.test.ts": "076eb0612013c4a23cdb9853a9870470",
     "tests/webWorldViewModel.test.ts": "5e0cf7184bf12d285c9e6adada91f066",
     "tests/zoc.test.ts": "2b26a00bcfb19c55265d83c8c6114969",
+    "TRIPLE_STACK_RIPPLE_CHECK.md": "1bfcb208c15aaf8521e1636db94bea2f",
+    "TRIPLE_STACKS_INVESTIGATION.md": "2a5efefc0c9c8eceeded2279b8b79b51",
     "tsconfig.build.json": "7270b82da8397750f4cd32504eb4bb9f",
     "tsconfig.json": "4821f2de89047bf5e8b690902f95c1fd",
     "tsconfig.test-runner.json": "f5c801efb8295c1e2dc37ed7dbc3178a",
     "tsconfig.test.json": "0a41083c3383966282c9806d60ae6b28",
+    "undo-test-1.png": "c8c0cdffe83fa9e418ba3732e259d7b0",
     "vercel.json": "4d07eb83570fbbc796fae6317688d3bb",
     "vite.config.ts": "4717cd4f09171d5bd27ea88c0df6f78d",
     "vitest-env.d.ts": "349a22abda966e99a4c114d2d694871f",
@@ -7898,24 +8006,25 @@
     "web/public/assets/title-screen.jpg": "843f54ccdb04fd3111d3cf0026d15c95",
     "web/src/app/audio/musicManager.ts": "686b87a5e6b4f1226177fe86c110c342",
     "web/src/app/audio/sfxManager.ts": "f7f831f4210ee3f64143206f5992abbb",
-    "web/src/app/GameShell.tsx": "39f673889e7c7d02d1841b21ff9ac65a",
-    "web/src/app/hooks/useCombatBridge.ts": "d0521ea28e55054ef416c1c5eca14681",
-    "web/src/app/hooks/useEscapeHandler.ts": "6953cf72bd9149fab9a046950102cecc",
+    "web/src/app/GameShell.tsx": "bc18b07a15def82a1746259f20208915",
+    "web/src/app/hooks/useCombatBridge.ts": "f12aa679e19720a1e5562912ee6ace43",
+    "web/src/app/hooks/useEscapeHandler.ts": "7ec3f02d40d50669d6c3142756414c95",
     "web/src/app/hooks/useSessionAudio.ts": "2fc19b6513fdc628bf3ac04b760e2f8a",
     "web/src/app/hooks/useTutorial.ts": "2dfcf3088fc86a3542f6748b537899d6",
+    "web/src/app/hooks/useUndoHandler.ts": "b25e49a03f712558c882390cfa879d21",
     "web/src/app/routes/MenuClient.tsx": "981c2290ec445e5c62aeb68226f1224e",
     "web/src/app/routes/PlayClient.tsx": "284d19daf538b4c1c67b8e8db76e151e",
     "web/src/app/savegames.ts": "e0a7c53d8ef7f2b9a11433caac95e43d",
     "web/src/App.tsx": "999c1051f6b706f7df1f670fb84467e8",
-    "web/src/data/ability-domains.json": "fab369948632d66d1b6c16fa4c1b43be",
+    "web/src/data/ability-domains.json": "f5d4505114e4cc251cc8ef35c0fca730",
     "web/src/data/emergent-rules.json": "9903ab8ccc340dcb76aee14d0bf5b981",
-    "web/src/data/help-content.ts": "bbee629bb1c7058c304e3c8f9463573a",
+    "web/src/data/help-content.ts": "7204cf65e0971954b5eb402d6953caa8",
     "web/src/data/pair-synergies.json": "2afe2d5d501e178ae2e48e95bada97cb",
     "web/src/data/research.json": "66d074b9741334fe1f8bb2f9f9f04014",
     "web/src/data/terrains.json": "8e43a57244a2e6face467f84f3eb1e50",
     "web/src/game/controller/combatSession.ts": "9ad2b8e230e5959ee041039ee99888a6",
-    "web/src/game/controller/GameController.ts": "6bf9f881ee19522fa9f62274d1f0c62c",
-    "web/src/game/controller/GameSession.ts": "0d940c8b432969607833968890364b68",
+    "web/src/game/controller/GameController.ts": "345c141a06a12346fca47ef474455308",
+    "web/src/game/controller/GameSession.ts": "20562ad8d106d0b68800d673da2c9ea4",
     "web/src/game/controller/movementExplorer.ts": "57d41e7194fdd28a2921b75afb71067b",
     "web/src/game/controller/moveQueueSession.ts": "f8629f5af0f81bd89dfbfe83c0e5f3c3",
     "web/src/game/controller/sessionUtils.ts": "6784039dfd990747b35f9f442b917529",
@@ -7925,7 +8034,7 @@
     "web/src/game/phaser/assets/keys.ts": "c720f17a89e5afc0474fb0a60b4cf44c",
     "web/src/game/phaser/createGame.ts": "28c3c4598eaf3b6131eb6b1c9013ecfd",
     "web/src/game/phaser/scenes/BootScene.ts": "4334a4efd47f1b77e8281a312e9c339c",
-    "web/src/game/phaser/scenes/MapScene.ts": "3ad604c8b62c8d0aaa58b87b1eb1512f",
+    "web/src/game/phaser/scenes/MapScene.ts": "05ea0ce06fc52691736de6aa47a8a4c9",
     "web/src/game/phaser/system/PathRenderer.ts": "6abcf7794ddf839ccf0994e9dae8a0f6",
     "web/src/game/phaser/systems/BorderRenderer.ts": "a9f294b957e2fe580f65fe8f1212fc96",
     "web/src/game/phaser/systems/combatAnimationScript.ts": "bd6b8dff9ebef86b4514897603ac3e47",
@@ -7939,12 +8048,13 @@
     "web/src/game/phaser/systems/TerrainGeometry.ts": "2f10a9602b95d78a5b8e5b34f7d5810b",
     "web/src/game/phaser/systems/TileLayerRenderer.ts": "03a51cdaf0340c82b25abb5e8a177061",
     "web/src/game/phaser/systems/UnitRenderer.ts": "49c3d6d655858c23645f4de6bade3eda",
-    "web/src/game/types/clientState.ts": "7ac62b35fb98989926a6b1b77a1dcb0b",
-    "web/src/game/types/playState.ts": "6a29a87c772ed0231cc07ae52533f430",
+    "web/src/game/types/clientState.ts": "69ee1457cd9d008e2cdb8493dac00e70",
+    "web/src/game/types/playState.ts": "fb8ba1ae95fa98ee73cde423a199095e",
     "web/src/game/types/replay.ts": "b60b3688f89afdc774957f89a47a8254",
     "web/src/game/types/worldView.ts": "1c71a4f2b4fbaf92686134235a9a9259",
     "web/src/game/view-model/inspectors/cityInspectorViewModel.ts": "0595becf0818f81a26c59b60a20c5b31",
     "web/src/game/view-model/inspectors/researchInspectorViewModel.ts": "5ce5503c76cf196172b72e89ea2d14bb",
+    "web/src/game/view-model/inspectors/terrainInspectorViewModel.ts": "fa5fe1d0f4199989ba401333fd67478f",
     "web/src/game/view-model/spriteKeys.ts": "7b3b459bbdd5178a1141f6cc4a2a8ddf",
     "web/src/game/view-model/worldViewModel.ts": "9987d5f9c8782678f53ecdef902774f5",
     "web/src/main.tsx": "eef67a0a05496ed6617a65265a3ae204",
@@ -7953,10 +8063,10 @@
     "web/src/styles/command-tray.css": "1832859d4e416f29144026809cb612c9",
     "web/src/styles/game-shell.css": "9fd83b2a3a13894d155e5d67cfa4a688",
     "web/src/styles/help.css": "8a72c6266f3c8b62bd9741ec9307238d",
-    "web/src/styles/inspector.css": "9e26360252bf3e0f16ef5c462d8f930a",
+    "web/src/styles/inspector.css": "82282f9ece9fa1361a3370319a3aba0e",
     "web/src/styles/layout.css": "809347ee8297b1ce9b25cb330947709d",
     "web/src/styles/menu.css": "eca7aae9b1f6d2e8a4b8a3b2578c212a",
-    "web/src/styles/overlays.css": "0e9d95440dae30ccdddc2eb3c3b9a3e9",
+    "web/src/styles/overlays.css": "4a6a065ea63be030884cc777da16172d",
     "web/src/styles/research.css": "d6b0cfec388cfea92fbf44a499d896b3",
     "web/src/styles/synergy.css": "2e0be5cb10c49f056ca824a3aad4465d",
     "web/src/styles.css": "2c9e679e06b8da65f1b7f203cd370100",
@@ -7966,29 +8076,31 @@
     "web/src/ui/CombatDetailModal.tsx": "5073b323eea7355b0b9a44a58f1d583a",
     "web/src/ui/CombatLogPanel.tsx": "35189524389f91f6e4b8c0fa3034989f",
     "web/src/ui/CombatTab.tsx": "2f7dacf5ef8690ba3932b0b4b0109735",
-    "web/src/ui/CommandTray.tsx": "481ea7251b4e88339532dd6cf0fc4116",
-    "web/src/ui/ContextInspector.tsx": "0dea6c30b9a549daa6acde1f094535c5",
+    "web/src/ui/CommandTray.tsx": "beb53e543476ede3aade2eb983f9618b",
+    "web/src/ui/ContextInspector.tsx": "bc1f47ea2640a40f0024e3dd7dfbfc6e",
     "web/src/ui/ControlsTab.tsx": "35f174e9718a27f03928104e884f6f68",
     "web/src/ui/DebugOverlay.tsx": "d1ec01e6cd7d2f1333e3531dd675f90d",
     "web/src/ui/DropdownMenu.tsx": "a115f5e3d9cdbfb2c850532a3cfd35db",
     "web/src/ui/EventToast.tsx": "c140eef6a0f4389dcd29916acb1f4747",
     "web/src/ui/EventToastStack.tsx": "0a58e74dbe523f5cf3ee52136dd7952d",
-    "web/src/ui/GameMenuBar.tsx": "1a08b1c9775746c5a2e27435155dfd67",
+    "web/src/ui/GameMenuBar.tsx": "ac4fb7ce1a865ac2903b6407f9fe298e",
     "web/src/ui/HelpPanel.tsx": "ed0dc91507fc205277e078ac43fee200",
-    "web/src/ui/KnowledgeGainedModal.tsx": "18ef910d2b2be8596ba43e8990d01b3a",
+    "web/src/ui/KnowledgeGainedModal.tsx": "c7724d603ba5c1ebcefaff7f6602f202",
     "web/src/ui/ReportsOverlay.tsx": "cee54af68c510b518d36c1becd9e79e3",
-    "web/src/ui/ResearchDetail.tsx": "0e92b05ace6d27d31eb139714ff1d079",
+    "web/src/ui/ResearchDetail.tsx": "b322c9dd0b2b4d8f23f36ff359b7084b",
     "web/src/ui/ResearchNode.tsx": "be7ad75b489f49cce62d7af0a28bdfd2",
-    "web/src/ui/ResearchTab.tsx": "8a030f5b0ab5225ce0a68ce8d2a340bb",
-    "web/src/ui/ResearchTree.tsx": "1624e00158c90a1b989d3837f2d4b538",
+    "web/src/ui/ResearchTab.tsx": "efc0cd8001eba31842544a124ad8a456",
+    "web/src/ui/ResearchTree.tsx": "8867fe59af5e6007ee559128b2db4a85",
     "web/src/ui/ResearchWindow.tsx": "0657c48d41e6a3269e4cf788c8af7676",
     "web/src/ui/RightInspector.tsx": "b7e361c41da3715b3a79f98aeafa49e7",
-    "web/src/ui/SynergyChip.tsx": "1f8f19c1fc93b7b95c99c0d59dadd4cc",
+    "web/src/ui/SynergyChip.tsx": "44ec24d64326507022930df1baefdd2f",
     "web/src/ui/SynergyEncyclopediaTab.tsx": "5b8cc7930ce85e56d7c13073c75d68da",
+    "web/src/ui/TechDiscoveryModal.tsx": "bd3d5723f80fe40dfd2230978c418963",
+    "web/src/ui/TerrainPanel.tsx": "a38e6d9876fa6bfb2d96a0ee0dc59e0a",
     "web/src/ui/TopHud.tsx": "085ab9e2c58dcb8b4aedb124ee365b9c",
     "web/src/ui/TribesTab.tsx": "2b1850b383d1ca4fdbfad56d04931f69",
     "web/src/ui/TurnBanner.tsx": "012b66ddb9152ac79a4f500d786928ab",
-    "web/src/ui/TutorialOverlay.tsx": "579a6cd05563b95abb36fad51d4c4f8c",
+    "web/src/ui/TutorialOverlay.tsx": "20d961902f1013ffea8f09ca642bec29",
     "web/src/ui/VictoryOverlay.tsx": "c5890ccafe0c6b4f6d05d1c70628822a",
     "web/tsconfig.json": "f65570b887c9f5bbbf06ca5856c06d86",
     "web/vite.config.ts": "7cd57749c66b9f5dcbcf11dec50d074b"

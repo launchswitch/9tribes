@@ -236,6 +236,10 @@ export class GameController {
     return this.session?.getSaveSnapshot() ?? null;
   }
 
+  getNextAvailableUnit(): string | null {
+    return this.session?.getNextAvailableUnit(this.focusedUnitId) ?? null;
+  }
+
   private getPlayState(): ClientState {
     const session = this.session!;
     const sessionState = session.getState();

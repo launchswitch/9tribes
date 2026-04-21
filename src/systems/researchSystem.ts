@@ -24,7 +24,7 @@ export function createResearchState(factionId: FactionId, nativeDomain?: string)
     activeNodeId: null,
     progressByNodeId: {},
     completedNodes,
-    researchPerTurn: 8,
+    researchPerTurn: 4,
     recentCodifiedDomainIds: [],
   };
 }
@@ -106,7 +106,7 @@ export function getDomainTier(
     activeNodeId: null,
     progressByNodeId: {},
     completedNodes: completedNodes as ResearchNodeId[],
-    researchPerTurn: 8,
+    researchPerTurn: 4,
   });
 }
 

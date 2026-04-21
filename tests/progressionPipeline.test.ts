@@ -16,22 +16,22 @@ const registry = loadRulesRegistry();
 
 describe('progression pipeline constants', () => {
   describe('exposure thresholds', () => {
-    it('first foreign domain threshold is 10', () => {
-      expect(getNextExposureThreshold(1, 'venom')).toBe(10);
+    it('first foreign domain threshold is 35', () => {
+      expect(getNextExposureThreshold(1, 'venom')).toBe(35);
     });
-    it('second foreign domain threshold is 20', () => {
-      expect(getNextExposureThreshold(2, 'venom')).toBe(20);
+    it('second foreign domain threshold is 75', () => {
+      expect(getNextExposureThreshold(2, 'venom')).toBe(75);
     });
-    it('third foreign domain threshold is 35', () => {
-      expect(getNextExposureThreshold(3, 'venom')).toBe(35);
+    it('third foreign domain threshold is 140', () => {
+      expect(getNextExposureThreshold(3, 'venom')).toBe(140);
     });
   });
 
   describe('research speed', () => {
-    it('researchPerTurn is 8', () => {
+    it('researchPerTurn is 5', () => {
       const research = createResearchState('hill_clan' as never, 'fortress');
-      expect(research.researchPerTurn).toBe(8);
-      expect(getResearchRate(research)).toBe(8);
+      expect(research.researchPerTurn).toBe(5);
+      expect(getResearchRate(research)).toBe(5);
     });
   });
 
@@ -117,7 +117,7 @@ describe('progression pipeline constants', () => {
       expect(state.research.get(faction.id)!.completedNodes).not.toContain(t1NodeId);
 
       const trace = { lines: [] as string[] };
-      const next = gainExposure(state, faction.id, foreignDomain, 10, trace, registry);
+      const next = gainExposure(state, faction.id, foreignDomain, 35, trace, registry);
 
       expect(next.factions.get(faction.id)!.learnedDomains).toContain(foreignDomain);
       expect(next.research.get(faction.id)!.completedNodes).toContain(t1NodeId);
