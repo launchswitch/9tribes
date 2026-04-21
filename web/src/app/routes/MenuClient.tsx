@@ -222,7 +222,7 @@ export function MenuClient() {
                 <h3>Difficulty</h3>
                 <div className="menu-chip-row">
                   {(['easy', 'normal', 'hard'] as DifficultyLevel[]).map((difficulty) => {
-                    const isLocked = false;
+                    const isLocked = difficulty !== 'normal';
                     return (
                       <button
                         key={difficulty}

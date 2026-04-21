@@ -24,11 +24,11 @@ describe('Terrain', () => {
     expect(plains?.movementCost).toBe(1);
   });
 
-  it('getAllTerrains returns 12 terrains', () => {
+  it('getAllTerrains returns 13 terrains', () => {
     const terrains = registry.getAllTerrains();
-    expect(terrains).toHaveLength(12);
+    expect(terrains).toHaveLength(13);
     const ids = terrains.map(t => t.id).sort();
-    expect(ids).toEqual(['coast', 'desert', 'forest', 'hill', 'jungle', 'mountain', 'ocean', 'plains', 'river', 'savannah', 'swamp', 'tundra']);
+    expect(ids).toEqual(['coast', 'desert', 'forest', 'hill', 'jungle', 'mountain', 'oasis', 'ocean', 'plains', 'river', 'savannah', 'swamp', 'tundra']);
   });
 });
 

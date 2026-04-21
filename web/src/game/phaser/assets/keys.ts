@@ -18,6 +18,7 @@ export const TEXTURES = {
   mountainOverlay: 'terrain-mountain-overlay',
   oceanBase: 'terrain-ocean-base',
   riverOverlay: 'terrain-river-overlay',
+  oasisOverlay: 'terrain-oasis-overlay',
   cities: 'settlements-cities',
   units: 'units-sheet',
   fog: 'fog-sheet',
@@ -553,13 +554,10 @@ export function getTerrainRenderSpec(terrain: string): TerrainRenderSpec {
       };
     case 'oasis':
       return {
-        baseTexture: TEXTURES.grassBase,
-        baseFrame: resolvedTerrainFrames.grassBase,
-        overlayTexture: TEXTURES.riverOverlay,
-        overlayFrame: TERRAIN_FRAMES.riverStraight,
-        overlayTint: 0x5dade2,
-        overlayAlpha: 0.6,
-        fallbackColor: 0x5dade2,
+        baseTexture: TEXTURES.desertBase,
+        baseFrame: resolvedTerrainFrames.desertBase,
+        overlayTexture: TEXTURES.oasisOverlay,
+        fallbackColor: 0xd8c07a,
       };
     default:
       return {

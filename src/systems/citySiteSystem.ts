@@ -301,6 +301,7 @@ function cloneCitySiteBonuses(bonuses: CitySiteBonuses): CitySiteBonuses {
     productionBonus: bonuses.productionBonus,
     supplyBonus: bonuses.supplyBonus,
     villageCooldownReduction: bonuses.villageCooldownReduction,
+    researchBonus: bonuses.researchBonus,
     traits: bonuses.traits.map((trait) => ({ ...trait })),
   };
 }

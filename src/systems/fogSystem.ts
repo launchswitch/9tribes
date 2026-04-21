@@ -169,8 +169,7 @@ export function calculateVisibility(state: GameState, factionId: FactionId): Fac
     if (tile?.terrain === 'oasis') {
       if (camelUnitPositions.length > 0) {
         const inRange = camelUnitPositions.some((camelPos) => {
-          const camelTile = state.map?.tiles.get(hexToKey(camelPos));
-          return camelTile && hexDistance(camelPos, tile.position) <= 4;
+          return hexDistance(camelPos, tile.position) <= 4;
         });
         if (inRange) {
           hexVisibility.set(key, 'visible');

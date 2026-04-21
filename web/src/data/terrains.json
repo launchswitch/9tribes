@@ -62,6 +62,19 @@
       "endurance": 1
     }
   },
+  "oasis": {
+    "id": "oasis",
+    "name": "Oasis",
+    "movementCost": 1,
+    "defenseModifier": 0.1,
+    "passable": true,
+    "ecologyTags": ["desert", "oasis", "water", "arid"],
+    "capabilityPressure": {
+      "desert_survival": 1.0,
+      "endurance": 0.5,
+      "camel_adaptation": 1.5
+    }
+  },
   "tundra": {
     "id": "tundra",
     "name": "Tundra",

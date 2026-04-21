@@ -146,7 +146,6 @@ function startOrAdvanceCodification(
       if (city.factionId === factionId) {
         const bonuses = getCitySiteBonuses(city, state.map);
         researchAmount += bonuses.researchBonus;
-        break;
       }
     }
   }
