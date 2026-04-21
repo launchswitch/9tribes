@@ -18,7 +18,7 @@ export interface CurrentProduction {
   costType?: ProductionCostType;
 }
 
-export type CitySiteTraitKey = 'fresh_water' | 'woodland' | 'open_land';
+export type CitySiteTraitKey = 'fresh_water' | 'oasis' | 'woodland' | 'open_land';
 
 export interface CitySiteTrait {
   key: CitySiteTraitKey;
@@ -32,6 +32,7 @@ export interface CitySiteBonuses {
   productionBonus: number;
   supplyBonus: number;
   villageCooldownReduction: number;
+  researchBonus: number;
   traits: CitySiteTrait[];
 }
 

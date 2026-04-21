@@ -11,6 +11,7 @@ export type TerrainType =
   | 'jungle'
   | 'hill'
   | 'desert'
+  | 'oasis'
   | 'tundra'
   | 'savannah'
   | 'coast'

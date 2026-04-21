@@ -21,6 +21,7 @@ export const assetManifest = [
   { kind: 'sheet', key: TEXTURES.mountainOverlay, path: `${ROOT}/terrains/mountains.png`, frameConfig: { frameWidth: 96, frameHeight: 66 } },
   { kind: 'sheet', key: TEXTURES.oceanBase, path: `${ROOT}/terrains/oceans.png`, frameConfig: { frameWidth: 48, frameHeight: 24 } },
   { kind: 'sheet', key: TEXTURES.riverOverlay, path: `${ROOT}/terrains/rivers.png`, frameConfig: { frameWidth: 96, frameHeight: 48 } },
+  { kind: 'image', key: TEXTURES.oasisOverlay, path: `${ROOT}/terrains/oasis.png` },
   { kind: 'sheet', key: TEXTURES.cities, path: `${ROOT}/cities/cities.png`, frameConfig: { frameWidth: 96, frameHeight: 72 } },
   { kind: 'sheet', key: TEXTURES.units, path: `${ROOT}/units.png`, frameConfig: { frameWidth: 64, frameHeight: 48 } },
   { kind: 'sheet', key: TEXTURES.fog, path: `${ROOT}/fog.png`, frameConfig: { frameWidth: 96, frameHeight: 48 } },

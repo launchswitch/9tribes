@@ -78,6 +78,7 @@ export function generateClimateBandMap(
     carveSwamps(map, rng, climateProfile);
     carveMountains(map, rng);
     normalizeClimateBands(map, climateProfile);
+    carveOases(map, rng, climateProfile);
 
     const placement = placeStarts(map, rng, requests, options, climateProfile);
     if (placement) {
@@ -353,6 +354,17 @@ function carveMountains(map: GameMap, rng: RNGState): void {
       if (!tile || MOUNTAIN_SKIP_TERRAINS.has(tile.terrain)) continue;
       if (rngNextFloat(rng) < 0.5) {
         tile.terrain = 'mountain';
+      }
+    }
+  }
+}
+
+function carveOases(map: GameMap, rng: RNGState, climate: ClimateProfile): void {
+  const OASIS_CHANCE = 0.02;
+  for (const tile of map.tiles.values()) {
+    if (tile.terrain === 'desert' && tile.position.r >= climate.desertBandStartRow) {
+      if (rngNextFloat(rng) < OASIS_CHANCE) {
+        tile.terrain = 'oasis';
       }
     }
   }

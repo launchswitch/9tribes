@@ -9,6 +9,7 @@ import { hexToKey, hexDistance, getNeighbors } from '../../core/grid.js';
 import { isHexOccupied } from '../occupancySystem.js';
 import { resolveResearchDoctrine, prototypeHasComponent } from '../capabilityDoctrine.js';
 import { addResearchProgress, startResearch } from '../researchSystem.js';
+import { getCitySiteBonuses } from '../citySiteSystem.js';
 import { unlockHybridRecipes } from '../hybridSystem.js';
 import { deriveResourceIncome, getSupplyDeficit, advanceCaptureTimers } from '../economySystem.js';
 import {
@@ -139,10 +140,20 @@ function startOrAdvanceCodification(
     return state;
   }
 
+  let researchAmount = currentResearch.researchPerTurn;
+  if (activeDomain?.id === 'camel_adaptation') {
+    for (const city of state.cities.values()) {
+      if (city.factionId === factionId) {
+        const bonuses = getCitySiteBonuses(city, state.map);
+        researchAmount += bonuses.researchBonus;
+      }
+    }
+  }
+
   const updatedResearch = addResearchProgress(
     currentResearch,
     activeNode.xpCost,
-    currentResearch.researchPerTurn,
+    researchAmount,
   );
 
   const researchMap = new Map(state.research);

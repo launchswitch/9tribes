@@ -246,7 +246,7 @@ export function MenuClient() {
                 <h3>Map Size</h3>
                 <div className="menu-chip-row">
                   {(['small', 'medium', 'large'] as MapSize[]).map((mapSize) => {
-                    const isLocked = mapSize !== 'small';
+                    const isLocked = false;
                     return (
                       <button
                         key={mapSize}

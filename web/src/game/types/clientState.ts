@@ -66,6 +66,7 @@ export type SettlementBonusSummaryViewModel = {
   productionBonus: number;
   supplyBonus: number;
   villageCooldownReduction: number;
+  researchBonus: number;
   traits: SettlementSiteTraitViewModel[];
 };
 

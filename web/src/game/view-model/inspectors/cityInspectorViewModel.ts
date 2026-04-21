@@ -262,6 +262,7 @@ export function buildSettlementBonusSummary(bonuses: CitySiteBonuses): Settlemen
     productionBonus: bonuses.productionBonus,
     supplyBonus: bonuses.supplyBonus,
     villageCooldownReduction: bonuses.villageCooldownReduction,
+    researchBonus: bonuses.researchBonus,
     traits: bonuses.traits.map((trait: CitySiteTrait) => ({ ...trait })),
   };
 }
