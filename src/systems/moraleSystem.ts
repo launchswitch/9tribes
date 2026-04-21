@@ -5,7 +5,9 @@ import type { Unit } from '../features/units/types.js';
 import type { GameState } from '../game/types.js';
 import type { HexCoord } from '../types.js';
 import { hexDistance, getNeighbors } from '../core/grid.js';
+import { getTile } from '../world/map/getTile.js';
 import { isUnitVisibleTo } from './fogSystem.js';
+import { isWaterTerrain } from './factionIdentitySystem.js';
 
 // Morale configuration constants
 export const MORALE_CONFIG = {
@@ -121,6 +123,12 @@ export function findFleeHex(
       }
     }
     if (occupied) continue;
+
+    // Skip water terrain for non-naval units (infantry cannot enter ocean/coast/river)
+    const targetTile = getTile(state.map, hex);
+    if (targetTile && isWaterTerrain(targetTile.terrainId)) {
+      continue;
+    }
 
     // Cannot flee into an enemy or neutral city
     let hasEnemyCity = false;
