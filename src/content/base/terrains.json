@@ -62,6 +62,18 @@
       "endurance": 1
     }
   },
+  "oasis": {
+    "id": "oasis",
+    "name": "Oasis",
+    "movementCost": 1,
+    "defenseModifier": 0.1,
+    "passable": true,
+    "ecologyTags": ["oasis", "water", "desert"],
+    "capabilityPressure": {
+      "desert_survival": 2,
+      "endurance": 1
+    }
+  },
   "tundra": {
     "id": "tundra",
     "name": "Tundra",

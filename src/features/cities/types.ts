@@ -32,6 +32,7 @@ export interface CitySiteBonuses {
   productionBonus: number;
   supplyBonus: number;
   villageCooldownReduction: number;
+  researchBonus: number;
   traits: CitySiteTrait[];
 }
 

@@ -7,12 +7,14 @@ import type { GameMap, TerrainType } from '../world/map/types.js';
 import { getFactionCityIds } from './factionOwnershipSystem.js';
 
 const FRESH_WATER_TERRAINS = new Set<TerrainType>(['river']);
+const OASIS_TERRAINS = new Set<TerrainType>(['oasis']);
 const WOODLAND_TERRAINS = new Set<TerrainType>(['forest', 'jungle']);
 const OPEN_LAND_TERRAINS = new Set<TerrainType>(['plains', 'savannah']);
 
 export const CITY_SITE_PRODUCTION_BONUS = 0.5;
 export const CITY_SITE_SUPPLY_BONUS = 0.5;
 export const CITY_SITE_VILLAGE_COOLDOWN_REDUCTION = 1;
+export const CITY_SITE_RESEARCH_BONUS = 2;
 
 export type SettlementOccupancyBlocker = 'city' | 'village' | 'improvement' | null;
 
@@ -20,8 +22,10 @@ export const EMPTY_CITY_SITE_BONUSES: CitySiteBonuses = {
   productionBonus: 0,
   supplyBonus: 0,
   villageCooldownReduction: 0,
+  researchBonus: 0,
   traits: [
     { key: 'fresh_water', label: 'Fresh Water', effect: 'Village cooldown -1 round', active: false, count: 0 },
+    { key: 'oasis', label: 'Oasis', effect: 'Village cooldown -1 round, +2 camel research', active: false, count: 0 },
     { key: 'woodland', label: 'Woodland', effect: '+0.5 production', active: false, count: 0 },
     { key: 'open_land', label: 'Open Land', effect: '+0.5 supply', active: false, count: 0 },
   ],
@@ -37,16 +41,28 @@ export function evaluateCitySiteBonuses(
   }
 
   const freshWaterCount = countTerrainsInRange(map, position, territoryRadius, FRESH_WATER_TERRAINS);
+  const oasisCount = countTerrainsInRange(map, position, territoryRadius, OASIS_TERRAINS);
   const woodlandCount = countTerrainsInRange(map, position, territoryRadius, WOODLAND_TERRAINS);
   const openLandCount = countTerrainsInRange(map, position, territoryRadius, OPEN_LAND_TERRAINS);
+
+  const hasRiver = freshWaterCount > 0;
+  const hasOasis = oasisCount > 0;
+  const hasWaterBonus = hasRiver || hasOasis;
 
   const traits: CitySiteTrait[] = [
     {
       key: 'fresh_water',
       label: 'Fresh Water',
       effect: 'Village cooldown -1 round',
-      active: freshWaterCount > 0,
+      active: hasRiver && !hasOasis,
       count: freshWaterCount,
+    },
+    {
+      key: 'oasis',
+      label: 'Oasis',
+      effect: 'Village cooldown -1 round, +2 camel research',
+      active: hasOasis,
+      count: oasisCount,
     },
     {
       key: 'woodland',
@@ -67,7 +83,8 @@ export function evaluateCitySiteBonuses(
   return {
     productionBonus: woodlandCount > 0 ? CITY_SITE_PRODUCTION_BONUS : 0,
     supplyBonus: openLandCount > 0 ? CITY_SITE_SUPPLY_BONUS : 0,
-    villageCooldownReduction: freshWaterCount > 0 ? CITY_SITE_VILLAGE_COOLDOWN_REDUCTION : 0,
+    villageCooldownReduction: hasWaterBonus ? CITY_SITE_VILLAGE_COOLDOWN_REDUCTION : 0,
+    researchBonus: hasOasis ? CITY_SITE_RESEARCH_BONUS : 0,
     traits,
   };
 }

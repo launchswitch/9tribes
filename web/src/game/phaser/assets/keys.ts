@@ -551,6 +551,16 @@ export function getTerrainRenderSpec(terrain: string): TerrainRenderSpec {
         baseFrame: TERRAIN_FRAMES.oceanBase,
         fallbackColor: 0x1a4a6e,
       };
+    case 'oasis':
+      return {
+        baseTexture: TEXTURES.grassBase,
+        baseFrame: resolvedTerrainFrames.grassBase,
+        overlayTexture: TEXTURES.riverOverlay,
+        overlayFrame: TERRAIN_FRAMES.riverStraight,
+        overlayTint: 0x5dade2,
+        overlayAlpha: 0.6,
+        fallbackColor: 0x5dade2,
+      };
     default:
       return {
         baseTexture: TEXTURES.grassBase,

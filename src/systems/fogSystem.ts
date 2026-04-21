@@ -114,12 +114,17 @@ export function calculateVisibility(state: GameState, factionId: FactionId): Fac
   }
 
   // 1. Get all living friendly units and add their visibility range
+  const camelUnitPositions: HexCoord[] = [];
   for (const unitId of faction.unitIds) {
     const unit = state.units.get(unitId);
     if (unit && unit.hp > 0) {
       const prototype = state.prototypes.get(unit.prototypeId);
       const role = prototype?.derivedStats?.role;
       const isMounted = role === 'mounted';
+      const isCamel = prototype?.chassisId === 'camel_frame';
+      if (isCamel) {
+        camelUnitPositions.push(unit.position);
+      }
       const radius = UNIT_VISIBILITY_RADIUS + (isMounted ? MOUNTED_SCOUT_VISIBILITY_BONUS : 0);
       const visibleHexes = getHexesInRange(unit.position, radius);
       for (const hex of visibleHexes) {
@@ -160,7 +165,20 @@ export function calculateVisibility(state: GameState, factionId: FactionId): Fac
 
   // Keys in new visible set → 'visible'
   for (const key of newVisibleKeys) {
-    hexVisibility.set(key, 'visible');
+    const tile = state.map?.tiles.get(key);
+    if (tile?.terrain === 'oasis') {
+      if (camelUnitPositions.length > 0) {
+        const inRange = camelUnitPositions.some((camelPos) => {
+          const camelTile = state.map?.tiles.get(hexToKey(camelPos));
+          return camelTile && hexDistance(camelPos, tile.position) <= 4;
+        });
+        if (inRange) {
+          hexVisibility.set(key, 'visible');
+        }
+      }
+    } else {
+      hexVisibility.set(key, 'visible');
+    }
   }
 
   // Keys that were 'visible' or 'explored' before → 'explored'
