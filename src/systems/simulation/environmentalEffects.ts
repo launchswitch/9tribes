@@ -75,9 +75,29 @@ export function occupiesFriendlySettlement(state: GameState, unit: Unit): boolea
   return false;
 }
 
-function isJungleImmune(state: GameState, unit: Unit): boolean {
+function isImmuneByTrait(state: GameState, unit: Unit, ...traits: string[]): boolean {
   const faction = state.factions.get(unit.factionId);
-  return faction?.identityProfile.passiveTrait === 'jungle_stalkers';
+  return traits.includes(faction?.identityProfile.passiveTrait ?? '');
+}
+
+function isJungleImmune(state: GameState, unit: Unit): boolean {
+  return isImmuneByTrait(state, unit, 'jungle_stalkers');
+}
+
+function isDesertImmune(state: GameState, unit: Unit): boolean {
+  return isImmuneByTrait(state, unit, 'desert_logistics', 'charge_momentum');
+}
+
+function isTundraImmune(state: GameState, unit: Unit): boolean {
+  return isImmuneByTrait(state, unit, 'cold_hardened_growth', 'foraging_riders');
+}
+
+function isSwampImmune(state: GameState, unit: Unit): boolean {
+  if (isImmuneByTrait(state, unit, 'healing_druids', 'jungle_stalkers', 'river_assault')) {
+    return true;
+  }
+  const prototype = state.prototypes.get(unit.prototypeId);
+  return prototype?.tags?.includes('amphibious') ?? false;
 }
 
 function canInflictPoison(state: GameState, unit: Unit): boolean {
@@ -147,6 +167,24 @@ export function applyEnvironmentalDamage(
     if (!died && terrainId === 'jungle' && !safeInSettlement && !isJungleImmune(current, updatedUnit)) {
       updatedUnit = { ...updatedUnit, hp: Math.max(0, updatedUnit.hp - 1) };
       log(trace, `${faction.name} ${current.prototypes.get(unit.prototypeId)?.name ?? 'unit'} suffers jungle attrition`);
+      died = updatedUnit.hp <= 0;
+    }
+
+    if (!died && terrainId === 'desert' && !safeInSettlement && !isDesertImmune(current, updatedUnit)) {
+      updatedUnit = { ...updatedUnit, hp: Math.max(0, updatedUnit.hp - 1) };
+      log(trace, `${faction.name} ${current.prototypes.get(unit.prototypeId)?.name ?? 'unit'} suffers desert attrition`);
+      died = updatedUnit.hp <= 0;
+    }
+
+    if (!died && terrainId === 'tundra' && !safeInSettlement && !isTundraImmune(current, updatedUnit)) {
+      updatedUnit = { ...updatedUnit, hp: Math.max(0, updatedUnit.hp - 1) };
+      log(trace, `${faction.name} ${current.prototypes.get(unit.prototypeId)?.name ?? 'unit'} suffers tundra attrition`);
+      died = updatedUnit.hp <= 0;
+    }
+
+    if (!died && terrainId === 'swamp' && !safeInSettlement && !isSwampImmune(current, updatedUnit)) {
+      updatedUnit = { ...updatedUnit, hp: Math.max(0, updatedUnit.hp - 1) };
+      log(trace, `${faction.name} ${current.prototypes.get(unit.prototypeId)?.name ?? 'unit'} suffers swamp attrition`);
       died = updatedUnit.hp <= 0;
     }
 
