@@ -47,15 +47,15 @@ export class MapScene extends Phaser.Scene {
   create() {
     this.cameras.main.setBackgroundColor('#17130e');
 
-    this.tileLayer = this.add.container();
-    this.borderLayer = this.add.container();
-    this.settlementLayer = this.add.container();
-    this.improvementLayer = this.add.container();
-    this.pathLayer = this.add.container();
-    this.unitLayer = this.add.container();
-    this.combatOverlayLayer = this.add.container();
-    this.selectionLayer = this.add.container();
-    this.fogLayer = this.add.container();
+    this.tileLayer = this.add.container().setDepth(0);
+    this.borderLayer = this.add.container().setDepth(1);
+    this.settlementLayer = this.add.container().setDepth(2);
+    this.improvementLayer = this.add.container().setDepth(3);
+    this.pathLayer = this.add.container().setDepth(4);
+    this.unitLayer = this.add.container().setDepth(5);
+    this.combatOverlayLayer = this.add.container().setDepth(6);
+    this.selectionLayer = this.add.container().setDepth(7);
+    this.fogLayer = this.add.container().setDepth(8);
 
     this.tileRenderer = new TileLayerRenderer(this, this.tileLayer, this.worldToScreen);
     this.borderRenderer = new BorderRenderer(this, this.borderLayer, this.worldToScreen);
