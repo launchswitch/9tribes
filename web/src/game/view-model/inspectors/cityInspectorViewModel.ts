@@ -23,6 +23,7 @@ import {
   SETTLER_VILLAGE_COST,
 } from '../../../../../src/systems/productionSystem.js';
 import { calculatePrototypeCost, getDomainIdsByTags, getPrototypeCostModifier, isUnlockPrototype } from '../../../../../src/systems/knowledgeSystem.js';
+import { getUnitSupplyCost } from '../../../../../src/systems/productionSystem.js';
 import { calculateProductionPenalty, calculateMoralePenalty } from '../../../../../src/systems/warExhaustionSystem.js';
 import { hexToKey } from '../../../../../src/core/grid.js';
 import type {
@@ -183,7 +184,7 @@ export function buildCityInspectorViewModel(state: GameState, cityId: string, re
           costModifier,
           costModifierReason,
           chassisId: prototype.chassisId,
-          supplyCost: prototype.supplyCost ?? 1,
+          supplyCost: getUnitSupplyCost(prototype, registry),
           isPrototype: isUnlockPrototype(prototype),
           attack: prototype.derivedStats.attack,
           defense: prototype.derivedStats.defense,
