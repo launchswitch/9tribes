@@ -75,27 +75,25 @@ export function occupiesFriendlySettlement(state: GameState, unit: Unit): boolea
   return false;
 }
 
-function isJungleImmune(state: GameState, unit: Unit): boolean {
+function isImmuneByTrait(state: GameState, unit: Unit, ...traits: string[]): boolean {
   const faction = state.factions.get(unit.factionId);
-  return faction?.identityProfile.passiveTrait === 'jungle_stalkers';
+  return traits.includes(faction?.identityProfile.passiveTrait ?? '');
+}
+
+function isJungleImmune(state: GameState, unit: Unit): boolean {
+  return isImmuneByTrait(state, unit, 'jungle_stalkers');
 }
 
 function isDesertImmune(state: GameState, unit: Unit): boolean {
-  const faction = state.factions.get(unit.factionId);
-  const passive = faction?.identityProfile.passiveTrait;
-  return passive === 'desert_logistics' || passive === 'charge_momentum';
+  return isImmuneByTrait(state, unit, 'desert_logistics', 'charge_momentum');
 }
 
 function isTundraImmune(state: GameState, unit: Unit): boolean {
-  const faction = state.factions.get(unit.factionId);
-  const passive = faction?.identityProfile.passiveTrait;
-  return passive === 'cold_hardened_growth' || passive === 'foraging_riders';
+  return isImmuneByTrait(state, unit, 'cold_hardened_growth', 'foraging_riders');
 }
 
 function isSwampImmune(state: GameState, unit: Unit): boolean {
-  const faction = state.factions.get(unit.factionId);
-  const passive = faction?.identityProfile.passiveTrait;
-  if (passive === 'healing_druids' || passive === 'jungle_stalkers' || passive === 'river_assault') {
+  if (isImmuneByTrait(state, unit, 'healing_druids', 'jungle_stalkers', 'river_assault')) {
     return true;
   }
   const prototype = state.prototypes.get(unit.prototypeId);
