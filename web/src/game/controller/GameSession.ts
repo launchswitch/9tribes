@@ -402,6 +402,30 @@ export class GameSession {
     }
   }
 
+  /** Returns the next unit owned by the active faction that has moves remaining, or null. */
+  getNextAvailableUnit(currentUnitId: string | null): string | null {
+    if (!this.state.map) return null;
+
+    const activeUnits = Array.from(this.state.units.values()).filter(
+      (u) => u.factionId === this.state.activeFactionId && u.hp > 0 && u.movesRemaining > 0
+    );
+
+    if (activeUnits.length === 0) return null;
+
+    // Sort by creation order (approximate via position + id for determinism)
+    activeUnits.sort((a, b) => {
+      const posCmp = a.position.r - b.position.r || a.position.q - b.position.q;
+      if (posCmp !== 0) return posCmp;
+      return a.id.localeCompare(b.id);
+    });
+
+    if (!currentUnitId) return activeUnits[0]!.id;
+
+    const idx = activeUnits.findIndex((u) => u.id === currentUnitId);
+    const nextIdx = idx < 0 ? 0 : (idx + 1) % activeUnits.length;
+    return activeUnits[nextIdx]!.id;
+  }
+
   getLegalMoves(unitId: string) {
     const unit = this.state.units.get(unitId as UnitId);
     if (!unit || unit.hp <= 0 || unit.factionId !== this.state.activeFactionId || !this.state.map) {

@@ -68,6 +68,8 @@ export type UnitView = {
   transportId?: string | null;
   boardableTransportIds?: string[];
   validDisembarkHexes?: HexCoord[];
+  supplyCost?: number;
+  isPrototype?: boolean;
 };
 
 export type CityView = {

@@ -51,6 +51,7 @@ export interface MvpFactionConfig {
   nativeDomain: string;
   startingLearnedDomains?: string[];
   startingCompletedResearchNodes?: string[];
+  researchRate?: number;
 }
 
 export interface MvpUnitConfig {
@@ -88,6 +89,7 @@ export function getMvpFactionConfigs(overrides?: BalanceOverrides): MvpFactionCo
         ...config.capabilitySeeds,
         ...(factionOverride.capabilitySeeds ?? {}),
       },
+      ...(factionOverride.researchRate !== undefined && { researchRate: factionOverride.researchRate }),
     };
   });
 }

@@ -162,6 +162,12 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                   <span className="ci-stat-value">{selectedUnit.range > 1 ? selectedUnit.range : 'Melee'}</span>
                   <span className="ci-stat-label">Range</span>
                 </div>
+                {selectedUnit.isPrototype !== true && (
+                  <div className="ci-stat-cell">
+                    <span className="ci-stat-value">{selectedUnit.supplyCost ?? 1}</span>
+                    <span className="ci-stat-label">Supply</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -584,6 +590,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                         <span className="pq-stat pq-stat--hp">HP {option.hp}</span>
                         {option.moves > 1 && <span className="pq-stat pq-stat--mov">MOV {option.moves}</span>}
                         {option.range > 1 && <span className="pq-stat pq-stat--rng">RNG {option.range}</span>}
+                        {!option.isPrototype && <span className="pq-stat pq-stat--sup">SUP {option.supplyCost}</span>}
                       </div>
                       {option.costModifierReason && (
                         <span className="pq-shock-note">{option.costModifierReason}</span>

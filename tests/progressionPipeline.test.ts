@@ -16,51 +16,57 @@ const registry = loadRulesRegistry();
 
 describe('progression pipeline constants', () => {
   describe('exposure thresholds', () => {
-    it('first foreign domain threshold is 10', () => {
-      expect(getNextExposureThreshold(1, 'venom')).toBe(10);
+    it('first foreign domain threshold is 35', () => {
+      expect(getNextExposureThreshold(1, 'venom')).toBe(35);
     });
-    it('second foreign domain threshold is 20', () => {
-      expect(getNextExposureThreshold(2, 'venom')).toBe(20);
+    it('second foreign domain threshold is 75', () => {
+      expect(getNextExposureThreshold(2, 'venom')).toBe(75);
     });
-    it('third foreign domain threshold is 35', () => {
-      expect(getNextExposureThreshold(3, 'venom')).toBe(35);
+    it('third foreign domain threshold is 140', () => {
+      expect(getNextExposureThreshold(3, 'venom')).toBe(140);
     });
   });
 
   describe('research speed', () => {
-    it('researchPerTurn is 8', () => {
+    it('researchPerTurn is 4 for human players', () => {
       const research = createResearchState('hill_clan' as never, 'fortress');
-      expect(research.researchPerTurn).toBe(8);
-      expect(getResearchRate(research)).toBe(8);
+      expect(research.researchPerTurn).toBe(4);
+      expect(getResearchRate(research)).toBe(4);
+    });
+
+    it('researchPerTurn is 6 for AI players', () => {
+      const research = createResearchState('hill_clan' as never, 'fortress', 6);
+      expect(research.researchPerTurn).toBe(6);
+      expect(getResearchRate(research)).toBe(6);
     });
   });
 
   describe('domination threshold', () => {
-    it('4 of 9 cities triggers domination (40% threshold)', () => {
+    it('5 of 9 cities triggers domination (51% threshold)', () => {
       const state = buildMvpScenario(42);
       const cityIds = Array.from(state.cities.keys());
-      // Give 3 non-home cities to savannah_lions (total 4 including their own = 40% of 9)
+      // Give 4 non-home cities to savannah_lions (total 5 including their own = 56% of 9)
+      const nonSavannahCities = cityIds.filter(id => state.cities.get(id)!.factionId !== 'savannah_lions');
+      for (const cityId of nonSavannahCities.slice(0, 4)) {
+        const city = state.cities.get(cityId)!;
+        state.cities.set(cityId, { ...city, factionId: 'savannah_lions' as never, besieged: false });
+      }
+      const victory = getVictoryStatus(state);
+      expect(victory.dominationThreshold).toBe(5);
+      expect(victory.victoryType).toBe('domination');
+    });
+
+    it('4 of 9 cities does NOT trigger domination', () => {
+      const state = buildMvpScenario(42);
+      const cityIds = Array.from(state.cities.keys());
+      // Give only 3 non-home cities to savannah_lions (total 4 including their own = 44% of 9)
       const nonSavannahCities = cityIds.filter(id => state.cities.get(id)!.factionId !== 'savannah_lions');
       for (const cityId of nonSavannahCities.slice(0, 3)) {
         const city = state.cities.get(cityId)!;
         state.cities.set(cityId, { ...city, factionId: 'savannah_lions' as never, besieged: false });
       }
       const victory = getVictoryStatus(state);
-      expect(victory.dominationThreshold).toBe(4);
-      expect(victory.victoryType).toBe('domination');
-    });
-
-    it('3 of 9 cities does NOT trigger domination', () => {
-      const state = buildMvpScenario(42);
-      const cityIds = Array.from(state.cities.keys());
-      // Give only 2 non-home cities to savannah_lions (total 3 including their own)
-      const nonSavannahCities = cityIds.filter(id => state.cities.get(id)!.factionId !== 'savannah_lions');
-      for (const cityId of nonSavannahCities.slice(0, 2)) {
-        const city = state.cities.get(cityId)!;
-        state.cities.set(cityId, { ...city, factionId: 'savannah_lions' as never, besieged: false });
-      }
-      const victory = getVictoryStatus(state);
-      expect(victory.dominationThreshold).toBe(4);
+      expect(victory.dominationThreshold).toBe(5);
       expect(victory.victoryType).toBe('unresolved');
     });
   });
@@ -117,7 +123,7 @@ describe('progression pipeline constants', () => {
       expect(state.research.get(faction.id)!.completedNodes).not.toContain(t1NodeId);
 
       const trace = { lines: [] as string[] };
-      const next = gainExposure(state, faction.id, foreignDomain, 10, trace, registry);
+      const next = gainExposure(state, faction.id, foreignDomain, 35, trace, registry);
 
       expect(next.factions.get(faction.id)!.learnedDomains).toContain(foreignDomain);
       expect(next.research.get(faction.id)!.completedNodes).toContain(t1NodeId);

@@ -106,7 +106,7 @@ export function resolveResearchDoctrine(
 
   return {
     // Quantitative effects
-    poisonStacksOnHit: 1,
+    poisonStacksOnHit: hasNode('venom_t1') ? 2 : 1,
     poisonDamagePerStack: hasNode('venom_t2') ? 2 : 1,
     poisonMovePenalty: hasNode('venom_t3') ? 1 : 0,
 

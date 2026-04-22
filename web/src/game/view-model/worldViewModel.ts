@@ -6,6 +6,7 @@ import { canUseAmbush, canUseBrace, getTerrainAt, hasAdjacentEnemy } from '../..
 import { resolveCapabilityDoctrine } from '../../../../src/systems/capabilityDoctrine.js';
 import { deriveResourceIncome, getSupplyDeficit } from '../../../../src/systems/economySystem.js';
 import { isUnitEffectivelyStealthed } from '../../../../src/systems/fogSystem.js';
+import { isUnlockPrototype } from '../../../../src/systems/knowledgeSystem.js';
 import { getValidMoves } from '../../../../src/systems/movementSystem.js';
 import { SIEGE_CONFIG } from '../../../../src/systems/siegeSystem.js';
 import { getVictoryStatus } from '../../../../src/systems/warEcologySimulation.js';
@@ -242,6 +243,8 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
         transportId: unitTransport?.transportId ?? null,
         boardableTransportIds: boardableTransportIds.length > 0 ? boardableTransportIds : undefined,
         validDisembarkHexes: validDisembarkHexes.length > 0 ? validDisembarkHexes : undefined,
+        supplyCost: prototype?.supplyCost ?? 1,
+        isPrototype: prototype ? isUnlockPrototype(prototype) : false,
       };
     }),
     cities: Array.from(state.cities.values()).map((city) => ({

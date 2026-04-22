@@ -389,7 +389,8 @@ export function buildMvpScenario(seed: number, options: BuildMvpScenarioOptions 
     }
 
     // Initialize research state (native domain T1 auto-completed)
-    const researchState = createResearchState(factionId, factionConfig.nativeDomain);
+    const researchRate = factionConfig.researchRate;
+    const researchState = createResearchState(factionId, factionConfig.nativeDomain, researchRate);
     if (factionConfig.startingCompletedResearchNodes?.length) {
       researchState.completedNodes = Array.from(new Set([
         ...researchState.completedNodes,

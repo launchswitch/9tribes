@@ -361,7 +361,7 @@ export function activateUnit(
       return { state: current, pendingCombat: combatPreview };
     }
 
-    const appliedCombat = applyCombatAction(current, registry, combatPreview);
+    const appliedCombat = applyCombatAction(current, registry, combatPreview, 2);
     current = appliedCombat.state;
 
     const result = combatPreview.result;
@@ -581,7 +581,7 @@ export function activateUnit(
           if (combatMode === 'preview') {
             return { state: current, pendingCombat: postMovePreview };
           }
-          const postMoveCombat = applyCombatAction(current, registry, postMovePreview);
+          const postMoveCombat = applyCombatAction(current, registry, postMovePreview, 2);
           current = postMoveCombat.state;
           const enemyProto = current.prototypes.get(postMoveEnemy.prototypeId);
           const postMoveResult = postMovePreview.result;

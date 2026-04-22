@@ -15,7 +15,7 @@ import { addExhaustion, EXHAUSTION_CONFIG } from '../warExhaustionSystem.js';
 import { applyContactTransfer } from '../capabilitySystem.js';
 import { applyPoisonDoT, enterStealth, findRetreatHex } from '../signatureAbilitySystem.js';
 import { getUnitAtHex } from '../occupancySystem.js';
-import { codifyDomainsForFaction } from '../sacrificeSystem.js';
+
 import {
   recordBattleFought,
   recordEnemyKilled,
@@ -46,6 +46,7 @@ export function applyCombatAction(
   state: GameState,
   registry: RulesRegistry,
   preview: CombatActionPreview,
+  learnChanceScale = 1,
 ): CombatActionApplyResult {
   const baseResolution: CombatActionResolution = {
     triggeredEffects: [...preview.triggeredEffects],
@@ -154,7 +155,7 @@ export function applyCombatAction(
   };
 
   if (preview.result.defenderDestroyed && !preview.result.attackerDestroyed && nextAttacker.hp > 0) {
-    const learnResult = tryLearnFromKill(nextAttacker, defender, state, state.rngState);
+    const learnResult = tryLearnFromKill(nextAttacker, defender, state, state.rngState, undefined, learnChanceScale);
     nextAttacker = learnResult.unit;
     if (learnResult.learned && learnResult.domainId) {
       feedback = {
@@ -324,14 +325,6 @@ export function applyCombatAction(
   }
 
   current = applyCombatSignals(current, attacker.factionId, preview.result.signals);
-  if (feedback.lastLearnedDomain) {
-    current = codifyDomainsForFaction(
-      current,
-      attacker.factionId as FactionId,
-      [feedback.lastLearnedDomain.domainId],
-      registry,
-    );
-  }
   current = applyContactTransfer(current, attacker.factionId, defender.factionId, 'contact');
   const absorbResult = maybeAbsorbFaction(current, attacker.factionId as FactionId, defender.factionId as FactionId, registry);
   current = absorbResult.state;

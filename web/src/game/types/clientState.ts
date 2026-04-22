@@ -126,6 +126,8 @@ export type CityInspectorViewModel = {
     costModifier?: number;
     costModifierReason?: string;
     chassisId: string;
+    supplyCost: number;
+    isPrototype: boolean;
     attack: number;
     defense: number;
     hp: number;

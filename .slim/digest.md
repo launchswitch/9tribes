@@ -542,3 +542,38 @@ No significant changes detected.
 
 ### Dependency Changes
 - `web/src/ui/TechDiscoveryModal.tsx` imports: web/src/data/research.json (researchData)
+
+---
+
+## Digest — 2026-04-20T11:00:26.436751Z
+
+### New Files
+- `web/src/app/hooks/useUndoHandler.ts` — 1 exports: useUndoHandler
+- `web/src/game/view-model/inspectors/terrainInspectorViewModel.ts` — 1 exports: buildTerrainInspectorViewModel
+- `web/src/ui/TerrainPanel.tsx` — 1 exports: TerrainPanel
+
+### Modified Files
+- `src/systems/citySiteSystem.ts` — +1 exports (findBestCitySiteForFaction)
+- `src/systems/sacrificeSystem.ts` — +1 exports (codifyDomainsForFaction)
+- `src/systems/strategic-ai/objectives.ts` — ~3 signatures (chooseAdaptivePressureCity, choosePrimaryCityObjective, choosePrimaryEnemyFaction)
+- `src/systems/villageSystem.ts` — ~1 signatures (spawnVillage)
+- `web/src/game/types/clientState.ts` — +2 exports (TerrainDomainPressureEntry, TerrainInspectorViewModel)
+
+### Dependency Changes
+- `web/src/app/hooks/useUndoHandler.ts` imports: web/src/game/controller/GameController.ts (GameController)
+- `web/src/game/view-model/inspectors/terrainInspectorViewModel.ts` imports: src/content/base/civilizations.json (civilizationsData), src/game/types.ts (GameState), src/data/registry/types.ts (RulesRegistry), src/systems/citySiteSystem.ts (evaluateCitySiteBonuses), src/systems/territorySystem.ts (getHexOwner)
+- `web/src/ui/TerrainPanel.tsx` imports: web/src/game/types/clientState.ts (TerrainInspectorViewModel)
+- `src/systems/citySiteSystem.ts` — 12 dependencies
+- `src/systems/sacrificeSystem.ts` — 23 dependencies
+- `src/systems/strategic-ai/objectives.ts` — 18 dependencies
+- `src/systems/villageSystem.ts` — 24 dependencies
+- `web/src/game/types/clientState.ts` — 6 dependencies
+
+---
+
+## Digest — 2026-04-21T11:00:12.230144Z
+
+### New Files
+- `docs/POISON_DAMAGE_INVESTIGATION.md` — 1 exports: applyPoisonDoT
+
+### Dependency Changes

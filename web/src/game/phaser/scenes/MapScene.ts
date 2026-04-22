@@ -67,6 +67,15 @@ export class MapScene extends Phaser.Scene {
     this.selectionRenderer = new SelectionRenderer(this, this.selectionLayer, this.worldToScreen);
     this.fogRenderer = new FogRenderer(this, this.fogLayer, this.worldToScreen);
 
+    this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
+      if (!event.shiftKey) return;
+      const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+      if (!arrowKeys.includes(event.key)) return;
+      event.preventDefault();
+      const nextId = this.controller.getNextAvailableUnit();
+      if (nextId) this.controller.dispatch({ type: 'select_unit', unitId: nextId });
+    });
+
     this.input.on('wheel', (_pointer: Phaser.Input.Pointer, _objects: Phaser.GameObjects.GameObject[], _dx: number, dy: number) => {
       const nextZoom = Phaser.Math.Clamp(this.cameras.main.zoom - dy * 0.001, 0.45, 1.65);
       this.cameras.main.setZoom(nextZoom);

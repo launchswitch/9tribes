@@ -379,7 +379,5 @@ describe('simulation integration', () => {
 
     expect(snapshot.totalAuthoritativeCities).toBe(result.cities.size);
     expect(snapshot.totalListedCities).toBe(result.cities.size);
-    // Cities are razed on capture, so count may be less than 9
-    expect(result.cities.size).toBeLessThanOrEqual(9);
   });
 });

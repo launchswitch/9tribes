@@ -331,10 +331,10 @@ describe('alternating activation simulation', () => {
     // jungle_clan ignores jungle attrition (per passiveTrait='jungle_stalkers').
     // steppe_clan on jungle hex takes 1 jungle attrition damage.
     // Poison: no poisonStacks on unit, no poisonedBy → fallback 1 dmg.
-    // jungle ends at 6 (no jungle attrition). steppe ends at 4 (poison 1 + jungle 1).
+    // jungle ends at 6 (no jungle attrition). steppe ends at 4 (jungle 1, no passive poison).
     expect(result.units.get(jungleUnitId)?.hp).toBe(6);
     expect(result.units.get(steppeUnitId)?.hp).toBe(4);
-    expect(result.units.get(steppeUnitId)?.poisoned).toBe(true);
+    expect(result.units.get(steppeUnitId)?.poisoned).toBe(false);
     expect(result.units.get(druidUnitId)?.hp).toBeGreaterThanOrEqual(7);
   });
 

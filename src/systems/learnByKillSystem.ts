@@ -11,10 +11,10 @@ import { rngNextFloat } from '../core/rng.js';
 import { hexDistance } from '../core/grid.js';
 
 const LEARN_CHANCE_BY_VETERAN_LEVEL: Record<string, number> = {
-  green: 0.25,
-  seasoned: 0.40,
-  veteran: 0.55,
-  elite: 0.70,
+  green: 0.12,
+  seasoned: 0.20,
+  veteran: 0.28,
+  elite: 0.35,
 };
 const MAX_LEARNED_ABILITIES = 3;
 
@@ -35,10 +35,12 @@ export interface LearnFromCityCaptureResult {
 
 /**
  * Calculate the learn chance based on veteran's level.
- * Green: 25%, Seasoned: 40%, Veteran: 55%, Elite: 70%
+ * Base rates (player): Green: 12%, Seasoned: 20%, Veteran: 28%, Elite: 35%
+ * AI callers pass learnChanceScale=2 for double: 24/40/56/70
  */
-function calculateLearnChance(veteranLevel: string): number {
-  return LEARN_CHANCE_BY_VETERAN_LEVEL[veteranLevel] ?? LEARN_CHANCE_BY_VETERAN_LEVEL.green;
+function calculateLearnChance(veteranLevel: string, scale = 1): number {
+  const base = LEARN_CHANCE_BY_VETERAN_LEVEL[veteranLevel] ?? LEARN_CHANCE_BY_VETERAN_LEVEL.green;
+  return Math.min(base * scale, 1.0);
 }
 
 /**
@@ -64,7 +66,8 @@ export function tryLearnFromKill(
   defender: Unit,
   state: GameState,
   rngState: RNGState,
-  trace?: SimulationTrace
+  trace?: SimulationTrace,
+  learnChanceScale = 1,
 ): LearnFromKillResult {
   // Get defender's faction to find its native domain
   const defenderFaction = state.factions.get(defender.factionId);
@@ -91,8 +94,8 @@ export function tryLearnFromKill(
     return { unit: attacker, learned: false };
   }
 
-  // Calculate learn chance based on veterancy
-  const learnChance = calculateLearnChance(attacker.veteranLevel);
+  // Calculate learn chance based on veterancy (scaled for AI vs player)
+  const learnChance = calculateLearnChance(attacker.veteranLevel, learnChanceScale);
   const roll = rngNextFloat(rngState);
 
   if (roll >= learnChance) {

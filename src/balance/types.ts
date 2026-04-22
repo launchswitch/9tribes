@@ -18,6 +18,7 @@ export interface ComponentOverride extends Partial<
 
 export interface FactionOverride {
   capabilitySeeds?: Record<string, number>;
+  researchRate?: number;
 }
 
 export interface ScenarioOverride {

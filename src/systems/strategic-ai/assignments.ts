@@ -228,6 +228,7 @@ function applyWaitForAlliesGate(
   for (const [unitId, intent] of Object.entries(intents)) {
     if (!isAggressiveAssignment(intent.assignment)) continue;
     if (intent.squadId) continue; // handled by applySquadGate
+    if (intent.assignment === 'siege_force' && intent.objectiveCityId && intent.waypointKind === 'enemy_city') continue;
     const unit = state.units.get(unitId as UnitId);
     if (!unit || unit.hp <= 0) continue;
 
@@ -525,6 +526,29 @@ export function assignUnitIntents(
       waypoint = nearestHex(entry.unit.position, retreatAnchors) ?? entry.unit.position;
       anchor = waypoint;
       reason = 'damaged or isolated unit recovering near a friendly city';
+
+      // Siege units with a primary objective should always advance, even in recovery posture.
+      // Intercept before the weighted assignment block so they don't fall through to retreat.
+      if (primaryObjectiveCity) {
+        assignment = 'siege_force';
+        waypointKind = 'enemy_city';
+        waypoint = primaryObjectiveCity.position;
+        anchor = primaryFrontAnchor ?? primaryObjectiveCity.position;
+        objectiveCityId = primaryObjectiveCity.id;
+        reason = 'siege unit advancing to primary objective despite recovery posture';
+        intents[entry.unit.id] = {
+          assignment,
+          waypointKind,
+          waypoint,
+          objectiveCityId,
+          objectiveUnitId: undefined,
+          anchor,
+          isolationScore,
+          isolated: false,
+          reason,
+        };
+        continue;
+      }
     } else if (posture === 'exploration') {
       const explorationWaypoint = findDirectedExplorationWaypoint(state, factionId, entry.unit.position, difficultyProfile);
       if (explorationWaypoint && fastUnit) {
@@ -593,6 +617,32 @@ export function assignUnitIntents(
         anchor = primaryFrontAnchor ?? primaryObjectiveCity.position;
         objectiveCityId = primaryObjectiveCity.id;
         reason = `weighted siege pressure (${weightedChoice.score.toFixed(2)})`;
+      } else if (assignment === 'siege_force' && !primaryObjectiveCity) {
+        // Siege unit with no primary objective — find the nearest enemy city and advance toward it.
+        const enemyCities = Array.from(state.cities.values()).filter(
+          (c) => c.factionId !== factionId && c.turnsUnderSiege === 0,
+        );
+        if (enemyCities.length > 0) {
+          enemyCities.sort(
+            (a, b) =>
+              hexDistance(entry.unit.position, a.position) -
+              hexDistance(entry.unit.position, b.position),
+          );
+          const targetCity = enemyCities[0];
+          assignment = 'siege_force';
+          waypointKind = 'enemy_city';
+          waypoint = targetCity.position;
+          anchor = entry.unit.position;
+          objectiveCityId = targetCity.id;
+          reason = 'siege unit advancing toward nearest enemy city';
+        }
+      } else if (assignment === 'main_army' && primaryObjectiveCity) {
+        assignment = 'main_army';
+        waypointKind = 'enemy_city';
+        waypoint = primaryObjectiveCity.position;
+        anchor = primaryObjectiveCity.position;
+        objectiveCityId = primaryObjectiveCity.id;
+        reason = 'main_army advancing to primary objective city';
       } else if (assignment === 'reserve') {
         waypointKind = 'regroup_anchor';
         waypoint = nearestHex(entry.unit.position, regroupAnchors) ?? entry.unit.position;

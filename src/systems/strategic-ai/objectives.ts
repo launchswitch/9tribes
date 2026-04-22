@@ -59,7 +59,7 @@ export function choosePrimaryCityObjective(
   difficultyProfile?: AiDifficultyProfile,
   preferredEnemyFactionId?: FactionId,
 ): CityId | undefined {
-  if ((posture === 'defensive' || posture === 'recovery') && threatenedCities[0]) {
+  if ((posture === 'defensive' || posture === 'recovery') && threatenedCities.length > 0) {
     return threatenedCities[0].cityId;
   }
 

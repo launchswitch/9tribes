@@ -22,7 +22,7 @@ const DOMAINS = abilityDomainsData.domains as Record<string, DomainConfig>;
 
 // Exposure thresholds: how many points needed to learn each successive domain
 // Index 0 = first foreign domain (after native), index 1 = second, index 2 = third
-const EXPOSURE_THRESHOLDS = [10, 20, 35] as const;
+const EXPOSURE_THRESHOLDS = [35, 75, 140] as const;
 
 // Maximum number of domains a faction can learn (including native)
 export const MAX_LEARNED_DOMAINS = 3;

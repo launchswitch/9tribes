@@ -26,7 +26,7 @@ export function getVictoryStatus(state: GameState): VictoryStatus {
 
   const totalCities = state.cities.size;
   if (totalCities > 0) {
-    const dominationThreshold = Math.ceil(totalCities * 0.40);
+    const dominationThreshold = Math.ceil(totalCities * 0.51);
     const cityControl = new Map<FactionId, number>();
     for (const city of state.cities.values()) {
       cityControl.set(city.factionId, (cityControl.get(city.factionId) ?? 0) + 1);

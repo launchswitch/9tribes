@@ -183,6 +183,8 @@ export function buildCityInspectorViewModel(state: GameState, cityId: string, re
           costModifier,
           costModifierReason,
           chassisId: prototype.chassisId,
+          supplyCost: prototype.supplyCost ?? 1,
+          isPrototype: isUnlockPrototype(prototype),
           attack: prototype.derivedStats.attack,
           defense: prototype.derivedStats.defense,
           hp: prototype.derivedStats.hp,

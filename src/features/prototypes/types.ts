@@ -21,4 +21,5 @@ export interface Prototype {
   tags?: string[];
   sourceRecipeId?: string;
   productionCost?: number;
+  supplyCost?: number;
 }

@@ -3,6 +3,7 @@ export type DifficultyLevel = 'easy' | 'normal' | 'hard';
 export interface AiDifficultyProfile {
   difficulty: DifficultyLevel;
   adaptiveAi: boolean;
+  researchRate: number;
   production: {
     rushTurns: number;
     codifiedPivotDuration: number;
@@ -114,6 +115,7 @@ export interface AiDifficultyProfile {
 const EASY_PROFILE: AiDifficultyProfile = {
   difficulty: 'easy',
   adaptiveAi: false,
+  researchRate: 4,
   production: {
     rushTurns: 0,
     codifiedPivotDuration: 0,
@@ -225,6 +227,7 @@ const EASY_PROFILE: AiDifficultyProfile = {
 const NORMAL_PROFILE: AiDifficultyProfile = {
   difficulty: 'normal',
   adaptiveAi: true,
+  researchRate: 5,
   production: {
     rushTurns: 10,
     codifiedPivotDuration: 4,
@@ -336,6 +339,7 @@ const NORMAL_PROFILE: AiDifficultyProfile = {
 const HARD_PROFILE: AiDifficultyProfile = {
   difficulty: 'hard',
   adaptiveAi: true,
+  researchRate: 6,
   production: {
     rushTurns: 7,
     codifiedPivotDuration: 4,

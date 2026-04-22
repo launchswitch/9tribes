@@ -125,8 +125,8 @@ export function findFleeHex(
     if (occupied) continue;
 
     // Skip water terrain for non-naval units (infantry cannot enter ocean/coast/river)
-    const targetTile = getTile(state.map, hex);
-    if (targetTile && isWaterTerrain(targetTile.terrainId)) {
+    const targetTile = state.map ? getTile(state.map, hex) : undefined;
+    if (targetTile && isWaterTerrain(targetTile.terrain)) {
       continue;
     }
 

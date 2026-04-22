@@ -152,7 +152,7 @@ describe('Territory Control', () => {
       (id) => id !== city.factionId
     )!;
 
-    // Place only 2 enemy units (below threshold of 3)
+    // Place only 2 enemy units — ENCIRCLEMENT_THRESHOLD=2, so 2>=2 means encircling (not broken)
     const positions = [
       { q: city.position.q + 1, r: city.position.r },
       { q: city.position.q + 1, r: city.position.r - 1 },
@@ -171,6 +171,6 @@ describe('Territory Control', () => {
       state = initializeFogForFaction(state, factionId);
     }
 
-    expect(isEncirclementBroken(city, state)).toBe(true);
+    expect(isEncirclementBroken(city, state)).toBe(false);
   });
 });
