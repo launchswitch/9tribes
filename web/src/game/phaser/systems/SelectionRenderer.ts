@@ -10,7 +10,7 @@ export class SelectionRenderer {
     private readonly worldToScreen: (q: number, r: number) => { x: number; y: number },
   ) {}
 
-  render(world: WorldViewModel, selected: ClientSelection, hoveredKey: string | null) {
+  render(world: WorldViewModel, selected: ClientSelection, inspectedKey: string | null, hoveredKey: string | null) {
     this.layer.removeAll(true);
     const reachableKeys = new Set(world.overlays.reachableHexes.map((entry) => entry.key));
     const attackKeys = new Set(world.overlays.attackHexes.map((entry) => entry.key));
@@ -60,22 +60,28 @@ export class SelectionRenderer {
       );
     }
 
-    if (!selected) {
-      return;
-    }
-
     const position = resolveSelectionPosition(world, selected);
-    if (!position) {
-      return;
+    if (position && selected) {
+      const point = this.worldToScreen(position.q, position.r);
+      this.layer.add(
+        this.scene.add.image(point.x, point.y, TEXTURES.selection, 0)
+          .setOrigin(0.5, 1)
+          .setAlpha(0.92)
+          .setTint(selected.type === 'unit' ? 0xf7e7bf : 0xd9b86a),
+      );
     }
 
-    const point = this.worldToScreen(position.q, position.r);
-    this.layer.add(
-      this.scene.add.image(point.x, point.y, TEXTURES.selection, 0)
-        .setOrigin(0.5, 1)
-        .setAlpha(0.92)
-        .setTint(selected.type === 'unit' ? 0xf7e7bf : 0xd9b86a),
-    );
+    if (inspectedKey) {
+      const [q, r] = inspectedKey.split(',').map(Number);
+      const point = this.worldToScreen(q, r);
+      this.layer.add(
+        this.scene.add.image(point.x, point.y, TEXTURES.selection, 0)
+          .setOrigin(0.5, 1)
+          .setScale(1.1)
+          .setAlpha(0.9)
+          .setTint(0xffd84d),
+      );
+    }
   }
 }
 
