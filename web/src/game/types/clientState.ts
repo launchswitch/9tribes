@@ -47,6 +47,9 @@ export type HudViewModel = {
     used: number;
     deficit: number;
   } | null;
+  villages: {
+    count: number;
+  } | null;
   exhaustion: {
     points: number;
     productionPenalty: number;

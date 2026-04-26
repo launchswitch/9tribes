@@ -354,6 +354,11 @@ function buildPlayHudViewModel(
           };
         })()
       : null,
+    villages: state.activeFactionId
+      ? {
+          count: Array.from(state.villages.values()).filter((village) => village.factionId === state.activeFactionId).length,
+        }
+      : null,
     exhaustion: state.activeFactionId
       ? (() => {
           const ex = state.warExhaustion.get(state.activeFactionId);

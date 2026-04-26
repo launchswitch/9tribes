@@ -61,6 +61,12 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
             <strong>{state.hud.supply.used}/{Math.floor(state.hud.supply.income)}</strong>
           </div>
         ) : null}
+        {state.hud.villages ? (
+          <div className="status-chip">
+            <span className="chip-label">Villages</span>
+            <strong>{state.hud.villages.count}</strong>
+          </div>
+        ) : null}
       </div>
     </header>
   );
