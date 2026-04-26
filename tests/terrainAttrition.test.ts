@@ -148,47 +148,6 @@ describe('desert attrition', () => {
   });
 });
 
-// ── Tundra Attrition ──
-
-describe('tundra attrition', () => {
-  it('deals 1 damage to a non-immune unit on tundra terrain', () => {
-    // jungle_clan has passiveTrait='jungle_stalkers' — NOT immune to tundra
-    const { state, victimUnitId } = buildTerrainTestState('jungle_clan', 'tundra');
-
-    const result = applyEnvironmentalDamage(state, 'jungle_clan' as never, registry);
-    expect(result.units.get(victimUnitId)?.hp).toBe(9);
-  });
-
-  it('immune faction cold_hardened_growth (frost_wardens) takes no tundra damage', () => {
-    const { state, immuneUnitId } = buildTerrainTestState(
-      'jungle_clan',
-      'tundra',
-      { immuneFactionId: 'frost_wardens' },
-    );
-
-    let result = applyEnvironmentalDamage(state, 'jungle_clan' as never, registry);
-    result = applyEnvironmentalDamage(result, 'frost_wardens' as never, registry);
-
-    // jungle_clan (non-immune) should take damage
-    expect(result.units.get(state.factions.get('jungle_clan' as never)!.unitIds[0])?.hp).toBe(9);
-    // coral_dominion (immune) should NOT
-    expect(result.units.get(immuneUnitId)?.hp).toBe(10);
-  });
-
-  it('immune faction foraging_riders (steppe_clan) takes no tundra damage', () => {
-    const { state, immuneUnitId } = buildTerrainTestState(
-      'jungle_clan',
-      'tundra',
-      { immuneFactionId: 'steppe_clan' },
-    );
-
-    let result = applyEnvironmentalDamage(state, 'jungle_clan' as never, registry);
-    result = applyEnvironmentalDamage(result, 'steppe_clan' as never, registry);
-
-    expect(result.units.get(immuneUnitId)?.hp).toBe(10);
-  });
-});
-
 // ── Swamp Attrition ──
 
 describe('swamp attrition', () => {
@@ -280,34 +239,6 @@ describe('terrain attrition settlement safety', () => {
     expect(result.units.get(unitId)?.hp).toBe(10);
   });
 
-  it('does not apply tundra attrition to a unit in a friendly village', () => {
-    const state = buildMvpScenario(42);
-    const factionId = 'jungle_clan' as never;
-    const unitId = state.factions.get(factionId)!.unitIds[0];
-
-    // Create a village at (8,8) and place the unit there on tundra
-    const villagePos = { q: 8, r: 8 };
-    state.villages = new Map([
-      ['test_village' as never, {
-        id: 'test_village' as never,
-        factionId,
-        position: villagePos,
-        name: 'Test Village',
-        foundedRound: 1,
-        productionBonus: 1,
-        supplyBonus: 1,
-      }],
-    ]);
-    state.factions.set(factionId, {
-      ...state.factions.get(factionId)!,
-      villageIds: ['test_village' as never],
-    });
-    state.units.set(unitId, { ...state.units.get(unitId)!, position: villagePos, hp: 10 });
-    state.map!.tiles.set(hexToKey(villagePos), { position: villagePos, terrain: 'tundra' as never });
-
-    const result = applyEnvironmentalDamage(state, factionId, registry);
-    expect(result.units.get(unitId)?.hp).toBe(10);
-  });
 });
 
 // ── No attrition on non-hostile terrain ──

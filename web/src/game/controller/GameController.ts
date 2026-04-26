@@ -299,6 +299,7 @@ export class GameController {
       turn: sessionState.round,
       activeFactionId: sessionState.activeFactionId,
       selected: this.selected,
+      inspectedTerrain: this.inspectedTerrainPos ? { ...this.inspectedTerrainPos } : null,
       hoveredHex: this.hoveredKey ? keyToCoord(this.hoveredKey) : null,
       camera: { zoom: this.zoom },
       world,

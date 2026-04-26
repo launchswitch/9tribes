@@ -193,7 +193,7 @@ export class MapScene extends Phaser.Scene {
 
     this.settlementRenderer.render(state.world, {
       onCitySelected: (cityId, pointer) => this.handleCitySelection(state, cityId, pointer),
-      onVillageSelected: (villageId) => this.controller.dispatch({ type: 'select_village', villageId }),
+      onVillageSelected: (villageId, pointer) => this.handleVillageSelection(state, villageId, pointer),
     });
 
     this.improvementRenderer.render(state.world);
@@ -209,6 +209,7 @@ export class MapScene extends Phaser.Scene {
     this.selectionRenderer.render(
       state.world,
       state.selected,
+      state.inspectedTerrain ? `${state.inspectedTerrain.q},${state.inspectedTerrain.r}` : null,
       state.hoveredHex ? `${state.hoveredHex.q},${state.hoveredHex.r}` : null,
     );
     this.fogRenderer.render(state.world);
@@ -347,6 +348,11 @@ export class MapScene extends Phaser.Scene {
       return;
     }
 
+    if (MapScene.isCtrlClick(pointer)) {
+      this.controller.dispatch({ type: 'inspect_terrain', q: city.q, r: city.r });
+      return;
+    }
+
     if (this.isDoubleClick(`${city.q},${city.r}`)) {
       this.controller.dispatch({ type: 'select_city', cityId });
       return;
@@ -359,6 +365,23 @@ export class MapScene extends Phaser.Scene {
     }
 
     this.controller.dispatch({ type: 'select_city', cityId });
+  }
+
+  private handleVillageSelection(state: ClientState, villageId: string, pointer?: Phaser.Input.Pointer) {
+    if (this.combatAnimator.isAnimating()) return;
+    if (MapScene.isRightClick(pointer)) return;
+
+    const village = state.world.villages.find((entry) => entry.id === villageId);
+    if (!village) {
+      return;
+    }
+
+    if (MapScene.isCtrlClick(pointer)) {
+      this.controller.dispatch({ type: 'inspect_terrain', q: village.q, r: village.r });
+      return;
+    }
+
+    this.controller.dispatch({ type: 'select_village', villageId });
   }
 
   private handleSingleClickUnit(state: ClientState, unitId: string) {

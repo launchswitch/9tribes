@@ -4,7 +4,7 @@ import { getSettlementFrame, TEXTURES } from '../assets/keys';
 
 type SettlementCallbacks = {
   onCitySelected: (cityId: string, pointer?: Phaser.Input.Pointer) => void;
-  onVillageSelected: (villageId: string) => void;
+  onVillageSelected: (villageId: string, pointer?: Phaser.Input.Pointer) => void;
 };
 
 export class SettlementRenderer {
@@ -71,7 +71,7 @@ export class SettlementRenderer {
         .setOrigin(0.5, 1)
         .setScale(0.9)
         .setInteractive({ cursor: 'pointer' });
-      sprite.on('pointerdown', () => callbacks.onVillageSelected(village.id));
+      sprite.on('pointerdown', (pointer: Phaser.Input.Pointer) => callbacks.onVillageSelected(village.id, pointer));
       this.layer.add(sprite);
     }
   }

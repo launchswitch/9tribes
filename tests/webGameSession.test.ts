@@ -174,6 +174,82 @@ function setupHillFortState(options?: {
 }
 
 describe('GameSession', () => {
+  it('allows a player unit to attack after spending its movement', () => {
+    const registry = loadRulesRegistry();
+    const state = buildMvpScenario(42, { registry, mapMode: 'fixed' });
+    trimStateToFactions(state, ['steppe_clan', 'druid_circle']);
+
+    const attackerFaction = state.factions.get('steppe_clan' as never)!;
+    const defenderFaction = state.factions.get('druid_circle' as never)!;
+    const attackerId = attackerFaction.unitIds[0];
+    const defenderId = defenderFaction.unitIds[0];
+    const attacker = state.units.get(attackerId as never)!;
+    const defender = state.units.get(defenderId as never)!;
+
+    state.units.set(attackerId as never, {
+      ...attacker,
+      position: { q: 10, r: 10 },
+      movesRemaining: 0,
+      attacksRemaining: 1,
+      status: 'ready',
+    });
+    state.units.set(defenderId as never, {
+      ...defender,
+      position: { q: 11, r: 10 },
+      hp: defender.maxHp,
+      status: 'ready',
+    });
+    state.activeFactionId = attackerFaction.id;
+
+    const session = new GameSession(
+      { type: 'serialized', payload: serializeGameState(state) },
+      registry,
+      { humanControlledFactionIds: [attackerFaction.id] },
+    );
+
+    expect(session.getAttackTargets(attackerId)).toEqual(
+      expect.arrayContaining([expect.objectContaining({ unitId: defenderId })]),
+    );
+
+    session.dispatch({ type: 'attack_unit', attackerId, defenderId });
+    expect(session.getPendingCombat()).toBeTruthy();
+  });
+
+  it('allows an AI unit to attack an adjacent target after spending its movement', () => {
+    const registry = loadRulesRegistry();
+    const state = buildMvpScenario(42, { registry, mapMode: 'fixed' });
+    trimStateToFactions(state, ['steppe_clan', 'druid_circle']);
+
+    const aiFaction = state.factions.get('steppe_clan' as never)!;
+    const playerFaction = state.factions.get('druid_circle' as never)!;
+    const attackerId = aiFaction.unitIds[0];
+    const defenderId = playerFaction.unitIds[0];
+    const attacker = state.units.get(attackerId as never)!;
+    const defender = state.units.get(defenderId as never)!;
+
+    state.units.set(attackerId as never, {
+      ...attacker,
+      position: { q: 10, r: 10 },
+      movesRemaining: 0,
+      attacksRemaining: 1,
+      status: 'ready',
+      routed: false,
+    });
+    state.units.set(defenderId as never, {
+      ...defender,
+      position: { q: 11, r: 10 },
+      hp: 1,
+      status: 'ready',
+      routed: true,
+    });
+    state.activeFactionId = aiFaction.id;
+
+    state.factionStrategies = new Map();
+
+    const result = activateAiUnit(state, attackerId as never, registry, { combatMode: 'preview' });
+    expect(result.pendingCombat?.defenderId).toBe(defenderId);
+  });
+
   it('returns legal moves and applies movement', () => {
     const session = new GameSession({ type: 'fresh', seed: 42 });
     const state = session.getState();

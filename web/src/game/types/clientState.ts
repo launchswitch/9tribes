@@ -356,6 +356,7 @@ export type ClientState = {
   turn: number;
   activeFactionId: string | null;
   selected: ClientSelection;
+  inspectedTerrain: HexCoord | null;
   hoveredHex: HexCoord | null;
   camera: CameraState;
   world: WorldViewModel;

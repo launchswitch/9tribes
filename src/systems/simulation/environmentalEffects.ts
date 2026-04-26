@@ -88,10 +88,6 @@ function isDesertImmune(state: GameState, unit: Unit): boolean {
   return isImmuneByTrait(state, unit, 'desert_logistics', 'charge_momentum');
 }
 
-function isTundraImmune(state: GameState, unit: Unit): boolean {
-  return isImmuneByTrait(state, unit, 'cold_hardened_growth', 'foraging_riders');
-}
-
 function isSwampImmune(state: GameState, unit: Unit): boolean {
   if (isImmuneByTrait(state, unit, 'healing_druids', 'jungle_stalkers', 'river_assault')) {
     return true;
@@ -173,12 +169,6 @@ export function applyEnvironmentalDamage(
     if (!died && terrainId === 'desert' && !safeInSettlement && !isDesertImmune(current, updatedUnit)) {
       updatedUnit = { ...updatedUnit, hp: Math.max(0, updatedUnit.hp - 1) };
       log(trace, `${faction.name} ${current.prototypes.get(unit.prototypeId)?.name ?? 'unit'} suffers desert attrition`);
-      died = updatedUnit.hp <= 0;
-    }
-
-    if (!died && terrainId === 'tundra' && !safeInSettlement && !isTundraImmune(current, updatedUnit)) {
-      updatedUnit = { ...updatedUnit, hp: Math.max(0, updatedUnit.hp - 1) };
-      log(trace, `${faction.name} ${current.prototypes.get(unit.prototypeId)?.name ?? 'unit'} suffers tundra attrition`);
       died = updatedUnit.hp <= 0;
     }
 

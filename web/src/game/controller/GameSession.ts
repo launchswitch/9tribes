@@ -437,7 +437,7 @@ export class GameSession {
 
   getAttackTargets(unitId: string): AttackTargetView[] {
     const unit = this.state.units.get(unitId as UnitId);
-    if (!unit || unit.hp <= 0 || unit.factionId !== this.state.activeFactionId || unit.attacksRemaining <= 0 || unit.movesRemaining <= 0) {
+    if (!unit || unit.hp <= 0 || unit.factionId !== this.state.activeFactionId || unit.attacksRemaining <= 0) {
       return [];
     }
 

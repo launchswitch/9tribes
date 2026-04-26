@@ -51,7 +51,7 @@ export function previewCombatAction(
     return null;
   }
 
-  if (attacker.factionId !== state.activeFactionId || defender.factionId === attacker.factionId || attacker.attacksRemaining <= 0 || attacker.movesRemaining <= 0) {
+  if (attacker.factionId !== state.activeFactionId || defender.factionId === attacker.factionId || attacker.attacksRemaining <= 0) {
     return null;
   }
 
