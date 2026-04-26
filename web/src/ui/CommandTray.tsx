@@ -62,7 +62,7 @@ export function CommandTray({ state, onEndTurn, onSetTargetingMode, onBuildFort,
           <>
             <strong className="ct-unit-name">{selectedUnit.prototypeName}</strong>
             <span className="ct-detail">
-              {selectedUnit.movesRemaining}/{selectedUnit.movesMax} moves · {selectedUnit.q},{selectedUnit.r}
+              {selectedUnit.hp}/{selectedUnit.maxHp} HP · {selectedUnit.movesRemaining}/{selectedUnit.movesMax} moves · {selectedUnit.q},{selectedUnit.r}
             </span>
             {selectedUnit.learnedAbilities && selectedUnit.learnedAbilities.length > 0 ? (
               <span className="ct-knowledge-hint">
