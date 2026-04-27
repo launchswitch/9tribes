@@ -25,7 +25,7 @@ import {
 import { calculatePrototypeCost, getDomainIdsByTags, getPrototypeCostModifier, isUnlockPrototype } from '../../../../../src/systems/knowledgeSystem.js';
 import { getUnitSupplyCost } from '../../../../../src/systems/productionSystem.js';
 import { calculateProductionPenalty, calculateMoralePenalty } from '../../../../../src/systems/warExhaustionSystem.js';
-import { hexToKey } from '../../../../../src/core/grid.js';
+import { hexDistance, hexToKey } from '../../../../../src/core/grid.js';
 import type {
   CityInspectorViewModel,
   ClientSelection,
@@ -300,16 +300,20 @@ export function buildSettlementPreview(
   const bonuses = evaluateCitySiteBonuses(state.map, position, 2);
   const requiresMove = previewKey !== currentKey;
   const blocker = getSettlementOccupancyBlocker(state, position);
+  const tooCloseToCity = Array.from(state.cities.values())
+    .some(city => hexDistance(position, city.position) < 3);
   const unitCanFoundNow = unit.factionId === state.activeFactionId
     && unit.status === 'ready'
     && unit.movesRemaining === unit.maxMoves;
-  const canFoundNow = !requiresMove && unitCanFoundNow && !blocker;
+  const canFoundNow = !requiresMove && unitCanFoundNow && !blocker && !tooCloseToCity;
 
   let blockedReason: string | undefined;
   if (requiresMove) {
     blockedReason = 'Move the settler here to found a city.';
   } else if (blocker) {
     blockedReason = formatSettlementOccupancyBlocker(blocker);
+  } else if (tooCloseToCity) {
+    blockedReason = 'Too close to an existing city (minimum 3 hex spacing).';
   } else if (unit.factionId !== state.activeFactionId) {
     blockedReason = 'Only the active faction can found a city.';
   } else if (unit.status !== 'ready' || unit.movesRemaining !== unit.maxMoves) {

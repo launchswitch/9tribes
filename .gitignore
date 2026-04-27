@@ -29,7 +29,14 @@ archived-beta-audio/
 docs/full-ui-implementation-plan.md
 .daem0nmcp/
 .playwright-mcp/
-.claude/
+.claude/*
+!.claude/
+!.claude/commands/
+!.claude/commands/**
+!.claude/hooks/
+!.claude/hooks/**
+!.claude/memory/
+!.claude/memory/**
 .opencode/
 .pi/
 artifacts/

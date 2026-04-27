@@ -940,6 +940,13 @@ export class GameSession {
       return;
     }
 
+    // Gate: must be at least 3 hexes from any existing city (minimum spacing)
+    for (const city of this.state.cities.values()) {
+      if (hexDistance(unit.position, city.position) < 3) {
+        return;
+      }
+    }
+
     const cityId = createCityId();
     const cityName = faction.homeCityId ? `${faction.name} Settlement` : `${faction.name} Capital`;
     const cities = new Map(this.state.cities);
