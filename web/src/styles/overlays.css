@@ -260,6 +260,7 @@
   }
 
   .gmb-chip--round,
+  .gmb-chip--villages,
   .gmb-chip--research {
     display: none;
   }

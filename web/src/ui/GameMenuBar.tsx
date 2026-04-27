@@ -52,6 +52,7 @@ const helpMenu: MenuEntry[] = [
 
 export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls, onRestartSession, onMenuAction }: GameMenuBarProps) {
   const activeFaction = state.world.factions.find((f) => f.id === state.activeFactionId);
+  const activeFactionSummary = state.hud.factionSummaries.find((summary) => summary.id === state.activeFactionId);
   const factionColor = activeFaction?.color ?? '#d6a34b';
 
   const handleMenuAction = (action: string) => {
@@ -94,6 +95,14 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
         <div className="gmb-chip gmb-chip--round">
           <span className="gmb-chip-label">R</span>
           <span>{state.turn}</span>
+        </div>
+
+        <div
+          className="gmb-chip gmb-chip--villages"
+          title={`${state.hud.activeFactionName} controls ${activeFactionSummary?.villages ?? 0} villages.`}
+        >
+          <span className="gmb-chip-label">Villages</span>
+          <span>{activeFactionSummary?.villages ?? 0}</span>
         </div>
 
         {researchChip ? (

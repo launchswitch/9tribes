@@ -7582,34 +7582,49 @@
           "isDefault": false
         }
       ]
+    },
+    "docs/POISON_DAMAGE_INVESTIGATION.md": {
+      "exports": [
+        {
+          "name": "applyPoisonDoT",
+          "kind": "function",
+          "line": 102,
+          "signature": "export function applyPoisonDoT( target: Unit, stacks: number, abilityId?: AbilityId, ): Unit {",
+          "isDefault": false
+        }
+      ]
     }
   },
   "_metadata": {
     "version": "2.0.0",
-    "last_run": "2026-04-20T11:00:26.436751Z",
+    "last_run": "2026-04-21T11:00:12.230144Z",
     "root": "C:\\Users\\fosbo\\war-civ-v2",
-    "file_count": 200
+    "file_count": 201
   },
   "_file_hashes": {
     ".gitignore": "0174e7b5da1eab42b49ef6485ca23f54",
     "AGENTS.md": "9296da726dc4978e6e8f152f89a6409d",
-    "ATTACKS_OF_OPPORTUNITY_SEARCH.md": "ef2ac18ece5d5181c54f84050e9a3b14",
-    "BALANCE_HARNESS_RESULTS.md": "2308c7f1803ceb0ca7d32e12e9680ce9",
     "bun.lock": "fcec4f81b61207c211affdbf552aaedb",
     "CLAUDE.md": "9a8b2017ad4c8e37787f2122f892815d",
     "codemap.md": "b186617377ada2e09640818d9e980bad",
+    "docs/ATTACKS_OF_OPPORTUNITY_SEARCH.md": "ef2ac18ece5d5181c54f84050e9a3b14",
     "docs/AUDIT-2026-04-17.md": "fb7d46956ed3b2ef9411492ba7d28d42",
     "docs/AUDIT-NEXT.md": "432d43b29e8b20b713146e468bb3a727",
+    "docs/BALANCE_HARNESS_RESULTS.md": "2308c7f1803ceb0ca7d32e12e9680ce9",
     "docs/claude-knowledge-dump.md": "cebf27e5aa349b6552dd0e7ac9b1d8d8",
     "docs/codex-rehydration-memory.md": "ae423776abd71fd09bbb7a7c620baacd",
     "docs/difficulty-reference.md": "d3d31f0b724d67589692f0da07e52ca2",
     "docs/IMPLEMENTATION_PLAN.md": "b298e95ee387238bb170e2d88dd9848c",
     "docs/NORMAL-DIFFICULTY-PLAN.md": "51350c2423a50d5ac84e5328279b2288",
+    "docs/POISON_DAMAGE_INVESTIGATION.md": "195279fa781bdaf2ac8fe1b2b493d149",
     "docs/RENDEZVOUS-SPEC.md": "85cedbd0c1d6199f1dc0a104244d2de1",
+    "docs/STEPPE_RESEARCH_BONUSES.md": "4213bfd35ae6f2ff51973c997466c239",
+    "docs/TRIPLE_STACK_RIPPLE_CHECK.md": "1bfcb208c15aaf8521e1636db94bea2f",
+    "docs/TRIPLE_STACKS_INVESTIGATION.md": "2a5efefc0c9c8eceeded2279b8b79b51",
+    "docs/undo-test-1.png": "c8c0cdffe83fa9e418ba3732e259d7b0",
     "launch_record.json": "1ee59d5c9e3c57f66aebf8ae585b8d08",
     "package-lock.json": "5eaf0320f9b6920ac35408741ab09edb",
     "package.json": "01907f51b52793a88d2b17529d58c959",
-    "POISON_DAMAGE_INVESTIGATION.md": "195279fa781bdaf2ac8fe1b2b493d149",
     "progress.json": "e6279d3ba025ace551ece9a88d0266ce",
     "README.md": "7b2edfa66d206b7bb29711b37e01f138",
     "scripts/diagnoseSquads.ts": "f2aedcf1b4e221312012316021e02a0b",
@@ -7758,11 +7773,11 @@
     "src/world/map/createMap.ts": "64e0bb6484f2ace2648fcd0ce25d76be",
     "src/world/map/getTile.ts": "e74e0cbd588d7ef83600dd7c96476cba",
     "src/world/map/types.ts": "33a23129e42e27e3397b1c39d8b641c7",
-    "STEPPE_RESEARCH_BONUSES.md": "4213bfd35ae6f2ff51973c997466c239",
     "tests/.gitkeep": "d41d8cd98f00b204e9800998ecf8427e",
     "tests/adaptiveAiPhase2.test.ts": "5112f29db1329b0253e67522f259f211",
     "tests/adaptiveAiPhase3.test.ts": "ae41b66c890340d6fa8650cfdb9948a8",
     "tests/adaptiveAiPhase5.test.ts": "887d2a74cb8ef4469301a24870b6b854",
+    "tests/aiExpansionRegression.test.ts": "762794f60cc4d127b1324cf02afbc84a",
     "tests/aiTactics.test.ts": "88770be847e56941a4b9670c1352a605",
     "tests/architectureBoundaries.test.ts": "57fd5d408e5fb4dd53dfbee384fc6462",
     "tests/balanceHarness.test.ts": "721003d54ebdfab365312e34ccb920fe",
@@ -7811,13 +7826,10 @@
     "tests/webGameSession.test.ts": "076eb0612013c4a23cdb9853a9870470",
     "tests/webWorldViewModel.test.ts": "5e0cf7184bf12d285c9e6adada91f066",
     "tests/zoc.test.ts": "2b26a00bcfb19c55265d83c8c6114969",
-    "TRIPLE_STACK_RIPPLE_CHECK.md": "1bfcb208c15aaf8521e1636db94bea2f",
-    "TRIPLE_STACKS_INVESTIGATION.md": "2a5efefc0c9c8eceeded2279b8b79b51",
     "tsconfig.build.json": "7270b82da8397750f4cd32504eb4bb9f",
     "tsconfig.json": "4821f2de89047bf5e8b690902f95c1fd",
     "tsconfig.test-runner.json": "f5c801efb8295c1e2dc37ed7dbc3178a",
     "tsconfig.test.json": "0a41083c3383966282c9806d60ae6b28",
-    "undo-test-1.png": "c8c0cdffe83fa9e418ba3732e259d7b0",
     "vercel.json": "4d07eb83570fbbc796fae6317688d3bb",
     "vite.config.ts": "4717cd4f09171d5bd27ea88c0df6f78d",
     "vitest-env.d.ts": "349a22abda966e99a4c114d2d694871f",

@@ -577,3 +577,17 @@ No significant changes detected.
 - `docs/POISON_DAMAGE_INVESTIGATION.md` — 1 exports: applyPoisonDoT
 
 ### Dependency Changes
+
+---
+
+## Digest — 2026-04-27T12:52:47.265479Z
+
+### Modified Files
+- `src/systems/combat-action/apply.ts` — ~1 signatures (applyCombatAction)
+- `src/systems/learnByKillSystem.ts` — ~1 signatures (tryLearnFromKill)
+- `src/systems/researchSystem.ts` — ~1 signatures (createResearchState)
+
+### Dependency Changes
+- `src/systems/combat-action/apply.ts` — 95 dependencies
+- `src/systems/learnByKillSystem.ts` — 15 dependencies
+- `src/systems/researchSystem.ts` — 9 dependencies
