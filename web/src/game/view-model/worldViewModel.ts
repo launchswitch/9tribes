@@ -107,14 +107,17 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
   const hexVisibility = buildHexVisibilityMap(state, source.playerFactionId);
   const hexes = Array.from(state.map.tiles.values()).map((tile) => {
     const key = hexToKey(tile.position);
-    return {
-      key,
-      q: tile.position.q,
-      r: tile.position.r,
-      terrain: tile.terrain,
-      visibility: hexVisibility.get(key) ?? 'hidden' as const,
-      ownerFactionId: getHexOwner(tile.position, state) ?? null,
-    };
+    const ownerFactionId = getHexOwner(tile.position, state) ?? null;
+      const ownerFaction = ownerFactionId ? state.factions.get(ownerFactionId) : null;
+      return {
+        key,
+        q: tile.position.q,
+        r: tile.position.r,
+        terrain: tile.terrain,
+        visibility: hexVisibility.get(key) ?? 'hidden' as const,
+        ownerFactionId,
+        ownerFactionName: ownerFaction?.name ?? ownerFactionId,
+      };
   });
 
   const moveCounts = new Map<string, number>();
@@ -202,6 +205,7 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
       return {
         id: unit.id,
         factionId: unit.factionId,
+        factionName: faction?.name ?? unit.factionId,
         q: unit.position.q,
         r: unit.position.r,
         hp: unit.hp,

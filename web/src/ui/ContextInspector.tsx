@@ -233,7 +233,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                 {selectedUnit.factionId && (
                   <div className="meta-row">
                     <span>Faction</span>
-                    <strong className="ci-domain--native">{selectedUnit.factionId}</strong>
+                    <strong className="ci-domain--native">{(selectedUnit as { factionName?: string }).factionName ?? selectedUnit.factionId}</strong>
                   </div>
                 )}
                 {selectedUnit.nativeDomain && (
@@ -633,7 +633,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                 </div>
                 <div className="meta-row">
                   <span>Owner</span>
-                  <strong>{hoveredTile.ownerFactionId ?? 'Neutral'}</strong>
+                  <strong>{(hoveredTile as { ownerFactionName?: string }).ownerFactionName ?? hoveredTile.ownerFactionId ?? 'Neutral'}</strong>
                 </div>
                 <div className="meta-row">
                   <span>Visibility</span>
