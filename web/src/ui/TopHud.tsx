@@ -145,6 +145,7 @@ const FACTION_INFO_MAP: Record<string, Omit<FactionInfo, 'id'>> = {
 
 export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
   const [factionPopup, setFactionPopup] = useState<boolean>(false);
+  const [supplyPopup, setSupplyPopup] = useState<boolean>(false);
   const activeFactionColor = state.world.factions.find((faction) => faction.id === state.activeFactionId)?.color ?? '#d6a34b';
   const recoveringCityCount = state.world.cities.filter(
     (city) => city.factionId === state.activeFactionId && city.turnsSinceCapture !== undefined,
@@ -199,6 +200,50 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
           </div>
         </div>
       )}
+      {supplyPopup && state.hud.supply && (
+        <div className="supply-popup-overlay" onClick={() => setSupplyPopup(false)}>
+          <div className="supply-popup" onClick={(e) => e.stopPropagation()}>
+            <button className="supply-popup__close" onClick={() => setSupplyPopup(false)}>×</button>
+            <h3 className="supply-popup__title">Supply Breakdown</h3>
+            <div className="supply-popup__stat">
+              <span>Income</span>
+              <strong>{Math.floor(state.hud.supply.income)}</strong>
+            </div>
+            <div className="supply-popup__stat">
+              <span>Used</span>
+              <strong>{state.hud.supply.used}</strong>
+            </div>
+            <div className="supply-popup__stat">
+              <span>Balance</span>
+              <strong className={state.hud.supply.deficit > 0 ? 'supply-popup--deficit' : 'supply-popup--surplus'}>
+                {state.hud.supply.deficit > 0 ? `-${state.hud.supply.deficit.toFixed(1)}` : `+${(state.hud.supply.income - state.hud.supply.used).toFixed(1)}`} per turn
+              </strong>
+            </div>
+            {state.hud.exhaustion && state.hud.exhaustion.points > 0 && (
+              <>
+                <div className="supply-popup__divider">Penalties</div>
+                <div className="supply-popup__stat supply-popup__stat--penalty">
+                  <span>Exhaustion</span>
+                  <span>{state.hud.exhaustion.points.toFixed(1)} pts</span>
+                </div>
+                <div className="supply-popup__stat supply-popup__stat--penalty">
+                  <span>Production</span>
+                  <span>-{Math.round(state.hud.exhaustion.productionPenalty * 100)}%</span>
+                </div>
+                <div className="supply-popup__stat supply-popup__stat--penalty">
+                  <span>Morale</span>
+                  <span>-{state.hud.exhaustion.moralePenalty} per unit</span>
+                </div>
+              </>
+            )}
+            {recoveringCityCount > 0 && (
+              <div className="supply-popup__note">
+                ⚠ {recoveringCityCount} city{recoveringCityCount !== 1 ? 'ies' : 'y'} recovering from capture
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       <div>
         <p className="eyebrow">War-Civ 2</p>
         <h1>{state.hud.title}</h1>
@@ -239,14 +284,10 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
         {state.hud.supply ? (
           <div
             className={`status-chip${state.hud.supply.deficit > 0 ? ' status-chip--deficit' : ''}`}
-            title={(() => {
-              const base = state.hud.supply.deficit > 0
-                ? `DEFICIT: -${state.hud.supply.deficit.toFixed(1)} supply/turn\nMorale drain: ~${state.hud.supply.deficit.toFixed(1)} per unit/turn\nExhaustion: ${state.hud.exhaustion?.points?.toFixed(1) ?? 0} pts (+${(state.hud.supply.deficit * 2).toFixed(1)}/turn)\nProduction output reduced by ${Math.round((state.hud.exhaustion?.productionPenalty ?? 0) * 100)}%\nMorale penalty: ${state.hud.exhaustion?.moralePenalty ?? 0} per unit`
-                : 'Supply is balanced. No penalties in effect.';
-              return recoveringCityCount > 0
-                ? `${base}\n\n⚠ ${recoveringCityCount} city${recoveringCityCount !== 1 ? 'ies' : 'y'} recovering from capture`
-                : base;
-            })()}
+            role="button"
+            tabIndex={0}
+            onClick={() => setSupplyPopup(true)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSupplyPopup(true); }}
           >
             <span className="chip-label">Supply</span>
             <strong>{state.hud.supply.used}/{Math.floor(state.hud.supply.income)}</strong>
