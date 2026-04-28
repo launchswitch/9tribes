@@ -70,6 +70,7 @@ export type UnitView = {
   validDisembarkHexes?: HexCoord[];
   supplyCost?: number;
   isPrototype?: boolean;
+  summonTurnsRemaining?: number;
 };
 
 export type CityView = {

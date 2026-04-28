@@ -246,6 +246,10 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
         validDisembarkHexes: validDisembarkHexes.length > 0 ? validDisembarkHexes : undefined,
         supplyCost: prototype ? getUnitSupplyCost(prototype, source.registry) : 1,
         isPrototype: prototype ? isUnlockPrototype(prototype) : false,
+        summonTurnsRemaining: (() => {
+          const fs = unit.factionId ? state.factions.get(unit.factionId)?.summonState : undefined;
+          return fs?.summoned && fs.unitId === unit.id ? fs.turnsRemaining : undefined;
+        })(),
       };
     }),
     cities: Array.from(state.cities.values()).map((city) => ({
