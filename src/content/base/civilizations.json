@@ -69,7 +69,6 @@
       "stealth": 2
     },
     "startingUnits": [
-      { "chassisId": "cavalry_frame", "componentIds": ["basic_spear", "skirmish_drill"], "name": "Cavalry", "costOverride": 24, "positionOffset": { "q": 0, "r": 1 } },
       { "chassisId": "ranged_frame", "componentIds": ["basic_bow", "skirmish_drill", "light_mount"], "name": "Horse Archer", "costOverride": 23, "positionOffset": { "q": -1, "r": 0 }, "tags": ["cavalry", "mounted", "ranged", "skirmish"] },
       { "chassisId": "infantry_frame", "componentIds": ["basic_spear", "skirmish_drill"], "name": "Steppe Warrior", "costOverride": 17, "positionOffset": { "q": 1, "r": 0 } }
     ],
