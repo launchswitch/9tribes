@@ -217,8 +217,8 @@ describe('generateClimateBandMap', () => {
     expect(validationByFaction.frost_wardens.checks.tundraShare).toBe(true);
     expect(validationByFaction.coral_people.checks.waterAccess).toBe(true);
     expect(validationByFaction.coral_people.checks.noDeadEnd).toBe(true);
-    expect(validationByFaction.plains_riders.checks.riverAccess).toBe(true);
-    expect(validationByFaction.plains_riders.checks.riverCorridor).toBe(true);
+    expect(validationByFaction.river_people.checks.riverAccess).toBe(true);
+    expect(validationByFaction.river_people.checks.riverCorridor).toBe(true);
     expect(validationByFaction.jungle_clan.checks.jungleCluster).toBe(true);
     expect(validationByFaction.hill_clan.checks.hillCluster).toBe(true);
   });

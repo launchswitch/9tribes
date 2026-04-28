@@ -82,7 +82,7 @@ describe('movementSystem', () => {
 
   it('allows river assault naval units to move through rivers at 0.5 cost', () => {
     const state = buildMvpScenario(42, { registry, mapMode: 'fixed' });
-    const navalUnit = getFactionUnitByMovementClass(state, 'plains_riders', 'naval');
+    const navalUnit = getFactionUnitByMovementClass(state, 'river_people', 'naval');
 
     state.units = new Map([[navalUnit.id, navalUnit]]);
     state.cities = new Map();

@@ -286,7 +286,7 @@ function countSignatureUnits(state: ReturnType<typeof buildMvpScenario>, faction
         return sum + (tags.has('camel') ? 1 : 0);
       case 'savannah_lions' as FactionId:
         return sum + (tags.has('elephant') ? 1 : 0);
-      case 'plains_riders' as FactionId:
+      case 'river_people' as FactionId:
         return sum + (tags.has('river') || tags.has('amphibious') ? 1 : 0);
       case 'frost_wardens' as FactionId:
         return sum + (tags.has('cold') || tags.has('endurance') ? 1 : 0);
@@ -313,7 +313,7 @@ function countSignatureLikePrototype(factionId: FactionId, prototype: Prototype)
       return tags.has('camel') ? 1 : 0;
     case 'savannah_lions' as FactionId:
       return tags.has('elephant') ? 1 : 0;
-    case 'plains_riders' as FactionId:
+    case 'river_people' as FactionId:
       return tags.has('river') || tags.has('amphibious') ? 1 : 0;
     case 'frost_wardens' as FactionId:
       return tags.has('cold') || tags.has('endurance') ? 1 : 0;

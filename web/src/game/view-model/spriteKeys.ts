@@ -95,7 +95,7 @@ export function getSpriteKeyForUnit(factionId: string, prototypeName: string, ch
       infantry_frame: 'savannah_spearman',
       ranged_frame: 'savannah_javelin',
     },
-    plains_riders: {
+    river_people: {
       infantry_frame: 'river_spearman',
       naval_frame: 'river_canoe',
     },

@@ -417,7 +417,7 @@ function orderStartRequests(requests: StartPlacementRequest[]): StartPlacementRe
   const priorities: Record<string, number> = {
     frost_wardens: 1,
     coral_people: 2,
-    plains_riders: 3,
+    river_people: 3,
     jungle_clan: 4,
     hill_clan: 5,
     druid_circle: 5,
@@ -489,7 +489,7 @@ function scoreCandidate(
     openness: openness >= getMinimumOpenings(request),
   };
 
-  if (request.factionId !== 'plains_riders') {
+  if (request.factionId !== 'river_people') {
     checks.minHomeBiomeShare = homeShare >= getMinimumHomeShare(request);
   }
 
@@ -502,7 +502,7 @@ function scoreCandidate(
     checks.waterAccess = coastAccess || riverAccess;
     checks.noDeadEnd = countNonWaterNeighbors(map, position) >= 2;
   }
-  if (request.factionId === 'plains_riders') {
+  if (request.factionId === 'river_people') {
     checks.riverCluster = riverTileCount >= 3;
     checks.riverAccess = riverAccess;
     checks.riverCorridor = getRiverReach(map, position) >= 4;
@@ -526,7 +526,7 @@ function scoreCandidate(
     checks.riverAccess = steppeRiverAccess;
   }
 
-  let score = request.factionId === 'plains_riders' ? riverTileCount * 12 : homeShare * 100;
+  let score = request.factionId === 'river_people' ? riverTileCount * 12 : homeShare * 100;
   score += Math.min(openness, 6) * 3;
   score += Math.max(0, edgeDistance(map, position) - 1) * 2;
   if (position.r < climate.tundraBandEndRow && request.factionId === 'frost_wardens') {
@@ -535,7 +535,7 @@ function scoreCandidate(
   if (coastAccess && request.factionId === 'coral_people') {
     score += 14;
   }
-  if (riverAccess && request.factionId === 'plains_riders') {
+  if (riverAccess && request.factionId === 'river_people') {
     score += 14;
   }
 
@@ -561,7 +561,7 @@ function getMinimumHomeShare(request: StartPlacementRequest): number {
     case 'desert_nomads':
     case 'savannah_lions':
       return 0.24;
-    case 'plains_riders':
+    case 'river_people':
       return 0;
     default:
       return 0.28;
@@ -794,7 +794,7 @@ function repairCandidate(
       actions.push('carved_lagoon');
       break;
     }
-    case 'plains_riders':
+    case 'river_people':
       carveLocalRiver(map, position);
       actions.push('carved_river_corridor');
       break;

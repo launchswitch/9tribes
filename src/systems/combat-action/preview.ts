@@ -111,8 +111,8 @@ export function previewCombatAction(
   let situationalAttackModifier = getCombatAttackModifier(attackerFaction, attackerTerrain, defenderTerrain);
   let situationalDefenseModifier = getCombatDefenseModifier(defenderFaction, defenderTerrain);
 
-  if ((attackerTerrainId === 'river' || attackerTerrainId === 'swamp') && attackerFaction?.id === 'plains_riders') {
-    situationalAttackModifier += registry.getSignatureAbility('plains_riders')?.sneakAttackBonus ?? 0;
+  if ((attackerTerrainId === 'river' || attackerTerrainId === 'swamp') && attackerFaction?.id === 'river_people') {
+    situationalAttackModifier += registry.getSignatureAbility('river_people')?.sneakAttackBonus ?? 0;
     sneakAttackTriggered = true;
   }
 

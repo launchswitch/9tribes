@@ -231,7 +231,7 @@ const CITY_COLUMN = 3;
 const SETTLEMENT_ROW_BY_FACTION: Record<string, number> = {
   steppe_clan: 0,
   jungle_clan: 1,
-  plains_riders: 1,
+  river_people: 1,
   savannah_lions: 1,
   druid_circle: 2,
   frost_wardens: 2,

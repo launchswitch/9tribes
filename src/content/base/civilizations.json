@@ -194,8 +194,8 @@
     "lateGameHybridPotential": "elephant marines and shock camel corps",
     "nativeDomain": "charge"
   },
-  "plains_riders": {
-    "id": "plains_riders",
+  "river_people": {
+    "id": "river_people",
     "name": "River People",
     "color": "#4f86c6",
     "startHex": { "q": 34, "r": 3 },

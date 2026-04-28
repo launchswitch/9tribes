@@ -65,7 +65,7 @@
     "greedyNonCombatCaptureChance": 0.4,
     "wallDefenseMultiplier": 2
   },
-  "plains_riders": {
+  "river_people": {
     "sneakAttackBonus": 0,
     "summon": {
       "chassisId": "alligator_frame",

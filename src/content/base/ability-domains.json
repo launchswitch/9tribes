@@ -54,7 +54,7 @@
     "tidal_warfare": {
       "id": "tidal_warfare",
       "name": "Tidal Warfare",
-      "nativeFaction": "plains_riders",
+      "nativeFaction": "river_people",
       "tags": ["naval", "shock"],
       "baseEffect": {
         "type": "zone_control",
@@ -91,7 +91,7 @@
     "river_stealth": {
       "id": "river_stealth",
       "name": "River Stealth",
-      "nativeFaction": "plains_riders",
+      "nativeFaction": "river_people",
       "tags": ["stealth", "river"],
       "baseEffect": {
         "type": "status",

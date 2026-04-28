@@ -47,7 +47,7 @@ export function findBestTargetChoice(
         const targetPrototype = state.prototypes.get(unit.prototypeId);
         if (!targetPrototype) continue;
 
-        // River-stealthed units (plains_riders on river) are invisible to AI targeting
+        // River-stealthed units (river_people on river) are invisible to AI targeting
         const targetTerrain = state.map?.tiles.get(hexToKey(unit.position))?.terrain ?? '';
         const targetFaction = state.factions.get(unit.factionId);
         if (isUnitRiverStealthed(targetFaction, targetTerrain)) continue;
