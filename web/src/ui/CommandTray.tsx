@@ -77,7 +77,7 @@ export function CommandTray({ state, onEndTurn, onSetTargetingMode, onBuildFort,
                 Site {settlementPreview.q},{settlementPreview.r} · {settlementPreview.terrain}
                 {settlementPreview.productionBonus > 0 ? ` · +${settlementPreview.productionBonus} prod` : ''}
                 {settlementPreview.supplyBonus > 0 ? ` · +${settlementPreview.supplyBonus} supply` : ''}
-                {settlementPreview.villageCooldownReduction > 0 ? ` · village cooldown -${settlementPreview.villageCooldownReduction}` : ''}
+                {settlementPreview.villageCooldownReduction > 0 ? ` · faster villages (1/3 turns)` : ''}
                 {settlementPreview.blockedReason ? ` · ${settlementPreview.blockedReason}` : ''}
               </span>
             ) : null}
