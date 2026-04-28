@@ -140,6 +140,7 @@ function getDomainDescription(domainId: string): string | undefined {
 export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProduction, onCancelCityProduction, onRemoveFromQueue, onSetTargetingMode, onPrepareAbility, onBoardTransport, onDisembarkUnit, onDeselect, onCloseCityProduction }: ContextInspectorProps) {
   const [cityTab, setCityTab] = useState<CityTab>('overview');
   const [factionPopup, setFactionPopup] = useState<FactionInfoData | null>(null);
+  const [domainPopup, setDomainPopup] = useState<{domainId: string; name: string; description: string} | null>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const [tabsCanScrollLeft, setTabsCanScrollLeft] = useState(false);
   const [tabsCanScrollRight, setTabsCanScrollRight] = useState(false);
@@ -271,6 +272,16 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
           </div>
         </div>
       )}
+      {/* Domain Popup */}
+      {domainPopup && (
+        <div className="faction-popup-overlay" onClick={() => setDomainPopup(null)}>
+          <div className="faction-popup" onClick={(e) => e.stopPropagation()}>
+            <button className="faction-popup__close" onClick={() => setDomainPopup(null)}>×</button>
+            <h3 className="faction-popup__name">{domainPopup.name}</h3>
+            <p className="faction-popup__intro">{domainPopup.description}</p>
+          </div>
+        </div>
+      )}
       <div className="ci-scroll">
         {/* ── Header ── */}
         <div className="ci-header">
@@ -384,7 +395,18 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                 {selectedUnit.nativeDomain && (
                   <div className="meta-row">
                     <span>Native Domain</span>
-                    <strong className="ci-domain--native">{formatNativeDomainName(selectedUnit.nativeDomain)}</strong>
+                    <strong 
+                      className="ci-domain--native"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => {
+                        const domainId = selectedUnit.nativeDomain!;
+                        const desc = getDomainDescription(domainId);
+                        const name = formatNativeDomainName(domainId) ?? domainId;
+                        setDomainPopup({ domainId, name, description: desc || 'No description available.' });
+                      }}
+                    >
+                      {formatNativeDomainName(selectedUnit.nativeDomain)}
+                    </strong>
                   </div>
                 )}
                 {selectedUnit.learnedAbilities && selectedUnit.learnedAbilities.length > 0 ? (
