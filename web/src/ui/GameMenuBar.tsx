@@ -93,7 +93,7 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
         </div>
 
         <div className="gmb-chip gmb-chip--round">
-          <span className="gmb-chip-label">R</span>
+          <span className="gmb-chip-label">Round</span>
           <span>{state.turn}</span>
         </div>
 
