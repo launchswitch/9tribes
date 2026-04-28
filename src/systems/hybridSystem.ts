@@ -73,6 +73,10 @@ export function unlockHybridRecipes(
     updatedFaction = {
       ...updatedFaction,
       prototypeIds: [...updatedFaction.prototypeIds, prototype.id],
+      capabilities: {
+        ...updatedFaction.capabilities!,
+        unlockedRecipeIds: [...(updatedFaction.capabilities?.unlockedRecipeIds ?? []), recipe.id],
+      },
     };
     current = updateFaction(current, updatedFaction);
   }
