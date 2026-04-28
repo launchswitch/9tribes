@@ -24,8 +24,8 @@ export const EMPTY_CITY_SITE_BONUSES: CitySiteBonuses = {
   villageCooldownReduction: 0,
   researchBonus: 0,
   traits: [
-    { key: 'fresh_water', label: 'Fresh Water', effect: 'Village growth: 1 every 3 turns (was 1 every 4)', active: false, count: 0 },
-    { key: 'oasis', label: 'Oasis', effect: 'Village growth: 1 every 3 turns, +2 camel research', active: false, count: 0 },
+    { key: 'fresh_water', label: 'Fresh Water', effect: '+Village growth: 1 every 3 turns (was 1 every 4)', active: false, count: 0 },
+    { key: 'oasis', label: 'Oasis', effect: '+Village growth: 1 every 3 turns, +2 camel research', active: false, count: 0 },
     { key: 'woodland', label: 'Woodland', effect: '+0.5 production', active: false, count: 0 },
     { key: 'open_land', label: 'Open Land', effect: '+0.5 supply', active: false, count: 0 },
   ],
@@ -53,14 +53,14 @@ export function evaluateCitySiteBonuses(
     {
       key: 'fresh_water',
       label: 'Fresh Water',
-      effect: 'Village growth: 1 every 3 turns (was 1 every 4)',
+      effect: '+Village growth: 1 every 3 turns (was 1 every 4)',
       active: hasRiver && !hasOasis,
       count: freshWaterCount,
     },
     {
       key: 'oasis',
       label: 'Oasis',
-      effect: 'Village growth: 1 every 3 turns, +2 camel research',
+      effect: '+Village growth: 1 every 3 turns, +2 camel research',
       active: hasOasis,
       count: oasisCount,
     },
