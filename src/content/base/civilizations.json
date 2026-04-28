@@ -234,8 +234,8 @@
       "endurance": 4
     },
     "startingUnits": [
-      { "chassisId": "infantry_frame", "componentIds": ["basic_spear", "frost_forge"], "name": "Frost Guard", "costOverride": 23, "positionOffset": { "q": 0, "r": 1 } },
-      { "chassisId": "ranged_frame", "componentIds": ["basic_bow", "cold_provisions"], "name": "Ice Archer", "costOverride": 15, "positionOffset": { "q": 1, "r": 1 } }
+      { "chassisId": "infantry_frame", "componentIds": ["basic_spear", "frost_forge"], "name": "Frost Guard", "costOverride": 23, "positionOffset": { "q": 0, "r": 1 }, "tags": ["frost", "infantry"] },
+      { "chassisId": "ranged_frame", "componentIds": ["basic_bow", "cold_provisions"], "name": "Ice Archer", "costOverride": 15, "positionOffset": { "q": 1, "r": 0 }, "tags": ["frost", "ranged"] }
     ],
     "uniqueMechanic": "cold_hardened",
     "homeBiome": "tundra",
