@@ -203,19 +203,9 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                 />
               </div>
               <div className="meta-row">
-                <span>Position</span>
-                <strong>{selectedUnit.q}, {selectedUnit.r}</strong>
               </div>
               {state.mode === 'play' ? (
                 <>
-                  <div className="meta-row">
-                    <span>Reachable tiles</span>
-                    <strong>{state.actions.legalMoves.length}</strong>
-                  </div>
-                  <div className="meta-row">
-                    <span>Attack targets</span>
-                    <strong>{state.actions.attackTargets.length}</strong>
-                  </div>
                 </>
               ) : null}
             </div>
