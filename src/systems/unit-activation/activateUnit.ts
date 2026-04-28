@@ -216,7 +216,8 @@ export function activateUnit(
   }
 
   let activeUnit = current.units.get(unitId)!;
-  const unitRange = prototype.derivedStats.range ?? 1;
+  const baseRange = prototype.derivedStats.range ?? 1;
+  const unitRange = baseRange + (prototype.rangeBonus ?? 0);
   const factionDoctrine = resolveResearchDoctrine(current.research.get(factionId), faction);
   const canChargeAttack =
     unitRange <= 1 && (canUseCharge(prototype) || factionDoctrine.chargeTranscendenceEnabled);

@@ -338,6 +338,7 @@ export function buildMvpScenario(seed: number, options: BuildMvpScenarioOptions 
           name: (unitConfig as { name?: string }).name,
           productionCost: (unitConfig as { costOverride?: number }).costOverride,
           tags: (unitConfig as { tags?: string[] }).tags,
+          rangeBonus: (unitConfig as { rangeBonus?: number }).rangeBonus,
           validation: {
             // Starting rosters are identity seeds, not proof that the domain was unlocked via sacrifice.
             ignoreResearchRequirements: true,
