@@ -38,7 +38,7 @@ const FACTION_ABILITY: Record<string, string> = {
   coral_people: 'Greedy — capture villages for resources and enslave enemy units instead of killing them',
   desert_nomads: 'Desert Swarm — bonuses when multiple units cluster; immune to desert attrition',
   savannah_lions: 'Charge Momentum — units hit harder after moving, up to devastating impact',
-  plains_riders: 'River Stealth — units are invisible in river and swamp tiles; cavalry charge attacks deal extra damage; summon Ancient Alligators near water',
+  river_people: 'River Stealth — units are invisible in river and swamp tiles; cavalry charge attacks deal extra damage; summon Ancient Alligators near water',
   frost_wardens: 'Cold Hardened — better growth from poor land; summon Polar Bears on tundra',
 };
 

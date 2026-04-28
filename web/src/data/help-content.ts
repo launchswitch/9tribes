@@ -270,7 +270,7 @@ export const helpContent: HelpContent = {
       tip: 'Don\'t charge headlong into spear walls. Angle your approach so War Elephants hit the flank or rear of enemy formations — the charge bonus is just as devastating from the side, but the defensive penalty is much worse for them.',
     },
     {
-      id: 'plains_riders',
+      id: 'river_people',
       name: 'River People',
       color: '#4f86c6',
       nativeDomain: 'river_stealth',

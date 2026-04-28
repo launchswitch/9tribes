@@ -22,8 +22,8 @@
       "focusFireLimit": 3,
       "squadSize": 3
     },
-    "plains_riders": {
-      "factionId": "plains_riders",
+    "river_people": {
+      "factionId": "river_people",
       "aggression": 0.6,
       "caution": 0.55,
       "cohesion": 0.5,

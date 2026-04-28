@@ -55,7 +55,7 @@ describe('production progression', () => {
         completedNode: 'camel_adaptation_t1',
       },
       {
-        factionId: 'plains_riders',
+        factionId: 'river_people',
         chassisId: 'naval_frame',
         learnedDomains: ['river_stealth'] as string[],
         missingLearnedDomains: ['tidal_warfare'] as string[],

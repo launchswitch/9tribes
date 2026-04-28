@@ -33,8 +33,8 @@ Content-to-code drift patterns identified from the synergy/emergent audit. Each 
 | coral_people | `greedyCaptureHpFraction` (0.5) | `captureSystem.ts` line 110 | ⚠️ **fallback=0.4 ≠ 0.5** |
 | coral_people | `greedyNonCombatCaptureChance` (0.4) | `activateUnit.ts` line 417 | ⚠️ **fallback=0.5 ≠ 0.4** |
 | coral_people | `wallDefenseMultiplier` (2) | `preview.ts` line 286 | ✅ |
-| plains_riders | `sneakAttackBonus` (0.5) | `preview.ts` line 114 | ✅ |
-| plains_riders | `summon` + `summonDuration` + `cooldownDuration` | `factionTurnEffects.ts` | ✅ |
+| river_people | `sneakAttackBonus` (0.5) | `preview.ts` line 114 | ✅ |
+| river_people | `summon` + `summonDuration` + `cooldownDuration` | `factionTurnEffects.ts` | ✅ |
 
 ### Findings
 

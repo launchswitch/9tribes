@@ -185,15 +185,15 @@ describe('swamp attrition', () => {
     expect(result.units.get(immuneUnitId)?.hp).toBe(10);
   });
 
-  it('immune faction river_assault (plains_riders) takes no swamp damage', () => {
+  it('immune faction river_assault (river_people) takes no swamp damage', () => {
     const { state, immuneUnitId } = buildTerrainTestState(
       'hill_clan',
       'swamp',
-      { immuneFactionId: 'plains_riders' },
+      { immuneFactionId: 'river_people' },
     );
 
     let result = applyEnvironmentalDamage(state, 'hill_clan' as never, registry);
-    result = applyEnvironmentalDamage(result, 'plains_riders' as never, registry);
+    result = applyEnvironmentalDamage(result, 'river_people' as never, registry);
 
     expect(result.units.get(immuneUnitId)?.hp).toBe(10);
   });

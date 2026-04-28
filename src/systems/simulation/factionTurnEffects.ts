@@ -221,7 +221,7 @@ function chooseBestChassis(
   const elephantFactionBonus = factionId === ('savannah_lions' as FactionId) ? 2 : 0;
   const navalFactionBonus = factionId === ('coral_people' as FactionId)
     ? 1.0
-    : factionId === ('plains_riders' as FactionId)
+    : factionId === ('river_people' as FactionId)
       ? 1.5
       : 0;
   const steppeInfantryScreenBonus = missingSteppeScreens * 8;

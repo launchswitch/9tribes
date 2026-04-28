@@ -42,7 +42,7 @@ const FLAVOR: Record<string, Record<string, string>> = {
     savannah_lions: 'Canopy closes off your shock fronts. Avoid unless flanking around it.',
     coral_people: 'Landlocked cover. Useful for ambushing supply lines far from the coast.',
     desert_nomads: 'Wet and shaded \u2014 your camels slow in the undergrowth.',
-    plains_riders: 'Dense enough to hide a galley crew. Useful for river approach concealment.',
+    river_people: 'Dense enough to hide a galley crew. Useful for river approach concealment.',
     _default: 'Tangled boughs break formations and shelter defenders from missile fire.',
   },
   jungle: {
@@ -74,7 +74,7 @@ const FLAVOR: Record<string, Record<string, string>> = {
     frost_wardens: 'Windswept plains. Cold and open suits your endurance, but cover is minimal.',
     jungle_clan: 'Far from any canopy. Your poisons lose their cloud cover in open air.',
     desert_nomads: 'Fast crossing, but no terrain shelter from enemy fire.',
-    plains_riders: 'Flat corridors make for fast river approach from the plains. Look for water nearby.',
+    river_people: 'Flat corridors make for fast river approach from the plains. Look for water nearby.',
     _default: 'Open ground favors fast cavalry and line formations over ambush.',
   },
   desert: {
@@ -107,14 +107,14 @@ const FLAVOR: Record<string, Record<string, string>> = {
   },
   coast: {
     coral_people: 'Your empire begins at the waterline. Every coastal hex is a harbor in waiting. You are never stronger than here.',
-    plains_riders: 'Shore access for your galleys. Natural staging ground for river-to-coast assault arcs.',
+    river_people: 'Shore access for your galleys. Natural staging ground for river-to-coast assault arcs.',
     frost_wardens: 'Cold northern shores. Your endurance makes long coastal sieges viable where others retreat.',
     jungle_clan: 'Jungle coastal edges. Useful for amphibious poisoncraft landings behind enemy lines.',
     druid_circle: 'Coastal forest margins give you stealth approach to shore defenses.',
     _default: 'Coastal hexes allow naval access and amphibious landings.',
   },
   river: {
-    plains_riders: 'River corridors are your veins. Your galleys move freely here. Every river is a highway.',
+    river_people: 'River corridors are your veins. Your galleys move freely here. Every river is a highway.',
     coral_people: 'Inland waterways extend your coastal reach. Treat rivers like narrow ocean lanes.',
     druid_circle: 'Your river ambushers were made for this terrain. Stealth on the water is powerful.',
     desert_nomads: 'River crossings are logistical choke points. Control the ford, control the campaign.',
@@ -123,7 +123,7 @@ const FLAVOR: Record<string, Record<string, string>> = {
   },
   swamp: {
     jungle_clan: 'Wet and dark. Your poison thrives in stagnant water. Ideal ground for attrition campaigns.',
-    plains_riders: 'Shallow waterways for your shallow-draft galleys. Move where others cannot wade.',
+    river_people: 'Shallow waterways for your shallow-draft galleys. Move where others cannot wade.',
     steppe_clan: 'Your horses sink in the bog. Avoid swamp country entirely.',
     hill_clan: 'Boggy ground prevents foundation digging. Build only on the firm margins.',
     druid_circle: 'Ancient wetland. Your stealth and woodcraft extend naturally into marshes.',
@@ -136,7 +136,7 @@ const FLAVOR: Record<string, Record<string, string>> = {
   },
   ocean: {
     coral_people: 'Deep water is your highway. No other faction matches your open-ocean speed and reach.',
-    plains_riders: 'Your galleys can cross open ocean. A rare capability \u2014 use it for strategic surprise.',
+    river_people: 'Your galleys can cross open ocean. A rare capability \u2014 use it for strategic surprise.',
     _default: 'Deep water \u2014 only naval units may traverse. Impassable to land armies.',
   },
 };

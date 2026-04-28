@@ -107,13 +107,13 @@ describe('faction identity combat modifiers', () => {
     expect(getCombatDefenseModifier(steppe, registry.getTerrain('forest'))).toBe(0);
   });
 
-  it('river_assault keeps plains riders stealthed in swamp tiles', () => {
+  it('river_assault keeps river people stealthed in swamp tiles', () => {
     const state = buildMvpScenario(42);
-    const plainsRiders = state.factions.get('plains_riders' as never)!;
+    const riverPeople = state.factions.get('river_people' as never)!;
 
-    expect(isUnitRiverStealthed(plainsRiders, 'river')).toBe(true);
-    expect(isUnitRiverStealthed(plainsRiders, 'swamp')).toBe(true);
-    expect(isUnitRiverStealthed(plainsRiders, 'plains')).toBe(false);
+    expect(isUnitRiverStealthed(riverPeople, 'river')).toBe(true);
+    expect(isUnitRiverStealthed(riverPeople, 'swamp')).toBe(true);
+    expect(isUnitRiverStealthed(riverPeople, 'plains')).toBe(false);
   });
 });
 
