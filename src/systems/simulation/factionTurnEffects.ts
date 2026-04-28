@@ -348,7 +348,7 @@ function applySummonAbility(
         const terrainId = getTerrainAt(state, unit.position);
         if (summonConfig.terrainTypes.includes(terrainId)) {
           const prototype = state.prototypes.get(unit.prototypeId);
-          if (prototype && (prototype.tags ?? []).includes('priest')) {
+          if (prototype && (prototype.tags ?? []).includes('cavalry')) {
             validUnit = unit;
             break;
           }
