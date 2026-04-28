@@ -233,7 +233,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
             <button className="faction-popup__close" onClick={() => setFactionPopup(null)}>×</button>
             <h3 className="faction-popup__name" style={{ color: factionPopup.color }}>{factionPopup.name}</h3>
             <div className="faction-popup__section">
-              <span className="faction-popup__label">Native Domain</span>
+              <span className="faction-popup__label">Native Ability</span>
               <span>{factionPopup.nativeDomain}</span>
             </div>
             <div className="faction-popup__section">
@@ -394,7 +394,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                 )}
                 {selectedUnit.nativeDomain && (
                   <div className="meta-row">
-                    <span>Native Domain</span>
+                    <span>Native Ability</span>
                     <strong 
                       className="ci-domain--native"
                       style={{ cursor: 'pointer' }}
