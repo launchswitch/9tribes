@@ -299,7 +299,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                 <p className="panel-kicker">Settlement Site</p>
                 <div className="meta-row">
                   <span>Target</span>
-                  <strong>{settlementPreview.q}, {settlementPreview.r} · {settlementPreview.terrain}</strong>
+                  <strong>{settlementPreview.terrain}</strong>
                 </div>
                 <div className="meta-row">
                   <span>Status</span>
@@ -312,7 +312,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                 {settlementPreview.traits.map((trait) => (
                   <div className="meta-row" key={trait.key}>
                     <span>{trait.label}</span>
-                    <strong>{trait.active ? `${trait.effect} (${trait.count})` : 'None'}</strong>
+                    <strong>{trait.active ? trait.effect : 'None'}</strong>
                   </div>
                 ))}
               </div>

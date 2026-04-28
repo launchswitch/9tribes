@@ -48,14 +48,14 @@ export function BottomCommandBar({ state, onEndTurn, onRestartSession }: BottomC
           <div className="event-list">
             <div className="event-row">
               <span className="event-round">Unit</span>
-              <p>{selectedUnit.prototypeName} at {selectedUnit.q},{selectedUnit.r}</p>
+              <p>{selectedUnit.prototypeName}</p>
             </div>
             <div className="event-row">
               <span className="event-round">{state.actions.targetingMode === 'attack' ? 'Attack' : 'Move'}</span>
               <p>
                 {state.actions.targetingMode === 'attack'
                   ? hoveredAttackTarget
-                    ? `Attack enemy at ${hoveredAttackTarget.q},${hoveredAttackTarget.r} from distance ${hoveredAttackTarget.distance}.`
+                    ? `Attack enemy from distance ${hoveredAttackTarget.distance}.`
                     : state.actions.attackTargets.length > 0
                       ? 'Click a red-highlighted enemy to attack, or press Esc to cancel.'
                       : 'No enemies are in attack range.'

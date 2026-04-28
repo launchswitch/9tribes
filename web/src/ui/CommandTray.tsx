@@ -62,7 +62,7 @@ export function CommandTray({ state, onEndTurn, onSetTargetingMode, onBuildFort,
           <>
             <strong className="ct-unit-name">{selectedUnit.prototypeName}</strong>
             <span className="ct-detail">
-              {selectedUnit.hp}/{selectedUnit.maxHp} HP · {selectedUnit.range > 1 ? `RNG ${selectedUnit.range}` : 'Melee'} · {selectedUnit.movesRemaining}/{selectedUnit.movesMax} moves · {selectedUnit.q},{selectedUnit.r}
+              {selectedUnit.hp}/{selectedUnit.maxHp} HP · {selectedUnit.range > 1 ? `RNG ${selectedUnit.range}` : 'Melee'} · {selectedUnit.movesRemaining}/{selectedUnit.movesMax} moves
             </span>
             {selectedUnit.learnedAbilities && selectedUnit.learnedAbilities.length > 0 ? (
               <span className="ct-knowledge-hint">
@@ -74,7 +74,7 @@ export function CommandTray({ state, onEndTurn, onSetTargetingMode, onBuildFort,
             ) : null}
             {settlementPreview ? (
               <span className="ct-knowledge-hint">
-                Site {settlementPreview.q},{settlementPreview.r} · {settlementPreview.terrain}
+                Site {settlementPreview.terrain}
                 {settlementPreview.productionBonus > 0 ? ` · +${settlementPreview.productionBonus} prod` : ''}
                 {settlementPreview.supplyBonus > 0 ? ` · +${settlementPreview.supplyBonus} supply` : ''}
                 {settlementPreview.villageCooldownReduction > 0 ? ` · faster villages (1/3 turns)` : ''}

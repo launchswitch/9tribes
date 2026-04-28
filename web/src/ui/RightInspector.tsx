@@ -208,13 +208,13 @@ export function RightInspector({ state, onSetCityProduction }: RightInspectorPro
         <section className="panel">
           <div className="panel-heading compact">
             <p className="panel-kicker">Site Preview</p>
-            <h2>{settlementPreview.q}, {settlementPreview.r}</h2>
+            <h2>{settlementPreview.terrain}</h2>
           </div>
           <p>{settlementPreview.terrain}</p>
           {settlementPreview.traits.map((trait) => (
             <div className="meta-row" key={trait.key}>
               <span>{trait.label}</span>
-              <strong>{trait.active ? `${trait.effect} (${trait.count})` : 'None'}</strong>
+              <strong>{trait.active ? trait.effect : 'None'}</strong>
             </div>
           ))}
           {settlementPreview.blockedReason ? (
