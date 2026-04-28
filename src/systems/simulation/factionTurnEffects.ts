@@ -342,13 +342,16 @@ function applySummonAbility(
   }
   else {
     let validUnit: Unit | null = null;
+    const neededTags = new Set(['cavalry', 'beast', 'frost', 'river', 'poison', 'jungle']);
     for (const unitId of faction.unitIds) {
       const unit = state.units.get(unitId);
       if (unit && unit.hp > 0) {
         const terrainId = getTerrainAt(state, unit.position);
         if (summonConfig.terrainTypes.includes(terrainId)) {
           const prototype = state.prototypes.get(unit.prototypeId);
-          if (prototype && (prototype.tags ?? []).includes('cavalry')) {
+          const unitTags = new Set(prototype?.tags ?? []);
+          const hasNeededTag = [...neededTags].some(tag => unitTags.has(tag));
+          if (prototype && hasNeededTag) {
             validUnit = unit;
             break;
           }
