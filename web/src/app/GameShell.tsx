@@ -117,6 +117,8 @@ function KnowledgeGainedShellContent({
 
   const playerWon = state.playFeedback?.victory?.winnerFactionId === state.playFeedback?.playerFactionId
     && state.playFeedback?.victory?.victoryType !== 'unresolved';
+  const playerLost = state.playFeedback?.victory?.eliminatedFactionId === state.playFeedback?.playerFactionId
+    && state.playFeedback?.victory?.victoryType !== 'unresolved';
 
   const handleCloseTerrainInspector = useCallback(
     () => controller.dispatch({ type: 'close_terrain_inspector' }),
@@ -293,6 +295,17 @@ function KnowledgeGainedShellContent({
           victoryType={state.playFeedback.victory.victoryType}
           controlledCities={state.playFeedback.victory.controlledCities}
           totalCities={state.playFeedback.victory.totalCities}
+          rounds={state.turn}
+          maxRounds={state.playFeedback.maxRounds}
+          difficulty={state.playFeedback.difficulty}
+          onDismiss={() => setVictoryDismissed(true)}
+        />
+      ) : null}
+      {playerLost && !victoryDismissed && state.playFeedback?.victory ? (
+        <VictoryOverlay
+          victoryType="defeat"
+          controlledCities={null}
+          totalCities={null}
           rounds={state.turn}
           maxRounds={state.playFeedback.maxRounds}
           difficulty={state.playFeedback.difficulty}

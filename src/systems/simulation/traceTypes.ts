@@ -209,7 +209,7 @@ export interface SimulationTrace {
   currentRound?: number;
 }
 
-export type VictoryType = 'elimination' | 'domination' | 'unresolved';
+export type VictoryType = 'elimination' | 'domination' | 'unresolved' | 'defeat';
 
 export interface VictoryStatus {
   winnerFactionId: FactionId | null;

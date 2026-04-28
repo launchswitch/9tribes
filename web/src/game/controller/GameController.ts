@@ -4,7 +4,7 @@ import { GameSession, type SessionSaveSnapshot } from './GameSession';
 import type { PendingCombat } from './GameSession';
 import { buildDebugViewModel, buildHudViewModel, buildResearchInspectorViewModel, buildWorldViewModel } from '../view-model/worldViewModel';
 import { buildTerrainInspectorViewModel } from '../view-model/inspectors/terrainInspectorViewModel';
-import { getVictoryStatus } from '../../../../src/systems/warEcologySimulation.js';
+import { getVictoryStatus, getAliveFactions, isFactionEliminated } from '../../../../src/systems/warEcologySimulation.js';
 import { findPath } from '../../../../src/systems/pathfinder.js';
 
 type Listener = () => void;
@@ -257,6 +257,7 @@ export class GameController {
     const feedback = session.getFeedback();
     const victory = getVictoryStatus(sessionState);
     const playerFactionId = session.getPrimaryHumanFactionId();
+    const playerEliminated = playerFactionId ? isFactionEliminated(sessionState, playerFactionId as never) : false;
 
     // Compute queued path for display
     let queuedUnitIdDisplay: string | null = null;
@@ -348,6 +349,7 @@ export class GameController {
           : null,
         victory: {
           winnerFactionId: victory.winnerFactionId,
+          eliminatedFactionId: playerEliminated ? playerFactionId : null,
           victoryType: victory.victoryType,
           controlledCities: victory.controlledCities,
           totalCities: sessionState.cities.size > 0 ? sessionState.cities.size : null,

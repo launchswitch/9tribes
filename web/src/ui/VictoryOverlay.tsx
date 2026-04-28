@@ -46,6 +46,9 @@ export function computeScore(input: {
 }
 
 function describeVictory(victoryType: VictoryType, controlledCities: number | null, totalCities: number | null): string {
+  if (victoryType === 'defeat') {
+    return 'Your tribe has been eliminated.';
+  }
   if (victoryType === 'elimination') {
     return 'All rival tribes have been eliminated.';
   }
@@ -65,12 +68,13 @@ export function VictoryOverlay({
   onDismiss,
 }: VictoryOverlayProps) {
   const score = computeScore({ rounds, maxRounds, difficulty, victoryType });
+  const isDefeat = victoryType === 'defeat';
 
   return (
-    <div className="vic-overlay" role="dialog" aria-label="Victory">
+    <div className="vic-overlay" role="dialog" aria-label={isDefeat ? 'Defeat' : 'Victory'}>
       <div className="vic-card">
         <div className="vic-header">
-          <h2 className="vic-title">VICTORY!</h2>
+          <h2 className="vic-title">{isDefeat ? 'GAME OVER' : 'VICTORY!'}</h2>
         </div>
         <div className="vic-body">
           <p className="vic-description">{describeVictory(victoryType, controlledCities, totalCities)}</p>

@@ -246,6 +246,7 @@ export type PlayFeedbackState = {
   victory:
     | {
         winnerFactionId: string | null;
+        eliminatedFactionId: string | null;
         victoryType: VictoryType;
         controlledCities: number | null;
         totalCities: number | null;

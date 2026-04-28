@@ -31,7 +31,8 @@ export type {
   TraceUnitSacrificedEvent,
 } from './simulation/traceTypes.js';
 export { createSimulationTrace, log, recordCombatEvent, recordAiIntent } from './simulation/traceRecorder.js';
-export { getVictoryStatus } from './simulation/victory.js';
+export { getVictoryStatus, isFactionEliminated } from './simulation/victory.js';
+export { getAliveFactions } from './simulation/victory.js';
 export { processFactionPhases } from './simulation/factionTurnEffects.js';
 export { summarizeFaction } from './simulation/summarizeFaction.js';
 export { occupiesFriendlySettlement } from './simulation/environmentalEffects.js';

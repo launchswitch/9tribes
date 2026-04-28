@@ -59,6 +59,16 @@ export function getVictoryStatus(state: GameState): VictoryStatus {
   };
 }
 
+export function isFactionEliminated(state: GameState, factionId: FactionId): boolean {
+  const hasUnits = Array.from(state.units.values()).some(
+    (unit) => unit.factionId === factionId && unit.hp > 0
+  );
+  const hasCities = Array.from(state.cities.values()).some(
+    (city) => city.factionId === factionId && !city.besieged
+  );
+  return !hasUnits && !hasCities;
+}
+
 export function getAliveFactions(state: GameState): Set<FactionId> {
   const factionsWithUnits = new Set(
     Array.from(state.units.values())
