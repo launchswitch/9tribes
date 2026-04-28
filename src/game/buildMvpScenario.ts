@@ -339,6 +339,7 @@ export function buildMvpScenario(seed: number, options: BuildMvpScenarioOptions 
           productionCost: (unitConfig as { costOverride?: number }).costOverride,
           tags: (unitConfig as { tags?: string[] }).tags,
           rangeBonus: (unitConfig as { rangeBonus?: number }).rangeBonus,
+          movesBonus: (unitConfig as { movesBonus?: number }).movesBonus,
           validation: {
             // Starting rosters are identity seeds, not proof that the domain was unlocked via sacrifice.
             ignoreResearchRequirements: true,
@@ -364,8 +365,8 @@ export function buildMvpScenario(seed: number, options: BuildMvpScenarioOptions 
         facing: 0,
         hp: prototype.derivedStats.hp,
         maxHp: prototype.derivedStats.hp,
-        movesRemaining: prototype.derivedStats.moves,
-        maxMoves: prototype.derivedStats.moves,
+        movesRemaining: prototype.derivedStats.moves + (prototype.movesBonus ?? 0),
+        maxMoves: prototype.derivedStats.moves + (prototype.movesBonus ?? 0),
         attacksRemaining: 1,
         xp: 0,
         veteranLevel: 'green' as VeteranLevel,

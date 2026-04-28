@@ -23,4 +23,5 @@ export interface Prototype {
   productionCost?: number;
   supplyCost?: number;
   rangeBonus?: number;
+  movesBonus?: number;
 }
