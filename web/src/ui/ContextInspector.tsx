@@ -290,7 +290,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
           </button>
           <div className="ci-header-text">
             <p className="panel-kicker">
-              {selection.type === 'unit' ? 'Unit' : selection.type === 'city' ? 'City' : selection.type === 'village' ? 'Village' : 'Tile'}
+              {selection.type === 'unit' ? 'Unit' : selection.type === 'city' ? 'Settlement' : selection.type === 'village' ? 'Village' : 'Tile'}
             </p>
             <h2>{state.hud.selectedTitle}</h2>
           </div>

@@ -283,7 +283,7 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
         ) : null}
         {state.hud.supply ? (
           <div
-            className={`status-chip${state.hud.supply.deficit > 0 ? ' status-chip--deficit' : ''}`}
+            className={`status-chip${state.hud.supply.deficit > 0 ? ' status-chip--deficit status-chip--over-capacity' : ''}`}
             role="button"
             tabIndex={0}
             onClick={() => { setSupplyPopup(true); }}
