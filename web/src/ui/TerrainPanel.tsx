@@ -65,31 +65,6 @@ const CAPABILITY_DESCRIPTIONS: Record<string, { name: string; description: strin
   },
 };
 
-const ECOLOGY_DESCRIPTIONS: Record<string, { name: string; description: string }> = {
-  steppe: { name: 'Steppe', description: 'Open grasslands. Good for cavalry movement and charge approaches.' },
-  open_ground: { name: 'Open Ground', description: 'No obstacles. Best for formation warfare and cavalry charges.' },
-  horse_range: { name: 'Horse Range', description: 'Excellent terrain for mounted units. Reduces mounted movement costs.' },
-  forest: { name: 'Forest', description: 'Wooded terrain with trees. Provides cover and defense bonus.' },
-  jungle: { name: 'Jungle', description: 'Dense vegetation. Provides stealth and poisoncraft opportunities.' },
-  canopy: { name: 'Canopy', description: 'Overhead cover. Provides additional defense and stealth.' },
-  poison: { name: 'Poison', description: 'Toxic environment. Boosts poison effects and poisoncraft domain.' },
-  underbrush: { name: 'Underbrush', description: 'Dense ground cover. Slows movement but provides defense.' },
-  hill: { name: 'Hill', description: 'Elevated terrain. Provides defense bonus and hill fighting opportunity.' },
-  ridge: { name: 'Ridge', description: 'High ground. Excellent defensive position with wide sight lines.' },
-  stone: { name: 'Stone', description: 'Rocky terrain. Good for fortifications and defensive structures.' },
-  desert: { name: 'Desert', description: 'Arid terrain. Requires desert survival. Fast for adapted units.' },
-  dunes: { name: 'Dunes', description: 'Sandy hills. Slows movement but provides defensive cover.' },
-  oasis: { name: 'Oasis', description: 'Water source in desert. Provides supply bonus for nearby cities.' },
-  tundra: { name: 'Tundra', description: 'Frozen ground. Slows most units but provides cold resistance.' },
-  savannah: { name: 'Savannah', description: 'Grassy plains with trees. Good for light infantry and cavalry.' },
-  coast: { name: 'Coast', description: 'Land-water boundary. Enables naval units to attack land.' },
-  river: { name: 'River', description: 'Fresh water. Provides movement barriers and defensive chokepoints.' },
-  swamp: { name: 'Swamp', description: 'Marshy ground. Slows movement but provides stealth to adapted units.' },
-  mountain: { name: 'Mountain', description: 'High peaks. Impassable to most, excellent for fortifications.' },
-  ocean: { name: 'Ocean', description: 'Deep water. Requires seafaring. Naval unit territory.' },
-  shallow: { name: 'Shallow Water', description: 'Nearshore water. Accessible to both naval and land units.' },
-};
-
 const TERRAIN_ICONS: Record<string, string> = {
   plains: '🌾',
   forest: '🌲',
@@ -270,29 +245,9 @@ export function TerrainPanel({ terrain, onClose }: TerrainPanelProps) {
               )}
               {terrain.cityBonus.productionBonus === 0 && terrain.cityBonus.supplyBonus === 0 && terrain.cityBonus.traits.filter((t) => t.active).length === 0 && (
                 <p className="ti-sub ti-sub--muted">No site bonuses at this location.</p>
-              )}
-            </div>
-          )}
-
-          {terrain.ecologyTags.length > 0 && (
-            <div className="ti-section">
-              <p className="panel-kicker">Ecology</p>
-              <div className="ti-tag-row">
-                {terrain.ecologyTags.map((tag) => {
-                  const info = ECOLOGY_DESCRIPTIONS[tag];
-                  return (
-                    <span
-                      key={tag}
-                      className={`ti-tag${info ? ' ti-tag--clickable' : ''}`}
-                      onClick={() => info && setSelectedInfo({ title: info.name, description: info.description })}
-                    >
-                      {tag.replace(/_/g, ' ')}
-                    </span>
-                  );
-                })}
+)}
               </div>
-            </div>
-          )}
+            )}
         </div>
       )}
     </aside>
