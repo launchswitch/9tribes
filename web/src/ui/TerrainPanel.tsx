@@ -141,7 +141,7 @@ export function TerrainPanel({ terrain, onClose }: TerrainPanelProps) {
 
           {terrain.cityBonus && (
             <div className="ti-section">
-              <p className="panel-kicker">City Founded Here</p>
+              <p className="panel-kicker">Settlement Bonus</p>
               <div className="ti-city-stats">
                 {terrain.cityBonus.productionBonus > 0 && (
                   <div className="ti-city-stat">
@@ -174,16 +174,6 @@ export function TerrainPanel({ terrain, onClose }: TerrainPanelProps) {
             </div>
           )}
 
-          {terrain.ecologyTags.length > 0 && (
-            <div className="ti-section">
-              <p className="panel-kicker">Ecology</p>
-              <div className="ti-tag-row">
-                {terrain.ecologyTags.map((tag) => (
-                  <span key={tag} className="ti-tag">{tag.replace(/_/g, ' ')}</span>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
     </aside>
