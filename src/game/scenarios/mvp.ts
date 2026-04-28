@@ -58,6 +58,7 @@ export interface MvpUnitConfig {
   chassisId: string;
   componentIds: string[];
   positionOffset: { q: number; r: number };
+  tags?: string[];
 }
 
 // Load civilizations from JSON template system
