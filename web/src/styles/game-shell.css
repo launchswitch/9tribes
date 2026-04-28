@@ -80,6 +80,11 @@
   cursor: default;
 }
 
+.gmb-chip--villages-surplus {
+  color: var(--success, #5d5);
+  border-color: var(--success, #5d5);
+}
+
 .gmb-chip--research {
   cursor: pointer;
   transition: background 150ms ease;
