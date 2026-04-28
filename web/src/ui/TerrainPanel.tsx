@@ -241,7 +241,7 @@ export function TerrainPanel({ terrain, onClose }: TerrainPanelProps) {
 
           {terrain.cityBonus && (
             <div className="ti-section">
-              <p className="panel-kicker">Settlement Terrain Modifiers</p>
+              <p className="panel-kicker">Settlement Bonus</p>
               <div className="ti-city-stats">
                 {terrain.cityBonus.productionBonus > 0 && (
                   <div className="ti-city-stat">
