@@ -12,8 +12,8 @@
       "endurance": 2
     },
     "startingUnits": [
-      { "chassisId": "infantry_frame", "componentIds": ["basic_spear", "venom_rites"], "name": "Venom Spearman", "costOverride": 20, "positionOffset": { "q": 0, "r": -1 } },
-      { "chassisId": "ranged_frame", "componentIds": ["basic_bow", "poison_arrows"], "name": "Venom Archer", "costOverride": 23, "positionOffset": { "q": -1, "r": 0 } }
+      { "chassisId": "infantry_frame", "componentIds": ["basic_spear", "venom_rites"], "name": "Venom Spearman", "tags": ["jungle", "poison", "beast"], "costOverride": 20, "positionOffset": { "q": 0, "r": -1 } },
+      { "chassisId": "ranged_frame", "componentIds": ["basic_bow", "poison_arrows"], "name": "Venom Archer", "tags": ["jungle", "poison"], "costOverride": 23, "positionOffset": { "q": -1, "r": 0 } }
     ],
     "uniqueMechanic": "jungle_poison",
     "homeBiome": "jungle",
