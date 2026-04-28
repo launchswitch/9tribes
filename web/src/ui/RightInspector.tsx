@@ -292,7 +292,7 @@ export function RightInspector({ state, onSetCityProduction }: RightInspectorPro
             </div>
             <div className="meta-row">
               <span>Owner</span>
-              <strong>{(hoveredTile as { ownerFactionName?: string }).ownerFactionName ?? hoveredTile.ownerFactionId ?? 'Neutral'}</strong>
+              <strong>{hoveredTile.ownerFactionName ?? hoveredTile.ownerFactionId ?? 'Neutral'}</strong>
             </div>
             <div className="meta-row">
               <span>Visibility</span>
