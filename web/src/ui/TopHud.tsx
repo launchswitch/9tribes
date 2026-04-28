@@ -261,7 +261,7 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
           style={{ '--chip-color': activeFactionColor } as CSSProperties}
           role="button"
           tabIndex={0}
-          onClick={() => factionInfo && setFactionPopup(true)}
+          onClick={() => { setFactionPopup(true); }}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') factionInfo && setFactionPopup(true); }}
         >
           <span className="chip-label">Faction</span>
@@ -286,7 +286,7 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
             className={`status-chip${state.hud.supply.deficit > 0 ? ' status-chip--deficit' : ''}`}
             role="button"
             tabIndex={0}
-            onClick={() => setSupplyPopup(true)}
+            onClick={() => { setSupplyPopup(true); }}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSupplyPopup(true); }}
           >
             <span className="chip-label">Supply</span>
