@@ -354,6 +354,7 @@ export function SynergyChip({ state }: SynergyChipProps) {
         style={{ '--syn-accent': factionColor } as React.CSSProperties}
         title="Ability Synergies — click to expand"
       >
+        <span className="syn-chip__label">ABILITY SYNERGIES</span>
         <span className="syn-chip__domains">
           <DomainDot domainId={nativeDomain} size={14} isNative />
           {resolved.foreignDomains.slice(0, 3).map((d) => (
