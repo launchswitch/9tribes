@@ -8,6 +8,50 @@ import abilityDomainsData from '../data/ability-domains.json';
 type PairSynergy = typeof pairSynergiesData.pairSynergies[number];
 type EmergentRule = typeof emergentRulesData.rules[number];
 
+// Emergent rule descriptions for popup
+const EMERGENT_DESCRIPTIONS: Record<string, { effect: string; requirement: string }> = {
+  terrain_rider: {
+    effect: "Charge units with terrain adaptation gain terrain penetration (ignore terrain during charge) and +50% damage in their native terrain type",
+    requirement: "1 terrain domain + 1 combat domain + 1 mobility domain (all to T2)",
+  },
+  paladin: {
+    effect: "Heals for 50% of damage dealt; can't drop below 1 HP from a single hit",
+    requirement: "1 healing domain + 1 defensive domain + 1 offensive domain (all to T2)",
+  },
+  terrain_assassin: {
+    effect: "Attacks from stealth in matching terrain type are permanent stealth — enemies never detect you regardless of proximity",
+    requirement: "1 stealth domain + 1 combat domain + 1 terrain domain (all to T2)",
+  },
+  anchor: {
+    effect: "3-hex zone: +30% defense + 3 HP/turn for allies. Unit immovable, regens 5 HP/turn.",
+    requirement: "1 fortress domain + 1 healing domain + 1 defensive domain (all to T2)",
+  },
+  ghost_army: {
+    effect: "Units with at least one of the mobility domains ignore all terrain penalties and gain +1 movement. Only affects units with at least one of the relevant domains.",
+    requirement: "3 mobility domains to T2 (camel adaptation, charge, hit run, or river stealth)",
+  },
+  iron_turtle: {
+    effect: "Units gain +50% defense and reflect 25% damage back to attackers. Heavy units also gain zone control.",
+    requirement: "1 fortress + 1 heavy + 1 terrain domain (all to T2)",
+  },
+  withering_citadel: {
+    effect: "Fortress units radiate poison. Enemies in adjacent hexes take passive poison damage. Combined with healing for self-sustain.",
+    requirement: "1 venom + 1 fortress + 1 healing domain (all to T2)",
+  },
+  blood_tide: {
+    effect: "Naval charges deal +50% damage, push enemy ships 2 hexes, and create a zone control area.",
+    requirement: "1 tidal warfare + 1 charge + 1 combat domain (all to T2)",
+  },
+  endless_shadow: {
+    effect: "Stealth units can move twice per turn. Each movement doesn't break stealth if not attacking.",
+    requirement: "1 stealth + 2 mobility domains (all to T2)",
+  },
+  beastmaster: {
+    effect: "Captured units are immediately usable without cooldown. All captured units gain +25% attack.",
+    requirement: "1 slaving + 1 charge + 1 combat domain (all to T2)",
+  },
+};
+
 // ── Domain palette (ability-domain IDs used by pair-synergies.json) ──
 
 const DOMAIN_COLORS: Record<string, string> = {
@@ -287,6 +331,15 @@ export function SynergyChip({ state }: SynergyChipProps) {
     setExpanded((v) => !v);
   }, []);
 
+  const [emergentPopup, setEmergentPopup] = useState<EmergentRule | null>(null);
+
+  const handleEmergentClick = useCallback((e: React.MouseEvent, rule: EmergentRule) => {
+    e.stopPropagation();
+    setEmergentPopup(rule);
+  }, []);
+
+  const handleEmergentClose = useCallback(() => setEmergentPopup(null), []);
+
   const handleClose = useCallback(() => setExpanded(false), []);
   const handlePanelClick = useCallback((e: React.MouseEvent) => e.stopPropagation(), []);
 
@@ -456,51 +509,75 @@ export function SynergyChip({ state }: SynergyChipProps) {
               <div className="syn-rule-list">
                 {resolved.emergentProgress
                   .filter((ep) => ep.rule.condition !== 'default')
-                  .map((ep) => (
-                    <div key={ep.rule.id} className={`syn-rule-item ${ep.isComplete ? 'syn-rule-item--done' : ''}`}>
-                      <div className="syn-rule-item__header">
-                        <span className="syn-rule-item__name">{ep.rule.name}</span>
-                        <span className="syn-rule-item__progress-text">
-                          {ep.satisfiedCategories.length}/{ep.totalCategories}
-                        </span>
+                  .map((ep) => {
+                    const info = EMERGENT_DESCRIPTIONS[ep.rule.id];
+                    return (
+                      <div
+                        key={ep.rule.id}
+                        className={`syn-rule-item ${ep.isComplete ? 'syn-rule-item--done' : ''} ${info ? 'syn-rule-item--clickable' : ''}`}
+                        onClick={(e) => info && handleEmergentClick(e, ep.rule)}
+                      >
+                        <div className="syn-rule-item__header">
+                          <span className="syn-rule-item__name">{ep.rule.name}</span>
+                          <span className="syn-rule-item__progress-text">
+                            {ep.satisfiedCategories.length}/{ep.totalCategories}
+                          </span>
+                        </div>
+                        <div className="syn-rule-item__bar">
+                          <span
+                            className="syn-rule-item__fill"
+                            style={{
+                              width: `${ep.progress * 100}%`,
+                              '--syn-rule-color': ep.isComplete ? factionColor : domainColor(ep.satisfiedDomains[0] ?? ''),
+                            } as React.CSSProperties}
+                          />
+                        </div>
+                        <div className="syn-rule-item__detail">
+                          {ep.isComplete ? (
+                            <span className="syn-rule-item__effect">{ep.rule.effect.description}</span>
+                          ) : (
+                            <>
+                              <span>Have: </span>
+                              {ep.satisfiedDomains.map((d) => (
+                                <span key={d} className="syn-rule-item__domain" style={{ color: domainColor(d) }}>
+                                  {domainGlyph(d)} {domainDisplayName(d)}
+                                </span>
+                              ))}
+                              {ep.missingDomains.length > 0 && (
+                                <>
+                                  <span> &middot; Need: </span>
+                                  {ep.missingDomains.slice(0, 2).map((d) => (
+                                    <span key={d} className="syn-rule-item__domain syn-rule-item__domain--missing">
+                                      {domainGlyph(d)} {domainDisplayName(d)}
+                                    </span>
+                                  ))}
+                                </>
+                              )}
+                            </>
+                          )}
+                        </div>
                       </div>
-                      <div className="syn-rule-item__bar">
-                        <span
-                          className="syn-rule-item__fill"
-                          style={{
-                            width: `${ep.progress * 100}%`,
-                            '--syn-rule-color': ep.isComplete ? factionColor : domainColor(ep.satisfiedDomains[0] ?? ''),
-                          } as React.CSSProperties}
-                        />
-                      </div>
-                      <div className="syn-rule-item__detail">
-                        {ep.isComplete ? (
-                          <span className="syn-rule-item__effect">{ep.rule.effect.description}</span>
-                        ) : (
-                          <>
-                            <span>Have: </span>
-                            {ep.satisfiedDomains.map((d) => (
-                              <span key={d} className="syn-rule-item__domain" style={{ color: domainColor(d) }}>
-                                {domainGlyph(d)} {domainDisplayName(d)}
-                              </span>
-                            ))}
-                            {ep.missingDomains.length > 0 && (
-                              <>
-                                <span> &middot; Need: </span>
-                                {ep.missingDomains.slice(0, 2).map((d) => (
-                                  <span key={d} className="syn-rule-item__domain syn-rule-item__domain--missing">
-                                    {domainGlyph(d)} {domainDisplayName(d)}
-                                  </span>
-                                ))}
-                              </>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
               </div>
             </section>
+
+            {/* Emergent Rule Popup */}
+            {emergentPopup && (
+              <div className="syn-emergent-overlay" onClick={handleEmergentClose}>
+                <div className="syn-emergent-popup" onClick={(e) => e.stopPropagation()}>
+                  <button type="button" className="syn-emergent-popup__close" onClick={handleEmergentClose}>
+                    &#x2715;
+                  </button>
+                  <h4 className="syn-emergent-popup__title">{emergentPopup.name}</h4>
+                  <p className="syn-emergent-popup__effect">{EMERGENT_DESCRIPTIONS[emergentPopup.id]?.effect ?? emergentPopup.effect.description}</p>
+                  <div className="syn-emergent-popup__req">
+                    <span className="syn-emergent-popup__label">Requirement:</span>
+                    <span>{EMERGENT_DESCRIPTIONS[emergentPopup.id]?.requirement ?? 'See rule details'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Footer hint */}
             <div className="syn-panel__footer">

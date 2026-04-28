@@ -1069,6 +1069,22 @@
   gap: 3px;
 }
 
+.ti-domain-row--clickable {
+  cursor: pointer;
+  padding: 3px 5px;
+  margin: -3px -5px;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.ti-domain-row--clickable:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ti-domain-row--clickable:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
 .ti-domain-row--synergy .ti-domain-label {
   color: #d6c060;
 }
@@ -1191,4 +1207,70 @@
   font-size: 10px;
   color: var(--muted);
   letter-spacing: 0.04em;
+}
+
+.ti-tag--clickable {
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ti-tag--clickable:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.ti-tag--clickable:active {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* ── Info popup ── */
+.ti-info-popup-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.ti-info-popup {
+  background: var(--bg-primary, #1a1915);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 280px;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.ti-info-popup__close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.ti-info-popup__close:hover {
+  color: var(--text);
+}
+
+.ti-info-popup__title {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ti-info-popup__desc {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-secondary, #c4b08a);
+  line-height: 1.5;
 }
