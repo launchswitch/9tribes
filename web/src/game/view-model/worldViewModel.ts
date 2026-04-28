@@ -248,8 +248,9 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
         transportId: unitTransport?.transportId ?? null,
         boardableTransportIds: boardableTransportIds.length > 0 ? boardableTransportIds : undefined,
         validDisembarkHexes: validDisembarkHexes.length > 0 ? validDisembarkHexes : undefined,
-        supplyCost: prototype ? getUnitSupplyCost(prototype, source.registry) : 1,
+supplyCost: prototype ? getUnitSupplyCost(prototype, source.registry) : 1,
         isPrototype: prototype ? isUnlockPrototype(prototype) : false,
+        summonTurnsRemaining: unit.factionId ? (state.factions.get(unit.factionId)?.summonState?.turnsRemaining ?? undefined) : undefined,
       };
     }),
     cities: Array.from(state.cities.values()).map((city) => ({

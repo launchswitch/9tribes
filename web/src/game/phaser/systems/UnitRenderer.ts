@@ -102,6 +102,18 @@ export class UnitRenderer {
       this.layer.add(hpTrack);
       this.layer.add(hpFill);
 
+      // Summon countdown timer — show turns remaining for special summoned units
+      if (unit.summonTurnsRemaining !== undefined && unit.summonTurnsRemaining > 0) {
+        const countdownText = this.scene.add.text(point.x, point.y - 24, `${unit.summonTurnsRemaining}`, {
+          fontSize: '14px',
+          fontStyle: 'bold',
+          color: unit.summonTurnsRemaining <= 2 ? '#ff4444' : '#ffcc00',
+          stroke: '#000',
+          strokeThickness: 3,
+        }).setOrigin(0.5);
+        this.layer.add(countdownText);
+      }
+
       // Carrier marker for units with learned (foreign-domain) abilities — prominent pulsing glow
       const learned = unit.learnedAbilities ?? [];
       if (learned.length > 0) {
