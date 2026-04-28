@@ -180,7 +180,7 @@
     },
     "startingUnits": [
       { "chassisId": "infantry_frame", "componentIds": ["basic_spear", "shock_drill"], "name": "Shock Infantry", "costOverride": 21, "positionOffset": { "q": 0, "r": -1 } },
-      { "chassisId": "ranged_frame", "componentIds": ["basic_bow", "simple_armor"], "name": "Assegai Izimpi", "costOverride": 20, "positionOffset": { "q": -1, "r": 0 }, "tags": ["ignore_terrain", "ranged"], "rangeBonus": 1 }
+      { "chassisId": "ranged_frame", "componentIds": ["basic_bow", "simple_armor"], "name": "Assegai Impi", "costOverride": 20, "positionOffset": { "q": -1, "r": 0 }, "tags": ["ignore_terrain", "ranged"], "rangeBonus": 1 }
     ],
     "uniqueMechanic": "war_elephants",
     "homeBiome": "savannah",
