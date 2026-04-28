@@ -239,7 +239,7 @@ export function RightInspector({ state, onSetCityProduction }: RightInspectorPro
         {selectedUnit ? (
           <>
             <div className="meta-row">
-              <span>Veterancy</span>
+              <span>Experience Level</span>
               <strong>{selectedUnit.veteranLevel ?? 'green'}</strong>
             </div>
             {selectedUnit.xp != null ? (

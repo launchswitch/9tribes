@@ -199,7 +199,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
               </div>
               {selectedUnit.veteranLevel ? (
                 <div className="meta-row">
-                  <span>Veterancy</span>
+                  <span>Experience Level</span>
                   <strong>{selectedUnit.veteranLevel}{selectedUnit.xp != null ? ` (${selectedUnit.xp} XP)` : ''}</strong>
                 </div>
               ) : null}
