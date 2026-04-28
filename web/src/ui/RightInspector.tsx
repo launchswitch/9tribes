@@ -43,7 +43,7 @@ export function RightInspector({ state, onSetCityProduction }: RightInspectorPro
             {selectedCity.siteBonuses.traits.map((trait) => (
               <div className="meta-row" key={trait.key}>
                 <span>{trait.label}</span>
-                <strong>{trait.active ? `${trait.effect} (${trait.count})` : 'None'}</strong>
+<strong>{trait.active ? trait.effect : 'None'}</strong>
               </div>
             ))}
           </section>
