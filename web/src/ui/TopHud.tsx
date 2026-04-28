@@ -200,50 +200,6 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
           </div>
         </div>
       )}
-      {supplyPopup && state.hud.supply && (
-        <div className="supply-popup-overlay" onClick={() => setSupplyPopup(false)}>
-          <div className="supply-popup" onClick={(e) => e.stopPropagation()}>
-            <button className="supply-popup__close" onClick={() => setSupplyPopup(false)}>×</button>
-            <h3 className="supply-popup__title">Supply Breakdown</h3>
-            <div className="supply-popup__stat">
-              <span>Income</span>
-              <strong>{Math.floor(state.hud.supply.income)}</strong>
-            </div>
-            <div className="supply-popup__stat">
-              <span>Used</span>
-              <strong>{state.hud.supply.used}</strong>
-            </div>
-            <div className="supply-popup__stat">
-              <span>Balance</span>
-              <strong className={state.hud.supply.deficit > 0 ? 'supply-popup--deficit' : 'supply-popup--surplus'}>
-                {state.hud.supply.deficit > 0 ? `-${state.hud.supply.deficit.toFixed(1)}` : `+${(state.hud.supply.income - state.hud.supply.used).toFixed(1)}`} per turn
-              </strong>
-            </div>
-            {state.hud.exhaustion && state.hud.exhaustion.points > 0 && (
-              <>
-                <div className="supply-popup__divider">Penalties</div>
-                <div className="supply-popup__stat supply-popup__stat--penalty">
-                  <span>Exhaustion</span>
-                  <span>{state.hud.exhaustion.points.toFixed(1)} pts</span>
-                </div>
-                <div className="supply-popup__stat supply-popup__stat--penalty">
-                  <span>Production</span>
-                  <span>-{Math.round(state.hud.exhaustion.productionPenalty * 100)}%</span>
-                </div>
-                <div className="supply-popup__stat supply-popup__stat--penalty">
-                  <span>Morale</span>
-                  <span>-{state.hud.exhaustion.moralePenalty} per unit</span>
-                </div>
-              </>
-            )}
-            {recoveringCityCount > 0 && (
-              <div className="supply-popup__note">
-                ⚠ {recoveringCityCount} city{recoveringCityCount !== 1 ? 'ies' : 'y'} recovering from capture
-              </div>
-            )}
-          </div>
-        </div>
-      )}
       <div>
         <p className="eyebrow">War-Civ 2</p>
         <h1>{state.hud.title}</h1>
@@ -294,6 +250,50 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
           </div>
         ) : null}
       </div>
+      {supplyPopup && state.hud.supply && (
+        <div className="supply-popup-overlay" onClick={() => setSupplyPopup(false)}>
+          <div className="supply-popup" onClick={(e) => e.stopPropagation()}>
+            <button className="supply-popup__close" onClick={() => setSupplyPopup(false)}>×</button>
+            <h3 className="supply-popup__title">Supply Breakdown</h3>
+            <div className="supply-popup__stat">
+              <span>Income</span>
+              <strong>{Math.floor(state.hud.supply.income)}</strong>
+            </div>
+            <div className="supply-popup__stat">
+              <span>Used</span>
+              <strong>{state.hud.supply.used}</strong>
+            </div>
+            <div className="supply-popup__stat">
+              <span>Balance</span>
+              <strong className={state.hud.supply.deficit > 0 ? 'supply-popup--deficit' : 'supply-popup--surplus'}>
+                {state.hud.supply.deficit > 0 ? `-${state.hud.supply.deficit.toFixed(1)}` : `+${(state.hud.supply.income - state.hud.supply.used).toFixed(1)}`} per turn
+              </strong>
+            </div>
+            {state.hud.exhaustion && state.hud.exhaustion.points > 0 && (
+              <>
+                <div className="supply-popup__divider">Penalties</div>
+                <div className="supply-popup__stat supply-popup__stat--penalty">
+                  <span>Exhaustion</span>
+                  <span>{state.hud.exhaustion.points.toFixed(1)} pts</span>
+                </div>
+                <div className="supply-popup__stat supply-popup__stat--penalty">
+                  <span>Production</span>
+                  <span>-{Math.round(state.hud.exhaustion.productionPenalty * 100)}%</span>
+                </div>
+                <div className="supply-popup__stat supply-popup__stat--penalty">
+                  <span>Morale</span>
+                  <span>-{state.hud.exhaustion.moralePenalty} per unit</span>
+                </div>
+              </>
+            )}
+            {recoveringCityCount > 0 && (
+              <div className="supply-popup__note">
+                ⚠ {recoveringCityCount} city{recoveringCityCount !== 1 ? 'ies' : 'y'} recovering from capture
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
