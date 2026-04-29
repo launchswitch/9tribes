@@ -125,9 +125,9 @@ export function previewMove(
   // ZoC does NOT add to cost — it triggers a forced-stop (all moves consumed) instead.
   let totalCost = terrain.movementCost + movementModifier + amphibiousLandingPenalty;
 
-  // Endless Stride (desert_nomads signature): all faction units ignore terrain costs
+  // Endless Stride (desert_nomads signature): faction units ignore terrain costs on desert only
   const factionAbility = rulesRegistry.getSignatureAbility(unit.factionId);
-  if (factionAbility?.endlessStride) {
+  if (factionAbility?.endlessStride && targetTerrainId === 'desert') {
     totalCost = 1;
   }
 
