@@ -100,6 +100,7 @@ export class GameController {
         break;
       case 'cancel_city_production':
       case 'remove_from_queue':
+      case 'reorder_queue':
         if (this.session) {
           this.session.dispatch(action);
         }

@@ -220,6 +220,9 @@ function KnowledgeGainedShellContent({
         onRemoveFromQueue={(cityId, queueIndex) =>
           controller.dispatch({ type: 'remove_from_queue', cityId, queueIndex })
         }
+        onReorderQueue={(cityId, fromIndex, toIndex) =>
+          controller.dispatch({ type: 'reorder_queue', cityId, fromIndex, toIndex })
+        }
         onSetTargetingMode={(mode) =>
           controller.dispatch({ type: 'set_targeting_mode', mode })
         }

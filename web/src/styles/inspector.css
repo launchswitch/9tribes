@@ -623,9 +623,14 @@
   background: rgba(50, 40, 30, 0.25);
   font-size: 12px;
   transition: background 120ms;
+  cursor: grab;
 }
 .pq-queue-item:hover {
   background: rgba(50, 40, 30, 0.38);
+}
+.pq-queue-item--dragging {
+  opacity: 0.5;
+  cursor: grabbing;
 }
 
 .pq-queue-item__index {

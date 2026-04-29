@@ -380,6 +380,7 @@ export type GameAction =
   | { type: 'set_city_production'; cityId: string; prototypeId: string }
   | { type: 'cancel_city_production'; cityId: string }
   | { type: 'remove_from_queue'; cityId: string; queueIndex: number }
+  | { type: 'reorder_queue'; cityId: string; fromIndex: number; toIndex: number }
   | { type: 'set_targeting_mode'; mode: 'move' | 'attack' }
   | { type: 'move_unit'; unitId: string; destination: HexCoord }
   | { type: 'attack_unit'; attackerId: string; defenderId: string }

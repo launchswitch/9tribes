@@ -12,6 +12,7 @@ type ContextInspectorProps = {
   onSetCityProduction: (cityId: string, prototypeId: string) => void;
   onCancelCityProduction: (cityId: string) => void;
   onRemoveFromQueue: (cityId: string, queueIndex: number) => void;
+  onReorderQueue: (cityId: string, fromIndex: number, toIndex: number) => void;
   onSetTargetingMode: (mode: 'move' | 'attack') => void;
   onPrepareAbility: (unitId: string, ability: 'brace' | 'ambush') => void;
   onBoardTransport: (unitId: string, transportId: string) => void;
@@ -50,11 +51,12 @@ function getDomainDescription(domainId: string): string | undefined {
   return domain?.baseEffect?.description;
 }
 
-export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProduction, onCancelCityProduction, onRemoveFromQueue, onSetTargetingMode, onPrepareAbility, onBoardTransport, onDisembarkUnit, onDeselect, onCloseCityProduction }: ContextInspectorProps) {
+export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProduction, onCancelCityProduction, onRemoveFromQueue, onReorderQueue, onSetTargetingMode, onPrepareAbility, onBoardTransport, onDisembarkUnit, onDeselect, onCloseCityProduction }: ContextInspectorProps) {
   const [cityTab, setCityTab] = useState<CityTab>('overview');
   const [factionPopup, setFactionPopup] = useState<FactionInfo | null>(null);
   const [domainPopup, setDomainPopup] = useState<{domainId: string; name: string; description: string} | null>(null);
   const [unitPopupOpen, setUnitPopupOpen] = useState(false);
+  const [draggedQueueIndex, setDraggedQueueIndex] = useState<number | null>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const [tabsCanScrollLeft, setTabsCanScrollLeft] = useState(false);
   const [tabsCanScrollRight, setTabsCanScrollRight] = useState(false);
@@ -679,7 +681,20 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                       <span className="pq-queue__count">{selectedCity.production.queue.length}</span>
                     </div>
                     {selectedCity.production.queue.map((item, index) => (
-                      <div className="pq-queue-item" key={`${item.type}-${item.id}-${index}`}>
+                      <div
+                        className={`pq-queue-item${draggedQueueIndex === index ? ' pq-queue-item--dragging' : ''}`}
+                        key={`${item.type}-${item.id}-${index}`}
+                        draggable={selectedCity.canManageProduction}
+                        onDragStart={() => setDraggedQueueIndex(index)}
+                        onDragEnd={() => setDraggedQueueIndex(null)}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={() => {
+                          if (draggedQueueIndex !== null && draggedQueueIndex !== index) {
+                            onReorderQueue(selectedCity.cityId, draggedQueueIndex, index);
+                          }
+                          setDraggedQueueIndex(null);
+                        }}
+                      >
                         <span className="pq-queue-item__index">{index + 1}</span>
                         <span className="pq-queue-item__name">{item.name}</span>
                         <span className="pq-queue-item__cost">

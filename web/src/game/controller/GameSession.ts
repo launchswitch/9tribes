@@ -19,6 +19,7 @@ import {
   getPrototypeQueueCost,
   queueUnit,
   removeFromQueue,
+  reorderQueue,
 } from '../../../../src/systems/productionSystem.js';
 import { syncFactionSettlementIds } from '../../../../src/systems/factionOwnershipSystem.js';
 import { advanceTurn } from '../../../../src/systems/turnSystem.js';
@@ -375,6 +376,9 @@ export class GameSession {
         return;
       case 'remove_from_queue':
         this.removeFromQueue(action.cityId, action.queueIndex);
+        return;
+      case 'reorder_queue':
+        this.reorderQueue(action.cityId, action.fromIndex, action.toIndex);
         return;
       case 'start_research':
         this.applyStartResearch(action.nodeId);
@@ -828,6 +832,17 @@ export class GameSession {
     const nextCities = new Map(this.state.cities);
     nextCities.set(city.id, updatedCity);
     this.state = { ...this.state, cities: nextCities };
+  }
+
+  private reorderQueue(cityId: string, fromIndex: number, toIndex: number) {
+    const city = this.state.cities.get(cityId as never);
+    if (!city || city.factionId !== this.state.activeFactionId || !this.isHumanControlledFaction(city.factionId)) return;
+
+    const updatedCity = reorderQueue(city, fromIndex, toIndex);
+    const nextCities = new Map(this.state.cities);
+    nextCities.set(city.id, updatedCity);
+    this.state = { ...this.state, cities: nextCities };
+    this.record('turn', `Reordered ${city.name} production queue.`);
   }
 
   private applyStartResearch(nodeId: string) {

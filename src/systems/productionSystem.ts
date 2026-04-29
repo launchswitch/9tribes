@@ -527,6 +527,21 @@ export function removeFromQueue(city: City, index: number): City {
 }
 
 /**
+ * Reorder items in the production queue.
+ */
+export function reorderQueue(city: City, fromIndex: number, toIndex: number): City {
+  if (fromIndex < 0 || fromIndex >= city.productionQueue.length) return city;
+  if (toIndex < 0 || toIndex >= city.productionQueue.length) return city;
+  const queue = [...city.productionQueue];
+  const [moved] = queue.splice(fromIndex, 1);
+  queue.splice(toIndex, 0, moved);
+  return {
+    ...city,
+    productionQueue: queue,
+  };
+}
+
+/**
  * Get the city's total production yield per turn.
  */
 export function getCityProductionYield(city: City): number {
