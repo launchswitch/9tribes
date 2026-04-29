@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { useState, useEffect } from 'react';
 import type { ClientState } from '../game/types/clientState';
 import { DropdownMenu } from './DropdownMenu';
 import { SynergyChip } from './SynergyChip';
@@ -51,9 +52,18 @@ const helpMenu: MenuEntry[] = [
 ];
 
 export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls, onRestartSession, onMenuAction }: GameMenuBarProps) {
+  const [factionPopupOpen, setFactionPopupOpen] = useState(false);
   const activeFaction = state.world.factions.find((f) => f.id === state.activeFactionId);
   const activeFactionSummary = state.hud.factionSummaries.find((summary) => summary.id === state.activeFactionId);
   const factionColor = activeFaction?.color ?? '#d6a34b';
+
+  useEffect(() => {
+    window.openFactionPopup = () => {
+      console.log('GameMenuBar: opening faction popup!');
+      setFactionPopupOpen(true);
+    };
+    return () => { window.openFactionPopup = undefined; };
+  }, []);
 
   const handleMenuAction = (action: string) => {
     if (action === 'open_research') {
@@ -79,6 +89,15 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
 
   return (
     <nav className="gmb-root" style={{ '--gmb-faction-color': factionColor } as CSSProperties}>
+      {factionPopupOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setFactionPopupOpen(false)}>
+          <div style={{ background: '#2a241e', padding: 20, borderRadius: 8, maxWidth: 400 }} onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setFactionPopupOpen(false)}>×</button>
+            <h3>Faction: {state.hud.activeFactionName}</h3>
+            <p>Faction popup works!</p>
+          </div>
+        </div>
+      )}
       <div className="gmb-menus">
         <DropdownMenu label="Game" items={buildGameMenu(state.actions.canUndo)} onAction={handleMenuAction} />
         <DropdownMenu label="Reports" items={reportsMenu} onAction={handleMenuAction} />
@@ -87,7 +106,7 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
       </div>
 
       <div className="gmb-status">
-        <div className="gmb-chip gmb-chip--faction">
+        <div className="gmb-chip gmb-chip--faction" onClick={() => window.openFactionPopup?.()}>
           <span className="gmb-swatch" style={{ background: factionColor }} />
           <span>{state.hud.activeFactionName}</span>
         </div>
