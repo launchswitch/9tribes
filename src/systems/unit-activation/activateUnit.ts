@@ -47,7 +47,7 @@ import {
 import { findBestTargetChoice, findBestRangedTarget } from './targeting.js';
 import { performStrategicMovement } from './movement.js';
 import { RENDEZVOUS_READY_DISTANCE } from '../strategic-ai/rendezvous.js';
-import { isSettlerPrototype } from '../productionSystem.js';
+import { isSettlerPrototype, getAvailableProductionPrototypes, getPrototypeQueueCost, queueUnit } from '../productionSystem.js';
 import { createCityId } from '../../core/ids.js';
 import { createCitySiteBonuses, findBestCitySiteForFaction, getSettlementOccupancyBlocker } from '../citySiteSystem.js';
 import { syncFactionSettlementIds } from '../factionOwnershipSystem.js';
@@ -140,6 +140,16 @@ export function activateUnit(
             siteBonuses: createCitySiteBonuses(current.map, actingUnit.position, 2),
             foundedRound: current.round,
           });
+
+          // Set default production to cheapest available prototype
+          const availableProtos = getAvailableProductionPrototypes(current, factionId, registry);
+          if (availableProtos.length > 0) {
+            const firstProto = availableProtos[0];
+            const cost = getPrototypeQueueCost(firstProto);
+            let updatedCity = cities.get(cityId)!;
+            updatedCity = queueUnit(updatedCity, firstProto.id, firstProto.chassisId, cost);
+            cities.set(cityId, updatedCity);
+          }
 
           const units = new Map(current.units);
           units.delete(unitId);
