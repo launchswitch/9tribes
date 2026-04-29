@@ -11,7 +11,7 @@ type TopHudProps = {
 };
 
 export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
-  const [factionPopup, setFactionPopup] = useState<boolean>(false);
+  const [factionPopup, setFactionPopup] = useState<boolean>(true);
   const [supplyPopup, setSupplyPopup] = useState<boolean>(false);
   
   const handleFactionClick = () => {
