@@ -448,6 +448,11 @@ export function canProducePrototype(
     }
   }
 
+  // Summon-only units (like Warlord): cannot be produced, only summoned
+  if (prototypeTags.includes('summon')) {
+    return false;
+  }
+
   // If faction already has a prototype using this chassis (e.g. starting unit),
   // they've proven they can build it — skip domain gate.
   const hasExistingChassisPrototype = Array.from(state.prototypes.values()).some(
