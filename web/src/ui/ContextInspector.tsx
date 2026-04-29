@@ -420,20 +420,6 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
             {/* Action Buttons (play mode only) */}
             {state.mode === 'play' ? (
               <div className="ci-actions">
-                <button
-                  type="button"
-                  className={`ci-action-btn${state.actions.targetingMode === 'move' ? ' ci-action-btn--active' : ''}`}
-                  onClick={() => onSetTargetingMode('move')}
-                >
-                  Move
-                </button>
-                <button
-                  type="button"
-                  className={`ci-action-btn${state.actions.targetingMode === 'attack' ? ' ci-action-btn--active' : ''}`}
-                  onClick={() => onSetTargetingMode('attack')}
-                >
-                  Attack
-                </button>
                 {selectedUnit.canBrace ? (
                   <button
                     type="button"

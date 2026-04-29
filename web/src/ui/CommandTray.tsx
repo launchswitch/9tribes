@@ -101,20 +101,6 @@ export function CommandTray({ state, onEndTurn, onSetTargetingMode, onBuildFort,
       <div className="ct-segment ct-segment--actions">
         {selectedUnit ? (
           <>
-            <button
-              type="button"
-              className={`ct-mode-btn${state.actions.targetingMode === 'move' ? ' ct-mode-btn--active' : ''}`}
-              onClick={() => onSetTargetingMode('move')}
-            >
-              Move
-            </button>
-            <button
-              type="button"
-              className={`ct-mode-btn${state.actions.targetingMode === 'attack' ? ' ct-mode-btn--active' : ''}`}
-              onClick={() => onSetTargetingMode('attack')}
-            >
-              Attack
-            </button>
             {canBuildFort ? (
               <button
                 type="button"
