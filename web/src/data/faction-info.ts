@@ -95,10 +95,10 @@ jungle_clan: {
     signatureUnit: 'Desert Immortals', specialTrait: 'Desert Adaptation', specialAbility: 'Full HP regen each turn',
     uniqueMechanic: 'desert_adaptation', passiveTrait: 'camel_mobility',
     unitStats: {
-      attack: 5, defense: 11, health: 18, moves: 3, range: 1,
+      attack: 5, defense: 11, health: 18, moves: 2, range: 1,
       tags: ['camel', 'mounted', 'self_heal'],
       ability: 'Self-Heal: Fully regenerates HP at the end of each turn.',
-      description: 'The legendary Desert Immortals are unstoppable — they heal from any wound and march forever.'
+      description: 'The legendary Desert Immortals are unstoppable — they heal from any wound and march forever. Limited to 1 on map.'
     },
   },
   coral_people: {
