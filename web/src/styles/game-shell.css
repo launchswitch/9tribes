@@ -12,12 +12,14 @@
   position: absolute;
   inset: 0;
   z-index: 0;
+  pointer-events: none;
 }
 
 .game-shell--v2 .game-shell__canvas-host canvas {
   display: block;
   width: 100% !important;
   height: 100% !important;
+  pointer-events: auto;
 }
 
 /* ═══════════════════════════════════════
@@ -78,6 +80,10 @@
   color: var(--text);
   border: none;
   cursor: default;
+}
+
+.gmb-chip--faction {
+  cursor: pointer;
 }
 
 .gmb-chip--villages-surplus {
