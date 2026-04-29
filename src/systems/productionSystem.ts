@@ -434,6 +434,20 @@ export function canProducePrototype(
     return false;
   }
 
+  // Desert Immortals: max 1 on map
+  const prototypeTags = prototype.tags ?? [];
+  if (prototypeTags.includes('self_heal')) {
+    const immortalCount = Array.from(state.units.values()).filter(
+      (u) => u.factionId === factionId && u.hp > 0,
+    ).filter((u) => {
+      const proto = state.prototypes.get(u.prototypeId);
+      return proto?.tags?.includes('self_heal') ?? false;
+    }).length;
+    if (immortalCount >= 1) {
+      return false;
+    }
+  }
+
   // If faction already has a prototype using this chassis (e.g. starting unit),
   // they've proven they can build it — skip domain gate.
   const hasExistingChassisPrototype = Array.from(state.prototypes.values()).some(

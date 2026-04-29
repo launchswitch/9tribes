@@ -109,12 +109,18 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
     const key = hexToKey(tile.position);
     const ownerFactionId = getHexOwner(tile.position, state) ?? null;
     const ownerFaction = ownerFactionId ? state.factions.get(ownerFactionId) : null;
+    const visibility = hexVisibility.get(key) ?? 'hidden';
+    // Oasis only shows as oasis when currently spotted by camel unit
+    // Once spotted, stays visible forever (visible or explored)
+    const effectiveTerrain = tile.terrain === 'oasis' && visibility !== 'visible' && visibility !== 'explored'
+      ? 'desert'
+      : tile.terrain;
     return {
       key,
       q: tile.position.q,
       r: tile.position.r,
-      terrain: tile.terrain,
-      visibility: hexVisibility.get(key) ?? 'hidden' as const,
+      terrain: effectiveTerrain,
+      visibility,
       ownerFactionId,
       ownerFactionName: ownerFaction?.name ?? ownerFactionId,
     };
@@ -230,7 +236,8 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
         spriteKey: getSpriteKeyForUnit(unit.factionId, prototype?.name ?? unit.prototypeId, chassisId, prototype?.sourceRecipeId),
         facing: unit.facing ?? 0,
         visible: unit.factionId === source.playerFactionId
-          ? (hexVisibility.get(hexToKey(unit.position)) ?? 'hidden') !== 'hidden'
+          ? (hexVisibility.get(hexToKey(unit.position)) ?? 'hidden') !== 'hidden' ||
+            tile?.terrain === 'oasis' // Friendly units on hidden oasis are still visible
           : (hexVisibility.get(hexToKey(unit.position)) ?? 'hidden') === 'visible',
         veteranLevel: unit.veteranLevel,
         xp: unit.xp,

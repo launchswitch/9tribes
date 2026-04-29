@@ -180,13 +180,19 @@ export function calculateVisibility(state: GameState, factionId: FactionId): Fac
     }
   }
 
-  // Keys that were 'visible' or 'explored' before → 'explored'
+  // Keys that were 'visible' or 'explored' before → keep visibility for oasis
   for (const [key, visibility] of previousVisibility) {
     if (visibility === 'visible' || visibility === 'explored') {
       if (!newVisibleKeys.has(key)) {
-        // Transitioning from visible to explored - capture snapshot
-        captureLastSeenSnapshot(state, key, lastSeen);
-        hexVisibility.set(key, 'explored');
+        const tile = state.map?.tiles.get(key);
+        // Once an oasis is spotted, it stays visible forever
+        if (tile?.terrain === 'oasis') {
+          hexVisibility.set(key, 'visible');
+        } else {
+          // Transitioning from visible to explored - capture snapshot
+          captureLastSeenSnapshot(state, key, lastSeen);
+          hexVisibility.set(key, 'explored');
+        }
       }
     }
   }
