@@ -109,6 +109,15 @@ export class MapScene extends Phaser.Scene {
     // Block right-click from triggering any default browser behavior or move actions.
     this.input.mouse?.disableContextMenu();
 
+    // Ensure canvas doesn't show context menu - add both Phaser and native handlers
+    const canvas = this.game.canvas as HTMLCanvasElement;
+    if (canvas) {
+      canvas.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }, { capture: true, passive: false });
+    }
+
     this.input.keyboard?.on('keydown-A', () => {
       const state = this.latestState;
       const selectedUnitId = state?.selected?.type === 'unit' ? state.selected.unitId : null;
