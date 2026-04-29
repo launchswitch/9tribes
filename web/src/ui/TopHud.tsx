@@ -87,7 +87,7 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
             type="button"
             className="status-chip status-chip--active-faction"
             style={{ '--chip-color': activeFactionColor, background: 'transparent', border: 'none', padding: '4px 12px', cursor: 'pointer' } as CSSProperties}
-            onClick={() => setFactionPopup(true)}
+            onClick={() => { window.alert('Faction clicked!'); setFactionPopup(true); }}
           >
             <span className="chip-label">Faction</span>
             <strong>{state.hud.activeFactionName}</strong>
