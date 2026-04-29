@@ -163,7 +163,7 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
       </div>
 
       <div className="gmb-status">
-        <div className="gmb-chip gmb-chip--faction" onClick={() => setFactionPopupOpen(true)}>
+        <div className="gmb-chip gmb-chip--faction" onClick={() => { console.log('FACTION CLICKED', state.activeFactionId, factionInfo); setFactionPopupOpen(true); }}>
           <span className="gmb-swatch" style={{ background: factionColor }} />
           <span>{state.hud.activeFactionName}</span>
         </div>
