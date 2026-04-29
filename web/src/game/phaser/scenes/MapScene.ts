@@ -429,10 +429,30 @@ export class MapScene extends Phaser.Scene {
 
     const key = `${coord.q},${coord.r}`;
     const selectedUnitId = state.actions.selectedUnitId;
-
-    // Right-click on a unit → select it (shows side popout)
     const clickedUnit = state.world.units.find((u) => u.q === coord.q && u.r === coord.r);
-    if (clickedUnit) {
+
+    // Right-click on enemy unit with friendly selected → attack if in range, else move towards
+    if (clickedUnit && !clickedUnit.isActiveFaction && selectedUnitId) {
+      const attackTarget = state.actions.attackTargets.find((t) => t.unitId === clickedUnit.id);
+      if (attackTarget) {
+        this.controller.dispatch({
+          type: 'attack_unit',
+          attackerId: selectedUnitId,
+          defenderId: clickedUnit.id,
+        });
+        return;
+      }
+      // Not in range → queue move towards enemy
+      this.controller.dispatch({
+        type: 'queue_move',
+        unitId: selectedUnitId,
+        destination: { q: coord.q, r: coord.r },
+      });
+      return;
+    }
+
+    // Right-click on own unit → select it
+    if (clickedUnit && clickedUnit.isActiveFaction) {
       this.controller.dispatch({ type: 'select_unit', unitId: clickedUnit.id });
       return;
     }
