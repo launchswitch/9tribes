@@ -12,6 +12,14 @@ window.onunhandledrejection = (event) => {
   console.error('UNHANDLED REJECTION:', event.reason);
 };
 
+// Prevent right-click context menu globally
+document.addEventListener('contextmenu', (e) => {
+  const target = e.target as HTMLElement;
+  if (target.tagName === 'CANVAS' || target.closest('canvas') || target.closest('.game-shell--v2')) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
