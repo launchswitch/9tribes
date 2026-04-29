@@ -5,6 +5,11 @@ import { MapScene } from './scenes/MapScene';
 
 export function createGame(parent: HTMLDivElement, controller: GameController) {
   try {
+    // Prevent right-click context menu on the game container
+    parent.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+
     return new Phaser.Game({
       type: Phaser.AUTO,
       parent,
