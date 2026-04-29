@@ -663,6 +663,106 @@
   border-color: var(--danger, #e55333);
 }
 
+.signature-unit-click {
+  cursor: pointer;
+  color: var(--highlight, #e3c46e);
+  text-decoration: underline;
+}
+
+.signature-unit-click:hover {
+  color: var(--text, #fff);
+}
+
+/* Unit stats panel */
+.unit-stats-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-primary, #1a1915);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0 0 12px 12px;
+  padding: 16px;
+  max-width: 400px;
+  z-index: 101;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.unit-stats-panel__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.unit-stats-panel__name {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.unit-stats-panel__stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 8px;
+}
+
+.unit-stats-panel__stats div {
+  text-align: center;
+}
+
+.unit-stats-panel__stats span {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.unit-stats-panel__stats strong {
+  display: block;
+  font-size: 18px;
+  color: var(--highlight, #e3c46e);
+}
+
+.unit-stats-panel__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 8px 0;
+}
+
+.unit-tag {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  text-transform: capitalize;
+}
+
+.unit-stats-panel__ability {
+  padding: 8px;
+  background: rgba(227, 196, 136, 0.1);
+  border-radius: 4px;
+  margin: 8px 0;
+  font-size: 12px;
+}
+
+.unit-stats-panel__desc {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 8px;
+}
+
 /* Faction info panel (below GameMenuBar) */
 .faction-info-panel {
   position: absolute;

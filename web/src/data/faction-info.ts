@@ -13,10 +13,20 @@ export interface FactionInfo {
   specialAbility: string;
   uniqueMechanic: string;
   passiveTrait: string;
+  unitStats?: {
+    attack: number;
+    defense: number;
+    health: number;
+    moves: number;
+    range: number;
+    tags: string[];
+    ability: string;
+    description: string;
+  };
 }
 
 const FACTION_INFO_MAP: Record<string, FactionInfo> = {
-  jungle_clan: {
+jungle_clan: {
     id: 'jungle_clan', name: 'Jungle Clans', color: '#2f7d4a', nativeDomain: 'Venomcraft', homeBiome: 'Jungle',
     intro: 'The Jungle Clans thrive where others fear to tread — deep in the canopy, where poison drips from every leaf and visibility ends at arm\'s reach.',
     strengths: ['Jungle interiors are your kingdom', 'Poison warfare means attrition advantage', 'Enemies fight blind while you strike from concealment'],
@@ -24,6 +34,12 @@ const FACTION_INFO_MAP: Record<string, FactionInfo> = {
     tip: 'Lure enemies into the jungle by retreating, then spring your real force on them.',
     signatureUnit: 'Serpent God', specialTrait: 'Jungle Stalkers', specialAbility: 'Poison on attacks + stealth in jungle',
     uniqueMechanic: 'jungle_poison', passiveTrait: 'jungle_stalkers',
+    unitStats: {
+      attack: 16, defense: 8, health: 90, moves: 4, range: 1,
+      tags: ['beast', 'jungle', 'poison', 'melee'],
+      ability: 'Poison Venom: Attacks apply poison dealing 5 damage/turn for 3 turns. Immune to jungle attrition.',
+      description: 'The colossal Serpent God coils through the jungle, its venomous bite capable of felling the toughest warriors.'
+    },
   },
   druid_circle: {
     id: 'druid_circle', name: 'Druid Circle', color: '#5d8f57', nativeDomain: 'Nature Healing', homeBiome: 'Forest',
@@ -33,6 +49,12 @@ const FACTION_INFO_MAP: Record<string, FactionInfo> = {
     tip: 'Plant your forces just inside a forest edge and let enemies commit.',
     signatureUnit: 'Druid Wizard', specialTrait: 'Healing Aura', specialAbility: 'Aura boosts nearby units defense',
     uniqueMechanic: 'healing_druids', passiveTrait: 'forest_regeneration',
+    unitStats: {
+      attack: 10, defense: 12, health: 60, moves: 4, range: 3,
+      tags: ['magic', 'ranged', 'healing'],
+      ability: 'Nature\'s Grace: Healing aura restores 10 health to all nearby friendly units each turn.',
+      description: 'The Druid Wizard channels the forest\'s power, weaving spells that mend wounds and strengthen resolve.'
+    },
   },
   hill_clan: {
     id: 'hill_clan', name: 'Hill Engineers', color: '#8b7355', nativeDomain: 'Fortress Discipline', homeBiome: 'Hill',
@@ -42,6 +64,12 @@ const FACTION_INFO_MAP: Record<string, FactionInfo> = {
     tip: 'Secure high ground early and fortify. Let enemies come to you.',
     signatureUnit: 'War Tower', specialTrait: 'Hill Defenders', specialAbility: 'City garrison morale boost',
     uniqueMechanic: 'fortressDefense', passiveTrait: 'hill_defenders',
+    unitStats: {
+      attack: 8, defense: 18, health: 120, moves: 2, range: 3,
+      tags: ['defensive', 'siege', 'structure'],
+      ability: 'Fortress Garrison: +30% defense when garrisoning a city. Cannot move voluntarily.',
+      description: 'The imposing War Tower stands as a bastion of hill defense, its elevated position commanding the battlefield.'
+    },
   },
   savannah_lions: {
     id: 'savannah_lions', name: 'Savannah Lions', color: '#c9a227', nativeDomain: 'Charge', homeBiome: 'Savannah',
@@ -51,15 +79,12 @@ const FACTION_INFO_MAP: Record<string, FactionInfo> = {
     tip: 'Angle your approach so War Elephants hit the flank — the bonus is just as devastating.',
     signatureUnit: 'War Elephant', specialTrait: 'Charge Momentum', specialAbility: 'Elephant tramples enemies',
     uniqueMechanic: 'charge_momentum', passiveTrait: 'elephant_charge',
-  },
-  steppe_clan: {
-    id: 'steppe_clan', name: 'Steppe Riders', color: '#b98a2f', nativeDomain: 'Skirmish Pursuit', homeBiome: 'Plains',
-    intro: 'Speed is life for the Steppe Riders - strike fast and vanish before response.',
-    strengths: ['Dictate when/where fights happen', 'Foraging Riders = +15% atk, +20% def on plains', 'Slow armies are free food'],
-    weaknesses: ['Camel riders counter horses', 'Fortified spear walls stop you'],
-    tip: 'Use fast unit as bait, hit exposed flank with cavalry.',
-    signatureUnit: 'Warlord', specialTrait: 'Foraging Riders', specialAbility: 'Aura boosts nearby cavalry attack/defense',
-    uniqueMechanic: 'foraging_riders', passiveTrait: 'foraging_riders',
+    unitStats: {
+      attack: 18, defense: 12, health: 150, moves: 4, range: 1,
+      tags: ['beast', 'charge', 'trample'],
+      ability: 'Trample: Deal 10 damage to any unit in the target tile before combat. +50% attack when charging.',
+      description: 'The massive War Elephant crashes into enemy lines with terrifying force, trampling all who stand in its path.'
+    },
   },
   desert_nomads: {
     id: 'desert_nomads', name: 'Desert Nomads', color: '#d4a574', nativeDomain: 'Camel Adaptation', homeBiome: 'Desert',
@@ -69,6 +94,12 @@ const FACTION_INFO_MAP: Record<string, FactionInfo> = {
     tip: 'Use the desert as your highway. Enemies struggle where you thrive.',
     signatureUnit: 'Camel Rider', specialTrait: 'Desert Adaptation', specialAbility: 'Camel tramples, immune to heat',
     uniqueMechanic: 'desert_adaptation', passiveTrait: 'camel_mobility',
+    unitStats: {
+      attack: 12, defense: 8, health: 70, moves: 6, range: 1,
+      tags: ['cavalry', 'desert', 'trample'],
+      ability: 'Desert Adapted: No movement penalty in desert tiles. Immune to heat damage. Tramples non-cavalry.',
+      description: 'The legendary Camel Rider traverses the endless desert with ease, striking from the heat shimmer before vanishing.'
+    },
   },
   coral_people: {
     id: 'coral_people', name: 'Pirate Lords', color: '#2a9d8f', nativeDomain: 'Slaving', homeBiome: 'Coast',
@@ -78,6 +109,12 @@ const FACTION_INFO_MAP: Record<string, FactionInfo> = {
     tip: 'Raid coastal settlements and capture valuable units.',
     signatureUnit: 'Galley', specialTrait: 'Capturer', specialAbility: 'Loot increases faction income',
     uniqueMechanic: 'greedy', passiveTrait: 'capturer',
+    unitStats: {
+      attack: 10, defense: 10, health: 80, moves: 5, range: 1,
+      tags: ['naval', 'transport', 'capture'],
+      ability: 'Capture: Defeated enemy units have 50% chance to join your faction instead of being destroyed.',
+      description: 'The versatile Galley carries raiders across shallow waters, perfect for coastal raids and capturing enemies.'
+    },
   },
   river_people: {
     id: 'river_people', name: 'River People', color: '#4f86c6', nativeDomain: 'River Stealth', homeBiome: 'River',
@@ -85,8 +122,14 @@ const FACTION_INFO_MAP: Record<string, FactionInfo> = {
     strengths: ['River corridors give unmatched mobility', 'River Stealth is powerful', 'Amphibious assault is devastating'],
     weaknesses: ['Getting dragged into dry fights strips advantages', 'Opponents can bait you'],
     tip: 'Map out river networks early — they\'re your highway system.',
-    signatureUnit: 'Ancient Alligator', specialTrait: 'River Assault', specialAbility: 'Amphibious units deal bonus damage',
+    signatureUnit: 'Ancient Alligator', specialTrait: 'River Assault', specialAbility: 'Ambushes from rivers',
     uniqueMechanic: 'amphibious_assault', passiveTrait: 'river_assault',
+    unitStats: {
+      attack: 16, defense: 8, health: 100, moves: 5, range: 1,
+      tags: ['beast', 'river', 'ambush', 'amphibious'],
+      ability: 'River Ambush: +50% attack when attacking from river tiles. Can emerge from any river hex.',
+      description: 'The Ancient Alligator lurks beneath river surfaces, emerging to drag unlucky foes into the depths.'
+    },
   },
   frost_wardens: {
     id: 'frost_wardens', name: 'Arctic Wardens', color: '#a8dadc', nativeDomain: 'Heavy Hitter', homeBiome: 'Tundra',
@@ -96,6 +139,12 @@ const FACTION_INFO_MAP: Record<string, FactionInfo> = {
     tip: 'Own the frozen positions. Let opponents fight over "good" land.',
     signatureUnit: 'Polar Bear', specialTrait: 'Cold-Hardened', specialAbility: 'Attacks chill nearby enemies',
     uniqueMechanic: 'cold_hardened', passiveTrait: 'heavy_defense',
+    unitStats: {
+      attack: 18, defense: 14, health: 120, moves: 4, range: 1,
+      tags: ['beast', 'frost', 'cold'],
+      ability: 'Chilling Presence: Attacks apply Cold (-5 defense) for 2 turns. +50% attack in cold terrain.',
+      description: 'The mighty Polar Bear is the apex predator of the frozen north, its icy roar freezing all who oppose the Wardens.'
+    },
   },
 };
 
