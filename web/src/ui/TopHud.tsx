@@ -20,8 +20,14 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
 
   const factionInfo = useMemo(() => {
     const id = state.activeFactionId;
-    if (!id) return null;
-    return getFactionInfo(id) ?? null;
+    console.log('TopHud factionId:', id);
+    if (!id) {
+      console.log('No active faction id');
+      return null;
+    }
+    const info = getFactionInfo(id);
+    console.log('Faction info for', id, ':', info);
+    return info ?? null;
   }, [state.activeFactionId]);
 
   return (
@@ -87,7 +93,7 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
             type="button"
             className="status-chip status-chip--active-faction"
             style={{ '--chip-color': activeFactionColor, background: 'transparent', border: 'none', padding: '4px 12px', cursor: 'pointer' } as CSSProperties}
-            onClick={() => { window.alert('Faction clicked!'); setFactionPopup(true); }}
+            onClick={() => { console.log('Faction button clicked'); setFactionPopup(true); }}
           >
             <span className="chip-label">Faction</span>
             <strong>{state.hud.activeFactionName}</strong>
