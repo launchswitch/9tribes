@@ -70,18 +70,24 @@ function readRecords(): SaveGameRecord[] {
   }
 
   try {
+    console.log('Reading from localStorage...');
     const raw = window.localStorage.getItem(STORAGE_KEY);
+    console.log('Raw storage:', raw);
     if (!raw) {
+      console.log('No raw data');
       return [];
     }
 
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) {
+      console.log('Not array');
       return [];
     }
 
+    console.log('Records found:', parsed.length);
     return parsed.filter(isSaveGameRecord);
-  } catch {
+  } catch (e) {
+    console.error('Error reading records:', e);
     return [];
   }
 }
