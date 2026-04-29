@@ -11,9 +11,13 @@ type TopHudProps = {
 };
 
 export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
-  console.log('TopHud rendering, activeFactionId:', state.activeFactionId);
   const [factionPopup, setFactionPopup] = useState<boolean>(false);
   const [supplyPopup, setSupplyPopup] = useState<boolean>(false);
+  
+  window.openFactionPopup = () => {
+    console.log('Opening faction popup!');
+    setFactionPopup(true);
+  };
   const activeFactionColor = state.world.factions.find((faction) => faction.id === state.activeFactionId)?.color ?? '#d6a34b';
   const recoveringCityCount = state.world.cities.filter(
     (city) => city.factionId === state.activeFactionId && city.turnsSinceCapture !== undefined,
@@ -94,11 +98,10 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
             type="button"
             className="status-chip status-chip--active-faction"
             style={{ '--chip-color': activeFactionColor, background: 'transparent', border: 'none', padding: '4px 12px', cursor: 'pointer' } as CSSProperties}
-            onMouseDown={() => console.log('MouseDown on faction button!')}
-            onMouseUp={() => console.log('MouseUp on faction button!')}
+            onClick={() => window.openFactionPopup?.()}
           >
             <span className="chip-label">Faction</span>
-            <strong onClick={() => console.log('Strong clicked!')}>{state.hud.activeFactionName}</strong>
+            <strong>{state.hud.activeFactionName}</strong>
           </button>
         <div className="status-chip">
           <span className="chip-label">Phase</span>
