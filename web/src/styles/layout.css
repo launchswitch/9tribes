@@ -666,17 +666,12 @@
 /* Faction popup */
 .faction-popup-overlay {
   position: fixed;
-  top: 60px;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: rgba(0, 0, 0, 0.7);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding-top: 20px;
   z-index: 200;
-  overflow-y: auto;
 }
 
 .faction-popup {
@@ -685,9 +680,10 @@
   border-radius: 12px;
   padding: 24px;
   max-width: 360px;
+  max-height: 80vh;
+  overflow-y: auto;
   position: relative;
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
-  margin-top: 20px;
 }
 
 .faction-popup__close {
