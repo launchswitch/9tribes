@@ -90,15 +90,14 @@ window.openFactionPopup = handleFactionClick;
           <span className="chip-label">Mode</span>
           <strong>{state.mode}</strong>
         </div>
-        <button
-            type="button"
-            className="status-chip status-chip--active-faction"
-            style={{ '--chip-color': activeFactionColor, background: 'transparent', border: 'none', padding: '4px 12px', cursor: 'pointer' } as CSSProperties}
-            onClick={() => window.openFactionPopup?.()}
-          >
-            <span className="chip-label">Faction</span>
-            <strong>{state.hud.activeFactionName}</strong>
-          </button>
+<div
+          className="status-chip status-chip--active-faction faction-click-target"
+          style={{ '--chip-color': activeFactionColor } as CSSProperties}
+          onClick={handleFactionClick}
+        >
+          <span className="chip-label">Faction</span>
+          <strong>{state.hud.activeFactionName}</strong>
+        </div>
         <div className="status-chip">
           <span className="chip-label">Phase</span>
           <strong>{state.hud.phaseLabel}</strong>
