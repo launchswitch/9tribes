@@ -73,7 +73,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
 
     onOpen();
     if (state.selected.type === 'city') {
-      setCityTab('overview');
+      setCityTab('production');
     }
   }, [state.inspectorRequestId, onOpen]);
 
