@@ -11,15 +11,8 @@ type TopHudProps = {
 };
 
 export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
-  const [factionPopup, setFactionPopup] = useState<boolean>(true);
+  const [factionPopup, setFactionPopup] = useState<boolean>(false);
   const [supplyPopup, setSupplyPopup] = useState<boolean>(false);
-  
-  const handleFactionClick = () => {
-  console.log('Faction button clicked!');
-  setFactionPopup(true);
-};
-
-window.openFactionPopup = handleFactionClick;
   const activeFactionColor = state.world.factions.find((faction) => faction.id === state.activeFactionId)?.color ?? '#d6a34b';
   const recoveringCityCount = state.world.cities.filter(
     (city) => city.factionId === state.activeFactionId && city.turnsSinceCapture !== undefined,
@@ -31,23 +24,18 @@ window.openFactionPopup = handleFactionClick;
     return getFactionInfo(id) ?? null;
   }, [state.activeFactionId]);
 
+  const handleFactionClick = () => {
+    console.log('Faction click handler called, factionInfo:', factionInfo);
+    setFactionPopup(true);
+  };
+
   return (
     <header className="top-hud">
-      {factionPopup && (
-        <div className="faction-popup-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="faction-popup" style={{ background: '#2a241e', padding: 20, borderRadius: 8, maxWidth: 400 }}>
+      {factionPopup && factionInfo && (
+        <div className="faction-popup-overlay" onClick={() => setFactionPopup(false)}>
+          <div className="faction-popup" onClick={(e) => e.stopPropagation()}>
             <button className="faction-popup__close" onClick={() => setFactionPopup(false)}>×</button>
-            <h3>Faction Popup Works!</h3>
-            {factionInfo ? (
-              <>
-                <p>{factionInfo.name}</p>
-              </>
-            ) : (
-              <p>No faction info available</p>
-            )}
-          </div>
-        </div>
-      )}
+            <h3 className="faction-popup__name" style={{ color: factionInfo.color }}>{factionInfo.name}</h3>
             <div className="faction-popup__section">
               <span className="faction-popup__label">Native Ability</span>
               <span>{factionInfo.nativeDomain}</span>
