@@ -14,10 +14,12 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
   const [factionPopup, setFactionPopup] = useState<boolean>(false);
   const [supplyPopup, setSupplyPopup] = useState<boolean>(false);
   
-  window.openFactionPopup = () => {
-    console.log('Opening faction popup!');
-    setFactionPopup(true);
-  };
+  const handleFactionClick = () => {
+  console.log('Faction button clicked!');
+  setFactionPopup(true);
+};
+
+window.openFactionPopup = handleFactionClick;
   const activeFactionColor = state.world.factions.find((faction) => faction.id === state.activeFactionId)?.color ?? '#d6a34b';
   const recoveringCityCount = state.world.cities.filter(
     (city) => city.factionId === state.activeFactionId && city.turnsSinceCapture !== undefined,
