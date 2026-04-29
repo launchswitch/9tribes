@@ -83,17 +83,15 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
           <span className="chip-label">Mode</span>
           <strong>{state.mode}</strong>
         </div>
-        <div
-          className="status-chip status-chip--active-faction"
-          style={{ '--chip-color': activeFactionColor } as CSSProperties}
-          role="button"
-          tabIndex={0}
-          onClick={() => setFactionPopup(true)}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setFactionPopup(true); }}
-        >
-          <span className="chip-label">Faction</span>
-          <strong>{state.hud.activeFactionName}</strong>
-        </div>
+        <button
+            type="button"
+            className="status-chip status-chip--active-faction"
+            style={{ '--chip-color': activeFactionColor, background: 'transparent', border: 'none', padding: '4px 12px', cursor: 'pointer' } as CSSProperties}
+            onClick={() => setFactionPopup(true)}
+          >
+            <span className="chip-label">Faction</span>
+            <strong>{state.hud.activeFactionName}</strong>
+          </button>
         <div className="status-chip">
           <span className="chip-label">Phase</span>
           <strong>{state.hud.phaseLabel}</strong>
