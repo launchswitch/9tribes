@@ -93,7 +93,7 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
   return (
     <nav className="gmb-root" style={{ '--gmb-faction-color': factionColor } as CSSProperties}>
       {factionPopupOpen && factionInfo && (
-        <div className="faction-info-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="faction-info-panel" onClick={(e) => e.stopPropagation()} style={{ position: 'fixed', top: '50px', left: '200px', zIndex: 999 }}>
           <button className="faction-popup__close" onClick={() => setFactionPopupOpen(false)}>×</button>
           <h3 className="faction-popup__name" style={{ color: factionInfo.color }}>{factionInfo.name}</h3>
           <div className="faction-popup__section">
@@ -163,7 +163,7 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
       </div>
 
       <div className="gmb-status">
-        <div className="gmb-chip gmb-chip--faction" onClick={(e) => { e.stopPropagation(); window.openFactionPopup?.(); }}>
+        <div className="gmb-chip gmb-chip--faction" onClick={() => setFactionPopupOpen(true)}>
           <span className="gmb-swatch" style={{ background: factionColor }} />
           <span>{state.hud.activeFactionName}</span>
         </div>
