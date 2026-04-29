@@ -60,6 +60,7 @@ export function unlockHybridRecipes(
           tags: recipe.tags ?? [],
           sourceRecipeId: recipe.id,
           productionCost: recipe.costOverride,
+          movesBonus: recipe.movesBonus,
         }
       );
     } catch {

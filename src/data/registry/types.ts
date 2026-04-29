@@ -116,6 +116,7 @@ export interface HybridRecipeDef {
   tags?: string[];
   nativeFaction?: string;
   costOverride?: number;
+  movesBonus?: number;
 }
 
 export interface TerrainYieldDef {

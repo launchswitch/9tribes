@@ -543,6 +543,57 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
 
             {!showRestrictedEnemyCityInfo && cityTab === 'production' ? (
               <div className="ci-tab-content ci-prod-tab">
+                {/* ── Available Units ── */}
+                <div className="pq-divider">
+                  <span>{selectedCity.canManageProduction ? 'TRAIN' : 'AVAILABLE UNITS'}</span>
+                </div>
+
+                {!selectedCity.canManageProduction ? (
+                  <p className="pq-readonly-hint">
+                    {selectedCity.walls.besieged
+                      ? 'Besieged — production locked'
+                      : selectedCity.isFriendly
+                        ? 'Only the active city can manage production'
+                        : 'Enemy city — read only'}
+                  </p>
+                ) : null}
+
+                <div className="pq-unit-list">
+                  {selectedCity.productionOptions.map((option) => (
+                    <button
+                      key={option.prototypeId}
+                      type="button"
+                      className={`pq-unit-card${option.disabled ? ' pq-unit-card--disabled' : ''}`}
+                      disabled={option.disabled}
+                      onClick={() => onSetCityProduction(selectedCity.cityId, option.prototypeId)}
+                    >
+                      <div className="pq-unit-card__header">
+                        <span className="pq-unit-card__name">{option.name}</span>
+                        <span className="pq-unit-card__cost">
+                          {option.costModifierReason ? (
+                            <>
+                              <span className="pq-base-cost">{option.baseCost}</span>
+                              {option.cost}
+                            </>
+                          ) : option.cost}
+                          <span className="pq-unit-card__cost-label">prod</span>
+                        </span>
+                      </div>
+                      <div className="pq-unit-card__stats">
+                        <span className="pq-stat pq-stat--atk">ATK {option.attack}</span>
+                        <span className="pq-stat pq-stat--def">DEF {option.defense}</span>
+                        <span className="pq-stat pq-stat--hp">HP {option.hp}</span>
+                        {option.moves > 1 && <span className="pq-stat pq-stat--mov">MOV {option.moves}</span>}
+                        {option.range > 1 && <span className="pq-stat pq-stat--rng">RNG {option.range}</span>}
+                        {!option.isPrototype && <span className="pq-stat pq-stat--sup">SUP {option.supplyCost}</span>}
+                      </div>
+                      {option.costModifierReason && (
+                        <span className="pq-shock-note">{option.costModifierReason}</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+
                 {/* ── Current Production ── */}
                 {selectedCity.production.current ? (
                   <div className="pq-current">
@@ -633,57 +684,6 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                     ))}
                   </div>
                 )}
-
-                {/* ── Available Units ── */}
-                <div className="pq-divider">
-                  <span>{selectedCity.canManageProduction ? 'TRAIN' : 'AVAILABLE UNITS'}</span>
-                </div>
-
-                {!selectedCity.canManageProduction ? (
-                  <p className="pq-readonly-hint">
-                    {selectedCity.walls.besieged
-                      ? 'Besieged — production locked'
-                      : selectedCity.isFriendly
-                        ? 'Only the active city can manage production'
-                        : 'Enemy city — read only'}
-                  </p>
-                ) : null}
-
-                <div className="pq-unit-list">
-                  {selectedCity.productionOptions.map((option) => (
-                    <button
-                      key={option.prototypeId}
-                      type="button"
-                      className={`pq-unit-card${option.disabled ? ' pq-unit-card--disabled' : ''}`}
-                      disabled={option.disabled}
-                      onClick={() => onSetCityProduction(selectedCity.cityId, option.prototypeId)}
-                    >
-                      <div className="pq-unit-card__header">
-                        <span className="pq-unit-card__name">{option.name}</span>
-                        <span className="pq-unit-card__cost">
-                          {option.costModifierReason ? (
-                            <>
-                              <span className="pq-base-cost">{option.baseCost}</span>
-                              {option.cost}
-                            </>
-                          ) : option.cost}
-                          <span className="pq-unit-card__cost-label">prod</span>
-                        </span>
-                      </div>
-                      <div className="pq-unit-card__stats">
-                        <span className="pq-stat pq-stat--atk">ATK {option.attack}</span>
-                        <span className="pq-stat pq-stat--def">DEF {option.defense}</span>
-                        <span className="pq-stat pq-stat--hp">HP {option.hp}</span>
-                        {option.moves > 1 && <span className="pq-stat pq-stat--mov">MOV {option.moves}</span>}
-                        {option.range > 1 && <span className="pq-stat pq-stat--rng">RNG {option.range}</span>}
-                        {!option.isPrototype && <span className="pq-stat pq-stat--sup">SUP {option.supplyCost}</span>}
-                      </div>
-                      {option.costModifierReason && (
-                        <span className="pq-shock-note">{option.costModifierReason}</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
               </div>
             ) : null}
           </div>

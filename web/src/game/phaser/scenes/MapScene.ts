@@ -242,9 +242,9 @@ export class MapScene extends Phaser.Scene {
       }
     }
 
-    // Left-click on own unit → focus (select for movement, no UI popout)
+    // Left-click on own unit → select (show side popout)
     if (state.mode === 'play' && clickedUnit?.isActiveFaction) {
-      this.controller.dispatch({ type: 'focus_unit', unitId: clickedUnit.id });
+      this.controller.dispatch({ type: 'select_unit', unitId: clickedUnit.id });
       return;
     }
 
@@ -401,9 +401,9 @@ export class MapScene extends Phaser.Scene {
       return;
     }
 
-    // Left-click on own unit → focus (select for movement, no UI popout)
+    // Left-click on own unit → select (show side popout)
     if (state.mode === 'play' && unit.isActiveFaction) {
-      this.controller.dispatch({ type: 'focus_unit', unitId });
+      this.controller.dispatch({ type: 'select_unit', unitId });
       return;
     }
     // Left-click on enemy unit → no-op
