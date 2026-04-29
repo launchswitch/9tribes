@@ -91,47 +91,45 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
   return (
     <nav className="gmb-root" style={{ '--gmb-faction-color': factionColor } as CSSProperties}>
       {factionPopupOpen && factionInfo && (
-        <div className="faction-popup-overlay" onClick={() => setFactionPopupOpen(false)}>
-          <div className="faction-popup" onClick={(e) => e.stopPropagation()}>
-            <button className="faction-popup__close" onClick={() => setFactionPopupOpen(false)}>×</button>
-            <h3 className="faction-popup__name" style={{ color: factionInfo.color }}>{factionInfo.name}</h3>
-            <div className="faction-popup__section">
-              <span className="faction-popup__label">Native Ability</span>
-              <span>{factionInfo.nativeDomain}</span>
-            </div>
-            <div className="faction-popup__section">
-              <span className="faction-popup__label">Home Biome</span>
-              <span>{factionInfo.homeBiome}</span>
-            </div>
-            <div className="faction-popup__section">
-              <span className="faction-popup__label">Special Trait</span>
-              <span className="faction-popup__trait">{factionInfo.passiveTrait.replace(/_/g, ' ')}</span>
-            </div>
-            <div className="faction-popup__section">
-              <span className="faction-popup__label">Signature Unit</span>
-              <span>{factionInfo.signatureUnit}</span>
-            </div>
-            <div className="faction-popup__section">
-              <span className="faction-popup__label">Special Ability</span>
-              <span>{factionInfo.specialAbility}</span>
-            </div>
-            <p className="faction-popup__intro">{factionInfo.intro}</p>
-            <div className="faction-popup__section">
-              <span className="faction-popup__label">Strengths</span>
-              <ul className="faction-popup__list">
-                {factionInfo.strengths.map((s, i) => <li key={i}>{s}</li>)}
-              </ul>
-            </div>
-            <div className="faction-popup__section">
-              <span className="faction-popup__label">Weaknesses</span>
-              <ul className="faction-popup__list">
-                {factionInfo.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
-              </ul>
-            </div>
-            <div className="faction-popup__section">
-              <span className="faction-popup__label">Tip</span>
-              <p className="faction-popup__tip">{factionInfo.tip}</p>
-            </div>
+        <div className="faction-info-panel" onClick={(e) => e.stopPropagation()}>
+          <button className="faction-popup__close" onClick={() => setFactionPopupOpen(false)}>×</button>
+          <h3 className="faction-popup__name" style={{ color: factionInfo.color }}>{factionInfo.name}</h3>
+          <div className="faction-popup__section">
+            <span className="faction-popup__label">Native Ability</span>
+            <span>{factionInfo.nativeDomain}</span>
+          </div>
+          <div className="faction-popup__section">
+            <span className="faction-popup__label">Home Biome</span>
+            <span>{factionInfo.homeBiome}</span>
+          </div>
+          <div className="faction-popup__section">
+            <span className="faction-popup__label">Special Trait</span>
+            <span className="faction-popup__trait">{factionInfo.passiveTrait.replace(/_/g, ' ')}</span>
+          </div>
+          <div className="faction-popup__section">
+            <span className="faction-popup__label">Signature Unit</span>
+            <span>{factionInfo.signatureUnit}</span>
+          </div>
+          <div className="faction-popup__section">
+            <span className="faction-popup__label">Special Ability</span>
+            <span>{factionInfo.specialAbility}</span>
+          </div>
+          <p className="faction-popup__intro">{factionInfo.intro}</p>
+          <div className="faction-popup__section">
+            <span className="faction-popup__label">Strengths</span>
+            <ul className="faction-popup__list">
+              {factionInfo.strengths.map((s, i) => <li key={i}>{s}</li>)}
+            </ul>
+          </div>
+          <div className="faction-popup__section">
+            <span className="faction-popup__label">Weaknesses</span>
+            <ul className="faction-popup__list">
+              {factionInfo.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
+            </ul>
+          </div>
+          <div className="faction-popup__section">
+            <span className="faction-popup__label">Tip</span>
+            <p className="faction-popup__tip">{factionInfo.tip}</p>
           </div>
         </div>
       )}

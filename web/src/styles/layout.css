@@ -663,7 +663,28 @@
   border-color: var(--danger, #e55333);
 }
 
-/* Faction popup */
+/* Faction info panel (below GameMenuBar) */
+.faction-info-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-primary, #1a1915);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0 0 12px 12px;
+  padding: 16px;
+  max-width: 400px;
+  z-index: 100;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.faction-info-panel .faction-popup__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* Faction popup overlay (full screen) */
 .faction-popup-overlay {
   position: fixed;
   inset: 0;
