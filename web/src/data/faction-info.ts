@@ -54,12 +54,12 @@ const FACTION_INFO_MAP: Record<string, FactionInfo> = {
   },
   steppe_clan: {
     id: 'steppe_clan', name: 'Steppe Riders', color: '#b98a2f', nativeDomain: 'Skirmish Pursuit', homeBiome: 'Plains',
-    intro: 'Speed is life for the Steppe Riders. These horse lords race across open plains, striking and vanishing.',
-    strengths: ['You dictate when and where fights happen', 'Foraging Riders gives cavalry +15% attack, +20% defense', 'Slow armies are free food'],
-    weaknesses: ['Camel riders hard-counter horses', 'Fortified spear walls on hills stop you'],
-    tip: 'Use a fast unit as bait, then hit their exposed flank.',
+    intro: 'Speed is life for the Steppe Riders - strike fast and vanish before response.',
+    strengths: ['Dictate when/where fights happen', 'Foraging Riders = +15% atk, +20% def on plains', 'Slow armies are free food'],
+    weaknesses: ['Camel riders counter horses', 'Fortified spear walls stop you'],
+    tip: 'Use fast unit as bait, hit exposed flank with cavalry.',
     signatureUnit: 'Warlord', specialTrait: 'Foraging Riders', specialAbility: 'Aura boosts nearby cavalry attack/defense',
-    uniqueMechanic: 'foraging_riders', passiveTrait: 'skirmish_pursuit',
+    uniqueMechanic: 'foraging_riders', passiveTrait: 'foraging_riders',
   },
   desert_nomads: {
     id: 'desert_nomads', name: 'Desert Nomads', color: '#d4a574', nativeDomain: 'Camel Adaptation', homeBiome: 'Desert',
