@@ -5,7 +5,6 @@ import { syncMusicForMode } from './app/audio/musicManager';
 
 function App() {
   const [mode, setMode] = useState<string>('menu');
-  const [testClicksWork, setTestClicksWork] = useState(false);
 
   useEffect(() => {
     try {
@@ -21,23 +20,8 @@ function App() {
     syncMusicForMode(mode);
   }, [mode]);
 
-  const handleTestClick = () => {
-    setTestClicksWork(true);
-    console.log('TEST BUTTON CLICKED!');
-  };
-
   if (mode === 'play') {
-    return (
-      <>
-        <button 
-          style={{ position: 'absolute', top: 10, left: 10, zIndex: 9999, background: 'red', color: 'white', padding: '10px' }}
-          onClick={handleTestClick}
-        >
-          TEST CLICK {testClicksWork ? 'WORKS!' : ''}
-        </button>
-        <PlayClient />
-      </>
-    );
+    return <PlayClient />;
   }
 
   return <MenuClient />;
