@@ -95,7 +95,7 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
       {factionPopupOpen && factionInfo && (
         <div className="faction-info-panel" onClick={(e) => e.stopPropagation()} style={{ position: 'fixed', top: '50px', left: '200px', zIndex: 999 }}>
           <button className="faction-popup__close" onClick={() => setFactionPopupOpen(false)}>×</button>
-          <h3 className="faction-popup__name" style={{ color: factionInfo.color }}>{factionInfo.name}</h3>
+          <h3 className="faction-popup__name" style={{ color: factionInfo.color }}>{factionInfo.id}: {factionInfo.name}</h3>
           <div className="faction-popup__section">
             <span className="faction-popup__label">Native Ability</span>
             <span>{factionInfo.nativeDomain}</span>
