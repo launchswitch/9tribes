@@ -163,6 +163,14 @@ export function calculateVisibility(state: GameState, factionId: FactionId): Fac
   const hexVisibility = new Map<string, HexVisibility>();
   const lastSeen = new Map<string, LastSeenSnapshot>(previousLastSeen);
 
+  // First, preserve previously visible/explored oasis hexes permanently
+  for (const [key, prevVis] of previousVisibility) {
+    const tile = state.map?.tiles.get(key);
+    if (tile?.terrain === 'oasis' && (prevVis === 'visible' || prevVis === 'explored')) {
+      hexVisibility.set(key, 'visible');
+    }
+  }
+
   // Keys in new visible set → 'visible'
   for (const key of newVisibleKeys) {
     const tile = state.map?.tiles.get(key);
