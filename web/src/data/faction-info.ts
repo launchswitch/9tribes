@@ -92,13 +92,13 @@ jungle_clan: {
     strengths: ['Ignore desert terrain penalties', 'Camel cavalry is unmatched', 'Desert survival is innate'],
     weaknesses: ['Need desert to be effective', 'Water maps are challenging'],
     tip: 'Use the desert as your highway. Enemies struggle where you thrive.',
-    signatureUnit: 'Camel Rider', specialTrait: 'Desert Adaptation', specialAbility: 'Camel tramples, immune to heat',
+    signatureUnit: 'Desert Immortals', specialTrait: 'Desert Adaptation', specialAbility: 'Full HP regen each turn',
     uniqueMechanic: 'desert_adaptation', passiveTrait: 'camel_mobility',
     unitStats: {
-      attack: 12, defense: 8, health: 70, moves: 6, range: 1,
-      tags: ['cavalry', 'desert', 'trample'],
-      ability: 'Desert Adapted: No movement penalty in desert tiles. Immune to heat damage. Tramples non-cavalry.',
-      description: 'The legendary Camel Rider traverses the endless desert with ease, striking from the heat shimmer before vanishing.'
+      attack: 5, defense: 11, health: 18, moves: 3, range: 1,
+      tags: ['camel', 'mounted', 'self_heal'],
+      ability: 'Self-Heal: Fully regenerates HP at the end of each turn.',
+      description: 'The legendary Desert Immortals are unstoppable — they heal from any wound and march forever.'
     },
   },
   coral_people: {

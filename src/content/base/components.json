@@ -525,6 +525,25 @@
       "fortification": 1
     }
   },
+  "desert_regen": {
+    "id": "desert_regen",
+    "name": "Desert Regeneration",
+    "slotType": "training",
+    "hpBonus": 6,
+    "defenseBonus": 0,
+    "attackBonus": 1,
+    "compatibleChassis": [
+      "camel_frame"
+    ],
+    "tags": [
+      "self_heal",
+      "desert",
+      "regeneration"
+    ],
+    "capabilityPressure": {
+      "desert_survival": 1
+    }
+  },
   "ship_cannon": {
     "id": "ship_cannon",
     "name": "Ship Cannon",
