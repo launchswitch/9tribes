@@ -1,5 +1,5 @@
-import type { TerrainInspectorViewModel } from '../game/types/clientState';
 import { useState } from 'react';
+import type { TerrainInspectorViewModel } from '../game/types/clientState';
 
 type TerrainPanelProps = {
   terrain: TerrainInspectorViewModel | null;
@@ -245,9 +245,10 @@ export function TerrainPanel({ terrain, onClose }: TerrainPanelProps) {
               )}
               {terrain.cityBonus.productionBonus === 0 && terrain.cityBonus.supplyBonus === 0 && terrain.cityBonus.traits.filter((t) => t.active).length === 0 && (
                 <p className="ti-sub ti-sub--muted">No site bonuses at this location.</p>
-)}
-              </div>
-            )}
+              )}
+            </div>
+          )}
+
         </div>
       )}
     </aside>

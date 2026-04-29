@@ -358,8 +358,8 @@
       "gamesWithActiveTripleStack": 10,
       "avgUnitsWithLearnedAbilities": 1
     },
-    "plains_riders": {
-      "factionId": "plains_riders",
+    "river_people": {
+      "factionId": "river_people",
       "wins": 0,
       "avgLivingUnits": 10.2,
       "avgCities": 1,
@@ -381,8 +381,8 @@
       "avgUnitsByPrototypeId": {
         "prototype_24": 0.4,
         "prototype_23": 7.6,
-        "plains_riders_river_priest": 2.1,
-        "plains_riders_alligator_frame": 0.1
+        "river_people_river_priest": 2.1,
+        "river_people_alligator_frame": 0.1
       },
       "avgStalledProductionCount": 0.2,
       "avgUnitComposition": {

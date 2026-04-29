@@ -439,22 +439,22 @@ describe('victory conditions', () => {
     const victory = getVictoryStatus(state);
     expect(victory.victoryType).toBe('unresolved');
     expect(victory.winnerFactionId).toBeNull();
-    // Domination threshold at 40%: ceil(9 * 0.40) = 4
-    expect(victory.dominationThreshold).toBe(4);
+    // Domination threshold at 51%: ceil(9 * 0.51) = 5
+    expect(victory.dominationThreshold).toBe(5);
   });
 
-  it('reports domination at exactly 4 of 9 cities (40% boundary)', () => {
+  it('reports domination at exactly 5 of 9 cities (51% boundary)', () => {
     const state = buildMvpScenario(42);
     const cityIds = Array.from(state.cities.keys());
 
-    for (const cityId of cityIds.slice(0, 4)) {
+    for (const cityId of cityIds.slice(0, 5)) {
       const city = state.cities.get(cityId)!;
       state.cities.set(cityId, { ...city, factionId: 'savannah_lions' as never, besieged: false });
     }
 
     const victory = getVictoryStatus(state);
     expect(victory.victoryType).toBe('domination');
-    expect(victory.dominationThreshold).toBe(4);
+    expect(victory.dominationThreshold).toBe(5);
   });
 });
 

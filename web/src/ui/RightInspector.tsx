@@ -43,7 +43,7 @@ export function RightInspector({ state, onSetCityProduction }: RightInspectorPro
             {selectedCity.siteBonuses.traits.map((trait) => (
               <div className="meta-row" key={trait.key}>
                 <span>{trait.label}</span>
-<strong>{trait.active ? trait.effect : 'None'}</strong>
+                <strong>{trait.active ? trait.effect : 'None'}</strong>
               </div>
             ))}
           </section>
@@ -292,7 +292,7 @@ export function RightInspector({ state, onSetCityProduction }: RightInspectorPro
             </div>
             <div className="meta-row">
               <span>Owner</span>
-              <strong>{(hoveredTile as { ownerFactionName?: string }).ownerFactionName ?? hoveredTile.ownerFactionId ?? 'Neutral'}</strong>
+              <strong>{hoveredTile.ownerFactionName ?? hoveredTile.ownerFactionId ?? 'Neutral'}</strong>
             </div>
             <div className="meta-row">
               <span>Visibility</span>

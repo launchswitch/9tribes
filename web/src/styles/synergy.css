@@ -28,7 +28,6 @@
   letter-spacing: 0.05em;
 }
 
-/* Label text before domain dots */
 .syn-chip__label {
   font-size: 10px;
   font-weight: 700;

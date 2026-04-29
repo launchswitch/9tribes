@@ -193,7 +193,7 @@ export function resolveCombat(
   // 8. Ranged attacks take no retaliation
   const attackerIsRanged = isRangedAttack(attackerPrototype, registry);
   if (attackerIsRanged) {
-    console.log(`[combat] ranged no-retaliation: ${attackerPrototype.name} (role=${attackerPrototype.derivedStats.role}, range=${attackerPrototype.derivedStats.range}) vs ${defenderPrototype.name}`);
+    // ranged attacks take no retaliation
   }
   let attackerDamage = 0;
   let retaliationVarianceMultiplier = 1;

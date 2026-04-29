@@ -367,32 +367,32 @@ KNOBS = [
         3,
         4,
     ),
-    # --- Plains riders (navigation=4, seafaring=4, mobility=3, woodcraft=2) ---
+    # --- River People (navigation=4, seafaring=4, mobility=3, woodcraft=2) ---
     TrialConfig(
         "plains_navigation",
         "float",
-        ("factions", "plains_riders", "capabilitySeeds", "navigation"),
+        ("factions", "river_people", "capabilitySeeds", "navigation"),
         4,
         6,
     ),
     TrialConfig(
         "plains_seafaring",
         "float",
-        ("factions", "plains_riders", "capabilitySeeds", "seafaring"),
+        ("factions", "river_people", "capabilitySeeds", "seafaring"),
         4,
         6,
     ),
     TrialConfig(
         "plains_mobility",
         "float",
-        ("factions", "plains_riders", "capabilitySeeds", "mobility"),
+        ("factions", "river_people", "capabilitySeeds", "mobility"),
         3,
         5,
     ),
     TrialConfig(
         "plains_woodcraft",
         "float",
-        ("factions", "plains_riders", "capabilitySeeds", "woodcraft"),
+        ("factions", "river_people", "capabilitySeeds", "woodcraft"),
         2,
         5,
     ),
@@ -440,11 +440,11 @@ KNOBS = [
         1,
         6,
     ),
-    # --- Plains Riders: Sneak Attack (river/swamp terrain attack bonus) ---
+    # --- River People: Sneak Attack (river/swamp terrain attack bonus) ---
     TrialConfig(
         "sneak_attack",
         "float",
-        ("signatureAbilities", "plains_riders", "sneakAttackBonus"),
+        ("signatureAbilities", "river_people", "sneakAttackBonus"),
         0.3,
         0.7,
     ),

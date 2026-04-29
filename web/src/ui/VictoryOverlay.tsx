@@ -78,24 +78,28 @@ export function VictoryOverlay({
         </div>
         <div className="vic-body">
           <p className="vic-description">{describeVictory(victoryType, controlledCities, totalCities)}</p>
-          <div className="vic-score-block">
-            <span className="vic-score-label">Total score:</span>
-            <span className="vic-score-value">{score.toLocaleString()}</span>
-          </div>
-          <div className="vic-breakdown">
-            <div className="vic-breakdown-row">
-              <span className="vic-breakdown-label">Difficulty</span>
-              <span className="vic-breakdown-value">{DIFFICULTY_LABEL[difficulty]} (×{DIFFICULTY_MULTIPLIER[difficulty]})</span>
-            </div>
-            <div className="vic-breakdown-row">
-              <span className="vic-breakdown-label">Rounds taken</span>
-              <span className="vic-breakdown-value">{rounds} / {maxRounds}</span>
-            </div>
-            <div className="vic-breakdown-row">
-              <span className="vic-breakdown-label">Victory type</span>
-              <span className="vic-breakdown-value">{victoryType === 'elimination' ? 'Elimination' : 'Domination'}</span>
-            </div>
-          </div>
+          {!isDefeat && (
+            <>
+              <div className="vic-score-block">
+                <span className="vic-score-label">Total score:</span>
+                <span className="vic-score-value">{score.toLocaleString()}</span>
+              </div>
+              <div className="vic-breakdown">
+                <div className="vic-breakdown-row">
+                  <span className="vic-breakdown-label">Difficulty</span>
+                  <span className="vic-breakdown-value">{DIFFICULTY_LABEL[difficulty]} (×{DIFFICULTY_MULTIPLIER[difficulty]})</span>
+                </div>
+                <div className="vic-breakdown-row">
+                  <span className="vic-breakdown-label">Rounds taken</span>
+                  <span className="vic-breakdown-value">{rounds} / {maxRounds}</span>
+                </div>
+                <div className="vic-breakdown-row">
+                  <span className="vic-breakdown-label">Victory type</span>
+                  <span className="vic-breakdown-value">{victoryType === 'elimination' ? 'Elimination' : 'Domination'}</span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
         <div className="vic-footer">
           <button className="vic-btn" type="button" onClick={onDismiss}>

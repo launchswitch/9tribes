@@ -67,12 +67,12 @@ export type UnitView = {
   canBrace?: boolean;
   canAmbush?: boolean;
   isEmbarked?: boolean;
-  summonTurnsRemaining?: number;
-  isPrototype?: boolean;
-  supplyCost?: number;
-  boardableTransportIds?: string[];
   transportId?: string | null;
-  validDisembarkHexes?: { q: number; r: number }[];
+  boardableTransportIds?: string[];
+  validDisembarkHexes?: HexCoord[];
+  supplyCost?: number;
+  isPrototype?: boolean;
+  summonTurnsRemaining?: number;
 };
 
 export type CityView = {

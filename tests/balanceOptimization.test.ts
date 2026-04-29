@@ -65,16 +65,16 @@ describe('balance optimization overrides', () => {
         },
       },
       scenario: {
-        mapWidth: 18,
-        mapHeight: 12,
+        mapWidth: 32,
+        mapHeight: 24,
       },
     };
 
     const registry = loadRulesRegistry(overrides);
     const state = buildMvpScenario(42, { registry, balanceOverrides: overrides, rerollCap: 20 });
 
-    expect(state.map?.width).toBe(18);
-    expect(state.map?.height).toBe(12);
+    expect(state.map?.width).toBe(32);
+    expect(state.map?.height).toBe(24);
     expect(state.factions.get('steppe_clan' as never)?.capabilities?.domainLevels.horsemanship).toBe(5.5);
   });
 

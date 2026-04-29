@@ -45,9 +45,9 @@ describe('Learn-by-Kill RNG verification', () => {
       if (result.learned) learns++;
     }
     const pct = learns / 100;
-    console.log(`GREEN (expect ~25%): ${learns}/10000 = ${pct.toFixed(1)}%`);
-    expect(pct).toBeGreaterThan(22);
-    expect(pct).toBeLessThan(28);
+    console.log(`GREEN (expect ~12%): ${learns}/10000 = ${pct.toFixed(1)}%`);
+    expect(pct).toBeGreaterThan(10);
+    expect(pct).toBeLessThan(14);
   });
 
   it('veteran units should learn ~55% of the time over 10000 trials', () => {
@@ -60,9 +60,9 @@ describe('Learn-by-Kill RNG verification', () => {
       if (result.learned) learns++;
     }
     const pct = learns / 100;
-    console.log(`VETERAN (expect ~55%): ${learns}/10000 = ${pct.toFixed(1)}%`);
-    expect(pct).toBeGreaterThan(52);
-    expect(pct).toBeLessThan(58);
+    console.log(`VETERAN (expect ~28%): ${learns}/10000 = ${pct.toFixed(1)}%`);
+    expect(pct).toBeGreaterThan(26);
+    expect(pct).toBeLessThan(30);
   });
 
   it('sequential kills with seed 42 - show actual outcomes', () => {

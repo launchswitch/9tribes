@@ -1,95 +1,8 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import type { ClientState } from '../game/types/clientState';
 import abilityDomains from '../data/ability-domains.json';
-
-interface FactionInfoData {
-  name: string;
-  color: string;
-  nativeDomain: string;
-  homeBiome: string;
-  intro: string;
-  strengths: string[];
-  weaknesses: string[];
-  tip: string;
-  signatureUnit: string;
-  specialTrait: string;
-  specialAbility: string;
-}
-
-const FACTION_INFO_MAP: Record<string, FactionInfoData> = {
-  jungle_clan: {
-    name: 'Jungle Clans', color: '#2f7d4a', nativeDomain: 'Venomcraft', homeBiome: 'Jungle',
-    intro: 'The Jungle Clans thrive in deep canopy where poison drips from every leaf.',
-    strengths: ['Jungle interiors are your kingdom', 'Poison warfare means attrition advantage', 'Enemies fight blind while you strike'],
-    weaknesses: ['Long-range armies outside jungle are your nightmare', 'Struggle on open ground'],
-    tip: 'Lure enemies into jungle by retreating, then spring your real force.',
-    signatureUnit: 'Serpent God', specialTrait: 'Jungle Stalkers', specialAbility: 'Poison on attacks + stealth in jungle'
-  },
-  druid_circle: {
-    name: 'Druid Circle', color: '#5d8f57', nativeDomain: 'Nature Healing', homeBiome: 'Forest',
-    intro: 'The Druid Circle believes the forest itself fights on their side.',
-    strengths: ['Healing means units stay alive longer', 'Forest terrain amplifies everything', 'Patient defensive play is strong'],
-    weaknesses: ['Fast cavalry runs circles around you', 'Offensive punch is modest'],
-    tip: 'Plant forces just inside forest edge and let enemies come to you.',
-    signatureUnit: 'Druid Wizard', specialTrait: 'Healing Aura', specialAbility: 'Aura boosts nearby units defense'
-  },
-  hill_clan: {
-    name: 'Hill Engineers', color: '#8b7355', nativeDomain: 'Fortress Discipline', homeBiome: 'Hill',
-    intro: 'Hill Engineers are masters of high ground, turning elevation into impregnable positions.',
-    strengths: ['Hill terrain gives massive defense', 'Fortress structures are incredibly strong', 'Shock resistance is innate'],
-    weaknesses: ['Need hills to be effective', 'Slow on flat ground'],
-    tip: 'Secure high ground early and fortify. Let enemies come to you.',
-    signatureUnit: 'War Tower', specialTrait: 'Hill Defenders', specialAbility: 'City garrison morale boost'
-  },
-  savannah_lions: {
-    name: 'Savannah Lions', color: '#c9a227', nativeDomain: 'Charge', homeBiome: 'Savannah',
-    intro: 'Savannah Lions are all about momentum - charge attacks deal massive damage.',
-    strengths: ['First-contact power unmatched', 'War Elephants are devastating', 'Charge bonuses are huge'],
-    weaknesses: ['Slow terrain nullifies charge', 'Light infantry gets crushed'],
-    tip: 'Angle approach so War Elephants hit the flank.',
-    signatureUnit: 'War Elephant', specialTrait: 'Charge Momentum', specialAbility: 'Elephant tramples enemies'
-  },
-  steppe_clan: {
-    name: 'Steppe Riders', color: '#b98a2f', nativeDomain: 'Skirmish Pursuit', homeBiome: 'Plains',
-    intro: 'Speed is life for Steppe Riders - strike fast and vanish before response.',
-    strengths: ['Dictate when/where fights happen', 'Foraging Riders = +15% atk, +20% def on plains', 'Slow armies are free food'],
-    weaknesses: ['Camel riders counter horses', 'Fortified spear walls stop you'],
-    tip: 'Use fast unit as bait, hit exposed flank with cavalry.',
-    signatureUnit: 'Warlord', specialTrait: 'Foraging Riders', specialAbility: 'Aura boosts nearby cavalry attack/defense'
-  },
-  desert_nomads: {
-    name: 'Desert Nomads', color: '#d4a574', nativeDomain: 'Camel Adaptation', homeBiome: 'Desert',
-    intro: 'Desert Nomads turn harsh terrain into advantage.',
-    strengths: ['Ignore desert terrain penalties', 'Camel cavalry unmatched', 'Desert survival innate'],
-    weaknesses: ['Need desert to be effective', 'Water maps challenging'],
-    tip: 'Use desert as highway. Enemies struggle where you thrive.',
-    signatureUnit: 'Camel Rider', specialTrait: 'Desert Adaptation', specialAbility: 'Camel tramples, immune to heat'
-  },
-  coral_people: {
-    name: 'Pirate Lords', color: '#2a9d8f', nativeDomain: 'Slaving', homeBiome: 'Coast',
-    intro: 'Pirate Lords master coastal raiding - they capture enemy units.',
-    strengths: ['Can capture enemy units', 'Coastal mobility unmatched', 'Naval superiority'],
-    weaknesses: ['Weak deep inland', 'Need coastal access'],
-    tip: 'Raid coastal settlements and capture valuable units.',
-    signatureUnit: 'Galley', specialTrait: 'Capturer', specialAbility: 'Loot increases faction income'
-  },
-  river_people: {
-    name: 'River People', color: '#4f86c6', nativeDomain: 'River Stealth', homeBiome: 'River',
-    intro: 'River People treat waterways like roads - appear anywhere along banks.',
-    strengths: ['River corridors = unmatched mobility', 'River Stealth is powerful', 'Amphibious assault devastating'],
-    weaknesses: ['Dry fights strip advantages', 'Opponents can bait you'],
-    tip: 'Map river networks early - they are your highways.',
-    signatureUnit: 'Ancient Alligator', specialTrait: 'River Assault', specialAbility: 'Amphibious units deal bonus damage'
-  },
-  frost_wardens: {
-    name: 'Arctic Wardens', color: '#a8dadc', nativeDomain: 'Heavy Hitter', homeBiome: 'Tundra',
-    intro: 'Arctic Wardens turn worst terrain into best positions.',
-    strengths: ['Poor terrain = advantage', 'Cold-Hardened Growth = better economics', 'Polar Bear devastating'],
-    weaknesses: ['Need cold terrain', 'Warm terrain penalties'],
-    tip: 'Own frozen positions. Let opponents fight over "good" land.',
-    signatureUnit: 'Polar Bear', specialTrait: 'Cold-Hardened', specialAbility: 'Attacks chill nearby enemies'
-  },
-};
+import { getFactionInfo } from '../data/faction-info';
+import type { FactionInfo } from '../data/faction-info';
 
 type ContextInspectorProps = {
   state: ClientState;
@@ -139,7 +52,7 @@ function getDomainDescription(domainId: string): string | undefined {
 
 export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProduction, onCancelCityProduction, onRemoveFromQueue, onSetTargetingMode, onPrepareAbility, onBoardTransport, onDisembarkUnit, onDeselect, onCloseCityProduction }: ContextInspectorProps) {
   const [cityTab, setCityTab] = useState<CityTab>('overview');
-  const [factionPopup, setFactionPopup] = useState<FactionInfoData | null>(null);
+  const [factionPopup, setFactionPopup] = useState<FactionInfo | null>(null);
   const [domainPopup, setDomainPopup] = useState<{domainId: string; name: string; description: string} | null>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const [tabsCanScrollLeft, setTabsCanScrollLeft] = useState(false);
@@ -365,12 +278,6 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                   style={{ width: `${Math.round(selectedUnit.morale)}%` }}
                 />
               </div>
-              <div className="meta-row">
-              </div>
-              {state.mode === 'play' ? (
-                <>
-                </>
-              ) : null}
             </div>
 
             {/* Skills */}
@@ -380,22 +287,22 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                 {selectedUnit.factionId && (
                   <div className="meta-row">
                     <span>Faction</span>
-                    <strong 
+                    <strong
                       className="ci-domain--native"
                       style={{ cursor: 'pointer' }}
                       onClick={() => {
-                        const info = FACTION_INFO_MAP[selectedUnit.factionId];
+                        const info = getFactionInfo(selectedUnit.factionId);
                         if (info) setFactionPopup(info);
                       }}
                     >
-                      {(selectedUnit as { factionName?: string }).factionName ?? selectedUnit.factionId}
+                      {selectedUnit.factionName}
                     </strong>
                   </div>
                 )}
                 {selectedUnit.nativeDomain && (
                   <div className="meta-row">
                     <span>Native Ability</span>
-                    <strong 
+                    <strong
                       className="ci-domain--native"
                       style={{ cursor: 'pointer' }}
                       onClick={() => {
@@ -628,7 +535,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                 {selectedCity.siteBonuses.traits.map((trait) => (
                   <div className="meta-row" key={trait.key}>
                     <span>{trait.label}</span>
-                    <strong>{trait.active ? `${trait.effect} (${trait.count})` : 'None'}</strong>
+                    <strong>{trait.active ? trait.effect : 'None'}</strong>
                   </div>
                 ))}
               </div>
@@ -800,7 +707,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                 </div>
                 <div className="meta-row">
                   <span>Owner</span>
-                  <strong>{(hoveredTile as { ownerFactionName?: string }).ownerFactionName ?? hoveredTile.ownerFactionId ?? 'Neutral'}</strong>
+                  <strong>{hoveredTile.ownerFactionName ?? hoveredTile.ownerFactionId ?? 'Neutral'}</strong>
                 </div>
                 <div className="meta-row">
                   <span>Visibility</span>

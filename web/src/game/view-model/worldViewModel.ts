@@ -108,16 +108,16 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
   const hexes = Array.from(state.map.tiles.values()).map((tile) => {
     const key = hexToKey(tile.position);
     const ownerFactionId = getHexOwner(tile.position, state) ?? null;
-      const ownerFaction = ownerFactionId ? state.factions.get(ownerFactionId) : null;
-      return {
-        key,
-        q: tile.position.q,
-        r: tile.position.r,
-        terrain: tile.terrain,
-        visibility: hexVisibility.get(key) ?? 'hidden' as const,
-        ownerFactionId,
-        ownerFactionName: ownerFaction?.name ?? ownerFactionId,
-      };
+    const ownerFaction = ownerFactionId ? state.factions.get(ownerFactionId) : null;
+    return {
+      key,
+      q: tile.position.q,
+      r: tile.position.r,
+      terrain: tile.terrain,
+      visibility: hexVisibility.get(key) ?? 'hidden' as const,
+      ownerFactionId,
+      ownerFactionName: ownerFaction?.name ?? ownerFactionId,
+    };
   });
 
   const moveCounts = new Map<string, number>();
@@ -247,7 +247,7 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
         isEmbarked: unitTransport !== undefined || undefined,
         transportId: unitTransport?.transportId ?? null,
         boardableTransportIds: boardableTransportIds.length > 0 ? boardableTransportIds : undefined,
-validDisembarkHexes: validDisembarkHexes.length > 0 ? validDisembarkHexes : undefined,
+        validDisembarkHexes: validDisembarkHexes.length > 0 ? validDisembarkHexes : undefined,
         supplyCost: prototype ? getUnitSupplyCost(prototype, source.registry) : 1,
         isPrototype: prototype ? isUnlockPrototype(prototype) : false,
         summonTurnsRemaining: (() => {

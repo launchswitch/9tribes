@@ -177,8 +177,8 @@ describe('generateClimateBandMap', () => {
   it('is deterministic for the same seed and options', () => {
     const rng1 = createRNG(2026);
     const rng2 = createRNG(2026);
-    const first = generateClimateBandMap(rng1, START_REQUESTS, { width: 24, height: 18, rerollCap: 15 });
-    const second = generateClimateBandMap(rng2, START_REQUESTS, { width: 24, height: 18, rerollCap: 15 });
+    const first = generateClimateBandMap(rng1, START_REQUESTS, { width: 32, height: 24, rerollCap: 15 });
+    const second = generateClimateBandMap(rng2, START_REQUESTS, { width: 32, height: 24, rerollCap: 15 });
 
     expect(first.startPositions).toEqual(second.startPositions);
     expect(first.validations).toEqual(second.validations);
@@ -193,10 +193,10 @@ describe('generateClimateBandMap', () => {
   // Skipped: Pre-existing failure - southDesert count is 1 instead of >6 for seed 77 on this map size/configuration
   it.skip('skews colder in the north and hotter in the south', () => {
     const rng = createRNG(77);
-    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 24, height: 18, rerollCap: 15 });
+    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 32, height: 24, rerollCap: 15 });
 
     const northRows = [0, 1, 2];
-    const southRows = [15, 16, 17];
+    const southRows = [21, 22, 23];
     const northTundra = Array.from(map.tiles.values()).filter((tile) => northRows.includes(tile.position.r) && tile.terrain === 'tundra').length;
     const southDesert = Array.from(map.tiles.values()).filter((tile) => southRows.includes(tile.position.r) && tile.terrain === 'desert').length;
 
@@ -207,13 +207,13 @@ describe('generateClimateBandMap', () => {
 
   it('satisfies the required tribe start rules', () => {
     const rng = createRNG(9090);
-    const generated = generateClimateBandMap(rng, START_REQUESTS, { width: 24, height: 18, rerollCap: 15 });
+    const generated = generateClimateBandMap(rng, START_REQUESTS, { width: 32, height: 24, rerollCap: 15 });
 
     const validationByFaction = Object.fromEntries(
       generated.validations.map((validation) => [validation.factionId, validation])
     );
 
-    expect(validationByFaction.frost_wardens.position.r).toBeLessThanOrEqual(6);
+    expect(validationByFaction.frost_wardens.position.r).toBeLessThanOrEqual(8);
     expect(validationByFaction.frost_wardens.checks.tundraShare).toBe(true);
     expect(validationByFaction.coral_people.checks.waterAccess).toBe(true);
     expect(validationByFaction.coral_people.checks.noDeadEnd).toBe(true);
@@ -225,7 +225,7 @@ describe('generateClimateBandMap', () => {
 
   it('generates both swamps and mountains on the random climate map path', () => {
     const rng = createRNG(2026);
-    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 24, height: 18, rerollCap: 15 });
+    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 32, height: 24, rerollCap: 15 });
     const terrainCounts = Array.from(map.tiles.values()).reduce<Record<string, number>>((counts, tile) => {
       counts[tile.terrain] = (counts[tile.terrain] ?? 0) + 1;
       return counts;
@@ -237,7 +237,7 @@ describe('generateClimateBandMap', () => {
 
   it('never places desert in the arctic and tundra rows', () => {
     const rng = createRNG(55);
-    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 24, height: 18, rerollCap: 25 });
+    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 32, height: 24, rerollCap: 25 });
     const tundraBandEndRow = map.metadata?.climateProfile?.tundraBandEndRow ?? 0;
 
     const invalidDesert = Array.from(map.tiles.values()).filter(
@@ -248,7 +248,7 @@ describe('generateClimateBandMap', () => {
 
   it('never places tundra in the hot southern desert band', () => {
     const rng = createRNG(56);
-    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 24, height: 18, rerollCap: 25 });
+    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 32, height: 24, rerollCap: 25 });
     const desertBandStartRow = map.metadata?.climateProfile?.desertBandStartRow ?? map.height;
 
     const invalidTundra = Array.from(map.tiles.values()).filter(
@@ -260,7 +260,7 @@ describe('generateClimateBandMap', () => {
   // Skipped: Pre-existing failure - coast placement fails for seed 57 on this map size/configuration (needs >15 rerolls)
   it.skip('keeps coast connected to the map edge instead of forming random inland lakes', () => {
     const rng = createRNG(57);
-    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 24, height: 18, rerollCap: 15 });
+    const { map } = generateClimateBandMap(rng, START_REQUESTS, { width: 32, height: 24, rerollCap: 15 });
     const coastTiles = Array.from(map.tiles.values()).filter((tile) => tile.terrain === 'coast');
 
     for (const tile of coastTiles) {
@@ -272,7 +272,7 @@ describe('generateClimateBandMap', () => {
   it('keeps river tiles in connected corridor clusters', () => {
     const rng = createRNG(58);
     // Keep this focused on river generation rather than unrelated full-start placement scarcity.
-    const { map } = generateClimateBandMap(rng, [], { width: 24, height: 18, rerollCap: 25 });
+    const { map } = generateClimateBandMap(rng, [], { width: 32, height: 24, rerollCap: 25 });
     const riverTiles = Array.from(map.tiles.values()).filter((tile) => tile.terrain === 'river');
     const visited = new Set<string>();
 
