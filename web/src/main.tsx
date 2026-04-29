@@ -4,6 +4,7 @@ import App from './App';
 import './styles.css';
 
 window.testClick = () => console.log('Global click test works!');
+
 window.addEventListener('click', () => console.log('Window clicked!'));
 
 window.onerror = (message, source, lineno, colno, error) => {

@@ -27,14 +27,8 @@ window.openFactionPopup = handleFactionClick;
 
   const factionInfo = useMemo(() => {
     const id = state.activeFactionId;
-    console.log('TopHud factionId:', id);
-    if (!id) {
-      console.log('No active faction id');
-      return null;
-    }
-    const info = getFactionInfo(id);
-    console.log('Faction info for', id, ':', info);
-    return info ?? null;
+    if (!id) return null;
+    return getFactionInfo(id) ?? null;
   }, [state.activeFactionId]);
 
   return (
