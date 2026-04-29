@@ -101,6 +101,21 @@ jungle_clan: {
       description: 'The legendary Desert Immortals are unstoppable — they heal from any wound and march forever. Limited to 1 on map.'
     },
   },
+  steppe_clan: {
+    id: 'steppe_clan', name: 'Steppe Riders', color: '#b98a2f', nativeDomain: 'Mobility', homeBiome: 'Plains',
+    intro: 'The Steppe Riders are masters of mobility. Their Horse Archers can move and shoot without penalty.',
+    strengths: ['Hit and run tactics', 'Open terrain advantage', 'Fast movement'],
+    weaknesses: ['Forest disadvantage', 'Siege weakness'],
+    tip: 'Use your speed to flank enemies and retreat before they can respond.',
+    signatureUnit: 'Warlord', specialTrait: 'Foraging Riders', specialAbility: 'Forage from any terrain',
+    uniqueMechanic: 'horse_archers', passiveTrait: 'foraging_riders',
+    unitStats: {
+      attack: 12, defense: 8, health: 80, moves: 5, range: 1,
+      tags: ['cavalry', 'mounted', 'ranged'],
+      ability: 'Hit & Run: Deal bonus damage when moving before attacking.',
+      description: 'The mighty Warlord leads the Steppe Riders with unmatched mobility and tactical flexibility.'
+    },
+  },
   coral_people: {
     id: 'coral_people', name: 'Pirate Lords', color: '#2a9d8f', nativeDomain: 'Slaving', homeBiome: 'Coast',
     intro: 'The Pirate Lords are the masters of coastal raiding. They capture enemy units and turn them into assets.',
