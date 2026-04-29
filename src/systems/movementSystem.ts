@@ -220,13 +220,18 @@ export function canMoveTo(
     return false;
   }
 
-  if (unit.movesRemaining < preview.totalCost && !preview.consumesAllMoves) {
-    return false;
-  }
-
-  // Consumes-all-moves terrain (swamp) still requires at least 1 move to enter
-  if (preview.consumesAllMoves && unit.movesRemaining < 1) {
-    return false;
+  if (unit.movesRemaining < preview.totalCost) {
+    // NEW: Allow movement into expensive terrain if unit has FULL moves available.
+    // Unit can "overdraw" by spending all its AP when starting with full moves.
+    // This allows moving 3 AP jungle with 2/2 max moves, but not with 1/2 moves.
+    if (preview.consumesAllMoves) {
+      // Swamp still requires at least 1 move
+      return false;
+    }
+    if (unit.movesRemaining < unit.maxMoves) {
+      // Can't overspend if not at full moves
+      return false;
+    }
   }
 
   return true;
