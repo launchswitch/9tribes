@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import { useState, useEffect } from 'react';
 import type { ClientState } from '../game/types/clientState';
+import { getFactionInfo } from '../data/faction-info';
 import { DropdownMenu } from './DropdownMenu';
 import { SynergyChip } from './SynergyChip';
 import type { MenuEntry } from './DropdownMenu';
@@ -56,10 +57,10 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
   const activeFaction = state.world.factions.find((f) => f.id === state.activeFactionId);
   const activeFactionSummary = state.hud.factionSummaries.find((summary) => summary.id === state.activeFactionId);
   const factionColor = activeFaction?.color ?? '#d6a34b';
+  const factionInfo = state.activeFactionId ? getFactionInfo(state.activeFactionId) : null;
 
   useEffect(() => {
     window.openFactionPopup = () => {
-      console.log('GameMenuBar: opening faction popup!');
       setFactionPopupOpen(true);
     };
     return () => { window.openFactionPopup = undefined; };
@@ -89,12 +90,48 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
 
   return (
     <nav className="gmb-root" style={{ '--gmb-faction-color': factionColor } as CSSProperties}>
-      {factionPopupOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setFactionPopupOpen(false)}>
-          <div style={{ background: '#2a241e', padding: 20, borderRadius: 8, maxWidth: 400 }} onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setFactionPopupOpen(false)}>×</button>
-            <h3>Faction: {state.hud.activeFactionName}</h3>
-            <p>Faction popup works!</p>
+      {factionPopupOpen && factionInfo && (
+        <div className="faction-popup-overlay" onClick={() => setFactionPopupOpen(false)}>
+          <div className="faction-popup" onClick={(e) => e.stopPropagation()}>
+            <button className="faction-popup__close" onClick={() => setFactionPopupOpen(false)}>×</button>
+            <h3 className="faction-popup__name" style={{ color: factionInfo.color }}>{factionInfo.name}</h3>
+            <div className="faction-popup__section">
+              <span className="faction-popup__label">Native Ability</span>
+              <span>{factionInfo.nativeDomain}</span>
+            </div>
+            <div className="faction-popup__section">
+              <span className="faction-popup__label">Home Biome</span>
+              <span>{factionInfo.homeBiome}</span>
+            </div>
+            <div className="faction-popup__section">
+              <span className="faction-popup__label">Special Trait</span>
+              <span className="faction-popup__trait">{factionInfo.passiveTrait.replace(/_/g, ' ')}</span>
+            </div>
+            <div className="faction-popup__section">
+              <span className="faction-popup__label">Signature Unit</span>
+              <span>{factionInfo.signatureUnit}</span>
+            </div>
+            <div className="faction-popup__section">
+              <span className="faction-popup__label">Special Ability</span>
+              <span>{factionInfo.specialAbility}</span>
+            </div>
+            <p className="faction-popup__intro">{factionInfo.intro}</p>
+            <div className="faction-popup__section">
+              <span className="faction-popup__label">Strengths</span>
+              <ul className="faction-popup__list">
+                {factionInfo.strengths.map((s, i) => <li key={i}>{s}</li>)}
+              </ul>
+            </div>
+            <div className="faction-popup__section">
+              <span className="faction-popup__label">Weaknesses</span>
+              <ul className="faction-popup__list">
+                {factionInfo.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
+              </ul>
+            </div>
+            <div className="faction-popup__section">
+              <span className="faction-popup__label">Tip</span>
+              <p className="faction-popup__tip">{factionInfo.tip}</p>
+            </div>
           </div>
         </div>
       )}
