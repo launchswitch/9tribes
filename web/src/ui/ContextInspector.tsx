@@ -54,6 +54,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
   const [cityTab, setCityTab] = useState<CityTab>('overview');
   const [factionPopup, setFactionPopup] = useState<FactionInfo | null>(null);
   const [domainPopup, setDomainPopup] = useState<{domainId: string; name: string; description: string} | null>(null);
+  const [unitPopupOpen, setUnitPopupOpen] = useState(false);
   const tabsRef = useRef<HTMLDivElement>(null);
   const [tabsCanScrollLeft, setTabsCanScrollLeft] = useState(false);
   const [tabsCanScrollRight, setTabsCanScrollRight] = useState(false);
@@ -159,7 +160,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
             </div>
             <div className="faction-popup__section">
               <span className="faction-popup__label">Signature Unit</span>
-              <span>{factionPopup.signatureUnit}</span>
+              <span className="signature-unit-click" onClick={() => setUnitPopupOpen(true)}>{factionPopup.signatureUnit}</span>
             </div>
             <div className="faction-popup__section">
               <span className="faction-popup__label">Special Ability</span>
@@ -182,6 +183,28 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
               <span className="faction-popup__label">Tip</span>
               <p className="faction-popup__tip">{factionPopup.tip}</p>
             </div>
+          </div>
+        </div>
+      )}
+      {unitPopupOpen && factionPopup?.unitStats && (
+        <div className="faction-popup-overlay" onClick={() => setUnitPopupOpen(false)}>
+          <div className="faction-popup unit-stats-popup" onClick={(e) => e.stopPropagation()}>
+            <button className="faction-popup__close" onClick={() => setUnitPopupOpen(false)}>×</button>
+            <h3 className="unit-stats-panel__name" style={{ color: factionPopup.color }}>{factionPopup.unitStats.attack} / {factionPopup.unitStats.defense} / {factionPopup.unitStats.health}</h3>
+            <div className="unit-stats-panel__stats">
+              <div><span>Attack</span><strong>{factionPopup.unitStats.attack}</strong></div>
+              <div><span>Defense</span><strong>{factionPopup.unitStats.defense}</strong></div>
+              <div><span>Health</span><strong>{factionPopup.unitStats.health}</strong></div>
+              <div><span>Moves</span><strong>{factionPopup.unitStats.moves}</strong></div>
+              <div><span>Range</span><strong>{factionPopup.unitStats.range}</strong></div>
+            </div>
+            <div className="unit-stats-panel__tags">
+              {factionPopup.unitStats.tags.map((tag, i) => <span key={i} className="unit-tag">{tag}</span>)}
+            </div>
+            <div className="unit-stats-panel__ability">
+              <strong>Ability:</strong> {factionPopup.unitStats.ability}
+            </div>
+            <p className="unit-stats-panel__desc">{factionPopup.unitStats.description}</p>
           </div>
         </div>
       )}
