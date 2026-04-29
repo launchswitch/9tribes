@@ -87,6 +87,26 @@ export class UnitRenderer {
         callbacks.onUnitSelected(unit.id, pointer);
         callbacks.onUnitPointerDown(unit.id, pointer);
       });
+      const attackIndicators: Phaser.GameObjects.GameObject[] = [];
+      sprite.on('pointerover', () => {
+        if (isAttackTarget) {
+          const ring = this.scene.add.ellipse(point.x, point.y - 8, 56, 32, 0xff3333, 0.08).setStrokeStyle(2, 0xff3333, 0.6);
+          const cross = this.scene.add.graphics();
+          cross.lineStyle(2, 0xff3333, 1);
+          const sx = point.x, sy = point.y - 24;
+          cross.lineBetween(sx - 6, sy - 6, sx + 6, sy + 6);
+          cross.lineBetween(sx - 6, sy + 6, sx + 6, sy - 6);
+          attackIndicators.push(ring, cross);
+          this.layer.add(ring);
+          this.layer.add(cross);
+        }
+      });
+      sprite.on('pointerout', () => {
+        for (const g of attackIndicators) {
+          g.destroy();
+        }
+        attackIndicators.length = 0;
+      });
       this.layer.add(sprite);
 
       if (isLastMoved) {
