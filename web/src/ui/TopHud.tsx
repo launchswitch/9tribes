@@ -21,6 +21,7 @@ interface FactionInfo {
   uniqueMechanic: string;
   passiveTrait: string;
   signatureUnit: string;
+  specialAbility: string;
 }
 
 const FACTION_INFO_MAP: Record<string, Omit<FactionInfo, 'id'>> = {
@@ -36,6 +37,7 @@ const FACTION_INFO_MAP: Record<string, Omit<FactionInfo, 'id'>> = {
     uniqueMechanic: 'jungle_poison',
     passiveTrait: 'jungle_stalkers',
     signatureUnit: 'Serpent God',
+    specialAbility: 'Poison on attacks',
   },
   druid_circle: {
     name: 'Druid Circle',
@@ -49,6 +51,7 @@ const FACTION_INFO_MAP: Record<string, Omit<FactionInfo, 'id'>> = {
     uniqueMechanic: 'healing_druids',
     passiveTrait: 'forest_regeneration',
     signatureUnit: 'Druid Wizard',
+    specialAbility: 'Healing aura boosts nearby units',
   },
   hill_clan: {
     name: 'Hill Engineers',
@@ -62,6 +65,7 @@ const FACTION_INFO_MAP: Record<string, Omit<FactionInfo, 'id'>> = {
     uniqueMechanic: 'fortressDefense',
     passiveTrait: 'hill_defenders',
     signatureUnit: 'War Tower',
+    specialAbility: 'City garrison morale boost',
   },
   savannah_lions: {
     name: 'Savannah Lions',
@@ -75,19 +79,21 @@ const FACTION_INFO_MAP: Record<string, Omit<FactionInfo, 'id'>> = {
     uniqueMechanic: 'charge_momentum',
     passiveTrait: 'elephant_charge',
     signatureUnit: 'War Elephant',
+    specialAbility: 'Elephant tramples enemies',
   },
   steppe_clan: {
     name: 'Steppe Riders',
     color: '#b98a2f',
     nativeDomain: 'Skirmish Pursuit',
     homeBiome: 'Plains',
-    intro: 'Speed is life for the Steppe Riders. These horse lords race across open plains, striking and vanishing.',
-    strengths: ['You dictate when and where fights happen', 'Supply isn\'t your problem with Foraging', 'Slow armies are free food'],
-    weaknesses: ['Camel riders hard-counter horses', 'Fortified spear walls on hills stop you'],
-    tip: 'Use a fast unit as bait, then hit their exposed flank.',
+    intro: 'Speed is life for the Steppe Riders - strike fast and vanish before response.',
+    strengths: ['Dictate when/where fights happen', 'Foraging Riders = +15% atk, +20% def on plains', 'Slow armies are free food'],
+    weaknesses: ['Camel riders counter horses', 'Fortified spear walls stop you'],
+    tip: 'Use fast unit as bait, hit exposed flank with cavalry.',
     uniqueMechanic: 'foraging_riders',
-    passiveTrait: 'skirmish_pursuit',
+    passiveTrait: 'foraging_riders',
     signatureUnit: 'Warlord',
+    specialAbility: 'Aura boosts nearby cavalry attack/defense',
   },
   desert_nomads: {
     name: 'Desert Nomads',
@@ -101,6 +107,7 @@ const FACTION_INFO_MAP: Record<string, Omit<FactionInfo, 'id'>> = {
     uniqueMechanic: 'desert_adaptation',
     passiveTrait: 'camel_mobility',
     signatureUnit: 'Camel Rider',
+    specialAbility: 'Camel tramples, immune to heat',
   },
   coral_people: {
     name: 'Pirate Lords',
@@ -114,6 +121,7 @@ const FACTION_INFO_MAP: Record<string, Omit<FactionInfo, 'id'>> = {
     uniqueMechanic: 'greedy',
     passiveTrait: 'capturer',
     signatureUnit: 'Galley',
+    specialAbility: 'Captures defeated enemy units',
   },
   river_people: {
     name: 'River People',
@@ -127,6 +135,7 @@ const FACTION_INFO_MAP: Record<string, Omit<FactionInfo, 'id'>> = {
     uniqueMechanic: 'amphibious_assault',
     passiveTrait: 'river_assault',
     signatureUnit: 'Ancient Alligator',
+    specialAbility: 'Ambushes from rivers',
   },
   frost_wardens: {
     name: 'Arctic Wardens',
@@ -140,6 +149,7 @@ const FACTION_INFO_MAP: Record<string, Omit<FactionInfo, 'id'>> = {
     uniqueMechanic: 'cold_hardened',
     passiveTrait: 'heavy_defense',
     signatureUnit: 'Polar Bear',
+    specialAbility: 'Slows enemies on hit',
   },
 };
 
@@ -165,7 +175,7 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
             <button className="faction-popup__close" onClick={() => setFactionPopup(false)}>×</button>
             <h3 className="faction-popup__name" style={{ color: factionInfo.color }}>{factionInfo.name}</h3>
             <div className="faction-popup__section">
-              <span className="faction-popup__label">Native Domain</span>
+              <span className="faction-popup__label">Native Ability</span>
               <span>{factionInfo.nativeDomain}</span>
             </div>
             <div className="faction-popup__section">
@@ -179,6 +189,10 @@ export function TopHud({ state, turnBanner, onOpenResearch }: TopHudProps) {
             <div className="faction-popup__section">
               <span className="faction-popup__label">Signature Unit</span>
               <span>{factionInfo.signatureUnit}</span>
+            </div>
+            <div className="faction-popup__section">
+              <span className="faction-popup__label">Special Ability</span>
+              <span>{factionInfo.specialAbility}</span>
             </div>
             <p className="faction-popup__intro">{factionInfo.intro}</p>
             <div className="faction-popup__section">

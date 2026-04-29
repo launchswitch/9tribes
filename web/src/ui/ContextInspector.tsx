@@ -354,7 +354,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                 <span>Morale</span>
                 <strong>
                   <span className={`ci-morale-value${selectedUnit.morale <= 25 ? ' ci-morale-value--routed' : selectedUnit.morale <= 60 ? ' ci-morale-value--low' : ''}`}>
-                    {selectedUnit.morale}
+                    {Math.round(selectedUnit.morale)}
                   </span>
                   <span className="ci-stat-sub">/ 100</span>
                 </strong>
@@ -362,7 +362,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
               <div className="ci-morale-bar">
                 <div
                   className={`ci-morale-bar__fill${selectedUnit.morale <= 25 ? ' ci-morale-bar__fill--routed' : selectedUnit.morale <= 60 ? ' ci-morale-bar__fill--low' : ''}`}
-                  style={{ width: `${selectedUnit.morale}%` }}
+                  style={{ width: `${Math.round(selectedUnit.morale)}%` }}
                 />
               </div>
               <div className="meta-row">
