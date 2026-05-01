@@ -239,9 +239,9 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
           <div className="ci-section">
             <p className="ci-desc">{state.hud.selectedDescription}</p>
 
-            {/* Movement/Combat Modifiers */}
+            {/* STATS */}
             <div className="ci-unit-combat">
-              <p className="panel-kicker">Movement/Combat Modifiers</p>
+              <p className="panel-kicker">STATS</p>
               <div className="ci-stat-grid">
                 <div className="ci-stat-cell">
                   <span className="ci-stat-value">{selectedUnit.hp}</span>
