@@ -174,6 +174,11 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
             <strong>Ability:</strong> {unitStats.ability}
           </div>
           <p className="unit-stats-panel__desc">{unitStats.description}</p>
+          {factionInfo?.summonCondition && (
+            <div className="unit-stats-panel__condition">
+              <strong>Summon:</strong> {factionInfo.summonCondition}
+            </div>
+          )}
         </div>
       )}
       <div className="gmb-menus">

@@ -23,6 +23,7 @@ export interface FactionInfo {
     ability: string;
     description: string;
   };
+  summonCondition?: string;
 }
 
 const FACTION_INFO_MAP: Record<string, FactionInfo> = {
@@ -37,8 +38,9 @@ jungle_clan: {
     unitStats: {
       attack: 16, defense: 8, health: 90, moves: 4, range: 1,
       tags: ['beast', 'jungle', 'poison', 'melee'],
-      ability: 'Poison Venom: Attacks apply poison dealing 5 damage/turn for 3 turns. Immune to jungle attrition.',
-      description: 'The colossal Serpent God coils through the jungle, its venomous bite capable of felling the toughest warriors.'
+ability: 'Poison Venom: Attacks apply poison dealing 5 damage/turn for 3 turns. Immune to jungle attrition.',
+      description: 'The colossal Serpent God coils through the jungle, its venomous bite capable of felling the toughest warriors.',
+      summonCondition: 'Your unit must be standing in Jungle terrain.',
     },
   },
   druid_circle: {
@@ -113,7 +115,8 @@ jungle_clan: {
       attack: 12, defense: 8, health: 80, moves: 5, range: 1,
       tags: ['cavalry', 'mounted', 'ranged'],
       ability: 'Hit & Run: Deal bonus damage when moving before attacking.',
-      description: 'The mighty Warlord leads the Steppe Riders with unmatched mobility and tactical flexibility.'
+      description: 'The mighty Warlord leads the Steppe Riders with unmatched mobility and tactical flexibility.',
+      summonCondition: 'Your unit must be standing in Plains or Savannah terrain.',
     },
   },
   coral_people: {
@@ -142,8 +145,9 @@ jungle_clan: {
     unitStats: {
       attack: 16, defense: 8, health: 100, moves: 5, range: 1,
       tags: ['beast', 'river', 'ambush', 'amphibious'],
-      ability: 'River Ambush: +50% attack when attacking from river tiles. Can emerge from any river hex.',
-      description: 'The Ancient Alligator lurks beneath river surfaces, emerging to drag unlucky foes into the depths.'
+ability: 'River Ambush: +50% attack when attacking from river tiles. Can emerge from any river hex.',
+      description: 'The Ancient Alligator lurks beneath river surfaces, emerging to drag unlucky foes into the depths.',
+      summonCondition: 'Your unit must be standing in River, Jungle, or Swamp terrain.',
     },
   },
   frost_wardens: {
@@ -157,8 +161,9 @@ jungle_clan: {
     unitStats: {
       attack: 18, defense: 14, health: 120, moves: 4, range: 1,
       tags: ['beast', 'frost', 'cold'],
-      ability: 'Chilling Presence: Attacks apply Cold (-5 defense) for 2 turns. +50% attack in cold terrain.',
-      description: 'The mighty Polar Bear is the apex predator of the frozen north, its icy roar freezing all who oppose the Wardens.'
+ability: 'Chilling Presence: Attacks apply Cold (-5 defense) for 2 turns. +50% attack in cold terrain.',
+      description: 'The mighty Polar Bear is the apex predator of the frozen north, its icy roar freezing all who oppose the Wardens.',
+      summonCondition: 'Your unit must be standing in Tundra terrain.',
     },
   },
 };
