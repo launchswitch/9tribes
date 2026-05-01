@@ -69,6 +69,7 @@ import { getUnitAtHex } from '../occupancySystem.js';
 import { maybeExpirePreparedAbility } from '../unitActivationSystem.js';
 import { applySupplyDeficitPenalties } from '../warExhaustionSystem.js';
 import type { DifficultyLevel } from '../aiDifficulty.js';
+import { getAiDifficultyProfile } from '../aiDifficulty.js';
 import type { FactionStrategy } from '../factionStrategy.js';
 import type { SimulationTrace } from './traceTypes.js';
 import { log, recordFactionStrategy, recordSiegeEvent } from './traceRecorder.js';
@@ -142,7 +143,9 @@ function startOrAdvanceCodification(
     return state;
   }
 
-  let researchAmount = currentResearch.researchPerTurn;
+  let researchAmount = difficulty
+    ? getAiDifficultyProfile(difficulty).researchRate
+    : currentResearch.researchPerTurn;
   if (activeDomain?.id === 'camel_adaptation') {
     for (const city of state.cities.values()) {
       if (city.factionId === factionId) {

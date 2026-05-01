@@ -439,6 +439,7 @@ export function applyDifficultyCoordinator(
     difficultyProfile.strategy.multiAxisEnabled
     && difficultyProfile.strategy.multiAxisGroupCount > 1
     && hunterCount >= multiAxisMinGroupSize * 2
+    && activeArmy.length >= 8
   ) {
     const secondTargetCity = chooseAdaptivePressureCity(
       state,
