@@ -175,7 +175,7 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
           </div>
           <p className="unit-stats-panel__desc">{unitStats.description}</p>
           {factionInfo?.summonCondition && (
-            <div className="unit-stats-panel__condition">
+            <div style={{ marginTop: '12px', padding: '12px', background: '#a855f7', borderRadius: '8px', color: '#fff', fontWeight: 700, textAlign: 'center', fontSize: '14px' }}>
               {factionInfo.summonCondition}
             </div>
           )}
