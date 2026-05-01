@@ -23,12 +23,6 @@ export function useSessionAudio(state: ClientState, combatLocked: boolean) {
     if (combatLocked || !pendingVillageDestroyedAlert || pendingVillageDestroyedAlert.length === 0) {
       return;
     }
-
-    const villageSummary = pendingVillageDestroyedAlert.join(', ');
-    const message = pendingVillageDestroyedAlert.length === 1
-      ? `A village has been destroyed: ${villageSummary}.`
-      : `Villages have been destroyed: ${villageSummary}.`;
-    window.alert(message);
     setPendingVillageDestroyedAlert(null);
   }, [combatLocked, pendingVillageDestroyedAlert]);
 }

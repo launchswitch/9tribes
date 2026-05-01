@@ -13,6 +13,69 @@ import type {
   ResearchNodeViewState,
   ResearchNodeViewModel,
 } from '../../types/clientState';
+import HYBRID_RECIPES from '../../../../../src/content/base/hybrid-recipes.json';
+import SIGNATURE_ABILITIES from '../../../../../src/content/base/signatureAbilities.json';
+import CIVILIZATIONS from '../../../../../src/content/base/civilizations.json';
+
+type UnlockEntry = { type: 'component' | 'chassis' | 'improvement' | 'recipe'; id: string; name: string };
+
+type SignatureSummon = {
+  chassisId: string;
+  name: string;
+};
+
+function getSignatureSummon(value: unknown): SignatureSummon | null {
+  if (!value || typeof value !== 'object' || !('summon' in value)) return null;
+  const summon = (value as { summon?: unknown }).summon;
+  if (!summon || typeof summon !== 'object') return null;
+  const maybeSummon = summon as { chassisId?: unknown; name?: unknown };
+  return typeof maybeSummon.chassisId === 'string' && typeof maybeSummon.name === 'string'
+    ? { chassisId: maybeSummon.chassisId, name: maybeSummon.name }
+    : null;
+}
+
+function getUnitUnlocksForNode(
+  domainId: string,
+  tier: number,
+  nativeFaction: string,
+): UnlockEntry[] {
+  const unlocks: UnlockEntry[] = [];
+
+  // T2 unlocks: mid-tier hybrid recipes (minLearnedDomains === 2) from the domain's native faction
+  if (tier >= 2) {
+    for (const recipe of Object.values(HYBRID_RECIPES) as { id: string; name: string; minLearnedDomains: number; nativeFaction: string }[]) {
+      if (recipe.nativeFaction === nativeFaction && recipe.minLearnedDomains === 2) {
+        unlocks.push({ type: 'recipe', id: recipe.id, name: recipe.name });
+      }
+    }
+  }
+
+  // T3 unlocks: late-tier hybrid recipes (minLearnedDomains === 3) from the domain's native faction
+  if (tier >= 3) {
+    for (const recipe of Object.values(HYBRID_RECIPES) as { id: string; name: string; minLearnedDomains: number; nativeFaction: string }[]) {
+      if (recipe.nativeFaction === nativeFaction && recipe.minLearnedDomains === 3) {
+        unlocks.push({ type: 'recipe', id: recipe.id, name: recipe.name });
+      }
+    }
+
+    // T3 also unlocks the signature summon unit for this faction (if it exists)
+    const summon = getSignatureSummon(SIGNATURE_ABILITIES[nativeFaction as keyof typeof SIGNATURE_ABILITIES]);
+    if (summon) {
+      unlocks.push({ type: 'recipe', id: summon.chassisId, name: summon.name });
+    }
+  }
+
+  return unlocks;
+}
+
+function getNativeFactionForDomain(domainId: string): string {
+  for (const civ of Object.values(CIVILIZATIONS) as { id: string; nativeDomain: string }[]) {
+    if (civ.nativeDomain === domainId) {
+      return civ.id;
+    }
+  }
+  return '';
+}
 
 export function buildResearchInspectorViewModel(
   state: GameState,
@@ -37,6 +100,7 @@ export function buildResearchInspectorViewModel(
     const domainId = domainDef.id;
     const isNative = domainId === nativeDomain;
     const isUnlocked = learnedDomains.includes(domainId);
+    const domainNativeFaction = getNativeFactionForDomain(domainId);
 
     for (const nodeDef of Object.values(domainDef.nodes) as ResearchNodeDef[]) {
       const isCompleted = research.completedNodes.includes(nodeDef.id as never);
@@ -69,7 +133,7 @@ export function buildResearchInspectorViewModel(
         state: nodeState,
         prerequisites: nodeDef.prerequisites ?? [],
         prerequisiteNames: [],
-        unlocks: [],
+        unlocks: getUnitUnlocksForNode(domainId, nodeDef.tier ?? 1, domainNativeFaction),
         qualitativeEffect: isNative
           ? (nodeDef.qualitativeEffect?.nativeDescription ?? nodeDef.qualitativeEffect?.description ?? null)
           : (nodeDef.qualitativeEffect?.description ?? null),

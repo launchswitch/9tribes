@@ -112,6 +112,22 @@
   font-weight: 700;
 }
 
+.gmb-chip--summon-active {
+  border-color: var(--summon, #a855f7);
+  color: var(--summon, #a855f7);
+}
+.gmb-chip--summon-active > span:last-child {
+  font-weight: 700;
+}
+
+.gmb-chip--summon-cooldown {
+  border-color: var(--muted, #888);
+  cursor: help;
+}
+.gmb-chip--summon-cooldown > span:last-child {
+  font-weight: 700;
+}
+
 .gmb-chip-label {
   font-size: 10px;
   font-weight: 600;

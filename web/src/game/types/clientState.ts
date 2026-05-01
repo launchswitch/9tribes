@@ -52,6 +52,12 @@ export type HudViewModel = {
     productionPenalty: number;
     moralePenalty: number;
   } | null;
+  summonTimer: {
+    cooldownRemaining: number | null;
+    turnsRemaining: number | null;
+    summonName: string | null;
+    isActive: boolean;
+  } | null;
 };
 
 export type SettlementSiteTraitViewModel = {
@@ -377,6 +383,8 @@ export type GameAction =
   | { type: 'focus_unit'; unitId: string }
   | { type: 'select_city'; cityId: string }
   | { type: 'select_village'; villageId: string }
+  | { type: 'hover_select_unit'; unitId: string }
+  | { type: 'hover_select_city'; cityId: string }
   | { type: 'set_city_production'; cityId: string; prototypeId: string }
   | { type: 'cancel_city_production'; cityId: string }
   | { type: 'remove_from_queue'; cityId: string; queueIndex: number }

@@ -54,6 +54,19 @@ export function buildReachableMoves(
 
       const key = `${hex.q},${hex.r}`;
       const path = [...current.path, { q: hex.q, r: hex.r }];
+      const destTile = map.tiles.get(key);
+      const destTerrain = destTile?.terrain ?? '';
+      const unitPrototype = state.prototypes.get(unit.prototypeId);
+      const unitTags = new Set(unitPrototype?.tags ?? []);
+      const isInSettlement = Array.from(nextState.cities.values()).some((city) => city.position.q === hex.q && city.position.r === hex.r)
+        || Array.from(nextState.villages.values()).some((village) => village.position.q === hex.q && village.position.r === hex.r);
+      const terrainCausesDamage =
+        !isInSettlement
+        && (
+          (destTerrain === 'jungle' && !unitTags.has('jungle'))
+          || (destTerrain === 'desert' && !unitTags.has('desert'))
+          || (destTerrain === 'swamp' && !unitTags.has('swamp'))
+        );
       const candidate: ReachableHexView = {
         key,
         q: hex.q,
@@ -61,6 +74,7 @@ export function buildReachableMoves(
         cost: unit.movesRemaining - movedUnit.movesRemaining,
         movesRemainingAfterMove: movedUnit.movesRemaining,
         path,
+        terrainCausesDamage,
       };
 
       const previous = movesByKey.get(key);

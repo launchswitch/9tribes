@@ -381,6 +381,17 @@ function buildPlayHudViewModel(
             : { points: 0, productionPenalty: 0, moralePenalty: 0 };
         })()
       : null,
+    summonTimer: (() => {
+      const faction = state.activeFactionId ? state.factions.get(state.activeFactionId) : null;
+      const ss = faction?.summonState;
+      if (!ss) return null;
+      return {
+        cooldownRemaining: ss.summoned ? null : ss.cooldownRemaining,
+        turnsRemaining: ss.summoned ? ss.turnsRemaining : null,
+        summonName: ss.summoned ? 'Summon Active' : null,
+        isActive: ss.summoned,
+      };
+    })(),
   };
 }
 
@@ -481,7 +492,7 @@ function describeSelectionFromWorld(
     const faction = unit ? world.factions.find((entry) => entry.id === unit.factionId) : null;
     return {
       title: unit?.prototypeName ?? 'Unit',
-      description: `${faction?.name ?? 'Unknown faction'} field unit.`,
+      description: unit?.prototypeName ?? `${faction?.name ?? 'Unknown'} unit.`,
       meta: [
         { label: 'Position', value: unit ? `${unit.q}, ${unit.r}` : 'n/a' },
         { label: 'Health', value: unit ? `${unit.hp}/${unit.maxHp}` : 'n/a' },

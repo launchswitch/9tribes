@@ -363,9 +363,10 @@ export class MapScene extends Phaser.Scene {
       return;
     }
 
-    const occupyingUnit = state.world.units.find((unit) => unit.q === city.q && unit.r === city.r);
+    const occupyingUnit = state.world.units.find((unit) => unit.q === city.q && unit.r === city.r && unit.isActiveFaction);
     if (occupyingUnit) {
-      this.handleSingleClickUnit(state, occupyingUnit.id);
+      const screenPos = this.worldToScreen(city.q, city.r);
+      window.openHoverSelect?.(screenPos.x, screenPos.y + 20, { id: occupyingUnit.id, name: occupyingUnit.prototypeName }, { id: city.id, name: city.name });
       return;
     }
 
