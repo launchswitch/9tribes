@@ -270,7 +270,7 @@ export function ContextInspector({ state, isOpen, onOpen, onClose, onSetCityProd
                   </div>
                 )}
                 <div className="ci-stat-cell">
-                  <span className="ci-stat-value">{selectedUnit.movesRemaining}/{selectedUnit.movesMax}</span>
+                  <span className="ci-stat-value">{selectedUnit.movesMax}</span>
                   <span className="ci-stat-label">MOVES</span>
                 </div>
               </div>
