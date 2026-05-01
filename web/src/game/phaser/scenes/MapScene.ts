@@ -363,12 +363,6 @@ export class MapScene extends Phaser.Scene {
       return;
     }
 
-    // Alt+Click on occupied city → select city even when a unit is present
-    if (MapScene.isAltClick(pointer)) {
-      this.controller.dispatch({ type: 'select_city', cityId });
-      return;
-    }
-
     const occupyingUnit = state.world.units.find((unit) => unit.q === city.q && unit.r === city.r);
     if (occupyingUnit) {
       this.handleSingleClickUnit(state, occupyingUnit.id);
@@ -389,12 +383,6 @@ export class MapScene extends Phaser.Scene {
 
     if (MapScene.isCtrlClick(pointer)) {
       this.controller.dispatch({ type: 'inspect_terrain', q: village.q, r: village.r });
-      return;
-    }
-
-    const occupyingUnit = state.world.units.find((unit) => unit.q === village.q && unit.r === village.r);
-    if (occupyingUnit && !MapScene.isAltClick(pointer)) {
-      this.handleSingleClickUnit(state, occupyingUnit.id);
       return;
     }
 
@@ -520,12 +508,6 @@ export class MapScene extends Phaser.Scene {
   private static isCtrlClick(pointer?: Phaser.Input.Pointer): boolean {
     if (!(pointer?.event instanceof MouseEvent)) return false;
     return pointer.event.ctrlKey || pointer.event.metaKey;
-  }
-
-  /** Check if a pointer event has Alt held */
-  private static isAltClick(pointer?: Phaser.Input.Pointer): boolean {
-    if (!(pointer?.event instanceof MouseEvent)) return false;
-    return pointer.event.altKey;
   }
 
   /** Detect double-click on the same hex (within 400ms) */
