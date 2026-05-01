@@ -81,6 +81,17 @@ export class PathRenderer {
         .setStrokeStyle(2, 0xfff4c8, 0.95);
       this.layer.add(marker);
     }
+
+    // Show skull indicator on destination hex if terrain causes attrition damage
+    if (world.overlays.pathPreview.length >= 1) {
+      const dest = world.overlays.pathPreview[world.overlays.pathPreview.length - 1];
+      const destHex = world.map.hexes.find((h) => h.key === dest.key);
+      if (destHex && (destHex.terrain === 'jungle' || destHex.terrain === 'desert' || destHex.terrain === 'swamp')) {
+        const point = this.worldToScreen(dest.q, dest.r);
+        const skull = this.scene.add.text(point.x, point.y - 26, '💀', { fontSize: '18px' }).setOrigin(0.5, 0.5);
+        this.layer.add(skull);
+      }
+    }
   }
 
   private drawDashedLine(
