@@ -81,17 +81,6 @@ export class PathRenderer {
         .setStrokeStyle(2, 0xfff4c8, 0.95);
       this.layer.add(marker);
     }
-
-    // Show skull indicator on destination hex if terrain causes damage
-    if (world.overlays.pathPreview.length >= 1) {
-      const dest = world.overlays.pathPreview[world.overlays.pathPreview.length - 1];
-      const reachEntry = world.overlays.reachableHexes.find((h) => h.key === dest.key);
-      if (reachEntry?.terrainCausesDamage) {
-        const point = this.worldToScreen(dest.q, dest.r);
-        const skull = this.scene.add.text(point.x, point.y - 26, '💀', { fontSize: '18px' }).setOrigin(0.5, 0.5);
-        this.layer.add(skull);
-      }
-    }
   }
 
   private drawDashedLine(
