@@ -199,7 +199,7 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
               <span>Active ({state.hud.summonTimer.turnsRemaining})</span>
             </div>
           ) : (
-            <div className="gmb-chip gmb-chip--summon-cooldown" title={`Next summon in ${state.hud.summonTimer.cooldownRemaining} turns`}>
+            <div className="gmb-chip gmb-chip--summon-cooldown" title={`${state.hud.summonTimer.cooldownRemaining} turns until ${factionInfo?.signatureUnit ?? 'signature'} unit is summoned`}>
               <span className="gmb-chip-label">Summon</span>
               <span>{state.hud.summonTimer.cooldownRemaining}</span>
             </div>
