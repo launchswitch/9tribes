@@ -775,6 +775,40 @@
   text-align: center;
 }
 
+.hover-select-popup {
+  background: var(--bg-primary, #1a1915);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  min-width: 160px;
+}
+.hover-select-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 6px;
+  padding: 0 4px;
+}
+.hover-select-btn {
+  display: block;
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+.hover-select-btn:last-child { margin-bottom: 0; }
+.hover-select-btn:hover { background: rgba(255,255,255,0.12); }
+
 /* Faction info panel (below GameMenuBar) */
 .faction-info-panel {
   position: absolute;

@@ -50,6 +50,19 @@ export class GameController {
   }
 
   dispatch(action: GameAction) {
+    if (action.type === 'hover_select_unit') {
+      this.targetingMode = 'move';
+      this.selected = { type: 'unit', unitId: action.unitId };
+      this.productionPopupCityId = null;
+      this.requestInspectorOpen();
+      return;
+    }
+    if (action.type === 'hover_select_city') {
+      this.targetingMode = 'move';
+      this.selected = { type: 'city', cityId: action.cityId };
+      this.productionPopupCityId = null;
+      return;
+    }
     switch (action.type) {
       case 'select_hex':
         this.targetingMode = 'move';

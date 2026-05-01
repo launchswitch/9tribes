@@ -56,6 +56,10 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
   const [factionPopupOpen, setFactionPopupOpen] = useState(false);
   const [unitPopupOpen, setUnitPopupOpen] = useState(false);
   const [summonPopupOpen, setSummonPopupOpen] = useState(false);
+  const [hoverSelectOpen, setHoverSelectOpen] = useState(false);
+  const [hoverSelectPos, setHoverSelectPos] = useState({ x: 0, y: 0 });
+  const [hoverSelectUnit, setHoverSelectUnit] = useState<{ id: string; name: string } | null>(null);
+  const [hoverSelectCity, setHoverSelectCity] = useState<{ id: string; name: string } | null>(null);
   const activeFaction = state.world.factions.find((f) => f.id === state.activeFactionId);
   const activeFactionSummary = state.hud.factionSummaries.find((summary) => summary.id === state.activeFactionId);
   const factionColor = activeFaction?.color ?? '#d6a34b';
@@ -66,12 +70,39 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
     window.openFactionPopup = () => {
       setFactionPopupOpen(true);
     };
-    return () => { window.openFactionPopup = undefined; };
-  }, []);
+    window.openHoverSelect = (x: number, y: number, unit: { id: string; name: string } | null, city: { id: string; name: string } | null) => {
+      setHoverSelectPos({ x, y });
+      setHoverSelectUnit(unit);
+      setHoverSelectCity(city);
+      setHoverSelectOpen(true);
+    };
+    window.selectUnitFromHover = (unitId: string) => {
+      onMenuAction(`hover_select_unit:${unitId}`);
+    };
+    window.selectCityFromHover = (cityId: string) => {
+      onMenuAction(`hover_select_city:${cityId}`);
+    };
+    return () => {
+      window.openFactionPopup = undefined;
+      window.openHoverSelect = undefined;
+      window.selectUnitFromHover = undefined;
+      window.selectCityFromHover = undefined;
+    };
+  }, [onMenuAction]);
 
   const handleMenuAction = (action: string) => {
     if (action === 'open_research') {
       onOpenResearch();
+      return;
+    }
+    if (action.startsWith('hover_select_unit:')) {
+      const unitId = action.replace('hover_select_unit:', '');
+      window.selectUnitDirect?.(unitId);
+      return;
+    }
+    if (action.startsWith('hover_select_city:')) {
+      const cityId = action.replace('hover_select_city:', '');
+      window.selectCityDirect?.(cityId);
       return;
     }
     if (action === 'open_how_to_play') {
@@ -177,6 +208,21 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
           <div style={{ marginTop: '12px', padding: '12px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', color: '#fff', fontWeight: 600, textAlign: 'center', fontSize: '13px' }}>
             SUMMON: {factionInfo?.summonCondition ?? 'Your unit must be standing in Plains or Savannah terrain.'}
           </div>
+        </div>
+      )}
+      {hoverSelectOpen && (
+        <div className="hover-select-popup" style={{ position: 'fixed', top: hoverSelectPos.y, left: hoverSelectPos.x, zIndex: 99999 }} onClick={(e) => e.stopPropagation()}>
+          <div className="hover-select-title">Select:</div>
+          {hoverSelectUnit && (
+            <button className="hover-select-btn" onClick={() => { window.selectUnitFromHover?.(hoverSelectUnit.id); setHoverSelectOpen(false); }}>
+              Unit: {hoverSelectUnit.name}
+            </button>
+          )}
+          {hoverSelectCity && (
+            <button className="hover-select-btn" onClick={() => { window.selectCityFromHover?.(hoverSelectCity.id); setHoverSelectOpen(false); }}>
+              Settlement: {hoverSelectCity.name}
+            </button>
+          )}
         </div>
       )}
       <div className="gmb-menus">
