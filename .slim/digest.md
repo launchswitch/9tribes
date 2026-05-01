@@ -603,3 +603,11 @@ No significant changes detected.
 ### Dependency Changes
 - `src/features/cities/types.ts` — 2 dependencies
 - `src/systems/citySiteSystem.ts` — 16 dependencies
+
+---
+
+## Digest — 2026-05-01T19:57:51.060463Z
+
+### Dependency Changes
+
+No significant changes detected.

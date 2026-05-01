@@ -19,11 +19,25 @@ import CIVILIZATIONS from '../../../../../src/content/base/civilizations.json';
 
 type UnlockEntry = { type: 'component' | 'chassis' | 'improvement' | 'recipe'; id: string; name: string };
 
+type SignatureSummon = {
+  chassisId: string;
+  name: string;
+};
+
+function getSignatureSummon(value: unknown): SignatureSummon | null {
+  if (!value || typeof value !== 'object' || !('summon' in value)) return null;
+  const summon = (value as { summon?: unknown }).summon;
+  if (!summon || typeof summon !== 'object') return null;
+  const maybeSummon = summon as { chassisId?: unknown; name?: unknown };
+  return typeof maybeSummon.chassisId === 'string' && typeof maybeSummon.name === 'string'
+    ? { chassisId: maybeSummon.chassisId, name: maybeSummon.name }
+    : null;
+}
+
 function getUnitUnlocksForNode(
   domainId: string,
   tier: number,
   nativeFaction: string,
-  learnedDomains: string[],
 ): UnlockEntry[] {
   const unlocks: UnlockEntry[] = [];
 
@@ -45,9 +59,9 @@ function getUnitUnlocksForNode(
     }
 
     // T3 also unlocks the signature summon unit for this faction (if it exists)
-    const sig = SIGNATURE_ABILITIES[nativeFaction as keyof typeof SIGNATURE_ABILITIES];
-    if (sig && sig.summon) {
-      unlocks.push({ type: 'recipe', id: sig.summon.chassisId, name: sig.summon.name });
+    const summon = getSignatureSummon(SIGNATURE_ABILITIES[nativeFaction as keyof typeof SIGNATURE_ABILITIES]);
+    if (summon) {
+      unlocks.push({ type: 'recipe', id: summon.chassisId, name: summon.name });
     }
   }
 
@@ -119,7 +133,7 @@ export function buildResearchInspectorViewModel(
         state: nodeState,
         prerequisites: nodeDef.prerequisites ?? [],
         prerequisiteNames: [],
-        unlocks: getUnitUnlocksForNode(domainId, nodeDef.tier ?? 1, domainNativeFaction, learnedDomains),
+        unlocks: getUnitUnlocksForNode(domainId, nodeDef.tier ?? 1, domainNativeFaction),
         qualitativeEffect: isNative
           ? (nodeDef.qualitativeEffect?.nativeDescription ?? nodeDef.qualitativeEffect?.description ?? null)
           : (nodeDef.qualitativeEffect?.description ?? null),

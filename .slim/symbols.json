@@ -4137,17 +4137,6 @@
         }
       ]
     },
-    "web/src/ui/CommandTray.tsx": {
-      "exports": [
-        {
-          "name": "CommandTray",
-          "kind": "function",
-          "line": 18,
-          "signature": "export function CommandTray({",
-          "isDefault": false
-        }
-      ]
-    },
     "src/systems/strategic-ai/difficultyCoordinator.ts": {
       "exports": [
         {
@@ -6505,31 +6494,6 @@
         }
       ]
     },
-    "web/src/game/view-model/inspectors/cityInspectorViewModel.ts": {
-      "exports": [
-        {
-          "name": "buildCityInspectorViewModel",
-          "kind": "function",
-          "line": 48,
-          "signature": "export function buildCityInspectorViewModel(state: GameState, cityId: string, registry: RulesRegistry): CityInspectorViewModel | null {",
-          "isDefault": false
-        },
-        {
-          "name": "buildSettlementBonusSummary",
-          "kind": "function",
-          "line": 263,
-          "signature": "export function buildSettlementBonusSummary(bonuses: CitySiteBonuses): SettlementBonusSummaryViewModel {",
-          "isDefault": false
-        },
-        {
-          "name": "buildSettlementPreview",
-          "kind": "function",
-          "line": 273,
-          "signature": "export function buildSettlementPreview( state: GameState, selected: ClientSelection, hoveredKey: string | null, world: WorldViewModel, ): SettlementPreviewViewModel | null {",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/ui/GameMenuBar.tsx": {
       "exports": [
         {
@@ -7572,24 +7536,6 @@
         }
       ]
     },
-    "web/src/game/controller/GameSession.ts": {
-      "exports": [
-        {
-          "name": "SessionSaveSnapshot",
-          "kind": "type",
-          "line": 125,
-          "signature": "export type SessionSaveSnapshot = {",
-          "isDefault": false
-        },
-        {
-          "name": "GameSession",
-          "kind": "class",
-          "line": 137,
-          "signature": "export class GameSession {",
-          "isDefault": false
-        }
-      ]
-    },
     "web/src/game/phaser/systems/SelectionRenderer.ts": {
       "exports": [
         {
@@ -7600,16 +7546,70 @@
           "isDefault": false
         }
       ]
+    },
+    "web/src/game/view-model/inspectors/cityInspectorViewModel.ts": {
+      "exports": [
+        {
+          "name": "buildCityInspectorViewModel",
+          "kind": "function",
+          "line": 48,
+          "signature": "export function buildCityInspectorViewModel(state: GameState, cityId: string, registry: RulesRegistry): CityInspectorViewModel | null {",
+          "isDefault": false
+        },
+        {
+          "name": "buildSettlementBonusSummary",
+          "kind": "function",
+          "line": 263,
+          "signature": "export function buildSettlementBonusSummary(bonuses: CitySiteBonuses): SettlementBonusSummaryViewModel {",
+          "isDefault": false
+        },
+        {
+          "name": "buildSettlementPreview",
+          "kind": "function",
+          "line": 273,
+          "signature": "export function buildSettlementPreview( state: GameState, selected: ClientSelection, hoveredKey: string | null, world: WorldViewModel, ): SettlementPreviewViewModel | null {",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/ui/CommandTray.tsx": {
+      "exports": [
+        {
+          "name": "CommandTray",
+          "kind": "function",
+          "line": 18,
+          "signature": "export function CommandTray({",
+          "isDefault": false
+        }
+      ]
+    },
+    "web/src/game/controller/GameSession.ts": {
+      "exports": [
+        {
+          "name": "SessionSaveSnapshot",
+          "kind": "type",
+          "line": 126,
+          "signature": "export type SessionSaveSnapshot = {",
+          "isDefault": false
+        },
+        {
+          "name": "GameSession",
+          "kind": "class",
+          "line": 138,
+          "signature": "export class GameSession {",
+          "isDefault": false
+        }
+      ]
     }
   },
   "_metadata": {
     "version": "2.0.0",
-    "last_run": "2026-04-28T11:00:13.027171Z",
+    "last_run": "2026-05-01T19:57:51.060463Z",
     "root": "C:\\Users\\fosbo\\war-civ-v2",
     "file_count": 201
   },
   "_file_hashes": {
-    ".gitignore": "0174e7b5da1eab42b49ef6485ca23f54",
+    ".gitignore": "80990f2114d04288459dddb3f4303ffa",
     "AGENTS.md": "9296da726dc4978e6e8f152f89a6409d",
     "bun.lock": "839eb324a93cfb99ec18e3b44e118d6d",
     "CLAUDE.md": "ed79383afb499a83e2a9251f713c438c",
@@ -8046,7 +8046,7 @@
     "web/src/data/terrains.json": "f64a9c758bf6798adc5be62906c20aec",
     "web/src/game/controller/combatSession.ts": "bee635b82891c391d74b4f62a33866ad",
     "web/src/game/controller/GameController.ts": "260717531657e48e0fda3edcb751aaa7",
-    "web/src/game/controller/GameSession.ts": "d3f08dcb748a001182b9d9fcda4a3072",
+    "web/src/game/controller/GameSession.ts": "0b1e65ca633db5880cdbcfa9aa432625",
     "web/src/game/controller/movementExplorer.ts": "0eec11b2b6a42dc7982afb22fafd2bd9",
     "web/src/game/controller/moveQueueSession.ts": "a6cfd16b492be365aa7b5c8ecbe771d5",
     "web/src/game/controller/sessionUtils.ts": "8bac1eb080d867ee87d95dd67509f5bb",
@@ -8074,7 +8074,7 @@
     "web/src/game/types/playState.ts": "fb8ba1ae95fa98ee73cde423a199095e",
     "web/src/game/types/replay.ts": "4816ea386c705abf032a4840f12103b2",
     "web/src/game/types/worldView.ts": "0cde805599f7c3e008b2b60e6ba5280f",
-    "web/src/game/view-model/inspectors/cityInspectorViewModel.ts": "6df2ee7d0e0c182ada5105d1f7dbfc7d",
+    "web/src/game/view-model/inspectors/cityInspectorViewModel.ts": "d29bb7ae6039f92449f02185510c6d36",
     "web/src/game/view-model/inspectors/researchInspectorViewModel.ts": "3d240446fe44edb861757047f04ab9b7",
     "web/src/game/view-model/inspectors/terrainInspectorViewModel.ts": "704d1544a2c6461d8119e2e1895e769a",
     "web/src/game/view-model/spriteKeys.ts": "8b99faf4b023df48e13c4767d4104d61",
@@ -8098,7 +8098,7 @@
     "web/src/ui/CombatDetailModal.tsx": "d687ce02c3e4d7f73224f0058a95967e",
     "web/src/ui/CombatLogPanel.tsx": "35189524389f91f6e4b8c0fa3034989f",
     "web/src/ui/CombatTab.tsx": "23925a90f48725e92f77b17711570ed5",
-    "web/src/ui/CommandTray.tsx": "beb53e543476ede3aade2eb983f9618b",
+    "web/src/ui/CommandTray.tsx": "1731ba5845512b2caa936b1a3fb81f55",
     "web/src/ui/ContextInspector.tsx": "88e00224bf942250656bddc70bf65b13",
     "web/src/ui/ControlsTab.tsx": "c765ff216b9a75eb49f799ba7be71561",
     "web/src/ui/DebugOverlay.tsx": "d1ec01e6cd7d2f1333e3531dd675f90d",

@@ -35,12 +35,12 @@ jungle_clan: {
     tip: 'Lure enemies into the jungle by retreating, then spring your real force on them.',
     signatureUnit: 'Serpent God', specialTrait: 'Jungle Stalkers', specialAbility: 'Poison on attacks + stealth in jungle',
     uniqueMechanic: 'jungle_poison', passiveTrait: 'jungle_stalkers',
+    summonCondition: 'Your unit must be standing in Jungle terrain.',
     unitStats: {
       attack: 16, defense: 8, health: 90, moves: 4, range: 1,
       tags: ['beast', 'jungle', 'poison', 'melee'],
       ability: 'Poison Venom: Attacks apply poison dealing 5 damage/turn for 3 turns. Immune to jungle attrition.',
       description: 'The colossal Serpent God coils through the jungle, its venomous bite capable of felling the toughest warriors.',
-      summonCondition: 'Your unit must be standing in Jungle terrain.',
     },
   },
   druid_circle: {
@@ -66,12 +66,12 @@ jungle_clan: {
     tip: 'Secure high ground early and fortify. Let enemies come to you.',
     signatureUnit: 'War Tower', specialTrait: 'Hill Defenders', specialAbility: 'City garrison morale boost',
     uniqueMechanic: 'fortressDefense', passiveTrait: 'hill_defenders',
+    summonCondition: 'Your unit must be standing in Hill or City terrain.',
     unitStats: {
       attack: 8, defense: 18, health: 120, moves: 2, range: 3,
       tags: ['defensive', 'siege', 'structure'],
       ability: 'Fortress Garrison: +30% defense when garrisoning a city. Cannot move voluntarily.',
       description: 'The imposing War Tower stands as a bastion of hill defense, its elevated position commanding the battlefield.',
-      summonCondition: 'Your unit must be standing in Hill or City terrain.',
     },
   },
   savannah_lions: {
@@ -112,12 +112,12 @@ jungle_clan: {
     tip: 'Use your speed to flank enemies and retreat before they can respond.',
     signatureUnit: 'Warlord', specialTrait: 'Foraging Riders', specialAbility: 'Forage from any terrain',
     uniqueMechanic: 'horse_archers', passiveTrait: 'foraging_riders',
+    summonCondition: 'Your unit must be standing in Plains or Savannah terrain.',
     unitStats: {
       attack: 12, defense: 8, health: 80, moves: 5, range: 1,
       tags: ['cavalry', 'mounted', 'ranged'],
       ability: 'Hit & Run: Deal bonus damage when moving before attacking.',
       description: 'The mighty Warlord leads the Steppe Riders with unmatched mobility and tactical flexibility.',
-      summonCondition: 'Your unit must be standing in Plains or Savannah terrain.',
     },
   },
   coral_people: {
@@ -143,12 +143,12 @@ jungle_clan: {
     tip: 'Map out river networks early — they\'re your highway system.',
     signatureUnit: 'Ancient Alligator', specialTrait: 'River Assault', specialAbility: 'Ambushes from rivers',
     uniqueMechanic: 'amphibious_assault', passiveTrait: 'river_assault',
+    summonCondition: 'Your unit must be standing in River, Jungle, or Swamp terrain.',
     unitStats: {
       attack: 16, defense: 8, health: 100, moves: 5, range: 1,
       tags: ['beast', 'river', 'ambush', 'amphibious'],
 ability: 'River Ambush: +50% attack when attacking from river tiles. Can emerge from any river hex.',
       description: 'The Ancient Alligator lurks beneath river surfaces, emerging to drag unlucky foes into the depths.',
-      summonCondition: 'Your unit must be standing in River, Jungle, or Swamp terrain.',
     },
   },
   frost_wardens: {
@@ -159,12 +159,12 @@ ability: 'River Ambush: +50% attack when attacking from river tiles. Can emerge 
     tip: 'Own the frozen positions. Let opponents fight over "good" land.',
     signatureUnit: 'Polar Bear', specialTrait: 'Cold-Hardened', specialAbility: 'Attacks chill nearby enemies',
     uniqueMechanic: 'cold_hardened', passiveTrait: 'heavy_defense',
+    summonCondition: 'Your unit must be standing in Tundra terrain.',
     unitStats: {
       attack: 18, defense: 14, health: 120, moves: 4, range: 1,
       tags: ['beast', 'frost', 'cold'],
 ability: 'Chilling Presence: Attacks apply Cold (-5 defense) for 2 turns. +50% attack in cold terrain.',
       description: 'The mighty Polar Bear is the apex predator of the frozen north, its icy roar freezing all who oppose the Wardens.',
-      summonCondition: 'Your unit must be standing in Tundra terrain.',
     },
   },
 };
