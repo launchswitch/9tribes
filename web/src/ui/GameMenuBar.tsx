@@ -174,8 +174,8 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
             <strong>Ability:</strong> {unitStats.ability}
           </div>
           <p className="unit-stats-panel__desc">{unitStats.description}</p>
-          <div style={{ marginTop: '12px', padding: '12px', background: '#a855f7', borderRadius: '8px', color: '#fff', fontWeight: 700, textAlign: 'center', fontSize: '14px' }}>
-            SUMMON CONDITION: {factionInfo?.summonCondition ?? 'Your unit must be standing in Plains or Savannah terrain.'}
+          <div style={{ marginTop: '12px', padding: '12px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', color: '#fff', fontWeight: 600, textAlign: 'center', fontSize: '13px' }}>
+            SUMMON: {factionInfo?.summonCondition ?? 'Your unit must be standing in Plains or Savannah terrain.'}
           </div>
         </div>
       )}
