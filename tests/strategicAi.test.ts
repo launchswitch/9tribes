@@ -61,7 +61,7 @@ function trimState(state: ReturnType<typeof buildMvpScenario>, factionIds: strin
 }
 
 describe('strategic AI', () => {
-  it('uses triple-axis hard pressure with harassment launched before the main push', () => {
+  it('uses double-axis hard pressure with coordinated main and flanking pushes', () => {
     const state = buildMvpScenario(42, { registry });
     trimState(state, ['hill_clan', 'steppe_clan', 'coral_people']);
     const hillId = 'hill_clan' as never;
@@ -131,14 +131,15 @@ describe('strategic AI', () => {
     const first = computeFactionStrategy(state, hillId, registry, 'hard');
 
     const firstAssignments = Object.values(first.unitIntents);
-    expect(firstAssignments.some((intent) => intent.reason.includes('coordinator harassment wave'))).toBe(true);
-    expect(firstAssignments.some((intent) => intent.reason.includes('coordinator main push staging behind early harassment'))).toBe(true);
+    expect(first.debugReasons).toContain('hard_multi_axis=double');
+    expect(firstAssignments.some((intent) => intent.reason.includes('coordinator hunter push') && intent.reason.includes('toward'))).toBe(true);
+    expect(firstAssignments.some((intent) => intent.reason.includes('coordinator flanking push') && intent.reason.includes('toward'))).toBe(true);
 
     state.factionStrategies.set(hillId, first);
     state.round += 1;
     const second = computeFactionStrategy(state, hillId, registry, 'hard');
 
-    expect(Object.values(second.unitIntents).some((intent) => intent.reason.includes('coordinator main push') && intent.reason.includes('toward'))).toBe(true);
+    expect(Object.values(second.unitIntents).some((intent) => intent.reason.includes('coordinator hunter push') && intent.reason.includes('toward'))).toBe(true);
     expect(Object.values(second.unitIntents).some((intent) => intent.reason.includes('coordinator flanking push'))).toBe(true);
   });
 

@@ -124,12 +124,12 @@ describe('coordinator squad stamping', () => {
     economy.supplyIncome = 10;
     economy.supplyDemand = 8;
 
-    // Add units near home to reach double-axis threshold (5+ total)
+    // Add units near home to reach double-axis threshold.
     const existingUnits = getLivingUnitsForFaction(state, factionId);
     const template = existingUnits[0];
     if (!template) return;
 
-    const unitsNeeded = Math.max(0, 5 - existingUnits.length);
+    const unitsNeeded = Math.max(0, 8 - existingUnits.length);
     for (let i = 0; i < unitsNeeded; i++) {
       const unitId = createUnitId();
       state.units.set(unitId, {

@@ -611,3 +611,20 @@ No significant changes detected.
 ### Dependency Changes
 
 No significant changes detected.
+
+---
+
+## Digest — 2026-05-01T20:06:09.653404Z
+
+### New Files
+- `web/src/data/faction-info.ts` — 2 exports: FactionInfo, getFactionInfo
+
+### Modified Files
+- `src/systems/productionSystem.ts` — +2 exports (canSpawnAt, reorderQueue)
+- `src/systems/simulation/traceTypes.ts` — ~1 signatures (VictoryType)
+- `src/systems/simulation/victory.ts` — +1 exports (isFactionEliminated)
+
+### Dependency Changes
+- `src/systems/productionSystem.ts` — 50 dependencies
+- `src/systems/simulation/traceTypes.ts` — 5 dependencies
+- `src/systems/simulation/victory.ts` — 9 dependencies
