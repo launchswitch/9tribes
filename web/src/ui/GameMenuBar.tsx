@@ -157,7 +157,7 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
         </div>
       )}
       {summonPopupOpen && unitStats && (
-        <div className="unit-stats-panel" onClick={(e) => e.stopPropagation()} style={{ position: 'fixed', top: '60px', right: '20px', left: 'auto', width: '320px', bottom: 'auto', zIndex: 9999 }}>
+        <div className="unit-stats-panel" onClick={(e) => e.stopPropagation()} style={{ position: 'fixed', top: '60px', right: '20px', width: '320px', zIndex: 9999 }}>
           <button className="unit-stats-panel__close" onClick={() => setSummonPopupOpen(false)}>×</button>
           <h3 className="unit-stats-panel__name" style={{ color: '#fff', display: 'block', textAlign: 'center' }}>{factionInfo?.signatureUnit ?? unitStats.name}</h3>
           <div className="unit-stats-panel__stats">
@@ -175,7 +175,7 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
           </div>
           <p className="unit-stats-panel__desc">{unitStats.description}</p>
           {factionInfo?.summonCondition && (
-            <div className="unit-stats-panel__condition" style={{ marginTop: '12px', padding: '10px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '13px', color: '#fff', fontWeight: 600, textAlign: 'center' }}>
+            <div className="unit-stats-panel__condition">
               {factionInfo.summonCondition}
             </div>
           )}

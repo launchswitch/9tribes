@@ -38,7 +38,7 @@ jungle_clan: {
     unitStats: {
       attack: 16, defense: 8, health: 90, moves: 4, range: 1,
       tags: ['beast', 'jungle', 'poison', 'melee'],
-ability: 'Poison Venom: Attacks apply poison dealing 5 damage/turn for 3 turns. Immune to jungle attrition.',
+      ability: 'Poison Venom: Attacks apply poison dealing 5 damage/turn for 3 turns. Immune to jungle attrition.',
       description: 'The colossal Serpent God coils through the jungle, its venomous bite capable of felling the toughest warriors.',
       summonCondition: 'Your unit must be standing in Jungle terrain.',
     },
@@ -70,7 +70,8 @@ ability: 'Poison Venom: Attacks apply poison dealing 5 damage/turn for 3 turns. 
       attack: 8, defense: 18, health: 120, moves: 2, range: 3,
       tags: ['defensive', 'siege', 'structure'],
       ability: 'Fortress Garrison: +30% defense when garrisoning a city. Cannot move voluntarily.',
-      description: 'The imposing War Tower stands as a bastion of hill defense, its elevated position commanding the battlefield.'
+      description: 'The imposing War Tower stands as a bastion of hill defense, its elevated position commanding the battlefield.',
+      summonCondition: 'Your unit must be standing in Hill or City terrain.',
     },
   },
   savannah_lions: {
