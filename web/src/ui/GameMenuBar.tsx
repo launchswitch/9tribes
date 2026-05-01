@@ -55,6 +55,7 @@ const helpMenu: MenuEntry[] = [
 export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls, onRestartSession, onMenuAction }: GameMenuBarProps) {
   const [factionPopupOpen, setFactionPopupOpen] = useState(false);
   const [unitPopupOpen, setUnitPopupOpen] = useState(false);
+  const [summonPopupOpen, setSummonPopupOpen] = useState(false);
   const activeFaction = state.world.factions.find((f) => f.id === state.activeFactionId);
   const activeFactionSummary = state.hud.factionSummaries.find((summary) => summary.id === state.activeFactionId);
   const factionColor = activeFaction?.color ?? '#d6a34b';
@@ -155,6 +156,26 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
           <p className="unit-stats-panel__desc">{unitStats.description}</p>
         </div>
       )}
+      {summonPopupOpen && unitStats && (
+        <div className="unit-stats-panel" onClick={(e) => e.stopPropagation()}>
+          <button className="unit-stats-panel__close" onClick={() => setSummonPopupOpen(false)}>×</button>
+          <h3 className="unit-stats-panel__name" style={{ color: factionColor }}>{unitStats.name}</h3>
+          <div className="unit-stats-panel__stats">
+            <div><span>Attack</span><strong>{unitStats.attack}</strong></div>
+            <div><span>Defense</span><strong>{unitStats.defense}</strong></div>
+            <div><span>Health</span><strong>{unitStats.health}</strong></div>
+            <div><span>Moves</span><strong>{unitStats.moves}</strong></div>
+            <div><span>Range</span><strong>{unitStats.range}</strong></div>
+          </div>
+          <div className="unit-stats-panel__tags">
+            {unitStats.tags.map((tag, i) => <span key={i} className="unit-tag">{tag}</span>)}
+          </div>
+          <div className="unit-stats-panel__ability">
+            <strong>Ability:</strong> {unitStats.ability}
+          </div>
+          <p className="unit-stats-panel__desc">{unitStats.description}</p>
+        </div>
+      )}
       <div className="gmb-menus">
         <DropdownMenu label="Game" items={buildGameMenu(state.actions.canUndo)} onAction={handleMenuAction} />
         <DropdownMenu label="Reports" items={reportsMenu} onAction={handleMenuAction} />
@@ -194,15 +215,15 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
 
         {state.hud.summonTimer ? (
           state.hud.summonTimer.isActive ? (
-            <div className="gmb-chip gmb-chip--summon-active">
+            <button type="button" className="gmb-chip gmb-chip--summon-active" onClick={() => setSummonPopupOpen(true)}>
               <span className="gmb-chip-label">Summon</span>
               <span>Active ({state.hud.summonTimer.turnsRemaining})</span>
-            </div>
+            </button>
           ) : (
-            <div className="gmb-chip gmb-chip--summon-cooldown" title={`${state.hud.summonTimer.cooldownRemaining} turns until ${factionInfo?.signatureUnit ?? 'signature'} unit is summoned`}>
+            <button type="button" className="gmb-chip gmb-chip--summon-cooldown" title={`${state.hud.summonTimer.cooldownRemaining} turns until ${factionInfo?.signatureUnit ?? 'signature'} unit is summoned`} onClick={() => setSummonPopupOpen(true)}>
               <span className="gmb-chip-label">Summon</span>
               <span>{state.hud.summonTimer.cooldownRemaining}</span>
-            </div>
+            </button>
           )
         ) : null}
 
