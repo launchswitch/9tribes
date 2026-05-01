@@ -52,6 +52,12 @@ export type HudViewModel = {
     productionPenalty: number;
     moralePenalty: number;
   } | null;
+  summonTimer: {
+    cooldownRemaining: number | null;
+    turnsRemaining: number | null;
+    summonName: string | null;
+    isActive: boolean;
+  } | null;
 };
 
 export type SettlementSiteTraitViewModel = {

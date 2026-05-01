@@ -381,6 +381,17 @@ function buildPlayHudViewModel(
             : { points: 0, productionPenalty: 0, moralePenalty: 0 };
         })()
       : null,
+    summonTimer: (() => {
+      const faction = state.activeFactionId ? state.factions.get(state.activeFactionId) : null;
+      const ss = faction?.summonState;
+      if (!ss) return null;
+      return {
+        cooldownRemaining: ss.summoned ? null : ss.cooldownRemaining,
+        turnsRemaining: ss.summoned ? ss.turnsRemaining : null,
+        summonName: ss.summoned ? 'Summon Active' : null,
+        isActive: ss.summoned,
+      };
+    })(),
   };
 }
 

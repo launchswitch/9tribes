@@ -192,6 +192,20 @@ export function GameMenuBar({ state, onOpenResearch, onOpenHelp, onOpenControls,
           </button>
         ) : null}
 
+        {state.hud.summonTimer ? (
+          state.hud.summonTimer.isActive ? (
+            <div className="gmb-chip gmb-chip--summon-active">
+              <span className="gmb-chip-label">Summon</span>
+              <span>Active ({state.hud.summonTimer.turnsRemaining})</span>
+            </div>
+          ) : (
+            <div className="gmb-chip gmb-chip--summon-cooldown" title={`Next summon in ${state.hud.summonTimer.cooldownRemaining} turns`}>
+              <span className="gmb-chip-label">Summon</span>
+              <span>{state.hud.summonTimer.cooldownRemaining}</span>
+            </div>
+          )
+        ) : null}
+
         {state.hud.supply ? (
           <div
             className={`gmb-chip gmb-chip--supply${state.hud.supply.deficit > 0 ? ' gmb-chip--deficit' : ''}`}
