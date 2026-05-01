@@ -128,6 +128,7 @@ export type ReachableHexView = {
   cost: number;
   movesRemainingAfterMove: number;
   path: HexCoord[];
+  terrainCausesDamage?: boolean;
 };
 
 export type AttackTargetView = {
