@@ -4444,17 +4444,6 @@
         }
       ]
     },
-    "vitest.config.ts": {
-      "exports": [
-        {
-          "name": "default",
-          "kind": "default",
-          "line": 3,
-          "signature": "export default defineConfig({",
-          "isDefault": true
-        }
-      ]
-    },
     "web/src/ui/CombatDetailModal.tsx": {
       "exports": [
         {
@@ -5145,17 +5134,6 @@
           "line": 14,
           "signature": "export interface UnitActivationResult {",
           "isDefault": false
-        }
-      ]
-    },
-    "vitest.config.test.ts": {
-      "exports": [
-        {
-          "name": "default",
-          "kind": "default",
-          "line": 3,
-          "signature": "export default defineConfig({",
-          "isDefault": true
         }
       ]
     },
@@ -7639,11 +7617,33 @@
           "isDefault": false
         }
       ]
+    },
+    "vitest.config.ts": {
+      "exports": [
+        {
+          "name": "default",
+          "kind": "default",
+          "line": 3,
+          "signature": "export default defineConfig({",
+          "isDefault": true
+        }
+      ]
+    },
+    "vitest.config.test.ts": {
+      "exports": [
+        {
+          "name": "default",
+          "kind": "default",
+          "line": 3,
+          "signature": "export default defineConfig({",
+          "isDefault": true
+        }
+      ]
     }
   },
   "_metadata": {
     "version": "2.0.0",
-    "last_run": "2026-05-01T20:06:09.653404Z",
+    "last_run": "2026-05-01T20:09:54.395984Z",
     "root": "C:\\Users\\fosbo\\war-civ-v2",
     "file_count": 202
   },
@@ -7853,14 +7853,14 @@
     "tests/productionSystem.test.ts": "4b35ebd177c4f5d52bb2a2e2af68a2d8",
     "tests/progressionPipeline.test.ts": "ed7731dc9fbfc4c4230e0f7d2ef6dd9c",
     "tests/prototype.test.ts": "9f24675c3e509a0b9d06b04d65ba4cb8",
-    "tests/rendezvous.test.ts": "45d72e0f8ac53b8bd2b2369ed13324cc",
+    "tests/rendezvous.test.ts": "f028e96e62ec206e49639040c1cf2b8e",
     "tests/replay.test.ts": "73a6d60dc90d55ceda083f945d1580cd",
     "tests/riverRendering.test.ts": "d802256801f40ad31149deff55a71c99",
     "tests/rng.test.ts": "abbb9d013e4448cc99c75ca3139112a6",
     "tests/sacrificeSystem.test.ts": "f8ef59be8bcca40d808cb3e35fbaa66e",
     "tests/sfxManager.test.ts": "9ee5dc8b805f27b479caf7caa0b9e447",
     "tests/siege.test.ts": "84a41b2b753d2654bfbd819ecaf684e4",
-    "tests/strategicAi.test.ts": "8f5f315dab236c80a88289361d67722c",
+    "tests/strategicAi.test.ts": "2c11cc0806c10e9f0b998f329eaa1ea8",
     "tests/synergyEffects.test.ts": "39d8c7defdf794a51cdb54afbd991c94",
     "tests/terrainAttrition.test.ts": "d26532437588721a48f5574689c7c71e",
     "tests/terrainRendering.test.ts": "686f94a359ed0666569a3be93c6bbded",
@@ -7881,8 +7881,8 @@
     "vercel.json": "b286847708256dc7bd30edba05c29ae8",
     "vite.config.ts": "4c808ba90f4e527bb630d314c1f96229",
     "vitest-env.d.ts": "344f08cbbe758052ab163743ccf0e748",
-    "vitest.config.test.ts": "eac5b1631ba4dbaae687b1d796719862",
-    "vitest.config.ts": "43c0e9d244a8d64e84daa78d16ea024b",
+    "vitest.config.test.ts": "2e68c1f95ac1dedb6d62fc10bdffd648",
+    "vitest.config.ts": "fc1b30cb41906e326a329974449e37e1",
     "web/index.html": "bb369444dd0d353c55a109927a006f2b",
     "web/package-lock.json": "0395fadd440c7a515a7dc46a00f30be6",
     "web/package.json": "9372ba72da8ea51f829ceb41f010f282",

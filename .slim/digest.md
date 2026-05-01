@@ -628,3 +628,11 @@ No significant changes detected.
 - `src/systems/productionSystem.ts` — 50 dependencies
 - `src/systems/simulation/traceTypes.ts` — 5 dependencies
 - `src/systems/simulation/victory.ts` — 9 dependencies
+
+---
+
+## Digest — 2026-05-01T20:09:54.395984Z
+
+### Dependency Changes
+
+No significant changes detected.

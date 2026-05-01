@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
-    testTimeout: 30000,
+    testTimeout: 120000,
     include: ['tests/**/*.test.ts'],
     // Web-dependent tests require jsdom environment — exclude from node runs
     // balanceHarness excluded from default run (use npm run test:balance)

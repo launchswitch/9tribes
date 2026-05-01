@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "version": "2.0.0",
-    "last_run": "2026-05-01T20:06:09.876903Z",
+    "last_run": "2026-05-01T20:09:54.405982Z",
     "root": "C:\\Users\\fosbo\\war-civ-v2",
     "file_count": 274
   },
@@ -198,12 +198,6 @@
         },
         {
           "names": [
-            "UnitStrategicIntent"
-          ],
-          "from": "tests/rendezvous.test.ts"
-        },
-        {
-          "names": [
             "FactionPosture",
             "FactionStrategy",
             "UnitStrategicIntent",
@@ -222,6 +216,12 @@
             "FactionStrategy"
           ],
           "from": "src/systems/simulation/factionTurnEffects.ts"
+        },
+        {
+          "names": [
+            "UnitStrategicIntent"
+          ],
+          "from": "tests/rendezvous.test.ts"
         }
       ]
     },
@@ -1710,13 +1710,6 @@
         },
         {
           "names": [
-            "FactionId",
-            "HexCoord"
-          ],
-          "from": "tests/rendezvous.test.ts"
-        },
-        {
-          "names": [
             "HexCoord"
           ],
           "from": "src/world/generation/generateClimateBandMap.ts"
@@ -1856,6 +1849,13 @@
             "FactionId"
           ],
           "from": "src/game/buildMvpScenario.ts"
+        },
+        {
+          "names": [
+            "FactionId",
+            "HexCoord"
+          ],
+          "from": "tests/rendezvous.test.ts"
         }
       ]
     },
@@ -2157,13 +2157,6 @@
             "hexDistance",
             "hexToKey"
           ],
-          "from": "tests/rendezvous.test.ts"
-        },
-        {
-          "names": [
-            "hexDistance",
-            "hexToKey"
-          ],
           "from": "web/src/game/view-model/inspectors/cityInspectorViewModel.ts"
         },
         {
@@ -2293,6 +2286,13 @@
             "hexToKey"
           ],
           "from": "src/game/buildMvpScenario.ts"
+        },
+        {
+          "names": [
+            "hexDistance",
+            "hexToKey"
+          ],
+          "from": "tests/rendezvous.test.ts"
         }
       ]
     },
@@ -2554,14 +2554,6 @@
         },
         {
           "names": [
-            "getVisibleEnemyUnits",
-            "initializeFogForFaction",
-            "updateFogState"
-          ],
-          "from": "tests/strategicAi.test.ts"
-        },
-        {
-          "names": [
             "initializeFogForFaction",
             "updateFogState"
           ],
@@ -2608,6 +2600,14 @@
             "isUnitEffectivelyStealthed"
           ],
           "from": "src/systems/combat-action/preview.ts"
+        },
+        {
+          "names": [
+            "getVisibleEnemyUnits",
+            "initializeFogForFaction",
+            "updateFogState"
+          ],
+          "from": "tests/strategicAi.test.ts"
         }
       ]
     },
@@ -3655,12 +3655,6 @@
           "names": [
             "loadRulesRegistry"
           ],
-          "from": "tests/strategicAi.test.ts"
-        },
-        {
-          "names": [
-            "loadRulesRegistry"
-          ],
           "from": "tests/balanceHarness.test.ts"
         },
         {
@@ -3733,12 +3727,6 @@
           "names": [
             "loadRulesRegistry"
           ],
-          "from": "tests/rendezvous.test.ts"
-        },
-        {
-          "names": [
-            "loadRulesRegistry"
-          ],
           "from": "tests/siege.test.ts"
         },
         {
@@ -3794,6 +3782,18 @@
             "loadRulesRegistry"
           ],
           "from": "src/game/buildMvpScenario.ts"
+        },
+        {
+          "names": [
+            "loadRulesRegistry"
+          ],
+          "from": "tests/strategicAi.test.ts"
+        },
+        {
+          "names": [
+            "loadRulesRegistry"
+          ],
+          "from": "tests/rendezvous.test.ts"
         }
       ]
     },
@@ -4322,12 +4322,6 @@
           "names": [
             "buildMvpScenario"
           ],
-          "from": "tests/strategicAi.test.ts"
-        },
-        {
-          "names": [
-            "buildMvpScenario"
-          ],
           "from": "tests/balanceHarness.test.ts"
         },
         {
@@ -4377,12 +4371,6 @@
             "buildMvpScenario"
           ],
           "from": "tests/webWorldViewModel.test.ts"
-        },
-        {
-          "names": [
-            "buildMvpScenario"
-          ],
-          "from": "tests/rendezvous.test.ts"
         },
         {
           "names": [
@@ -4443,6 +4431,18 @@
             "buildMvpScenario"
           ],
           "from": "web/src/game/controller/GameSession.ts"
+        },
+        {
+          "names": [
+            "buildMvpScenario"
+          ],
+          "from": "tests/strategicAi.test.ts"
+        },
+        {
+          "names": [
+            "buildMvpScenario"
+          ],
+          "from": "tests/rendezvous.test.ts"
         }
       ]
     },
@@ -4570,12 +4570,6 @@
           "names": [
             "assemblePrototype"
           ],
-          "from": "tests/strategicAi.test.ts"
-        },
-        {
-          "names": [
-            "assemblePrototype"
-          ],
           "from": "tests/balanceHarness.test.ts"
         },
         {
@@ -4625,6 +4619,12 @@
             "assemblePrototype"
           ],
           "from": "src/game/buildMvpScenario.ts"
+        },
+        {
+          "names": [
+            "assemblePrototype"
+          ],
+          "from": "tests/strategicAi.test.ts"
         }
       ]
     },
@@ -5340,13 +5340,6 @@
             "createSimulationTrace",
             "runWarEcologySimulation"
           ],
-          "from": "tests/strategicAi.test.ts"
-        },
-        {
-          "names": [
-            "createSimulationTrace",
-            "runWarEcologySimulation"
-          ],
           "from": "tests/balanceHarness.test.ts"
         },
         {
@@ -5421,6 +5414,13 @@
             "isFactionEliminated"
           ],
           "from": "web/src/game/controller/GameController.ts"
+        },
+        {
+          "names": [
+            "createSimulationTrace",
+            "runWarEcologySimulation"
+          ],
+          "from": "tests/strategicAi.test.ts"
         }
       ]
     },
@@ -7707,12 +7707,6 @@
         },
         {
           "names": [
-            "createUnitId"
-          ],
-          "from": "tests/rendezvous.test.ts"
-        },
-        {
-          "names": [
             "createUnitId",
             "createFactionId"
           ],
@@ -7764,6 +7758,12 @@
             "createPrototypeId"
           ],
           "from": "src/game/buildMvpScenario.ts"
+        },
+        {
+          "names": [
+            "createUnitId"
+          ],
+          "from": "tests/rendezvous.test.ts"
         }
       ]
     },
@@ -9529,12 +9529,6 @@
         },
         {
           "names": [
-            "computeFactionStrategy"
-          ],
-          "from": "tests/strategicAi.test.ts"
-        },
-        {
-          "names": [
             "getNearbySupportScore",
             "getNearestFriendlyCity",
             "getUnitIntent",
@@ -9568,12 +9562,6 @@
         },
         {
           "names": [
-            "computeFactionStrategy"
-          ],
-          "from": "tests/rendezvous.test.ts"
-        },
-        {
-          "names": [
             "getUnitIntent"
           ],
           "from": "src/systems/unit-activation/activateUnit.ts"
@@ -9589,6 +9577,18 @@
             "computeFactionStrategy"
           ],
           "from": "web/src/game/controller/GameSession.ts"
+        },
+        {
+          "names": [
+            "computeFactionStrategy"
+          ],
+          "from": "tests/strategicAi.test.ts"
+        },
+        {
+          "names": [
+            "computeFactionStrategy"
+          ],
+          "from": "tests/rendezvous.test.ts"
         }
       ]
     },
@@ -11278,12 +11278,6 @@
         },
         {
           "names": [
-            "getAiDifficultyProfile"
-          ],
-          "from": "tests/rendezvous.test.ts"
-        },
-        {
-          "names": [
             "DifficultyLevel"
           ],
           "from": "web/src/ui/VictoryOverlay.tsx"
@@ -11330,6 +11324,12 @@
             "getAiDifficultyProfile"
           ],
           "from": "src/systems/simulation/factionTurnEffects.ts"
+        },
+        {
+          "names": [
+            "getAiDifficultyProfile"
+          ],
+          "from": "tests/rendezvous.test.ts"
         }
       ]
     },
@@ -12063,16 +12063,16 @@
         },
         {
           "names": [
-            "chooseStrategicProduction"
-          ],
-          "from": "tests/strategicAi.test.ts"
-        },
-        {
-          "names": [
             "chooseStrategicProduction",
             "rankProductionPriorities"
           ],
           "from": "src/systems/simulation/factionTurnEffects.ts"
+        },
+        {
+          "names": [
+            "chooseStrategicProduction"
+          ],
+          "from": "tests/strategicAi.test.ts"
         }
       ]
     },
@@ -12151,13 +12151,13 @@
           "names": [
             "chooseStrategicResearch"
           ],
-          "from": "tests/strategicAi.test.ts"
+          "from": "src/systems/simulation/factionTurnEffects.ts"
         },
         {
           "names": [
             "chooseStrategicResearch"
           ],
-          "from": "src/systems/simulation/factionTurnEffects.ts"
+          "from": "tests/strategicAi.test.ts"
         }
       ]
     },
@@ -17653,6 +17653,57 @@
             "chooseStrategicResearch"
           ],
           "from": "src/systems/aiResearchStrategy.ts"
+        },
+        {
+          "names": [
+            "loadRulesRegistry"
+          ],
+          "from": "src/data/loader/loadRulesRegistry.ts"
+        },
+        {
+          "names": [
+            "buildMvpScenario"
+          ],
+          "from": "src/game/buildMvpScenario.ts"
+        },
+        {
+          "names": [
+            "assemblePrototype"
+          ],
+          "from": "src/design/assemblePrototype.ts"
+        },
+        {
+          "names": [
+            "computeFactionStrategy"
+          ],
+          "from": "src/systems/strategicAi.ts"
+        },
+        {
+          "names": [
+            "chooseStrategicProduction"
+          ],
+          "from": "src/systems/aiProductionStrategy.ts"
+        },
+        {
+          "names": [
+            "chooseStrategicResearch"
+          ],
+          "from": "src/systems/aiResearchStrategy.ts"
+        },
+        {
+          "names": [
+            "createSimulationTrace",
+            "runWarEcologySimulation"
+          ],
+          "from": "src/systems/warEcologySimulation.ts"
+        },
+        {
+          "names": [
+            "getVisibleEnemyUnits",
+            "initializeFogForFaction",
+            "updateFogState"
+          ],
+          "from": "src/systems/fogSystem.ts"
         }
       ],
       "importedBy": []
@@ -18288,15 +18339,15 @@
         },
         {
           "names": [
-            "getLivingUnitsForFaction"
-          ],
-          "from": "tests/rendezvous.test.ts"
-        },
-        {
-          "names": [
             "getLivingEnemyUnits"
           ],
           "from": "src/systems/strategic-ai/difficultyCoordinator.ts"
+        },
+        {
+          "names": [
+            "getLivingUnitsForFaction"
+          ],
+          "from": "tests/rendezvous.test.ts"
         }
       ]
     },
@@ -23607,13 +23658,13 @@
           "names": [
             "performStrategicMovement"
           ],
-          "from": "tests/rendezvous.test.ts"
+          "from": "src/systems/unit-activation/activateUnit.ts"
         },
         {
           "names": [
             "performStrategicMovement"
           ],
-          "from": "src/systems/unit-activation/activateUnit.ts"
+          "from": "tests/rendezvous.test.ts"
         }
       ]
     },
@@ -23817,15 +23868,6 @@
         },
         {
           "names": [
-            "computeRendezvousHex",
-            "RENDEZVOUS_OFFSET_HEXES",
-            "RENDEZVOUS_READY_DISTANCE",
-            "HOLD_DEFENSE_RADIUS"
-          ],
-          "from": "tests/rendezvous.test.ts"
-        },
-        {
-          "names": [
             "RENDEZVOUS_READY_DISTANCE"
           ],
           "from": "src/systems/unit-activation/activateUnit.ts"
@@ -23835,6 +23877,15 @@
             "computeRendezvousHex"
           ],
           "from": "src/systems/strategic-ai/difficultyCoordinator.ts"
+        },
+        {
+          "names": [
+            "computeRendezvousHex",
+            "RENDEZVOUS_OFFSET_HEXES",
+            "RENDEZVOUS_READY_DISTANCE",
+            "HOLD_DEFENSE_RADIUS"
+          ],
+          "from": "tests/rendezvous.test.ts"
         }
       ]
     },
@@ -24095,6 +24146,83 @@
             "getLivingUnitsForFaction"
           ],
           "from": "src/systems/strategic-ai/fronts.ts"
+        },
+        {
+          "names": [
+            "createUnitId"
+          ],
+          "from": "src/core/ids.ts"
+        },
+        {
+          "names": [
+            "UnitStrategicIntent"
+          ],
+          "from": "src/systems/factionStrategy.ts"
+        },
+        {
+          "names": [
+            "loadRulesRegistry"
+          ],
+          "from": "src/data/loader/loadRulesRegistry.ts"
+        },
+        {
+          "names": [
+            "computeFactionStrategy"
+          ],
+          "from": "src/systems/strategicAi.ts"
+        },
+        {
+          "names": [
+            "performStrategicMovement"
+          ],
+          "from": "src/systems/unit-activation/movement.ts"
+        },
+        {
+          "names": [
+            "buildMvpScenario"
+          ],
+          "from": "src/game/buildMvpScenario.ts"
+        },
+        {
+          "names": [
+            "computeRendezvousHex",
+            "RENDEZVOUS_OFFSET_HEXES",
+            "RENDEZVOUS_READY_DISTANCE",
+            "HOLD_DEFENSE_RADIUS"
+          ],
+          "from": "src/systems/strategic-ai/rendezvous.ts"
+        },
+        {
+          "names": [
+            "hexDistance",
+            "hexToKey"
+          ],
+          "from": "src/core/grid.ts"
+        },
+        {
+          "names": [
+            "FactionId",
+            "HexCoord"
+          ],
+          "from": "src/types.ts"
+        },
+        {
+          "names": [
+            "applyDifficultyCoordinator"
+          ],
+          "from": "src/systems/strategic-ai/difficultyCoordinator.ts"
+        },
+        {
+          "names": [
+            "getLivingUnitsForFaction"
+          ],
+          "from": "src/systems/strategic-ai/fronts.ts"
+        },
+        {
+          "names": [
+            "getAiDifficultyProfile"
+          ],
+          "from": "src/systems/aiDifficulty.ts"
         },
         {
           "names": [
