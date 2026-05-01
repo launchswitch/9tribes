@@ -481,7 +481,7 @@ function describeSelectionFromWorld(
     const faction = unit ? world.factions.find((entry) => entry.id === unit.factionId) : null;
     return {
       title: unit?.prototypeName ?? 'Unit',
-      description: `${faction?.name ?? 'Unknown faction'} field unit.`,
+      description: unit?.prototypeName ?? `${faction?.name ?? 'Unknown'} unit.`,
       meta: [
         { label: 'Position', value: unit ? `${unit.q}, ${unit.r}` : 'n/a' },
         { label: 'Health', value: unit ? `${unit.hp}/${unit.maxHp}` : 'n/a' },
