@@ -136,6 +136,11 @@ export function previewMove(
     totalCost = 1;
   }
 
+  // Ignore terrain (tag-based): units with ignore_terrain tag ignore all terrain costs, always cost 1
+  if (prototypeTags.includes('ignore_terrain')) {
+    totalCost = 1;
+  }
+
   // Swarm speed synergy: reduce movement cost
   const swarmBonus = getSwarmSpeedBonus(prototypeTags);
   if (swarmBonus > 0) {
@@ -163,7 +168,7 @@ export function previewMove(
   if (targetTerrainId === 'tundra' && doctrine.winterCampaignEnabled) {
     totalCost = Math.min(totalCost, 1);
   }
-  if (doctrine.forestMovementEnabled && ['forest', 'jungle', 'hill', 'swamp'].includes(targetTerrainId)) {
+  if (doctrine.roughTerrainMovementEnabled && ['forest', 'jungle', 'hill', 'swamp'].includes(targetTerrainId)) {
     totalCost = Math.max(1, totalCost - 1);
   }
   if (canChargeThroughTerrain) {
@@ -256,7 +261,7 @@ export function moveUnit(
   const unit = gameState.units.get(unitId)!;
   const preview = previewMove(gameState, unitId, targetHex, map, rulesRegistry)!;
   const facing = getDirectionIndex(unit.position, targetHex) ?? unit.facing;
-  const movesRemaining = (preview.entersZoC || preview.consumesAllMoves) ? 0 : unit.movesRemaining - preview.totalCost;
+  const movesRemaining = (preview.entersZoC || preview.consumesAllMoves) ? 0 : Math.max(0, unit.movesRemaining - preview.totalCost);
 
   // Create new units map with updated unit
   const newUnits = new Map(gameState.units);

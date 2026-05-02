@@ -73,6 +73,10 @@ export function getMovementCostModifier(
     return -1;
   }
 
+  if (passive === 'hill_engineering' && targetTerrainId === 'hill') {
+    return -1;
+  }
+
   return 0;
 }
 

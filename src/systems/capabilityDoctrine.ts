@@ -38,7 +38,7 @@ export interface ResearchDoctrine {
 
   // Additional qualitative effects from research
   heatResistanceEnabled: boolean;    // camel_adaptation_t1 - ignore desert movement penalty
-  forestMovementEnabled: boolean;    // river_stealth_t1 - +1 movement in rough terrain
+  roughTerrainMovementEnabled: boolean;    // river_stealth_t1 - +1 movement in rough terrain
   greedyCaptureEnabled: boolean;     // slaving_t1 - +15% damage vs wounded enemies (<50% HP)
   antiFortificationEnabled: boolean; // heavy_hitter_t1 - +20% damage vs fortified/bracing enemies
   permanentStealthEnabled: boolean;  // camel_adaptation_t2 - permanent stealth in desert
@@ -138,7 +138,7 @@ export function resolveResearchDoctrine(
 
     // Additional qualitative effects
     heatResistanceEnabled: hasNode('camel_adaptation_t1'),
-    forestMovementEnabled: hasNode('river_stealth_t1'),
+    roughTerrainMovementEnabled: hasNode('river_stealth_t1'),
     greedyCaptureEnabled: hasNode('slaving_t1'),
     antiFortificationEnabled: hasNode('heavy_hitter_t1'),
     permanentStealthEnabled: hasNode('camel_adaptation_t2'),
