@@ -42,6 +42,28 @@ function getSwarmSpeedBonus(tags: string[]): number {
   return 0;
 }
 
+function getCoastalNomadSpeedBonus(tags: string[]): number {
+  const engine = getMovementSynergyEngine();
+  const synergies = engine.resolveUnitPairs(tags);
+  for (const syn of synergies) {
+    if (syn.effect.type === 'coastal_nomad') {
+      return (syn.effect as { speedBonus: number }).speedBonus;
+    }
+  }
+  return 0;
+}
+
+function getTerrainSlaveSpeedBonus(tags: string[]): number {
+  const engine = getMovementSynergyEngine();
+  const synergies = engine.resolveUnitPairs(tags);
+  for (const syn of synergies) {
+    if (syn.effect.type === 'terrain_slave') {
+      return (syn.effect as { speedBonus: number }).speedBonus;
+    }
+  }
+  return 0;
+}
+
 export interface MovementPreview {
   totalCost: number;
   zocCost: number;
@@ -145,6 +167,18 @@ export function previewMove(
   const swarmBonus = getSwarmSpeedBonus(prototypeTags);
   if (swarmBonus > 0) {
     totalCost -= swarmBonus;
+  }
+
+  // Coastal Nomad synergy: speed bonus on coast/river
+  const coastalNomadBonus = getCoastalNomadSpeedBonus(prototypeTags);
+  if (coastalNomadBonus > 0 && (targetTerrainId === 'coast' || targetTerrainId === 'river')) {
+    totalCost -= coastalNomadBonus;
+  }
+
+  // Terrain Slave synergy: speed bonus on all terrain
+  const terrainSlaveBonus = getTerrainSlaveSpeedBonus(prototypeTags);
+  if (terrainSlaveBonus > 0) {
+    totalCost -= terrainSlaveBonus;
   }
 
   // Doctrine-based movement bonuses

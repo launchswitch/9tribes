@@ -44,6 +44,7 @@ import { performSacrifice } from '../../../../src/systems/sacrificeSystem.js';
 import { createCitySiteBonuses, getSettlementOccupancyBlocker } from '../../../../src/systems/citySiteSystem.js';
 import { boardTransport, canBoardTransport, disembarkUnit, getUnitTransport } from '../../../../src/systems/transportSystem.js';
 import { canPriestSummon, attemptPriestSummon } from '../../../../src/systems/signatureAbilitySystem.js';
+import { hasCaptureAbility } from '../../../../src/systems/captureSystem.js';
 import type { DifficultyLevel } from '../../../../src/systems/aiDifficulty.js';
 import type { MapGenerationMode } from '../../../../src/world/map/types.js';
 
@@ -474,14 +475,15 @@ export class GameSession {
       ? resolveCapabilityDoctrine(research, faction)
       : undefined;
     const canAmphibiousAssault = isNavalUnit && doctrine?.amphibiousAssaultEnabled === true;
+    const navalHasCaptureTargeting = isNavalUnit && !!prototype && hasCaptureAbility(prototype, this.registry);
 
     return Array.from(this.state.units.values())
       .filter((candidate) => candidate.hp > 0 && candidate.factionId !== unit.factionId)
       .filter((candidate) => hexDistance(unit.position, candidate.position) <= attackRange)
       .filter((candidate) => {
         // Naval units can normally only attack targets on water
-        // With amphibious assault, they can attack land units adjacent to water
-        if (isNavalUnit && !canAmphibiousAssault) {
+        // With amphibious assault or capture gear, they can attack land units.
+        if (isNavalUnit && !canAmphibiousAssault && !navalHasCaptureTargeting) {
           const candidateTile = this.state.map?.tiles.get(hexToKey(candidate.position));
           const candidateTerrain = candidateTile?.terrain ?? '';
           return candidateTerrain === 'coast' || candidateTerrain === 'river';

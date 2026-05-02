@@ -7,6 +7,7 @@ import { resolveCapabilityDoctrine } from '../capabilityDoctrine.js';
 import { clearPreparedAbility } from '../abilitySystem.js';
 import { applyKnockback } from '../signatureAbilitySystem.js';
 import { destroyTransport, isTransportUnit } from '../transportSystem.js';
+import { hasCaptureAbility } from '../captureSystem.js';
 
 export const WATER_TERRAIN = new Set(['coast', 'river', 'ocean']);
 
@@ -69,6 +70,10 @@ export function canAttackTarget(state: GameState, registry: RulesRegistry, attac
   // Amphibious-tagged naval units can attack land targets
   const isAmphibious = attackerPrototype.tags?.includes('amphibious') ?? false;
   if (isAmphibious) {
+    return true;
+  }
+  // Capture-capable naval units (e.g. Slave Galley) can target land units.
+  if (hasCaptureAbility(attackerPrototype, registry)) {
     return true;
   }
 

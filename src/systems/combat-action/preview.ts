@@ -272,8 +272,11 @@ export function previewCombatAction(
   const defenderSynergyResult = resolveSynergies(defender, defenderPrototype, defenderFaction, attacker, attackerPrototype);
   const synergyAttackModifier = calculateSynergyAttackBonus(attackerSynergyResult);
   const synergyDefenseModifier = calculateSynergyDefenseBonus(defenderSynergyResult);
-  situationalAttackModifier += synergyAttackModifier;
-  situationalDefenseModifier += synergyDefenseModifier;
+  situationalAttackModifier += synergyAttackModifier + attackerSynergyResult.damage;
+  situationalDefenseModifier += synergyDefenseModifier + defenderSynergyResult.defense;
+  if (attackerSynergyResult.coastalNomadDefense > 0 && ['coast', 'river'].includes(attackerTerrainId)) {
+    situationalDefenseModifier += attackerSynergyResult.coastalNomadDefense;
+  }
 
   const attackerChassis = registry.getChassis(attackerPrototype.chassisId);
   if (attackerDoctrine?.navalCoastalBonusEnabled && attackerChassis?.movementClass === 'naval' && ['coast', 'river'].includes(attackerTerrain?.id ?? '')) {
@@ -315,7 +318,7 @@ export function previewCombatAction(
     attackerSynergyResult.stealthChargeMultiplier,
     attackerSynergyResult.sandstormAccuracyDebuff,
     forestFirstStrike,
-    attackerDoctrine?.armorPenetrationEnabled ? 0.5 : 0,
+    attackerDoctrine?.armorPenetrationEnabled ? 0.5 : 0 + attackerSynergyResult.armorPiercing,
   );
 
   let totalKnockbackDistance = result.defenderKnockedBack ? result.knockbackDistance : 0;
@@ -387,6 +390,33 @@ export function previewCombatAction(
       pushCombatEffect(triggeredEffects, effect.label, effect.detail, 'synergy');
     }
   }
+  if (attackerSynergyResult.damage > 0) {
+    pushCombatEffect(triggeredEffects, 'Synergy Damage', `Synergy added ${formatPercent(attackerSynergyResult.damage)} to attack power.`, 'synergy');
+  }
+  if (defenderSynergyResult.defense > 0) {
+    pushCombatEffect(triggeredEffects, 'Synergy Defense', `Synergy added ${formatPercent(defenderSynergyResult.defense)} to defense.`, 'synergy');
+  }
+  if (attackerSynergyResult.armorPiercing > 0) {
+    pushCombatEffect(triggeredEffects, 'Armor Pierce', `Synergy pierced ${(attackerSynergyResult.armorPiercing * 100).toFixed(0)}% of defender armor.`, 'synergy');
+  }
+  if (attackerSynergyResult.instantKill) {
+    pushCombatEffect(triggeredEffects, 'Lethal Ambush', 'Synergy enables a lethal strike bypassing all defenses.', 'synergy');
+  }
+  if (attackerSynergyResult.stunDuration > 0) {
+    pushCombatEffect(triggeredEffects, 'Stun', `Synergy stuns the target for ${attackerSynergyResult.stunDuration} turn(s).`, 'synergy');
+  }
+  if (defenderSynergyResult.damageReflection > 0) {
+    pushCombatEffect(triggeredEffects, 'Damage Reflection', `Synergy reflects ${(defenderSynergyResult.damageReflection * 100).toFixed(0)}% of damage.`, 'synergy');
+  }
+  if (attackerSynergyResult.aoeDamage > 0) {
+    pushCombatEffect(triggeredEffects, 'AoE Burst', `Synergy area damage: ${attackerSynergyResult.aoeDamage} to adjacent enemies.`, 'synergy');
+  }
+  if (attackerSynergyResult.formationCrushStacks > 0) {
+    pushCombatEffect(triggeredEffects, 'Formation Crush', `Synergy adds ${attackerSynergyResult.formationCrushStacks} crush stack(s).`, 'synergy');
+  }
+  if (attackerSynergyResult.sandstormAuraRadius > 0) {
+    pushCombatEffect(triggeredEffects, 'Sandstorm Aura', `Synergy creates a ${attackerSynergyResult.sandstormAuraRadius}-hex accuracy debuff aura.`, 'synergy');
+  }
 
   return createCombatActionPreviewRecord(
     state,
@@ -426,6 +456,44 @@ export function previewCombatAction(
       emergentPermanentStealthTerrains: attackerSynergyResult.emergentPermanentStealthTerrains,
       emergentCaptureBonus: attackerSynergyResult.emergentCaptureBonus,
       emergentDesertCaptureBonus: attackerSynergyResult.emergentDesertCaptureBonus,
+      // Phase 3A: direct combat effects
+      instantKill: attackerSynergyResult.instantKill,
+      lethalAmbushPoison: attackerSynergyResult.lethalAmbushPoison,
+      chargeCooldownWaived: attackerSynergyResult.chargeCooldownWaived,
+      formationCrushStacks: attackerSynergyResult.formationCrushStacks,
+      stunDuration: attackerSynergyResult.stunDuration,
+      armorPiercing: attackerSynergyResult.armorPiercing,
+      // Phase 3B: capture synergy modifiers
+      capturePoisonDamage: attackerSynergyResult.capturePoisonDamage,
+      capturePoisonStacks: attackerSynergyResult.capturePoisonStacks,
+      slaveDamageBonus: attackerSynergyResult.slaveDamageBonus,
+      slaveHealPenalty: attackerSynergyResult.slaveHealPenalty,
+      chargeCaptureChance: attackerSynergyResult.chargeCaptureChance,
+      retreatCaptureChance: attackerSynergyResult.retreatCaptureChance,
+      navalCaptureBonus: attackerSynergyResult.navalCaptureBonus,
+      stealthCaptureBonus: attackerSynergyResult.stealthCaptureBonus,
+      // Phase 3C: buff/aura/retreat effects
+      captureEscapePrevented: attackerSynergyResult.captureEscapePrevented,
+      heavyRetreatDamageReduction: attackerSynergyResult.heavyRetreatDamageReduction,
+      coastalNomadDefense: attackerSynergyResult.coastalNomadDefense,
+      coastalNomadSpeed: attackerSynergyResult.coastalNomadSpeed,
+      heavyNavalRamDamage: attackerSynergyResult.heavyNavalRamDamage,
+      slaveHealAmount: attackerSynergyResult.slaveHealAmount,
+      heavyRegenPercent: attackerSynergyResult.heavyRegenPercent,
+      terrainSlaveSpeed: attackerSynergyResult.terrainSlaveSpeed,
+      sandstormAuraRadius: attackerSynergyResult.sandstormAuraRadius,
+      sandstormAuraDebuff: attackerSynergyResult.sandstormAuraDebuff,
+      slaveArmyDamageBonus: attackerSynergyResult.slaveArmyDamageBonus,
+      slaveArmyDefensePenalty: attackerSynergyResult.slaveArmyDefensePenalty,
+      slaveCoercionDamageBonus: attackerSynergyResult.slaveCoercionDamageBonus,
+      heavyMassStacks: attackerSynergyResult.heavyMassStacks,
+      // Top-level synergy modifiers
+      synergyDamageBonus: attackerSynergyResult.damage,
+      synergyDefenseBonus: defenderSynergyResult.defense,
+      poisonStacks: attackerSynergyResult.poisonStacks,
+      damageReflection: defenderSynergyResult.damageReflection,
+      aoeDamage: attackerSynergyResult.aoeDamage,
+      witheringReduction: attackerSynergyResult.witheringReduction,
     },
   );
 }

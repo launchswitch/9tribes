@@ -52,6 +52,15 @@ export interface Unit {
   frozen?: boolean;
   frostbiteStacks?: number;
   frostbiteDoTDuration?: number;
+  stunDuration?: number;
+  formationCrushStacks?: number;
+  accuracyDebuff?: number;
+  witherReduction?: number;
+  slaveArmyDamageBonus?: number;
+  slaveArmyDefensePenalty?: number;
+  slaveDamageBonus?: number;
+  slaveHealPenalty?: number;
+  captureEscapePrevented?: boolean;
   // Learn-by-kill system: abilities learned from killing enemy faction units
   learnedAbilities: LearnedAbility[];
   // Multi-turn move queue target; undefined = no active queue

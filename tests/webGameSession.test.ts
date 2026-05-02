@@ -250,6 +250,72 @@ describe('GameSession', () => {
     expect(result.pendingCombat?.defenderId).toBe(defenderId);
   });
 
+  it('shows land targets for Slave Galley in attack targeting mode', () => {
+    const registry = loadRulesRegistry();
+    const state = buildMvpScenario(42, { registry, mapMode: 'fixed' });
+    trimStateToFactions(state, ['coral_people', 'druid_circle']);
+
+    const attackerFaction = state.factions.get('coral_people' as never)!;
+    const defenderFaction = state.factions.get('druid_circle' as never)!;
+
+    const attackerId = attackerFaction.unitIds.find((unitId) => {
+      const unit = state.units.get(unitId as never);
+      if (!unit) return false;
+      const prototype = state.prototypes.get(unit.prototypeId as never);
+      return prototype?.componentIds.includes('slaver_net') ?? false;
+    })!;
+    const defenderId = defenderFaction.unitIds[0];
+
+    const attacker = state.units.get(attackerId as never)!;
+    const defender = state.units.get(defenderId as never)!;
+
+    const attackerHex = { q: 10, r: 10 };
+    const defenderHex = { q: 11, r: 10 };
+
+    state.units.set(attackerId as never, {
+      ...attacker,
+      position: attackerHex,
+      movesRemaining: 0,
+      attacksRemaining: 1,
+      status: 'ready',
+    });
+    state.units.set(defenderId as never, {
+      ...defender,
+      position: defenderHex,
+      hp: defender.maxHp,
+      status: 'ready',
+    });
+
+    const defenderTile = state.map!.tiles.get(`${defenderHex.q},${defenderHex.r}`);
+    if (defenderTile) {
+      defenderTile.terrain = 'plains';
+    }
+
+    state.activeFactionId = attackerFaction.id;
+
+    const session = new GameSession(
+      { type: 'serialized', payload: serializeGameState(state) },
+      registry,
+      { humanControlledFactionIds: [attackerFaction.id] },
+    );
+
+    expect(session.getAttackTargets(attackerId)).toEqual(
+      expect.arrayContaining([expect.objectContaining({ unitId: defenderId })]),
+    );
+
+    session.dispatch({ type: 'attack_unit', attackerId, defenderId });
+    const pending = session.getPendingCombat();
+    expect(pending).toBeTruthy();
+
+    session.applyResolvedCombat(pending!);
+    const resolved = session.getState();
+    const captured = resolved.units.get(defenderId as never);
+    const galleyAfter = resolved.units.get(attackerId as never);
+
+    expect(captured?.factionId).toBe(attackerFaction.id);
+    expect(galleyAfter?.position).toEqual(attackerHex);
+  });
+
   it('returns legal moves and applies movement', () => {
     const session = new GameSession({ type: 'fresh', seed: 42 });
     const state = session.getState();

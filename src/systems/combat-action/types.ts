@@ -53,6 +53,44 @@ export interface CombatActionPreviewDetails {
   emergentPermanentStealthTerrains: string[];
   emergentCaptureBonus: number;
   emergentDesertCaptureBonus: number;
+  // Phase 3A: direct combat effects
+  instantKill: boolean;
+  lethalAmbushPoison: number;
+  chargeCooldownWaived: boolean;
+  formationCrushStacks: number;
+  stunDuration: number;
+  armorPiercing: number;
+  // Phase 3B: capture synergy modifiers
+  capturePoisonDamage: number;
+  capturePoisonStacks: number;
+  slaveDamageBonus: number;
+  slaveHealPenalty: number;
+  chargeCaptureChance: number;
+  retreatCaptureChance: number;
+  navalCaptureBonus: number;
+  stealthCaptureBonus: number;
+  // Phase 3C: buff/aura/retreat effects
+  captureEscapePrevented: boolean;
+  heavyRetreatDamageReduction: number;
+  coastalNomadDefense: number;
+  coastalNomadSpeed: number;
+  heavyNavalRamDamage: number;
+  slaveHealAmount: number;
+  heavyRegenPercent: number;
+  terrainSlaveSpeed: number;
+  sandstormAuraRadius: number;
+  sandstormAuraDebuff: number;
+  slaveArmyDamageBonus: number;
+  slaveArmyDefensePenalty: number;
+  slaveCoercionDamageBonus: number;
+  heavyMassStacks: number;
+  // Top-level synergy modifiers
+  synergyDamageBonus: number;
+  synergyDefenseBonus: number;
+  poisonStacks: number;
+  damageReflection: number;
+  aoeDamage: number;
+  witheringReduction: number;
 }
 
 export interface CombatActionFeedback {
@@ -80,6 +118,16 @@ export interface CombatActionResolution {
   // Phase 4: emergent rule resolution
   emergentSustainHealApplied: number;
   emergentSustainMinHpSaved: boolean;
+  // Phase 3A/3B/3C: synergy effect resolution
+  instantKillTriggered: boolean;
+  stunApplied: number;
+  formationCrushApplied: number;
+  synergyReflectionDamage: number;
+  aoeTargetsHit: number;
+  heavyRegenApplied: number;
+  slaveHealApplied: number;
+  captureEscapePrevented: boolean;
+  synergyCaptureBonus: number;
 }
 
 export interface CombatActionApplyResult {

@@ -10,7 +10,7 @@ import { unlockHybridRecipes } from '../hybridSystem.js';
 import { awardCombatXP } from '../xpSystem.js';
 import { tryPromoteUnit } from '../veterancySystem.js';
 import { tryLearnFromKill } from '../learnByKillSystem.js';
-import { attemptCapture, attemptNonCombatCapture, hasCaptureAbility } from '../captureSystem.js';
+import { attemptCapture, attemptNonCombatCapture, getCaptureParams, hasCaptureAbility } from '../captureSystem.js';
 import { addExhaustion, EXHAUSTION_CONFIG } from '../warExhaustionSystem.js';
 import { applyContactTransfer } from '../capabilitySystem.js';
 import { applyPoisonDoT, enterStealth, findRetreatHex } from '../signatureAbilitySystem.js';
@@ -65,6 +65,15 @@ export function applyCombatAction(
     pursuitDamageApplied: 0,
     emergentSustainHealApplied: 0,
     emergentSustainMinHpSaved: false,
+    instantKillTriggered: false,
+    stunApplied: 0,
+    formationCrushApplied: 0,
+    synergyReflectionDamage: 0,
+    aoeTargetsHit: 0,
+    heavyRegenApplied: 0,
+    slaveHealApplied: 0,
+    captureEscapePrevented: false,
+    synergyCaptureBonus: 0,
   };
 
   const attacker = state.units.get(preview.attackerId);
@@ -103,6 +112,54 @@ export function applyCombatAction(
     : undefined;
 
   // E5 — Paladin minHp: can't drop below threshold from a single hit
+  const attackerChassis = registry.getChassis(attackerPrototype.chassisId);
+  const isNavalAttacker = attackerChassis?.movementClass === 'naval';
+  const defenderTerrainId = state.map?.tiles.get(hexToKey(defender.position))?.terrain ?? '';
+  const isDefenderOnWater = WATER_TERRAIN.has(defenderTerrainId);
+
+  if (isNavalAttacker && !isDefenderOnWater && hasCaptureAbility(attackerPrototype, registry)) {
+    const captureParams = getCaptureParams(attackerPrototype, registry);
+    if (captureParams) {
+      const enslavementResult = attemptNonCombatCapture(
+        state,
+        preview.attackerId,
+        preview.defenderId,
+        registry,
+        captureParams.chance,
+        captureParams.hpFraction,
+        captureParams.cooldown,
+        state.rngState,
+      );
+
+      const spentAttacker = enslavementResult.state.units.get(preview.attackerId);
+      let enslavementState = enslavementResult.state;
+      if (spentAttacker) {
+        const units = new Map(enslavementState.units);
+        units.set(preview.attackerId, {
+          ...spentAttacker,
+          attacksRemaining: 0,
+          movesRemaining: 0,
+          activatedThisRound: true,
+          status: 'spent',
+        });
+        enslavementState = { ...enslavementState, units };
+      }
+
+      return {
+        state: enslavementState,
+        feedback: {
+          lastLearnedDomain: null,
+          hitAndRunRetreat: null,
+          absorbedDomains: [],
+          resolution: {
+            ...baseResolution,
+            retreatCaptured: enslavementResult.captured,
+          },
+        },
+      };
+    }
+  }
+
   const rawAttackerHp = attacker.hp - preview.result.attackerDamage;
   const minHpFloor = preview.details.emergentSustainMinHp;
   let attackerHp = Math.max(0, rawAttackerHp);
@@ -130,6 +187,23 @@ export function applyCombatAction(
     hillDugIn: false,
     status: preview.result.defenderDestroyed ? 'spent' : defender.status,
   };
+
+  // Phase 3C — Heavy naval ram: extra damage from naval ram synergy
+  if (preview.details.heavyNavalRamDamage > 0 && isNavalAttacker && nextDefender.hp > 0) {
+    nextDefender = { ...nextDefender, hp: Math.max(0, nextDefender.hp - preview.details.heavyNavalRamDamage) };
+  }
+
+  // Phase 3C — Slave coercion: extra damage when attacking with slaves
+  if (preview.details.slaveCoercionDamageBonus > 0 && nextDefender.hp > 0) {
+    const coercionDmg = Math.max(1, Math.floor(preview.result.defenderDamage * preview.details.slaveCoercionDamageBonus));
+    nextDefender = { ...nextDefender, hp: Math.max(0, nextDefender.hp - coercionDmg) };
+  }
+
+  // Phase 3A — Lethal Ambush: instant kill bypasses normal damage
+  if (preview.details.instantKill && nextDefender.hp > 0) {
+    nextDefender = { ...nextDefender, hp: 0 };
+    baseResolution.instantKillTriggered = true;
+  }
 
   if (preview.attackerWasStealthed && attacker.isStealthed && nextAttacker.hp > 0) {
     const isDesertStealth = attackerDoctrine?.permanentStealthEnabled === true
@@ -250,6 +324,13 @@ export function applyCombatAction(
   // E3/E4 — emergent capture bonus from Slave Empire (+0.20) and Desert Raider (+0.30 in desert)
   const emergentCaptureBonus = preview.details.emergentCaptureBonus
     + (preview.details.defenderTerrainId === 'desert' ? preview.details.emergentDesertCaptureBonus : 0);
+  // Phase 3B — synergy capture bonuses
+  let synergyCaptureBonus = 0;
+  if (preview.details.isChargeAttack) synergyCaptureBonus += preview.details.chargeCaptureChance;
+  if (WATER_TERRAIN.has(attackerTerrainId)) synergyCaptureBonus += preview.details.navalCaptureBonus;
+  if (preview.attackerWasStealthed) synergyCaptureBonus += preview.details.stealthCaptureBonus;
+  baseResolution.synergyCaptureBonus = synergyCaptureBonus;
+  const totalCaptureBonus = emergentCaptureBonus + synergyCaptureBonus;
 
   // E5 — Paladin sustain overrides attackerDestroyed when minHp saved the unit
   const attackerActuallyDestroyed = preview.result.attackerDestroyed && !baseResolution.emergentSustainMinHpSaved;
@@ -271,7 +352,7 @@ export function applyCombatAction(
           ? registry.getSignatureAbility(attacker.factionId)
           : null),
       current.rngState,
-      emergentCaptureBonus > 0 ? emergentCaptureBonus : undefined,
+      totalCaptureBonus > 0 ? totalCaptureBonus : undefined,
     );
     current = captureResult.state;
     capturedOnKill = captureResult.captured;
@@ -295,13 +376,14 @@ export function applyCombatAction(
     }
   }
 
-  if (!preview.result.defenderDestroyed && preview.result.defenderFled && nextAttacker.hp > 0 && attackerDoctrine?.captureRetreatEnabled) {
+  if (!preview.result.defenderDestroyed && preview.result.defenderFled && nextAttacker.hp > 0 && (attackerDoctrine?.captureRetreatEnabled || preview.details.retreatCaptureChance > 0)) {
+    const retreatChance = (attackerDoctrine?.captureRetreatEnabled ? 0.15 : 0) + preview.details.retreatCaptureChance;
     const retreatCapture = attemptNonCombatCapture(
       current,
       preview.attackerId,
       preview.defenderId,
       registry,
-      0.15,
+      retreatChance,
       0.25,
       0,
       current.rngState,
@@ -311,8 +393,9 @@ export function applyCombatAction(
   }
 
   let totalKnockbackDistance = 0;
-  if (preview.details.totalKnockbackDistance > 0 && !preview.result.defenderDestroyed && !retreatCaptured) {
-    const knockbackResult = applyKnockbackDistance(current, preview.attackerId, preview.defenderId, preview.details.totalKnockbackDistance);
+  const effectiveKnockback = preview.details.totalKnockbackDistance + preview.details.heavyMassStacks;
+  if (effectiveKnockback > 0 && !preview.result.defenderDestroyed && !retreatCaptured) {
+    const knockbackResult = applyKnockbackDistance(current, preview.attackerId, preview.defenderId, effectiveKnockback);
     current = knockbackResult.state;
     totalKnockbackDistance = knockbackResult.appliedDistance;
   }
@@ -424,6 +507,17 @@ export function applyCombatAction(
     poisonApplied = true;
   }
 
+  // Phase 3A — Synergy poison stacks (separate from tag-based poison)
+  if (preview.details.poisonStacks > 0 && !preview.result.defenderDestroyed && updatedDefender) {
+    updatedDefender = current.units.get(preview.defenderId);
+    if (updatedDefender && updatedDefender.hp > 0) {
+      updatedDefender = applyPoisonDoT(updatedDefender, preview.details.poisonStacks, 1, 3);
+      updatedDefender = { ...updatedDefender, poisonedBy: attacker.factionId } as Unit;
+      current = writeUnitToState(current, updatedDefender);
+      poisonApplied = true;
+    }
+  }
+
   let contaminatedHexApplied = false;
   if (preview.result.defenderDestroyed && attackerDoctrine?.contaminateTerrainEnabled && canInflictPoison) {
     const contaminatedHexes = new Set(current.contaminatedHexes);
@@ -457,11 +551,29 @@ export function applyCombatAction(
     current = writeUnitToState(current, updatedAttacker);
   }
 
+  // Phase 3C — Synergy damage reflection (heavy_fortress, iron_turtle)
+  if (preview.details.damageReflection > 0 && preview.result.defenderDamage > 0 && updatedAttacker) {
+    const synergyReflectedDmg = Math.max(1, Math.floor(preview.result.defenderDamage * preview.details.damageReflection));
+    updatedAttacker = { ...updatedAttacker, hp: Math.max(0, updatedAttacker.hp - synergyReflectedDmg) };
+    current = writeUnitToState(current, updatedAttacker);
+    reflectionDamageApplied += synergyReflectedDmg;
+    baseResolution.synergyReflectionDamage = synergyReflectedDmg;
+  }
+
   updatedAttacker = current.units.get(preview.attackerId);
   if (preview.details.stampedeTriggered && updatedAttacker) {
     current = writeUnitToState(current, {
       ...updatedAttacker,
       movesRemaining: updatedAttacker.movesRemaining + 1,
+    });
+  }
+
+  // Phase 3A — Charge cooldown waived: grant an extra attack
+  updatedAttacker = current.units.get(preview.attackerId);
+  if (preview.details.chargeCooldownWaived && updatedAttacker && updatedAttacker.hp > 0) {
+    current = writeUnitToState(current, {
+      ...updatedAttacker,
+      attacksRemaining: Math.max(updatedAttacker.attacksRemaining, 1),
     });
   }
 
@@ -535,6 +647,29 @@ export function applyCombatAction(
     }
   }
 
+  // Phase 3C — Heavy regen: heal attacker for % of damage dealt
+  updatedAttacker = current.units.get(preview.attackerId);
+  if (preview.details.heavyRegenPercent > 0 && updatedAttacker && preview.result.defenderDamage > 0) {
+    const regenAmount = Math.floor(preview.result.defenderDamage * preview.details.heavyRegenPercent);
+    if (regenAmount > 0) {
+      current = writeUnitToState(current, {
+        ...updatedAttacker,
+        hp: Math.min(updatedAttacker.maxHp, updatedAttacker.hp + regenAmount),
+      });
+      baseResolution.heavyRegenApplied = regenAmount;
+    }
+  }
+
+  // Phase 3C — Slave healing: flat heal from slave synergy
+  updatedAttacker = current.units.get(preview.attackerId);
+  if (preview.details.slaveHealAmount > 0 && updatedAttacker && updatedAttacker.hp > 0) {
+    current = writeUnitToState(current, {
+      ...updatedAttacker,
+      hp: Math.min(updatedAttacker.maxHp, updatedAttacker.hp + preview.details.slaveHealAmount),
+    });
+    baseResolution.slaveHealApplied = preview.details.slaveHealAmount;
+  }
+
   updatedDefender = current.units.get(preview.defenderId);
   let sandstormTargetsHit = 0;
   if (preview.details.sandstormDamage > 0 && updatedDefender && !preview.result.defenderDestroyed && !retreatCaptured) {
@@ -556,6 +691,26 @@ export function applyCombatAction(
     current = { ...current, units: sandstormUnits };
   }
 
+  // Phase 3C — Synergy AoE damage (multiplier_stack, etc.)
+  updatedDefender = current.units.get(preview.defenderId);
+  if (preview.details.aoeDamage > 0 && updatedDefender && !preview.result.defenderDestroyed && !retreatCaptured) {
+    const aoeUnits = new Map(current.units);
+    let aoeHit = 0;
+    for (const adjHex of getNeighbors(updatedDefender.position)) {
+      const adjUnitId = getUnitAtHex(current, adjHex);
+      if (!adjUnitId) continue;
+      const adjUnit = aoeUnits.get(adjUnitId);
+      if (adjUnit && adjUnit.factionId !== attacker.factionId && adjUnit.hp > 0) {
+        aoeUnits.set(adjUnitId, { ...adjUnit, hp: Math.max(0, adjUnit.hp - preview.details.aoeDamage) });
+        aoeHit++;
+      }
+    }
+    if (aoeHit > 0) {
+      current = { ...current, units: aoeUnits };
+      baseResolution.aoeTargetsHit = aoeHit;
+    }
+  }
+
   updatedDefender = current.units.get(preview.defenderId);
   if (preview.details.contaminateActive && updatedDefender && !preview.result.defenderDestroyed && !retreatCaptured) {
     const contaminatedHexes = new Set(current.contaminatedHexes);
@@ -575,6 +730,111 @@ export function applyCombatAction(
       frostbiteDoTDuration: 3,
       movesRemaining: Math.max(0, updatedDefender.movesRemaining - preview.details.frostbiteSlow),
     });
+  }
+
+  // Phase 3A — Stun: reduce defender moves for N turns
+  updatedDefender = current.units.get(preview.defenderId);
+  if (preview.details.stunDuration > 0 && updatedDefender && !preview.result.defenderDestroyed && updatedDefender.hp > 0) {
+    current = writeUnitToState(current, {
+      ...updatedDefender,
+      stunDuration: preview.details.stunDuration,
+      movesRemaining: 0,
+    });
+    baseResolution.stunApplied = preview.details.stunDuration;
+  }
+
+  // Phase 3A — Formation Crush: apply crush stacks to defender
+  if (preview.details.formationCrushStacks > 0 && updatedDefender && !preview.result.defenderDestroyed && updatedDefender.hp > 0) {
+    current = writeUnitToState(current, {
+      ...updatedDefender,
+      formationCrushStacks: (updatedDefender.formationCrushStacks ?? 0) + preview.details.formationCrushStacks,
+    });
+    baseResolution.formationCrushApplied = preview.details.formationCrushStacks;
+  }
+
+  // Phase 3C — Sandstorm aura: accuracy debuff on adjacent enemies
+  updatedDefender = current.units.get(preview.defenderId);
+  if (preview.details.sandstormAuraRadius > 0 && updatedDefender && !preview.result.defenderDestroyed && updatedDefender.hp > 0) {
+    const auraUnits = new Map(current.units);
+    for (const adjHex of getNeighbors(updatedDefender.position)) {
+      const adjUnitId = getUnitAtHex(current, adjHex);
+      if (!adjUnitId) continue;
+      const adjUnit = auraUnits.get(adjUnitId);
+      if (adjUnit && adjUnit.factionId !== attacker.factionId && adjUnit.hp > 0) {
+        auraUnits.set(adjUnitId, {
+          ...adjUnit,
+          accuracyDebuff: (adjUnit.accuracyDebuff ?? 0) + preview.details.sandstormAuraDebuff,
+        });
+      }
+    }
+    current = { ...current, units: auraUnits };
+  }
+
+  // Phase 3A — Lethal Ambush poison: splash poison to adjacent enemies on instant kill
+  if (baseResolution.instantKillTriggered && preview.details.lethalAmbushPoison > 0) {
+    const poisonUnits = new Map(current.units);
+    for (const adjHex of getNeighbors(defender.position)) {
+      const adjUnitId = getUnitAtHex(current, adjHex);
+      if (!adjUnitId) continue;
+      const adjUnit = poisonUnits.get(adjUnitId);
+      if (adjUnit && adjUnit.factionId !== attacker.factionId && adjUnit.hp > 0) {
+        poisonUnits.set(adjUnitId, applyPoisonDoT(
+          { ...adjUnit, poisonedBy: attacker.factionId } as Unit,
+          preview.details.lethalAmbushPoison, 1, 3,
+        ));
+      }
+    }
+    current = { ...current, units: poisonUnits };
+  }
+
+  // Phase 3C — Withering reduction: apply debuff to defender's healing
+  if (preview.details.witheringReduction > 0 && updatedDefender && !preview.result.defenderDestroyed && updatedDefender.hp > 0) {
+    current = writeUnitToState(current, {
+      ...updatedDefender,
+      witherReduction: preview.details.witheringReduction,
+    });
+  }
+
+  // Phase 3C — Slave Army: buff nearby allied units with damage bonus / defense penalty
+  updatedAttacker = current.units.get(preview.attackerId);
+  if (updatedAttacker && (preview.details.slaveArmyDamageBonus > 0 || preview.details.slaveArmyDefensePenalty > 0)) {
+    const armyUnits = new Map(current.units);
+    for (const adjHex of getNeighbors(updatedAttacker.position)) {
+      const adjUnitId = getUnitAtHex(current, adjHex);
+      if (!adjUnitId) continue;
+      const adjUnit = armyUnits.get(adjUnitId);
+      if (adjUnit && adjUnit.factionId === attacker.factionId && adjUnit.hp > 0) {
+        armyUnits.set(adjUnitId, {
+          ...adjUnit,
+          slaveArmyDamageBonus: (adjUnit.slaveArmyDamageBonus ?? 0) + preview.details.slaveArmyDamageBonus,
+          slaveArmyDefensePenalty: (adjUnit.slaveArmyDefensePenalty ?? 0) + preview.details.slaveArmyDefensePenalty,
+        });
+      }
+    }
+    current = { ...current, units: armyUnits };
+  }
+
+  // Phase 3B — Capture aftermath: apply poison and modifiers to captured units
+  if (capturedOnKill) {
+    const capturedUnit = current.units.get(preview.defenderId);
+    if (capturedUnit && capturedUnit.hp > 0) {
+      let updated = { ...capturedUnit };
+      if (preview.details.capturePoisonDamage > 0) {
+        updated = applyPoisonDoT(updated, preview.details.capturePoisonStacks > 0 ? preview.details.capturePoisonStacks : 1, preview.details.capturePoisonDamage, 3);
+        updated = { ...updated, poisonedBy: attacker.factionId } as Unit;
+      }
+      if (preview.details.slaveDamageBonus > 0) {
+        updated = { ...updated, slaveDamageBonus: preview.details.slaveDamageBonus };
+      }
+      if (preview.details.slaveHealPenalty > 0) {
+        updated = { ...updated, slaveHealPenalty: preview.details.slaveHealPenalty };
+      }
+      if (preview.details.captureEscapePrevented) {
+        updated = { ...updated, captureEscapePrevented: true };
+        baseResolution.captureEscapePrevented = true;
+      }
+      current = writeUnitToState(current, updated);
+    }
   }
 
   updatedDefender = current.units.get(preview.defenderId);
@@ -621,6 +881,27 @@ export function applyCombatAction(
   if (baseResolution.emergentSustainMinHpSaved) {
     pushCombatEffect(triggeredEffects, 'Undying Will', `Attacker survived a lethal blow at ${preview.details.emergentSustainMinHp} HP.`, 'aftermath');
   }
+  if (baseResolution.instantKillTriggered) {
+    pushCombatEffect(triggeredEffects, 'Lethal Ambush', 'Synergy enabled an instant kill bypassing all defenses.', 'synergy');
+  }
+  if (baseResolution.stunApplied > 0) {
+    pushCombatEffect(triggeredEffects, 'Stun', `Synergy stunned the defender for ${baseResolution.stunApplied} turn(s).`, 'synergy');
+  }
+  if (baseResolution.formationCrushApplied > 0) {
+    pushCombatEffect(triggeredEffects, 'Formation Crush', `Synergy applied ${baseResolution.formationCrushApplied} crush stack(s).`, 'synergy');
+  }
+  if (baseResolution.synergyReflectionDamage > 0) {
+    pushCombatEffect(triggeredEffects, 'Synergy Reflection', `Synergy reflected ${baseResolution.synergyReflectionDamage} damage.`, 'synergy');
+  }
+  if (baseResolution.aoeTargetsHit > 0) {
+    pushCombatEffect(triggeredEffects, 'Synergy AoE', `Area damage hit ${baseResolution.aoeTargetsHit} unit(s).`, 'synergy');
+  }
+  if (baseResolution.heavyRegenApplied > 0) {
+    pushCombatEffect(triggeredEffects, 'Heavy Regeneration', `Synergy regenerated ${baseResolution.heavyRegenApplied} HP.`, 'synergy');
+  }
+  if (baseResolution.slaveHealApplied > 0) {
+    pushCombatEffect(triggeredEffects, 'Slave Healing', `Synergy healed ${baseResolution.slaveHealApplied} HP.`, 'synergy');
+  }
 
   feedback = {
     ...feedback,
@@ -641,6 +922,15 @@ export function applyCombatAction(
       pursuitDamageApplied,
       emergentSustainHealApplied: baseResolution.emergentSustainHealApplied,
       emergentSustainMinHpSaved: baseResolution.emergentSustainMinHpSaved,
+      instantKillTriggered: baseResolution.instantKillTriggered,
+      stunApplied: baseResolution.stunApplied,
+      formationCrushApplied: baseResolution.formationCrushApplied,
+      synergyReflectionDamage: baseResolution.synergyReflectionDamage,
+      aoeTargetsHit: baseResolution.aoeTargetsHit,
+      heavyRegenApplied: baseResolution.heavyRegenApplied,
+      slaveHealApplied: baseResolution.slaveHealApplied,
+      captureEscapePrevented: baseResolution.captureEscapePrevented,
+      synergyCaptureBonus: baseResolution.synergyCaptureBonus,
     },
   };
 

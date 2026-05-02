@@ -64,7 +64,7 @@
     "baseDefense": 1,
     "movementClass": "naval",
     "supplyCost": 1.25,
-    "tags": ["naval", "amphibious"],
+    "tags": ["naval"],
     "tier": "mid",
     "minLearnedDomains": 2,
     "capabilityPressure": {
@@ -271,7 +271,7 @@
     "baseRange": 3,
     "movementClass": "naval",
     "supplyCost": 1.5,
-    "tags": ["naval", "amphibious", "ranged", "skirmish"],
+    "tags": ["naval", "ranged", "skirmish"],
     "tier": "mid",
     "minLearnedDomains": 2,
     "capabilityPressure": {
