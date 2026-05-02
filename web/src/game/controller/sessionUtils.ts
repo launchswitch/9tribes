@@ -73,7 +73,14 @@ export function getFortBuildEligibility(
   const faction = state.factions.get(unit.factionId);
   const research = state.research.get(unit.factionId as never);
   const doctrine = faction ? resolveCapabilityDoctrine(research, faction) : undefined;
-  if (!faction || faction.id !== 'hill_clan' || !doctrine?.canBuildFieldForts) {
+  const prototype = state.prototypes.get(unit.prototypeId as never);
+  const isEngineer = prototype?.tags?.includes('engineer') ?? false;
+
+  if (!faction || faction.id !== 'hill_clan') {
+    return { canBuild: false, defenseBonus: 0 };
+  }
+
+  if (!doctrine?.canBuildFieldForts && !isEngineer) {
     return { canBuild: false, defenseBonus: 0 };
   }
 
@@ -81,7 +88,6 @@ export function getFortBuildEligibility(
     return { canBuild: false, defenseBonus: 0 };
   }
 
-  const prototype = state.prototypes.get(unit.prototypeId as never);
   if (!prototype) {
     return { canBuild: false, defenseBonus: 0 };
   }
@@ -124,6 +130,55 @@ export function buildFortAtUnit(
     movesRemaining: 0,
     attacksRemaining: 0,
     status: 'fortified' as const,
+  });
+
+  return {
+    ...state,
+    improvements,
+    units,
+  };
+}
+
+export function getFortDestroyEligibility(
+  state: GameState,
+  unit: Unit,
+): { canDestroy: boolean; fortId: string | null } {
+  const faction = state.factions.get(unit.factionId);
+  if (!faction || faction.id !== 'hill_clan') {
+    return { canDestroy: false, fortId: null };
+  }
+
+  const prototype = state.prototypes.get(unit.prototypeId as never);
+  if (!prototype?.tags?.includes('engineer')) {
+    return { canDestroy: false, fortId: null };
+  }
+
+  if (unit.hp <= 0 || unit.status !== 'ready' || unit.movesRemaining !== unit.maxMoves) {
+    return { canDestroy: false, fortId: null };
+  }
+
+  const improvement = getImprovementAtHex(state, unit.position);
+  if (!improvement) {
+    return { canDestroy: false, fortId: null };
+  }
+
+  return { canDestroy: true, fortId: improvement.id as string };
+}
+
+export function destroyFortAtUnit(
+  state: GameState,
+  unit: Unit,
+  fortId: string,
+): GameState {
+  const improvements = new Map(state.improvements);
+  improvements.delete(fortId as never);
+
+  const units = new Map(state.units);
+  units.set(unit.id, {
+    ...unit,
+    movesRemaining: 0,
+    attacksRemaining: 0,
+    status: 'spent' as const,
   });
 
   return {

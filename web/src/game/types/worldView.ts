@@ -73,6 +73,10 @@ export type UnitView = {
   supplyCost?: number;
   isPrototype?: boolean;
   summonTurnsRemaining?: number;
+  canSummon?: boolean;
+  summonName?: string;
+  summonBlockedReason?: string;
+  isEngineer?: boolean;
 };
 
 export type CityView = {

@@ -12,9 +12,9 @@
     "summon": {
       "chassisId": "polar_bear_frame",
       "terrainTypes": ["tundra"],
-      "hp": 25,
-      "attack": 7,
-      "defense": 3,
+      "hp": 30,
+      "attack": 9,
+      "defense": 4,
       "moves": 3,
       "tags": ["beast", "summon", "frost"],
       "name": "Polar Bear"
@@ -26,9 +26,9 @@
     "summon": {
       "chassisId": "siege_golem_frame",
       "terrainTypes": ["hill", "city"],
-      "hp": 22,
-      "attack": 6,
-      "defense": 5,
+      "hp": 28,
+      "attack": 8,
+      "defense": 7,
       "moves": 2,
       "tags": ["beast", "summon", "siege", "fortress"],
       "name": "Siege Golem"
@@ -41,9 +41,9 @@
     "summon": {
       "chassisId": "serpent_frame",
       "terrainTypes": ["jungle"],
-      "hp": 18,
-      "attack": 5,
-      "defense": 2,
+      "hp": 24,
+      "attack": 8,
+      "defense": 3,
       "moves": 3,
       "tags": ["beast", "summon", "jungle", "poison"],
       "name": "Serpent God"
@@ -57,10 +57,10 @@
     "summon": {
       "chassisId": "warlord_frame",
       "terrainTypes": ["plains", "savannah"],
-      "hp": 20,
-      "attack": 5,
-      "defense": 3,
-      "moves": 3,
+      "hp": 25,
+      "attack": 8,
+      "defense": 4,
+      "moves": 4,
       "tags": ["cavalry", "mounted", "warlord", "summon", "aura"],
       "name": "Warlord"
     },
@@ -83,9 +83,9 @@
     "summon": {
       "chassisId": "alligator_frame",
       "terrainTypes": ["river", "jungle", "swamp"],
-      "hp": 15,
-      "attack": 5,
-      "defense": 2,
+      "hp": 22,
+      "attack": 7,
+      "defense": 3,
       "moves": 3,
       "tags": ["beast", "summon", "river"],
       "name": "Ancient Alligator"

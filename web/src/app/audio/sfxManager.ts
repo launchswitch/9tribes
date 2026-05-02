@@ -36,6 +36,7 @@ type AudioSnapshot = {
   lastSacrificeKey: string | null;
   lastLearnedDomainKey: string | null;
   lastResearchCompletionKey: string | null;
+  lastSummonKey: string | null;
   hitAndRunRetreatKey: string | null;
   absorbedDomainsKey: string | null;
   suppressedVillageLossIds: Set<string>;
@@ -229,6 +230,9 @@ function buildAudioSnapshot(state: ClientState): AudioSnapshot | null {
     lastResearchCompletionKey: state.playFeedback.lastResearchCompletion
       ? `${state.playFeedback.lastResearchCompletion.nodeId}:${state.playFeedback.lastResearchCompletion.tier}`
       : null,
+    lastSummonKey: state.playFeedback.lastSummon
+      ? `${state.playFeedback.lastSummon.summonName}:${state.playFeedback.lastSummon.factionId}`
+      : null,
     hitAndRunRetreatKey: state.playFeedback.hitAndRunRetreat
       ? `${state.playFeedback.hitAndRunRetreat.unitId}:${state.playFeedback.hitAndRunRetreat.to.q},${state.playFeedback.hitAndRunRetreat.to.r}`
       : null,
@@ -292,6 +296,10 @@ export function playSessionDeltaSounds(prevState: ClientState | null, nextState:
 
   if (next.lastResearchCompletionKey && next.lastResearchCompletionKey !== prev.lastResearchCompletionKey) {
     playSound('research_tier');
+  }
+
+  if (next.lastSummonKey && next.lastSummonKey !== prev.lastSummonKey) {
+    playSound('priest_spell');
   }
 
   if (next.hitAndRunRetreatKey && next.hitAndRunRetreatKey !== prev.hitAndRunRetreatKey) {

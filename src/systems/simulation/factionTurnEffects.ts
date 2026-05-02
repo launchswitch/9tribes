@@ -287,14 +287,14 @@ function chooseBestChassis(
   return null;
 }
 
-function applySummonAbility(
+export function tickSummonState(
   state: GameState,
   factionId: FactionId,
   registry: RulesRegistry,
   trace?: SimulationTrace
 ): GameState {
   const faction = state.factions.get(factionId);
-  if (!faction || !state.map) return state;
+  if (!faction) return state;
 
   const abilities = registry.getSignatureAbility(factionId);
   if (!abilities) return state;
@@ -302,16 +302,13 @@ function applySummonAbility(
   const summonConfig = abilities.summon;
   if (!summonConfig) return state;
 
-const summonDuration = abilities.summonDuration ?? 5;
+  const summonDuration = abilities.summonDuration ?? 5;
   const cooldownDuration = abilities.cooldownDuration ?? 5;
-
-  const hasSummonedBefore = faction.summonState?.summoned === true;
-  const initialCooldown = hasSummonedBefore ? 0 : 4;
 
   let summonState = faction.summonState ?? {
     summoned: false,
     turnsRemaining: 0,
-    cooldownRemaining: initialCooldown,
+    cooldownRemaining: 4,
     unitId: null,
   };
 
@@ -347,114 +344,6 @@ const summonDuration = abilities.summonDuration ?? 5;
       ...summonState,
       cooldownRemaining: summonState.cooldownRemaining - 1,
     };
-  }
-  else {
-    let validUnit: Unit | null = null;
-    const neededTags = new Set(['cavalry', 'beast', 'frost', 'river', 'poison', 'jungle', 'fortress', 'siege']);
-    for (const unitId of faction.unitIds) {
-      const unit = state.units.get(unitId);
-      if (unit && unit.hp > 0) {
-        const terrainId = getTerrainAt(state, unit.position);
-        if (summonConfig.terrainTypes.includes(terrainId)) {
-          const prototype = state.prototypes.get(unit.prototypeId);
-          const unitTags = new Set(prototype?.tags ?? []);
-          const hasNeededTag = [...neededTags].some(tag => unitTags.has(tag));
-          if (prototype && hasNeededTag) {
-            validUnit = unit;
-            break;
-          }
-        }
-      }
-    }
-
-    if (validUnit) {
-      const neighbors = getNeighbors(validUnit.position);
-      let spawnHex: HexCoord | null = null;
-
-      for (const hex of neighbors) {
-        const tile = state.map.tiles.get(hexToKey(hex));
-        if (!tile) continue;
-        const terrainDef = registry.getTerrain(tile.terrain);
-        if (terrainDef?.passable === false) continue;
-        if (isHexOccupied(state, hex)) continue;
-        spawnHex = hex;
-        break;
-      }
-
-      if (spawnHex) {
-        const prototypeId = `${factionId}_${summonConfig.chassisId}` as PrototypeId;
-        if (!state.prototypes.has(prototypeId)) {
-          const summonPrototype: Prototype = {
-            id: prototypeId,
-            factionId: factionId,
-            chassisId: summonConfig.chassisId as ChassisId,
-            componentIds: [],
-            version: 1,
-            name: summonConfig.name,
-            derivedStats: {
-              attack: summonConfig.attack,
-              defense: summonConfig.defense,
-              hp: summonConfig.hp,
-              moves: summonConfig.moves,
-              range: 1,
-              role: 'melee',
-            },
-            tags: summonConfig.tags,
-          };
-          const prototypes = new Map(state.prototypes);
-          prototypes.set(prototypeId, summonPrototype);
-          state = { ...state, prototypes };
-        }
-
-        const summonUnitId = createUnitId() as UnitId;
-        const summonUnit: Unit = {
-          id: summonUnitId,
-          factionId: factionId,
-          position: spawnHex,
-          facing: 0,
-          hp: summonConfig.hp,
-          maxHp: summonConfig.hp,
-          movesRemaining: summonConfig.moves,
-          maxMoves: summonConfig.moves,
-          attacksRemaining: 1,
-          xp: 0,
-          veteranLevel: 'green' as VeteranLevel,
-          status: 'ready' as UnitStatus,
-          prototypeId: prototypeId,
-          history: [],
-          morale: 100,
-          routed: false,
-          poisoned: false,
-          enteredZoCThisActivation: false,
-          poisonStacks: 0,
-          poisonTurnsRemaining: 0,
-          isStealthed: false,
-          turnsSinceStealthBreak: 0,
-          learnedAbilities: [],
-        };
-
-        const units = new Map(state.units);
-        units.set(summonUnitId, summonUnit);
-
-        summonState = {
-          summoned: true,
-          turnsRemaining: summonDuration,
-          cooldownRemaining: 0,
-          unitId: summonUnitId,
-        };
-
-        const updatedFaction = {
-          ...faction,
-          unitIds: [...faction.unitIds, summonUnitId],
-          summonState,
-        };
-        const factions = new Map(state.factions);
-        factions.set(factionId, updatedFaction);
-
-        log(trace, `${faction.name} summoned a ${summonConfig.name} at ${JSON.stringify(spawnHex)}`);
-        return { ...state, units, factions };
-      }
-    }
   }
 
   if (faction.summonState !== summonState) {
@@ -712,7 +601,7 @@ export function processFactionPhases(
 
   const factionAbilities = registry.getSignatureAbility(factionId);
   if (factionAbilities?.summon) {
-    current = applySummonAbility(current, factionId, registry, trace);
+    current = tickSummonState(current, factionId, registry, trace);
   }
 
   current = applyWarlordAura(current, factionId, registry, trace);

@@ -253,7 +253,9 @@ function KnowledgeGainedShellContent({
           controller.dispatch({ type: 'set_targeting_mode', mode })
         }
         onBuildFort={(unitId) => controller.dispatch({ type: 'build_fort', unitId })}
+        onDestroyFort={(unitId) => controller.dispatch({ type: 'destroy_fort', unitId })}
         onBuildCity={(unitId) => controller.dispatch({ type: 'build_city', unitId })}
+        onSummon={(unitId) => controller.dispatch({ type: 'summon_unit', unitId })}
       />
 
       {turnBannerData ? (

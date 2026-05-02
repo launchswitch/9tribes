@@ -136,6 +136,46 @@ export function scoreForceProjectionValue(
   return score;
 }
 
+/**
+ * Score a prototype's value as a priest/summoner unit.
+ * Priests enable the faction's most powerful unit (the summon), so they warrant
+ * a dedicated bonus proportional to summon readiness and difficulty weight.
+ * Returns 0 if the prototype is not a priest or the faction has no summon ability.
+ */
+function scorePriestSummonValue(
+  state: GameState,
+  factionId: FactionId,
+  prototype: NonNullable<GameState['prototypes'] extends Map<any, infer P> ? P : never>,
+  registry: RulesRegistry,
+  weight: number,
+): number {
+  if (weight <= 0) return 0;
+  const tags = prototype.tags ?? [];
+  if (!tags.includes('priest') && !tags.includes('engineer')) return 0;
+
+  const abilities = registry.getSignatureAbility(factionId);
+  if (!abilities?.summon) return 0;
+
+  // Don't build a second priest while the first is alive
+  const existingPriest = Array.from(state.units.values()).find((u) => {
+    if (u.factionId !== factionId || u.hp <= 0) return false;
+    const proto = state.prototypes.get(u.prototypeId);
+    return proto?.tags?.includes('priest') || proto?.tags?.includes('engineer');
+  });
+  if (existingPriest) return 0;
+
+  const summonState = state.factions.get(factionId)?.summonState;
+
+  // Biggest bonus when summon is off cooldown and ready to use immediately
+  if (!summonState || summonState.cooldownRemaining === 0) return weight * 1.5;
+
+  // Moderate bonus when summon is active (need priest ready for next cooldown cycle)
+  if (summonState.summoned) return weight * 0.8;
+
+  // Standard bonus while cooldown is counting down
+  return weight;
+}
+
 export function rankProductionPriorities(
   state: GameState,
   factionId: FactionId,
@@ -290,6 +330,13 @@ export function rankProductionPriorities(
           productionCost: totalCost,
         },
       );
+      const priestScore = scorePriestSummonValue(
+        state,
+        factionId,
+        prototype,
+        registry,
+        difficultyProfile.production.priestSummonWeight,
+      );
       const score =
         postureScore +
         enemyCounterPressure +
@@ -307,7 +354,8 @@ export function rankProductionPriorities(
         aggressiveFillScore +
         armySizePressure +
         qualityLagScore +
-        forceProjectionScore -
+        forceProjectionScore +
+        priestScore -
         productionCostPenalty -
         supplyCostPenalty -
         projectedDeficitPenalty;

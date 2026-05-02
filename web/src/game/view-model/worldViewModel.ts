@@ -13,6 +13,7 @@ import { SIEGE_CONFIG } from '../../../../src/systems/siegeSystem.js';
 import { getVictoryStatus } from '../../../../src/systems/warEcologySimulation.js';
 import { getHexOwner } from '../../../../src/systems/territorySystem.js';
 import { canBoardTransport, getUnitTransport, getValidDisembarkHexes } from '../../../../src/systems/transportSystem.js';
+import { canPriestSummon } from '../../../../src/systems/signatureAbilitySystem.js';
 import { calculateProductionPenalty, calculateMoralePenalty } from '../../../../src/systems/warExhaustionSystem.js';
 import { getSpriteKeyForUnit, getSpriteKeyForImprovement, inferChassisId } from './spriteKeys.js';
 import { buildCityInspectorViewModel, buildSettlementPreview } from './inspectors/cityInspectorViewModel.js';
@@ -249,8 +250,19 @@ function buildPlayWorldViewModel(source: PlayWorldSource): WorldViewModel {
         routed: unit.routed || undefined,
         preparedAbility: unit.preparedAbility,
         isSettler: prototype?.tags?.includes('settler') || undefined,
+        isEngineer: prototype?.tags?.includes('engineer') || undefined,
         canBrace: canBrace || undefined,
         canAmbush: canAmbush || undefined,
+        ...(() => {
+          const isPriestOrEngineer = prototype?.tags?.includes('priest') || prototype?.tags?.includes('engineer');
+          if (!isPriestOrEngineer) return {};
+          const check = canPriestSummon(state, unit, source.registry);
+          return {
+            canSummon: check.canSummon || undefined,
+            summonName: check.summonName ?? undefined,
+            summonBlockedReason: check.blockedReason ?? undefined,
+          };
+        })(),
         isEmbarked: unitTransport !== undefined || undefined,
         transportId: unitTransport?.transportId ?? null,
         boardableTransportIds: boardableTransportIds.length > 0 ? boardableTransportIds : undefined,

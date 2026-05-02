@@ -5,7 +5,9 @@ type CommandTrayProps = {
   onEndTurn: () => void;
   onSetTargetingMode: (mode: 'move' | 'attack') => void;
   onBuildFort?: (unitId: string) => void;
+  onDestroyFort?: (unitId: string) => void;
   onBuildCity?: (unitId: string) => void;
+  onSummon?: (unitId: string) => void;
 };
 
 function formatDomainName(domainId: string): string {
@@ -15,7 +17,7 @@ function formatDomainName(domainId: string): string {
     .join(' ');
 }
 
-export function CommandTray({ state, onEndTurn, onSetTargetingMode, onBuildFort, onBuildCity }: CommandTrayProps) {
+export function CommandTray({ state, onEndTurn, onSetTargetingMode, onBuildFort, onDestroyFort, onBuildCity, onSummon }: CommandTrayProps) {
   const selectedUnitId = state.selected?.type === 'unit' ? state.selected.unitId : state.actions.selectedUnitId;
   const selectedUnit = selectedUnitId
     ? state.world.units.find((u) => u.id === selectedUnitId)
@@ -29,12 +31,17 @@ export function CommandTray({ state, onEndTurn, onSetTargetingMode, onBuildFort,
     if (selectedUnit.movesRemaining !== selectedUnit.movesMax) return false;
 
     const faction = state.world.factions.find((f) => f.id === selectedUnit.factionId);
-    if (!faction || faction.id !== 'hill_clan' || faction.nativeDomain !== 'fortress') return false;
+    if (!faction || faction.id !== 'hill_clan') return false;
 
-    const canBuildFieldForts = state.research?.nodes.some(
-      (node) => node.nodeId === 'fortress_t2' && node.state === 'completed',
-    ) ?? false;
-    if (!canBuildFieldForts) return false;
+    // Engineers can always build forts; other hill units need fortress_t2
+    if (!selectedUnit.isEngineer && faction.nativeDomain !== 'fortress') return false;
+
+    if (!selectedUnit.isEngineer) {
+      const canBuildFieldForts = state.research?.nodes.some(
+        (node) => node.nodeId === 'fortress_t2' && node.state === 'completed',
+      ) ?? false;
+      if (!canBuildFieldForts) return false;
+    }
 
     const hasFort = state.world.improvements.some(
       (improvement) => improvement.q === selectedUnit.q && improvement.r === selectedUnit.r,
@@ -42,6 +49,21 @@ export function CommandTray({ state, onEndTurn, onSetTargetingMode, onBuildFort,
     if (hasFort) return false;
 
     return selectedUnit.movementClass === 'infantry' || selectedUnit.role === 'ranged';
+  })();
+
+  const canDestroyFort = (() => {
+    if (!selectedUnit) return false;
+    if (!selectedUnit.isActiveFaction) return false;
+    if (!selectedUnit.isEngineer) return false;
+    if (selectedUnit.movesRemaining !== selectedUnit.movesMax) return false;
+
+    const faction = state.world.factions.find((f) => f.id === selectedUnit.factionId);
+    if (!faction || faction.id !== 'hill_clan') return false;
+
+    const hasFort = state.world.improvements.some(
+      (improvement) => improvement.q === selectedUnit.q && improvement.r === selectedUnit.r,
+    );
+    return hasFort;
   })();
 
   const canBuildCity = (() => {
@@ -110,6 +132,15 @@ export function CommandTray({ state, onEndTurn, onSetTargetingMode, onBuildFort,
                 Build Fort
               </button>
             ) : null}
+            {canDestroyFort ? (
+              <button
+                type="button"
+                className="ct-mode-btn ct-mode-btn--danger"
+                onClick={() => onDestroyFort?.(selectedUnitId!)}
+              >
+                Destroy Fort
+              </button>
+            ) : null}
             {canBuildCity ? (
               <button
                 type="button"
@@ -118,6 +149,18 @@ export function CommandTray({ state, onEndTurn, onSetTargetingMode, onBuildFort,
               >
                 Build City
               </button>
+            ) : null}
+            {selectedUnit.canSummon ? (
+              <button
+                type="button"
+                className="ct-mode-btn"
+                onClick={() => onSummon?.(selectedUnitId!)}
+              >
+                Summon {selectedUnit.summonName ?? 'Creature'}
+              </button>
+            ) : null}
+            {!selectedUnit.canSummon && selectedUnit.summonName && selectedUnit.summonBlockedReason && selectedUnit.isActiveFaction ? (
+              <span className="ct-detail ct-summon-reason">{selectedUnit.summonBlockedReason}</span>
             ) : null}
           </>
         ) : null}

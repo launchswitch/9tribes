@@ -36,6 +36,7 @@ export interface AiDifficultyProfile {
     aggressiveFillMargin: number | null;
     aggressiveFillWeight: number;
     settlerVillageCost: number;
+    priestSummonWeight: number;
   };
   research: {
     stickyThreshold: number;
@@ -148,6 +149,7 @@ const EASY_PROFILE: AiDifficultyProfile = {
     aggressiveFillMargin: null,
     aggressiveFillWeight: 0,
     settlerVillageCost: 6,
+    priestSummonWeight: 0,
   },
   research: {
     stickyThreshold: 3,
@@ -260,6 +262,7 @@ const NORMAL_PROFILE: AiDifficultyProfile = {
     aggressiveFillMargin: 2,
     aggressiveFillWeight: 10,
     settlerVillageCost: 4,
+    priestSummonWeight: 12,
   },
   research: {
     stickyThreshold: 2.5,
@@ -372,6 +375,7 @@ const HARD_PROFILE: AiDifficultyProfile = {
     aggressiveFillMargin: 3,
     aggressiveFillWeight: 10,
     settlerVillageCost: 3,
+    priestSummonWeight: 20,
   },
   research: {
     stickyThreshold: 2.5,

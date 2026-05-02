@@ -148,6 +148,8 @@ export class GameController {
       case 'board_transport':
       case 'disembark_unit':
       case 'build_fort':
+      case 'destroy_fort':
+      case 'summon_unit':
         if (this.session) {
           this.clearQueueIfNeeded(action.unitId);
           this.session.dispatch(action);
@@ -370,6 +372,7 @@ export class GameController {
         difficulty: session.getDifficulty(),
         maxRounds: session.getMaxRounds(),
         absorbedDomains: [...feedback.absorbedDomains],
+        lastSummon: feedback.lastSummon ? { ...feedback.lastSummon } : null,
         aiProcessing: feedback.aiProcessing,
       },
       research: buildResearchInspectorViewModel(sessionState, session.getRegistry()),

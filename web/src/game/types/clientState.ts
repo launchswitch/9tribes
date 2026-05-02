@@ -261,6 +261,12 @@ export type PlayFeedbackState = {
   difficulty: DifficultyLevel;
   maxRounds: number;
   absorbedDomains: string[];
+  lastSummon:
+    | {
+        summonName: string;
+        factionId: string;
+      }
+    | null;
   aiProcessing: boolean;
 };
 
@@ -396,7 +402,9 @@ export type GameAction =
   | { type: 'board_transport'; unitId: string; transportId: string }
   | { type: 'disembark_unit'; unitId: string; transportId: string; destination: HexCoord }
   | { type: 'build_fort'; unitId: string }
+  | { type: 'destroy_fort'; unitId: string }
   | { type: 'build_city'; unitId: string }
+  | { type: 'summon_unit'; unitId: string }
   | { type: 'end_turn' }
   | { type: 'start_research'; nodeId: string }
   | { type: 'cancel_research' }

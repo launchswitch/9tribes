@@ -1,4 +1,4 @@
-import { hexDistance } from '../../core/grid.js';
+import { hexDistance, hexToKey } from '../../core/grid.js';
 import type { RulesRegistry } from '../../data/registry/types.js';
 import type { GameState, Unit } from '../../game/types.js';
 import type { HexCoord, UnitId } from '../../types.js';
@@ -21,6 +21,7 @@ import { isTransportUnit, updateEmbarkedPositions } from '../transportSystem.js'
 import { getUnitIntent } from '../strategicAi.js';
 import { computeRetreatRisk, shouldEngageTarget } from '../aiTactics.js';
 import { attemptNonCombatCapture, getCaptureParams, hasCaptureAbility } from '../captureSystem.js';
+import { canPriestSummon, attemptPriestSummon } from '../signatureAbilitySystem.js';
 import {
   log,
   recordCombatEvent,
@@ -68,6 +69,61 @@ export function maybeExpirePreparedAbility(unit: Unit, round: number, state: Gam
   }
 
   return unit;
+}
+
+/**
+ * Move a priest toward the nearest hex matching its faction's summon terrain types.
+ * Priority 1: if a reachable hex this turn is already valid terrain, move there and summon.
+ * Priority 2: move toward the nearest valid terrain on the map to set up for next turn.
+ * Returns updated state if a move was made, null otherwise.
+ */
+function movePriestTowardSummonTerrain(
+  state: GameState,
+  priest: Unit,
+  registry: RulesRegistry,
+  map: NonNullable<GameState['map']>,
+): GameState | null {
+  const abilities = registry.getSignatureAbility(priest.factionId);
+  const terrainTypes = abilities?.summon?.terrainTypes;
+  if (!terrainTypes || terrainTypes.length === 0) return null;
+  if (priest.movesRemaining <= 0) return null;
+
+  const validMoves = getValidMoves(state, priest.id, map, registry);
+  if (validMoves.length === 0) return null;
+
+  // Priority 1: a reachable hex is already valid summon terrain — move there immediately
+  for (const move of validMoves) {
+    const tile = map.tiles.get(hexToKey(move));
+    if (tile && terrainTypes.includes(tile.terrain)) {
+      return moveUnit(state, priest.id, move, map, registry);
+    }
+  }
+
+  // Priority 2: move toward the nearest valid terrain hex on the map
+  let nearestSummonHex: HexCoord | null = null;
+  let minDist = Infinity;
+  for (const tile of map.tiles.values()) {
+    if (terrainTypes.includes(tile.terrain)) {
+      const d = hexDistance(priest.position, tile.position);
+      if (d < minDist) {
+        minDist = d;
+        nearestSummonHex = tile.position;
+      }
+    }
+  }
+  if (!nearestSummonHex) return null;
+
+  let bestMove: HexCoord | null = null;
+  let bestDist = hexDistance(priest.position, nearestSummonHex);
+  for (const move of validMoves) {
+    const d = hexDistance(move, nearestSummonHex);
+    if (d < bestDist) {
+      bestDist = d;
+      bestMove = move;
+    }
+  }
+  if (!bestMove) return null;
+  return moveUnit(state, priest.id, bestMove, map, registry);
 }
 
 export function activateUnit(
@@ -200,6 +256,36 @@ export function activateUnit(
       }
     }
     // Fall through to movement (performStrategicMovement at line 521)
+  }
+
+  // --- Priest summon: AI priests auto-summon when conditions are met ---
+  if (actingUnit.status === 'ready') {
+    const summonCheck = canPriestSummon(current, actingUnit, registry);
+    if (summonCheck.canSummon) {
+      const result = attemptPriestSummon(current, actingUnit, registry);
+      if (result) {
+        log(trace, `${faction.name} priest summoned ${summonCheck.summonName}`);
+        return { state: setUnitActivated(result, unitId), pendingCombat: null };
+      }
+    } else if (summonCheck.blockedReason?.startsWith('Must be on') && actingUnit.movesRemaining > 0 && map) {
+      // Wrong terrain — move toward nearest valid summon terrain to set up for this or next turn
+      const movedState = movePriestTowardSummonTerrain(current, actingUnit, registry, map);
+      if (movedState) {
+        current = movedState;
+        const priestAfterMove = current.units.get(unitId)!;
+        const checkAfterMove = canPriestSummon(current, priestAfterMove, registry);
+        if (checkAfterMove.canSummon) {
+          const result = attemptPriestSummon(current, priestAfterMove, registry);
+          if (result) {
+            log(trace, `${faction.name} priest moved and summoned ${checkAfterMove.summonName}`);
+            return { state: setUnitActivated(result, unitId), pendingCombat: null };
+          }
+        }
+        // Moved toward terrain but couldn't summon yet — end turn after move
+        log(trace, `${faction.name} priest moving toward summon terrain`);
+        return { state: setUnitActivated(current, unitId), pendingCombat: null };
+      }
+    }
   }
 
   if (actingUnit.preparedAbility === 'ambush' && hasAdjacentEnemy(current, actingUnit)) {

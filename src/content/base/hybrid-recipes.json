@@ -73,7 +73,8 @@
       "poison",
       "magic",
       "stealth",
-      "priest"
+      "priest",
+      "healing"
     ],
     "nativeFaction": "jungle_clan",
     "costOverride": 54
@@ -336,9 +337,31 @@
       "heavy_infantry",
       "cold",
       "endurance",
-      "priest"
+      "priest",
+      "healing"
     ],
     "nativeFaction": "frost_wardens",
     "costOverride": 54
+  },
+  "hill_engineer": {
+    "id": "hill_engineer",
+    "name": "Hill Engineer",
+    "chassisId": "infantry_frame",
+    "componentIds": [
+      "basic_spear",
+      "fortress_training",
+      "heavy_armor"
+    ],
+    "tier": "mid",
+    "minLearnedDomains": 2,
+    "tags": [
+      "infantry",
+      "fortress",
+      "priest",
+      "engineer",
+      "siege"
+    ],
+    "nativeFaction": "hill_clan",
+    "costOverride": 42
   }
 }

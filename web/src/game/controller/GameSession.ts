@@ -33,7 +33,7 @@ import { buildPendingCombat, type PendingCombat } from './combatSession.js';
 export type { PendingCombat } from './combatSession.js';
 import { clearMoveQueueOnUnit, executeQueuedMovesForUnit } from './moveQueueSession.js';
 import { buildReachableMoves } from './movementExplorer.js';
-import { refreshFogForAllFactions, updateSiegeState, getFortBuildEligibility, buildFortAtUnit, getPrototypeCost, getAiUnitIds, getPrototypeName, getActiveFactionName } from './sessionUtils.js';
+import { refreshFogForAllFactions, updateSiegeState, getFortBuildEligibility, buildFortAtUnit, getFortDestroyEligibility, destroyFortAtUnit, getPrototypeCost, getAiUnitIds, getPrototypeName, getActiveFactionName } from './sessionUtils.js';
 import type { GameAction } from '../types/clientState';
 import type { ReplayCombatEvent } from '../types/replay';
 import type { PlayStateSource, SerializedGameState } from '../types/playState';
@@ -43,6 +43,7 @@ import { runFactionPhase } from '../../../../src/systems/factionPhaseSystem.js';
 import { performSacrifice } from '../../../../src/systems/sacrificeSystem.js';
 import { createCitySiteBonuses, getSettlementOccupancyBlocker } from '../../../../src/systems/citySiteSystem.js';
 import { boardTransport, canBoardTransport, disembarkUnit, getUnitTransport } from '../../../../src/systems/transportSystem.js';
+import { canPriestSummon, attemptPriestSummon } from '../../../../src/systems/signatureAbilitySystem.js';
 import type { DifficultyLevel } from '../../../../src/systems/aiDifficulty.js';
 import type { MapGenerationMode } from '../../../../src/world/map/types.js';
 
@@ -103,6 +104,12 @@ type SessionFeedback = {
       }
     | null;
   absorbedDomains: string[];
+  lastSummon:
+    | {
+        summonName: string;
+        factionId: string;
+      }
+    | null;
   /** True while runAiUntilHumanTurn is actively processing AI factions (yielded to event loop) */
   aiProcessing: boolean;
 };
@@ -159,6 +166,7 @@ export class GameSession {
     hitAndRunRetreat: null,
     lastSettlerVillageSpend: null,
     absorbedDomains: [],
+    lastSummon: null,
     liveCombatEvents: [],
     aiProcessing: false,
   };
@@ -226,6 +234,7 @@ export class GameSession {
           }
         : null,
       absorbedDomains: [...this.feedback.absorbedDomains],
+      lastSummon: this.feedback.lastSummon ? { ...this.feedback.lastSummon } : null,
       aiProcessing: this.feedback.aiProcessing,
     };
   }
@@ -394,9 +403,17 @@ export class GameSession {
         this.takeUndoSnapshot();
         this.applyBuildFort(action.unitId);
         return;
+      case 'destroy_fort':
+        this.takeUndoSnapshot();
+        this.applyDestroyFort(action.unitId);
+        return;
       case 'build_city':
         this._undoSnapshot = null;
         this.applyBuildCity(action.unitId);
+        return;
+      case 'summon_unit':
+        this.takeUndoSnapshot();
+        this.applySummon(action.unitId);
         return;
       case 'undo':
         this.performUndo();
@@ -934,6 +951,44 @@ export class GameSession {
     this.feedback.lastMove = null;
     this.feedback.lastTurnChange = null;
     this.record('turn', `${getPrototypeName(this.state,unit.prototypeId)} built a field fort at ${unit.position.q},${unit.position.r}.`);
+  }
+
+  private applyDestroyFort(unitId: string) {
+    const unit = this.state.units.get(unitId as UnitId);
+    if (!unit || !this.state.activeFactionId || unit.factionId !== this.state.activeFactionId) {
+      return;
+    }
+
+    const destroyEligibility = getFortDestroyEligibility(this.state, unit);
+    if (!destroyEligibility.canDestroy || !destroyEligibility.fortId) {
+      return;
+    }
+
+    this.state = destroyFortAtUnit(this.state, unit, destroyEligibility.fortId);
+    this.feedback.lastMove = null;
+    this.feedback.lastTurnChange = null;
+    this.record('turn', `${getPrototypeName(this.state,unit.prototypeId)} destroyed a fort at ${unit.position.q},${unit.position.r}.`);
+  }
+
+  private applySummon(unitId: string) {
+    const unit = this.state.units.get(unitId as UnitId);
+    if (!unit || !this.state.activeFactionId || unit.factionId !== this.state.activeFactionId) {
+      return;
+    }
+
+    const check = canPriestSummon(this.state, unit, this.registry);
+    if (!check.canSummon) {
+      return;
+    }
+
+    const result = attemptPriestSummon(this.state, unit, this.registry);
+    if (!result) return;
+
+    this.state = result;
+    this.feedback.lastMove = null;
+    this.feedback.lastTurnChange = null;
+    this.feedback.lastSummon = { summonName: check.summonName ?? 'creature', factionId: unit.factionId };
+    this.record('turn', `${check.summonName ?? 'creature'} summoned by ${getPrototypeName(this.state, unit.prototypeId)} at ${unit.position.q},${unit.position.r}.`);
   }
 
   private applyBuildCity(unitId: string) {

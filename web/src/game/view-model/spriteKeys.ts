@@ -37,6 +37,8 @@ export function getSpriteKeyForUnit(factionId: string, prototypeName: string, ch
       'steppe_priest': 'steppe_priestess',
       // Hill
       'fortress_archer': 'hill_fortress_archer',
+      'hill_priest': 'hill_fortress',
+      'hill_engineer': 'hill_engineer',
       'catapult': 'hill_catapult',
       // Pirate
       'slaver': 'pirate_slaver',
