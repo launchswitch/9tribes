@@ -247,13 +247,13 @@ export function resolveCombat(
   const defenderRouted = !defenderDestroyed && defenderNewMorale <= MORALE_CONFIG.ROUT_THRESHOLD;
   const attackerRouted = !attackerDestroyed && attackerNewMorale <= MORALE_CONFIG.ROUT_THRESHOLD;
 
-  // 9b. Cavalry flee: mounted units route at 50% HP (can run away faster)
-  // Elephants flee at 35% HP — stubborn war animals but not invincible
+  // 9b. Cavalry flee: mounted units route at 25% HP (can run away faster)
+  // Elephants flee at 25% HP — stubborn war animals but not invincible
   const attackerMovementClass = registry.getChassis(attackerPrototype.chassisId)?.movementClass ?? 'infantry';
   const defenderIsElephant = defenderPrototype.tags?.includes('elephant') ?? false;
   const attackerIsElephant = attackerPrototype.tags?.includes('elephant') ?? false;
-  const defenderElephantFleeThreshold = defenderIsElephant ? 0.35 : 0.5;
-  const attackerElephantFleeThreshold = attackerIsElephant ? 0.35 : 0.5;
+  const defenderElephantFleeThreshold = defenderIsElephant ? 0.25 : 0.25;
+  const attackerElephantFleeThreshold = attackerIsElephant ? 0.25 : 0.25;
   const defenderIsSummoned = defenderPrototype.tags?.includes('summon') ?? false;
   const attackerIsSummoned = attackerPrototype.tags?.includes('summon') ?? false;
   const defenderFled = !defenderDestroyed && !defenderRouted && !defenderIsSummoned
