@@ -87,8 +87,8 @@
       "basic_bow",
       "fortress_training"
     ],
-    "tier": "mid",
-    "minLearnedDomains": 2,
+    "tier": "late",
+    "minLearnedDomains": 3,
     "tags": [
       "ranged",
       "fortress",
@@ -182,7 +182,7 @@
       "fortress_training"
     ],
     "tier": "late",
-    "minLearnedDomains": 3,
+    "minLearnedDomains": 4,
     "tags": [
       "ranged",
       "siege"
@@ -353,7 +353,7 @@
       "heavy_armor"
     ],
     "tier": "mid",
-    "minLearnedDomains": 2,
+    "minLearnedDomains": 4,
     "tags": [
       "infantry",
       "fortress",
