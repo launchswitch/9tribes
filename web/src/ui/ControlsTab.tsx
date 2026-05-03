@@ -19,7 +19,7 @@ export function ControlsTab() {
         <table className="controls-tab__table">
           <tbody>
             <tr><td><span className="controls-tab__mouse">Left click</span></td><td>Select hex or unit; fire ranged attack when targeting</td></tr>
-            <tr><td><span className="controls-tab__mouse">Double-click</span></td><td>Open city production panel</td></tr>
+            <tr><td><span className="controls-tab__mouse">Double-click unit in city</span></td><td>Select the city</td></tr>
             <tr><td><span className="controls-tab__mouse">Right click</span></td><td>Move unit; queue movement if beyond reach</td></tr>
             <tr><td><span className="controls-tab__mouse">Ctrl</span> + <span className="controls-tab__mouse">Right click</span></td><td>Inspect land tiles</td></tr>
           </tbody>

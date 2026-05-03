@@ -332,16 +332,15 @@ export class MapScene extends Phaser.Scene {
       return;
     }
 
-    const key = `${unit.q},${unit.r}`;
-
-    // Single left-click on any unit → open unit inspector side panel
+    // Double-click on unit in a city → select the city
     const city = this.findCityAtHex(state, unit.q, unit.r);
-    if (city) {
+    if (city && this.isDoubleClick(unitId)) {
       this.controller.dispatch({ type: 'select_city', cityId: city.id });
-    } else {
-      this.controller.dispatch({ type: 'select_unit', unitId });
+      return;
     }
-    return;
+
+    // Single left-click → select the unit (even when standing on a city)
+    this.controller.dispatch({ type: 'select_unit', unitId });
   }
 
   private handleCitySelection(state: ClientState, cityId: string, pointer?: Phaser.Input.Pointer) {
