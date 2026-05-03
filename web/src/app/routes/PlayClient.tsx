@@ -103,6 +103,9 @@ function createPlayController() {
   if (saveId && !saveRecord) {
     throw new Error('Requested save was not found in local storage.');
   }
+  // When loading a save, restore the faction the player was controlling; don't fall back to the
+  // URL default (which has no ?player= param and would hardcode 'steppe_clan').
+  const humanFactionId = saveRecord?.preview.playerFactionId ?? playerFactionId;
   const session = new GameSession(
     saveRecord
       ? { type: 'serialized', payload: saveRecord.payload }
@@ -117,7 +120,7 @@ function createPlayController() {
       : { type: 'serialized', payload: createCuratedPlaytestPayload() },
     undefined,
     {
-      humanControlledFactionIds: [playerFactionId],
+      humanControlledFactionIds: [humanFactionId],
       difficulty,
       maxRounds,
       mapMode,
